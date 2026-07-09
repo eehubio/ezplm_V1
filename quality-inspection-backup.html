@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 质检管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+        .main-content { padding: 32px; max-width: 1440px; margin: 0 auto; }
+        .page-header {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .content-section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 16px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+                            <!-- 处理方式选择 -->
+                            <div style="margin-bottom: 24px;">
+                                <div style="font-size: 16px; font-weight: 700; margin-bottom: 16px;">选择处理方式</div>
+                                <div style="display: grid; gap: 12px;">
+                                    <!-- 退货 -->
+                                    <div class="handling-option" data-option="return" onclick="selectHandlingOption('return')" style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.3s;">
+                                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #fff3e0; display: flex; align-items: center; justify-content: center; font-size: 24px;">↩️</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">退货处理</div>
+                                                <div style="font-size: 13px; color: #666; line-height: 1.5;">
+                                                    将不合格物料退回供应商，要求全额退款。适用于严重质量问题。
+                                                </div>
+                                                <div style="margin-top: 8px; font-size: 12px; color: #f57c00;">
+                                                    <strong>影响：</strong>需重新采购 | 可能延误项目进度 | 周期约7-14天
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 换货 -->
+                                    <div class="handling-option" data-option="replace" onclick="selectHandlingOption('replace')" style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.3s;">
+                                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #e3f2fd; display: flex; align-items: center; justify-content: center; font-size: 24px;">🔄</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">换货处理</div>
+                                                <div style="font-size: 13px; color: #666; line-height: 1.5;">
+                                                    要求供应商更换合格物料，保持原订单价格。适用于供应商有现货的情况。
+                                                </div>
+                                                <div style="margin-top: 8px; font-size: 12px; color: #1976d2;">
+                                                    <strong>影响：</strong>等待换货到货 | 相对较快 | 周期约3-7天
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 让步接收 -->
+                                    <div class="handling-option" data-option="concession" onclick="selectHandlingOption('concession')" style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.3s;">
+                                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #fff3e0; display: flex; align-items: center; justify-content: center; font-size: 24px;">⚖️</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">让步接收</div>
+                                                <div style="font-size: 13px; color: #666; line-height: 1.5;">
+                                                    质量问题较轻微，经评估后接收使用，要求供应商降价或补偿。
+                                                </div>
+                                                <div style="margin-top: 8px; font-size: 12px; color: #ff9800;">
+                                                    <strong>影响：</strong>立即可用 | 需要降价谈判 | 可能影响产品质量
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 返工 -->
+                                    <div class="handling-option" data-option="rework" onclick="selectHandlingOption('rework')" style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; cursor: pointer; transition: all 0.3s;">
+                                        <div style="display: flex; align-items: flex-start; gap: 16px;">
+                                            <div style="width: 48px; height: 48px; border-radius: 50%; background: #e8f5e9; display: flex; align-items: center; justify-content: center; font-size: 24px;">🔧</div>
+                                            <div style="flex: 1;">
+                                                <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">返工处理</div>
+                                                <div style="font-size: 13px; color: #666; line-height: 1.5;">
+                                                    缺陷可修复，要求供应商返工处理或由我方返工，费用协商。
+                                                </div>
+                                                <div style="margin-top: 8px; font-size: 12px; color: #00890b;">
+                                                    <strong>影响：</strong>返工周期 | 增加返工成本 | 周期约5-10天
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 备注说明 -->
+                            <div style="margin-bottom: 20px;">
+                                <label style="display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px;">备注说明</label>
+                                <textarea id="rejectionRemark" style="width: 100%; padding: 12px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-family: inherit; min-height: 80px;" placeholder="请详细说明不合格原因、处理要求等..."></textarea>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                            <button class="btn" style="background: #f0f0f0; color: #666; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                            <button class="btn btn-primary" id="confirmRejectionBtn" style="background: #00890b; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="confirmRejectionHandling(${projectId}, '${projectName}')">确认提交</button>
+                        </div>
+                    </div>
+                `;
+
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+
+                document.body.appendChild(modal);
+
+                // 添加选项选择样式
+                window.selectedHandlingOption = null;
+            }
+
+            function selectHandlingOption(option) {
+                // 移除所有选中状态
+                document.querySelectorAll('.handling-option').forEach(opt => {
+                    opt.style.border = '2px solid #e0e0e0';
+                    opt.style.background = 'white';
+                });
+
+                // 选中当前选项
+                const selectedElement = document.querySelector(`.handling-option[data-option="${option}"]`);
+                selectedElement.style.border = '2px solid #00890b';
+                selectedElement.style.background = 'rgba(0, 137, 11, 0.05)';
+
+                window.selectedHandlingOption = option;
+            }
+
+            function confirmRejectionHandling(projectId, projectName) {
+                const option = window.selectedHandlingOption;
+                const remark = document.getElementById('rejectionRemark').value;
+
+                if (!option) {
+                    alert('❌ 请选择处理方式');
+                    return;
+                }
+
+                const optionNames = {
+                    'return': '退货处理',
+                    'replace': '换货处理',
+                    'concession': '让步接收',
+                    'rework': '返工处理'
+                };
+
+                // 关闭当前对话框
+                document.querySelector('.modal-overlay').remove();
+
+                // 创建不合格处理单
+                const handlingId = 'NCR-' + Date.now();  // Non-Conformance Report
+                const handlingData = {
+                    id: handlingId,
+                    qcId: 'QC-2025-001',
+                    projectId: projectId,
+                    projectName: projectName,
+                    handlingType: option,
+                    handlingTypeName: optionNames[option],
+                    remark: remark,
+                    createdAt: new Date().toISOString(),
+                    status: 'pending'
+                };
+
+                // 记录审计日志
+                if (typeof AuditLog !== 'undefined') {
+                    AuditLog.logCreate('quality_ncr', handlingId, handlingData,
+                        `质检不合格处理：${optionNames[option]}`);
+                }
+
+                // 通知相关人员
+                const notifications = [];
+                notifications.push({ role: '采购专员', message: '请跟进与供应商的协商' });
+                notifications.push({ role: '项目经理', message: '请评估对项目进度的影响' });
+                notifications.push({ role: '生产经理', message: '请调整生产计划' });
+
+                if (option === 'return' || option === 'replace') {
+                    notifications.push({ role: '供应商', message: `需要处理${optionNames[option]}申请` });
+                }
+
+                // 显示确认对话框
+                showRejectionConfirmation(projectId, projectName, handlingData, notifications);
+            }
+
+            function showRejectionConfirmation(projectId, projectName, handlingData, notifications) {
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+
+                modal.innerHTML = `
+                    <div class="modal-content" style="background: white; border-radius: 12px; width: 600px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                        <div style="padding: 32px; text-align: center;">
+                            <div style="width: 80px; height: 80px; border-radius: 50%; background: #e8f5e9; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px;">
+                                ✅
+                            </div>
+                            <div style="font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #1a1a1a;">不合格处理单已创建</div>
+                            <div style="font-size: 14px; color: #666; margin-bottom: 24px;">
+                                处理单号：<span style="color: #00890b; font-weight: 600;">${handlingData.id}</span>
+                            </div>
+
+                            <!-- 处理信息 -->
+                            <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: left;">
+                                <div style="display: grid; gap: 8px; font-size: 13px; color: #666;">
+                                    <div><span style="color: #999;">处理方式：</span><strong style="color: #00890b;">${handlingData.handlingTypeName}</strong></div>
+                                    <div><span style="color: #999;">质检单号：</span><strong>${handlingData.qcId}</strong></div>
+                                    <div><span style="color: #999;">关联项目：</span><strong>${projectName}</strong></div>
+                                    ${handlingData.remark ? `<div style="margin-top: 8px;"><span style="color: #999;">备注：</span>${handlingData.remark}</div>` : ''}
+                                </div>
+                            </div>
+
+                            <!-- 通知清单 -->
+                            <div style="background: #fff3e0; padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: left;">
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: #f57c00;">📢 以下人员将收到通知</div>
+                                <div style="display: grid; gap: 8px; font-size: 13px; color: #666;">
+                                    ${notifications.map(n => `
+                                        <div style="display: flex; justify-content: space-between;">
+                                            <span><strong>${n.role}:</strong> ${n.message}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary" style="background: #00890b; color: white; padding: 12px 32px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; width: 100%;" onclick="closeRejectionModal(${projectId}, '${projectName}')">确定</button>
+                        </div>
+                    </div>
+                `;
+
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+
+                document.body.appendChild(modal);
+            }
+
+            function closeRejectionModal(projectId, projectName) {
+                document.querySelector('.modal-overlay').remove();
+                // 通知团队
+                notifyTeam(projectId, projectName, '批次不合格');
+            }
+
+            function showTeam(projectId) {
+                const teamData = projectTeamsData[projectId];
+                if (!teamData) return;
+
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 9999;
+                `;
+
+                modal.innerHTML = `
+                    <div class="modal-content" style="background: white; border-radius: 12px; width: 700px; max-height: 80vh; overflow: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                        <div class="modal-header" style="padding: 24px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <div style="font-size: 20px; font-weight: 700; color: #1a1a1a;">👥 项目团队成员</div>
+                                <div style="font-size: 13px; color: #999; margin-top: 4px;">${teamData.projectName} (${teamData.projectId})</div>
+                            </div>
+                            <button class="modal-close" onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+                        </div>
+                        <div class="modal-body" style="padding: 24px;">
+                            <div style="display: grid; gap: 16px;">
+                                ${teamData.members.map(member => `
+                                    <div style="display: flex; align-items: center; gap: 16px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                                        <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px;">
+                                            ${member.name.charAt(0)}
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">${member.name}</div>
+                                            <div style="font-size: 13px; color: #666; margin-bottom: 4px;">${member.role}</div>
+                                            <div style="display: flex; gap: 16px; font-size: 12px; color: #999;">
+                                                <span>📞 ${member.phone}</span>
+                                                <span>📧 ${member.email}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e0e0e0; display: flex; justify-content: flex-end; gap: 12px;">
+                            <button class="btn" style="background: #f0f0f0; color: #666; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="this.closest('.modal-overlay').remove()">关闭</button>
+                            <button class="btn btn-primary" style="background: #00890b; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="notifyTeam(${projectId}, '${teamData.projectName}', '质检提醒')">📢 通知全员</button>
+                        </div>
+                    </div>
+                `;
+
+                // 点击外部关闭
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                    }
+                });
+
+                document.body.appendChild(modal);
+            }
+
+            function notifyTeam(projectId, projectName, notificationType) {
+                const teamData = projectTeamsData[projectId];
+                if (!teamData) return;
+
+                const memberCount = teamData.members.length;
+
+                // 显示通知详情
+                const notificationModal = document.createElement('div');
+                notificationModal.className = 'modal-overlay';
+                notificationModal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+
+                notificationModal.innerHTML = `
+                    <div class="modal-content" style="background: white; border-radius: 12px; width: 500px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); padding: 32px; text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: #e8f5e9; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 40px;">
+                            ✅
+                        </div>
+                        <div style="font-size: 22px; font-weight: 700; margin-bottom: 12px; color: #1a1a1a;">通知已发送！</div>
+                        <div style="font-size: 14px; color: #666; margin-bottom: 24px;">
+                            已向 <span style="color: #00890b; font-weight: 600;">${projectName}</span> 项目的 <span style="color: #00890b; font-weight: 600;">${memberCount}位</span> 团队成员发送质检异常通知
+                        </div>
+                        <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 24px; text-align: left;">
+                            <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #333;">通知内容：</div>
+                            <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                                <strong>【质检异常】${notificationType}</strong><br>
+                                项目: ${projectName}<br>
+                                质检单号: QC-2025-001<br>
+                                异常描述: ${notificationType === '批次不合格' ? '物料批次不合格，需要重新采购' : '质检发现异常，请团队成员关注'}<br>
+                                请相关负责人及时跟进处理
+                            </div>
+                        </div>
+                        <div style="background: #fff3e0; padding: 12px; border-radius: 6px; margin-bottom: 20px;">
+                            <div style="font-size: 12px; color: #f57c00;">
+                                📧 邮件通知 + 💬 系统消息 + 📱 短信提醒
+                        <button class="btn btn-primary" style="background: #00890b; color: white; padding: 12px 32px; border-radius: 8px; border: none; cursor: pointer; font-weight: 600; width: 100%;" onclick="this.closest('.modal-overlay').remove()">确定</button>
+                `;
+
+                // 关闭之前的模态框（如果有）
+                document.querySelectorAll('.modal-overlay').forEach(m => m.remove());
+
+                notificationModal.addEventListener('click', function(e) {
+                    if (e.target === notificationModal) {
+                        notificationModal.remove();
+                    }
+                });
+
+                document.body.appendChild(notificationModal);
+            }
+        </script>
+
+        <!-- 引入核心系统脚本 -->
+        <script src="js/permission-control.js"></script>
+        <script src="js/audit-log.js"></script>
+        <script src="js/material-reservation.js"></script>
+</body>
+</html>

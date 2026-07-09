@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 质检详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            background: white;
+            padding: 24px 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .back-btn {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            background: #e0e0e0;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status-passed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* 内容区域 */
+        .content-section {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* 信息网格 */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .info-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+        .info-value {
+            font-size: 15px;
+            color: #1a1a1a;
+            font-weight: 500;
+        }
+
+        /* 时间轴 */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 10px;
+            bottom: 10px;
+            width: 2px;
+            background: #e0e0e0;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 24px;
+        }
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -33px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00890b;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #00890b;
+        }
+        .timeline-dot.gray {
+            background: #999;
+            box-shadow: 0 0 0 2px #999;
+        }
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+        }
+        .timeline-time {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .timeline-text {
+            font-size: 14px;
+            color: #3d4647;
+            line-height: 1.6;
+        }
+        .timeline-operator {
+            font-size: 13px;
+            color: #00890b;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* 照片网格 */
+        .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .photo-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f0f0f0;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .photo-item:hover {
+            transform: scale(1.05);
+        }
+        .photo-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .photo-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 8px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        /* 检测项目表格 */
+        .inspection-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+        .inspection-table th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .inspection-table td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .inspection-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* 结果图标 */
+        .result-icon {
+            font-size: 20px;
+        }
+        .result-pass {
+            color: #27ae60;
+        }
+        .result-fail {
+            color: #e74c3c;
+        }
+
+        /* 警告框 */
+        .alert-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .alert-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .alert-content {
+            font-size: 14px;
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        /* 处理方案卡片 */
+        .handling-card {
+            background: #f8f9fa;
+            border-left: 4px solid #00890b;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        .handling-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+        .handling-content {
+            font-size: 14px;
+            color: #3d4647;
+            line-height: 1.8;
+        }
+
+        /* 通知列表 */
+        .notification-list {
+            list-style: none;
+            margin-top: 16px;
+        }
+        .notification-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .notification-icon {
+            font-size: 24px;
+        }
+        .notification-text {
+            flex: 1;
+        }
+        .notification-role {
+            font-weight: 600;
+            color: #00890b;
+            font-size: 14px;
+        }
+        .notification-message {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+
+        /* 附件列表 */
+        .attachment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            gap: 12px;
+        }
+        .attachment-icon {
+            font-size: 32px;
+        }
+        .attachment-info {
+            flex: 1;
+        }
+        .attachment-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+        .attachment-size {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .attachment-download {
+            color: #00890b;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='dashboard-pro.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div class="page-title">
+                <span>📋 质检详情</span>
+                <span class="status-badge status-failed">❌ 不合格</span>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="back-btn" onclick="location.href='inventory.html'">← 返回库存管理</button>
+                <button class="back-btn" onclick="location.href='quality-inspection.html'">← 返回质检列表</button>
+            </div>
+        </div>
+
+        <!-- 基本信息 -->
+        <div class="content-section">
+            <div class="section-title">📄 基本信息</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">质检单号</div>
+                    <div class="info-value">QC-2025-003</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">入库单号</div>
+                    <div class="info-value">IN-2025-018</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">物料名称</div>
+                    <div class="info-value">陶瓷电容 22μF 25V X5R</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">原厂型号</div>
+                    <div class="info-value">CL31B226KAHNNNE</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">供应商</div>
+                    <div class="info-value">深圳三星电子元器件</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">批次号</div>
+                    <div class="info-value">20250820-A</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">采购数量</div>
+                    <div class="info-value">5,000 pcs</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">抽检数量</div>
+                    <div class="info-value">50 pcs (1%)</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">关联项目</div>
+                    <div class="info-value">智能手环项目 V2.0</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">质检员</div>
+                    <div class="info-value">张三</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">质检日期</div>
+                    <div class="info-value">2025-10-30 11:30:25</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">完成时间</div>
+                    <div class="info-value">2025-10-30 14:20:18</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 质检项目 -->
+        <div class="content-section">
+            <div class="section-title">🔍 质检项目</div>
+            <table class="inspection-table">
+                <thead>
+                    <tr>
+                        <th>检测项目</th>
+                        <th>标准要求</th>
+                        <th>实测结果</th>
+                        <th>结果</th>
+                        <th>备注</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>外观检查</strong></td>
+                        <td>无破损、无氧化</td>
+                        <td>外观良好</td>
+                        <td><span class="result-icon result-pass">✓</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>尺寸测量</strong></td>
+                        <td>3.2mm × 1.6mm ±0.1mm</td>
+                        <td>3.18mm × 1.62mm</td>
+                        <td><span class="result-icon result-pass">✓</span></td>
+                        <td>符合公差范围</td>
+                    </tr>
+                    <tr>
+                        <td><strong>容量测试</strong></td>
+                        <td>22μF ±10%</td>
+                        <td>18.5μF ~ 19.2μF</td>
+                        <td><span class="result-icon result-fail">✗</span></td>
+                        <td>偏差较大，超出规格</td>
+                    </tr>
+                    <tr>
+                        <td><strong>耐压测试</strong></td>
+                        <td>≥25V</td>
+                        <td>27V</td>
+                        <td><span class="result-icon result-pass">✓</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ESR测试</strong></td>
+                        <td>≤50mΩ @100kHz</td>
+                        <td>45mΩ</td>
+                        <td><span class="result-icon result-pass">✓</span></td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>丝印标识</strong></td>
+                        <td>清晰可读，型号正确</td>
+                        <td>标注为226M（应为226K）</td>
+                        <td><span class="result-icon result-fail">✗</span></td>
+                        <td>丝印型号错误</td>
+                    </tr>
+                    <tr>
+                        <td><strong>焊盘检查</strong></td>
+                        <td>镀层均匀，无氧化</td>
+                        <td>镀层良好</td>
+                        <td><span class="result-icon result-pass">✓</span></td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 20px; padding: 16px; background: #f8d7da; border-radius: 8px;">
+                <div style="font-weight: 600; color: #721c24; margin-bottom: 8px;">❌ 不合格判定</div>
+                <div style="font-size: 14px; color: #721c24; line-height: 1.6;">
+                    <strong>主要问题：</strong><br>
+                    1. 容量偏差较大：实测值18.5μF ~ 19.2μF，标准要求22μF ±10%（19.8μF ~ 24.2μF），未达标<br>
+                    2. 丝印标识错误：标注为226M（表示容差±20%），实际应为226K（表示容差±10%）<br><br>
+                    <strong>风险评估：</strong>容量不足可能导致电路滤波效果不佳，影响产品性能和可靠性。
+                </div>
+            </div>
+        </div>
+
+        <!-- 质检照片 -->
+        <div class="content-section">
+            <div class="section-title">📷 质检照片</div>
+            <div class="photo-grid">
+                <div class="photo-item">
+                    <div class="photo-placeholder">📦</div>
+                    <div class="photo-label">外包装</div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">🔍</div>
+                    <div class="photo-label">外观检查</div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">📏</div>
+                    <div class="photo-label">尺寸测量</div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">⚡</div>
+                    <div class="photo-label">电性能测试</div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">🏷️</div>
+                    <div class="photo-label">丝印特写</div>
+                </div>
+                <div class="photo-item">
+                    <div class="photo-placeholder">📊</div>
+                    <div class="photo-label">测试数据</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 处理方案 -->
+        <div class="content-section">
+            <div class="section-title">⚙️ 处理方案</div>
+
+            <div class="handling-card">
+                <div class="handling-title">↩️ 处理方式：退货处理</div>
+                <div class="handling-content">
+                    <strong>处理说明：</strong><br>
+                    由于容量偏差较大且丝印错误，判定为严重质量问题，要求供应商全批次退货并全额退款。<br><br>
+
+                    <strong>执行方案：</strong><br>
+                    • 已联系供应商协商退货事宜，供应商同意全额退款<br>
+                    • 物流将于3个工作日内上门取货<br>
+                    • 预计退款周期：7-10个工作日<br>
+                    • 采购部门已重新下单，选择新的供应商<br><br>
+
+                    <strong>预期影响：</strong><br>
+                    • 项目交期预计延迟12天<br>
+                    • 需调整生产计划和物料备货<br>
+                    • 总额损失：约¥3,500（物流和时间成本）
+                </div>
+            </div>
+
+            <div class="alert-box" style="margin-top: 20px;">
+                <div class="alert-title">⚠️ 项目影响提醒</div>
+                <div class="alert-content">
+                    该批次物料用于<strong>智能手环项目 V2.0</strong>，原计划交期为2025-11-15，因质检不合格需重新采购，预计项目交期将延迟至<strong>2025-11-27</strong>。<br>
+                    已通知项目团队调整进度计划，并协调其他物料的备货和生产安排。
+                </div>
+            </div>
+        </div>
+
+        <!-- 通知记录 -->
+        <div class="content-section">
+            <div class="section-title">📢 通知记录</div>
+            <ul class="notification-list">
+                <li class="notification-item">
+                    <div class="notification-icon">👤</div>
+                    <div class="notification-text">
+                        <div class="notification-role">项目经理 - 李经理</div>
+                        <div class="notification-message">已接收质检异常通知，正在评估对项目进度的影响</div>
+                    </div>
+                    <div class="notification-time">2025-10-30 14:25</div>
+                </li>
+                <li class="notification-item">
+                    <div class="notification-icon">👤</div>
+                    <div class="notification-text">
+                        <div class="notification-role">采购专员 - 王采购</div>
+                        <div class="notification-message">已与供应商沟通退货事宜，供应商同意全额退款</div>
+                    </div>
+                    <div class="notification-time">2025-10-30 15:10</div>
+                </li>
+                <li class="notification-item">
+                    <div class="notification-icon">👤</div>
+                    <div class="notification-text">
+                        <div class="notification-role">生产经理 - 赵经理</div>
+                        <div class="notification-message">已调整生产计划，将优先安排其他子模块的生产</div>
+                    </div>
+                    <div class="notification-time">2025-10-30 15:45</div>
+                </li>
+                <li class="notification-item">
+                    <div class="notification-icon">👤</div>
+                    <div class="notification-text">
+                        <div class="notification-role">采购专员 - 王采购</div>
+                        <div class="notification-message">已完成新供应商下单，预计11-08到货</div>
+                    </div>
+                    <div class="notification-time">2025-10-31 09:20</div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 处理时间轴 -->
+        <div class="content-section">
+            <div class="section-title">⏱️ 处理时间轴</div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2025-10-30 11:30:25</div>
+                        <div class="timeline-text">开始质检流程，抽检50 pcs样品进行全面检测</div>
+                        <div class="timeline-operator">操作人：张三（质检员）</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2025-10-30 14:20:18</div>
+                        <div class="timeline-text">完成质检，判定结果：不合格。主要问题：容量偏差、丝印错误</div>
+                        <div class="timeline-operator">操作人：张三（质检员）</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2025-10-30 14:25:33</div>
+                        <div class="timeline-text">系统自动发送通知至项目团队（项目经理、采购专员、生产经理）</div>
+                        <div class="timeline-operator">系统自动</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2025-10-30 14:50:12</div>
+                        <div class="timeline-text">提交不合格处理方案：退货处理，要求全额退款</div>
+                        <div class="timeline-operator">操作人：张三（质检员）</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2025-10-30 15:10:45</div>
+                        <div class="timeline-text">联系供应商协商退货，供应商同意全额退款和退货处理</div>
+                        <div class="timeline-operator">操作人：王采购（采购专员）</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">2025-10-31 09:20:15</div>
+                        <div class="timeline-text">完成新供应商下单，订单号：PO-2025-1205，预计11-08到货</div>
+                        <div class="timeline-operator">操作人：王采购（采购专员）</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot gray"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">预计：2025-11-03</div>
+                        <div class="timeline-text">供应商上门取货，开始退货流程</div>
+                        <div class="timeline-operator">待执行</div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot gray"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-time">预计：2025-11-08</div>
+                        <div class="timeline-text">新物料到货，进行质检</div>
+                        <div class="timeline-operator">待执行</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 附件文档 -->
+        <div class="content-section">
+            <div class="section-title">📎 附件文档</div>
+            <div class="attachment-list">
+                <div class="attachment-item">
+                    <div class="attachment-icon">📄</div>
+                    <div class="attachment-info">
+                        <div class="attachment-name">质检报告_QC-2025-003.pdf</div>
+                        <div class="attachment-size">1.2 MB</div>
+                    </div>
+                    <a href="#" class="attachment-download" onclick="alert('下载功能开发中...'); return false;">下载</a>
+                </div>
+                <div class="attachment-item">
+                    <div class="attachment-icon">📊</div>
+                    <div class="attachment-info">
+                        <div class="attachment-name">测试数据明细_QC-2025-003.xlsx</div>
+                        <div class="attachment-size">256 KB</div>
+                    </div>
+                    <a href="#" class="attachment-download" onclick="alert('下载功能开发中...'); return false;">下载</a>
+                </div>
+                <div class="attachment-item">
+                    <div class="attachment-icon">📷</div>
+                    <div class="attachment-info">
+                        <div class="attachment-name">质检照片合集_QC-2025-003.zip</div>
+                        <div class="attachment-size">8.5 MB</div>
+                    </div>
+                    <a href="#" class="attachment-download" onclick="alert('下载功能开发中...'); return false;">下载</a>
+                </div>
+                <div class="attachment-item">
+                    <div class="attachment-icon">📧</div>
+                    <div class="attachment-info">
+                        <div class="attachment-name">供应商沟通记录_QC-2025-003.pdf</div>
+                        <div class="attachment-size">450 KB</div>
+                    </div>
+                    <a href="#" class="attachment-download" onclick="alert('下载功能开发中...'); return false;">下载</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="content-section" style="text-align: center;">
+            <button class="btn btn-primary" onclick="window.print()" style="margin-right: 12px;">🖨️ 打印报告</button>
+            <button class="btn btn-primary" onclick="alert('导出功能开发中...')">📤 导出PDF</button>
+        </div>
+    </div>
+</body>
+</html>

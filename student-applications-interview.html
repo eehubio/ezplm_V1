@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>面试邀请 - EZPLM 校园招聘</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 左侧导航栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 16px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            padding: 8px 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: #4b5563;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: #f9fafb;
+            color: #00890b;
+        }
+
+        .nav-item.active {
+            background: #f0fdf4;
+            color: #00890b;
+            border-right: 3px solid #00890b;
+        }
+
+        .nav-icon {
+            font-size: 18px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 内容区 */
+        .content {
+            flex: 1;
+            padding: 32px;
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* 页面头部信息 */
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-info h2 {
+            font-size: 20px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 32px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00890b;
+        }
+
+        /* 筛选标签 */
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .filter-chip:hover {
+            background: #e5e7eb;
+        }
+
+        .filter-chip.active {
+            background: #dcfce7;
+            color: #00890b;
+            border-color: #00890b;
+            font-weight: 500;
+        }
+
+        /* 面试卡片列表 */
+        .interview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .interview-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            display: flex;
+            gap: 20px;
+        }
+
+        .interview-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .interview-info {
+            flex: 1;
+        }
+
+        .interview-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .job-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .company-name {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .interview-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-confirmed {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        .status-completed {
+            background: #dcfce7;
+            color: #00890b;
+        }
+
+        .status-rescheduled {
+            background: #fce7f3;
+            color: #db2777;
+        }
+
+        .interview-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .detail-icon {
+            font-size: 16px;
+            margin-top: 2px;
+        }
+
+        .detail-content {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .interview-notes {
+            background: #eff6ff;
+            border-left: 3px solid #3b82f6;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+
+        .notes-label {
+            font-size: 12px;
+            color: #1e40af;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .notes-text {
+            font-size: 13px;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .interview-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #00890b;
+            border: 1px solid #00890b;
+        }
+
+        .btn-outline:hover {
+            background: #f0fdf4;
+        }
+
+        /* 面试准备建议 */
+        .tips-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tips-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .tips-header h3 {
+            font-size: 18px;
+            color: #1f2937;
+        }
+
+        .tips-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+        }
+
+        .tip-item {
+            padding: 16px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 3px solid #00890b;
+        }
+
+        .tip-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tip-description {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-title {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .empty-description {
+            font-size: 14px;
+            color: #6b7280;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="app-container">
+        <!-- 左侧导航栏 -->
+        <aside class="sidebar">
+            <nav class="nav-menu">
+                <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a></div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">物料</div>
+                    <a href="materials.html" class="nav-item">
+                        <span class="nav-icon">📦</span>
+                        <span>物料管理</span>
+                    </a>
+                    <a href="inventory.html" class="nav-item">
+                        <span class="nav-icon">📊</span>
+                        <span>库存管理</span>
+                    </a>
+                    <a href="procurement.html" class="nav-item">
+                        <span class="nav-icon">🛒</span>
+                        <span>采购管理</span>
+                    </a>
+                    <a href="production.html" class="nav-item">
+                        <span class="nav-icon">🏭</span>
+                        <span>生产管理</span>
+                    </a>
+                    <a href="sales.html" class="nav-item">
+                        <span class="nav-icon">💰</span>
+                        <span>销售管理</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">业务</div>
+                    <a href="activities.html" class="nav-item">
+                        <span class="nav-icon">🎯</span>
+                        <span>竞赛/活动</span>
+                    </a>
+                    <a href="education.html" class="nav-item">
+                        <span class="nav-icon">🎓</span>
+                        <span>教学/实验</span>
+                    </a>
+                    <a href="outsourcing-hub.html" class="nav-item">
+                        <span class="nav-icon">💼</span>
+                        <span>外包/毕设</span>
+                    </a>
+                    <a href="campus-recruitment.html" class="nav-item active">
+                        <span class="nav-icon">🎓</span>
+                        <span>校园招聘</span>
+                    </a>
+                    <a href="component-supply.html" class="nav-item">
+                        <span class="nav-icon">🏪</span>
+                        <span>器件供货</span>
+                    </a>
+                    <a href="board-marketplace.html" class="nav-item">
+                        <span class="nav-icon">🛍️</span>
+                        <span>板卡商城</span>
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">系统</div>
+                    <a href="supplier-management.html" class="nav-item">
+                        <span class="nav-icon">🏢</span>
+                        <span>厂商管理</span>
+                    </a>
+                    <a href="category-management.html" class="nav-item">
+                        <span class="nav-icon">🏷️</span>
+                        <span>分类管理</span>
+                    </a>
+                    <a href="numbering-rules.html" class="nav-item">
+                        <span class="nav-icon">🔢</span>
+                        <span>编号规则</span>
+                    </a>
+                    <a href="organization-settings.html" class="nav-item">
+                        <span class="nav-icon">🏛️</span>
+                        <span>组织管理</span>
+                    </a>
+                    <a href="settings.html" class="nav-item">
+                        <span class="nav-icon">⚙️</span>
+                        <span>系统设置</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="content">
+                <!-- 页面头部 -->
+                <div class="page-header">
+                    <div class="header-content">
+                        <div class="header-info">
+                            <h2>您的面试邀请</h2>
+                            <div class="header-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">总邀请</span>
+                                    <span class="stat-value">5</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">待确认</span>
+                                    <span class="stat-value">2</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">已确认</span>
+                                    <span class="stat-value">2</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">已完成</span>
+                                    <span class="stat-value">1</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 筛选标签 -->
+                <div class="filter-section">
+                    <div class="filter-tabs">
+                        <span class="filter-label">快速筛选：</span>
+                        <div class="filter-chip active" onclick="filterStatus('all')">全部 (5)</div>
+                        <div class="filter-chip" onclick="filterStatus('pending')">待确认 (2)</div>
+                        <div class="filter-chip" onclick="filterStatus('confirmed')">已确认 (2)</div>
+                        <div class="filter-chip" onclick="filterStatus('completed')">已完成 (1)</div>
+                    </div>
+                </div>
+
+                <!-- 面试列表 -->
+                <div class="interview-list">
+                    <!-- 面试卡片 1 - 待确认 -->
+                    <div class="interview-card" data-status="pending">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">H</div>
+                        <div class="interview-info">
+                            <div class="interview-header">
+                                <div>
+                                    <div class="job-title">硬件工程师</div>
+                                    <div class="company-name">华为技术有限公司</div>
+                                </div>
+                                <div class="interview-status status-pending">待确认</div>
+                            </div>
+
+                            <div class="interview-details">
+                                <div class="detail-item">
+                                    <span class="detail-icon">📅</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试时间</div>
+                                        <div class="detail-value">2025年11月5日 14:00</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">📍</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试地点</div>
+                                        <div class="detail-value">深圳市龙岗区华为基地A3-301</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">💼</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试类型</div>
+                                        <div class="detail-value">技术面试（一面）</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">⏱️</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">预计时长</div>
+                                        <div class="detail-value">60分钟</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="interview-notes">
+                                <div class="notes-label">面试须知</div>
+                                <div class="notes-text">请携带身份证、学生证及相关作品集。面试前请提前15分钟到达，在前台登记后会有专人引导。如有疑问可联系HR：李女士 138-0013-8000</div>
+                            </div>
+
+                            <div class="interview-actions">
+                                <button class="btn btn-primary" onclick="confirmInterview(this)">✓ 确认参加</button>
+                                <button class="btn btn-outline" onclick="requestReschedule(this)">📅 申请改期</button>
+                                <button class="btn btn-secondary" onclick="viewDetails(this)">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 面试卡片 2 - 待确认 -->
+                    <div class="interview-card" data-status="pending">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">T</div>
+                        <div class="interview-info">
+                            <div class="interview-header">
+                                <div>
+                                    <div class="job-title">射频工程师</div>
+                                    <div class="company-name">腾讯科技（深圳）有限公司</div>
+                                </div>
+                                <div class="interview-status status-pending">待确认</div>
+                            </div>
+
+                            <div class="interview-details">
+                                <div class="detail-item">
+                                    <span class="detail-icon">📅</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试时间</div>
+                                        <div class="detail-value">2025年11月8日 10:00</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">💻</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试形式</div>
+                                        <div class="detail-value">线上视频面试（腾讯会议）</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">💼</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试类型</div>
+                                        <div class="detail-value">综合面试</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">⏱️</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">预计时长</div>
+                                        <div class="detail-value">45分钟</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="interview-notes">
+                                <div class="notes-label">面试须知</div>
+                                <div class="notes-text">面试将通过腾讯会议进行，会议号将在确认后发送至您的邮箱。请确保网络环境良好，并准备好摄像头和麦克风。建议提前测试设备。</div>
+                            </div>
+
+                            <div class="interview-actions">
+                                <button class="btn btn-primary" onclick="confirmInterview(this)">✓ 确认参加</button>
+                                <button class="btn btn-outline" onclick="requestReschedule(this)">📅 申请改期</button>
+                                <button class="btn btn-secondary" onclick="viewDetails(this)">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 面试卡片 3 - 已确认 -->
+                    <div class="interview-card" data-status="confirmed">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">D</div>
+                        <div class="interview-info">
+                            <div class="interview-header">
+                                <div>
+                                    <div class="job-title">嵌入式软件工程师</div>
+                                    <div class="company-name">大疆创新科技有限公司</div>
+                                </div>
+                                <div class="interview-status status-confirmed">已确认</div>
+                            </div>
+
+                            <div class="interview-details">
+                                <div class="detail-item">
+                                    <span class="detail-icon">📅</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试时间</div>
+                                        <div class="detail-value">2025年11月3日 15:30</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">📍</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试地点</div>
+                                        <div class="detail-value">深圳市南山区科技园大疆天空之城</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">💼</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试类型</div>
+                                        <div class="detail-value">技术面试（二面）</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">⏱️</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">预计时长</div>
+                                        <div class="detail-value">90分钟</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="interview-notes">
+                                <div class="notes-label">面试须知</div>
+                                <div class="notes-text">您已确认参加此次面试。本轮为技术深度面试，将包含算法设计和代码实现环节。建议复习嵌入式系统相关知识和数据结构算法。</div>
+                            </div>
+
+                            <div class="interview-actions">
+                                <button class="btn btn-secondary" onclick="viewDetails(this)">查看详情</button>
+                                <button class="btn btn-outline" onclick="addToCalendar(this)">📅 添加到日历</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 面试卡片 4 - 已确认 -->
+                    <div class="interview-card" data-status="confirmed">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">X</div>
+                        <div class="interview-info">
+                            <div class="interview-header">
+                                <div>
+                                    <div class="job-title">PCB设计工程师</div>
+                                    <div class="company-name">小米科技有限责任公司</div>
+                                </div>
+                                <div class="interview-status status-confirmed">已确认</div>
+                            </div>
+
+                            <div class="interview-details">
+                                <div class="detail-item">
+                                    <span class="detail-icon">📅</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试时间</div>
+                                        <div class="detail-value">2025年10月30日 14:00</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">💻</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试形式</div>
+                                        <div class="detail-value">线上视频面试（腾讯会议）</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">💼</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试类型</div>
+                                        <div class="detail-value">HR面试</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">⏱️</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">预计时长</div>
+                                        <div class="detail-value">30分钟</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="interview-notes">
+                                <div class="notes-label">面试须知</div>
+                                <div class="notes-text">您已确认参加此次面试。本轮为HR终面，主要了解您的职业规划、薪资期望等。会议号：123-456-789，密码将通过短信发送。</div>
+                            </div>
+
+                            <div class="interview-actions">
+                                <button class="btn btn-secondary" onclick="viewDetails(this)">查看详情</button>
+                                <button class="btn btn-outline" onclick="addToCalendar(this)">📅 添加到日历</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 面试卡片 5 - 已完成 -->
+                    <div class="interview-card" data-status="completed">
+                        <div class="company-logo" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">M</div>
+                        <div class="interview-info">
+                            <div class="interview-header">
+                                <div>
+                                    <div class="job-title">模拟IC设计工程师</div>
+                                    <div class="company-name">美的集团股份有限公司</div>
+                                </div>
+                                <div class="interview-status status-completed">已完成</div>
+                            </div>
+
+                            <div class="interview-details">
+                                <div class="detail-item">
+                                    <span class="detail-icon">📅</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试时间</div>
+                                        <div class="detail-value">2025年10月20日 10:00</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">📍</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试地点</div>
+                                        <div class="detail-value">佛山市顺德区美的总部大楼</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">💼</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试类型</div>
+                                        <div class="detail-value">技术面试（一面）</div>
+                                    </div>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-icon">✓</span>
+                                    <div class="detail-content">
+                                        <div class="detail-label">面试结果</div>
+                                        <div class="detail-value">等待反馈中</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="interview-notes">
+                                <div class="notes-label">面试总结</div>
+                                <div class="notes-text">面试已于2025年10月20日完成。感谢您的参与，我们将在3-5个工作日内反馈面试结果，请耐心等待。</div>
+                            </div>
+
+                            <div class="interview-actions">
+                                <button class="btn btn-secondary" onclick="viewFeedback(this)">查看反馈</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 面试准备建议 -->
+                <div class="tips-section">
+                    <div class="tips-header">
+                        <span style="font-size: 24px;">💡</span>
+                        <h3>面试准备建议</h3>
+                    </div>
+                    <div class="tips-list">
+                        <div class="tip-item">
+                            <div class="tip-title">
+                                <span>📋</span>
+                                <span>准备材料</span>
+                            </div>
+                            <div class="tip-description">
+                                携带简历、身份证、学生证、获奖证书等相关材料。建议准备纸质和电子版各一份。
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-title">
+                                <span>👔</span>
+                                <span>着装建议</span>
+                            </div>
+                            <div class="tip-description">
+                                建议穿着商务休闲装，保持整洁大方。技术岗位可适当休闲，但要注意得体。
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-title">
+                                <span>🎯</span>
+                                <span>技术准备</span>
+                            </div>
+                            <div class="tip-description">
+                                复习简历中提到的项目经验，准备技术问题的回答。了解公司业务和技术栈。
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-title">
+                                <span>💬</span>
+                                <span>沟通技巧</span>
+                            </div>
+                            <div class="tip-description">
+                                提前准备自我介绍和常见问题的回答。注意倾听，回答问题要有条理、有重点。
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-title">
+                                <span>⏰</span>
+                                <span>时间管理</span>
+                            </div>
+                            <div class="tip-description">
+                                提前规划路线，预留充足时间。线上面试提前测试设备和网络环境。
+                            </div>
+                        </div>
+                        <div class="tip-item">
+                            <div class="tip-title">
+                                <span>🤔</span>
+                                <span>提问环节</span>
+                            </div>
+                            <div class="tip-description">
+                                准备3-5个想要了解的问题，如团队情况、发展机会等。展现你对职位的兴趣。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </main>
+
+    <script>
+        // 筛选功能
+        function filterStatus(status) {
+            const cards = document.querySelectorAll('.interview-card');
+            const chips = document.querySelectorAll('.filter-chip');
+
+            chips.forEach(chip => chip.classList.remove('active'));
+            event.target.classList.add('active');
+
+            cards.forEach(card => {
+                if (status === 'all') {
+                    card.style.display = 'flex';
+                } else {
+                    const cardStatus = card.getAttribute('data-status');
+                    card.style.display = cardStatus === status ? 'flex' : 'none';
+                }
+            });
+        }
+
+        // 确认参加面试
+        function confirmInterview(btn) {
+            const card = btn.closest('.interview-card');
+            const statusBadge = card.querySelector('.interview-status');
+
+            if (confirm('确认参加此次面试？')) {
+                statusBadge.textContent = '已确认';
+                statusBadge.className = 'interview-status status-confirmed';
+                card.setAttribute('data-status', 'confirmed');
+
+                const notesDiv = card.querySelector('.interview-notes');
+                notesDiv.innerHTML = `
+                    <div class="notes-label">面试须知</div>
+                    <div class="notes-text">您已确认参加此次面试。我们已发送确认邮件至您的邮箱，请注意查收。如需取消或改期，请至少提前24小时联系HR。</div>
+                `;
+
+                const actionsDiv = card.querySelector('.interview-actions');
+                actionsDiv.innerHTML = `
+                    <button class="btn btn-secondary" onclick="viewDetails(this)">查看详情</button>
+                    <button class="btn btn-outline" onclick="addToCalendar(this)">📅 添加到日历</button>
+                `;
+
+                alert('已确认参加面试！确认邮件已发送至您的邮箱。');
+            }
+        }
+
+        // 申请改期
+        function requestReschedule(btn) {
+            const card = btn.closest('.interview-card');
+            const jobTitle = card.querySelector('.job-title').textContent;
+
+            if (confirm(`确定要申请改期"${jobTitle}"的面试时间吗？\n\n改期申请将发送给HR，我们会尽快与您联系确认新的面试时间。`)) {
+                const statusBadge = card.querySelector('.interview-status');
+                statusBadge.textContent = '改期申请中';
+                statusBadge.className = 'interview-status status-rescheduled';
+
+                alert('改期申请已提交！HR将在1个工作日内与您联系。');
+            }
+        }
+
+        // 查看详情
+        function viewDetails(btn) {
+            const card = btn.closest('.interview-card');
+            const jobTitle = card.querySelector('.job-title').textContent;
+            const companyName = card.querySelector('.company-name').textContent;
+
+            alert(`面试详情\n\n职位：${jobTitle}\n公司：${companyName}\n\n完整的面试详情页面功能开发中...`);
+        }
+
+        // 添加到日历
+        function addToCalendar(btn) {
+            alert('日历集成功能开发中...\n\n将支持导出到：\n- Apple Calendar\n- Google Calendar\n- Outlook\n- 其他日历应用');
+        }
+
+        // 查看反馈
+        function viewFeedback(btn) {
+            alert('面试反馈功能开发中...\n\n您可以在此查看：\n- 面试官评价\n- 面试表现总结\n- 后续流程说明');
+        }
+    </script>
+</body>
+</html>

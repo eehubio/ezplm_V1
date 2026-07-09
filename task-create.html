@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 新建任务</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .btn-back {
+            padding: 10px 20px;
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-back:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        .main-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2d2d2d;
+            margin-bottom: 32px;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: flex-end;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+            border: none;
+        }
+        .btn-cancel {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+        .btn-submit {
+            background: #00890b;
+            color: white;
+        }
+        .btn-submit:hover {
+            background: #007309;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='workspace-dashboard.html'">EZPLM</div>
+        <button class="btn-back" onclick="location.href='task-list.html'">
+            <span>←</span>
+            <span>返回任务列表</span>
+        </button>
+    </div>
+
+    <div class="main-content">
+        <h1 class="page-title">新建任务</h1>
+
+        <div class="form-container">
+            <form id="taskForm">
+                <div class="form-group">
+                    <label class="form-label">任务标题 *</label>
+                    <input type="text" class="form-input" placeholder="请输入任务标题" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">任务描述</label>
+                    <textarea class="form-textarea" placeholder="请描述任务的具体内容和要求"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                    <div class="form-group">
+                        <label class="form-label">所属项目 *</label>
+                        <select class="form-select" required>
+                            <option value="">请选择项目</option>
+                            <option value="1">智能手环 V2.0 开发</option>
+                            <option value="2">无线充电器设计优化</option>
+                            <option value="3">智能音箱 Mini版</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">负责人 *</label>
+                        <select class="form-select" required>
+                            <option value="">请选择负责人</option>
+                            <option value="1">张三</option>
+                            <option value="2">李四</option>
+                            <option value="3">王五</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">优先级</label>
+                        <select class="form-select">
+                            <option value="low">低</option>
+                            <option value="medium" selected>中</option>
+                            <option value="high">高</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">截止日期</label>
+                        <input type="date" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" onclick="location.href='task-list.html'">取消</button>
+                    <button type="submit" class="btn btn-submit">创建任务</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('taskForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('✅ 任务创建成功！\n\n正在跳转到任务详情页...');
+            setTimeout(() => {
+                location.href = 'task-detail.html?id=1';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

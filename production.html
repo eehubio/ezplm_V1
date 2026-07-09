@@ -1,0 +1,3021 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 生产管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-left: 40px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .notification-bell {
+            font-size: 20px;
+            color: #3d4647;
+            cursor: pointer;
+            position: relative;
+        }
+        .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background: #ff4d4f;
+            border-radius: 50%;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon { font-size: 18px; }
+
+        /* 主内容 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+            padding: 30px 35px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0, 137, 11, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-primary {
+            background: white;
+            color: #00890b;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 137, 11, 0.1);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0, 137, 11, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        .stat-label {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00890b;
+            margin-bottom: 5px;
+        }
+        .stat-change {
+            font-size: 12px;
+            color: #4caf50;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 25px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .tab {
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+            color: #666;
+        }
+        .tab:hover {
+            background: #f5f5f5;
+            color: #00890b;
+        }
+        .tab.active {
+            background: #00890b;
+            color: white;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f5f5f5;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-icon {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-icon:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table thead {
+            background: #f8f9fa;
+        }
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .data-table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        .plan-id, .order-id {
+            color: #00890b;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .plan-id:hover, .order-id:hover {
+            text-decoration: underline;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+        }
+        .status-planning {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status-in-progress {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .status-completed {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .status-delayed {
+            background: #ffebee;
+            color: #f44336;
+        }
+        .status-paused {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        /* 优先级标签 */
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .priority-urgent {
+            background: #ffebee;
+            color: #f44336;
+        }
+        .priority-high {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .priority-normal {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .priority-low {
+            background: #f5f5f5;
+            color: #999;
+        }
+
+        /* 进度条 */
+        .progress-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .progress-bar-small {
+            flex: 1;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill-small {
+            height: 100%;
+            background: linear-gradient(90deg, #00890b, #00b96b);
+            border-radius: 3px;
+        }
+        .progress-text {
+            font-size: 12px;
+            color: #666;
+            white-space: nowrap;
+            min-width: 35px;
+        }
+
+        /* 甘特图 */
+        .gantt-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 400px;
+        }
+        .gantt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .gantt-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .gantt-timeline {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 15px;
+        }
+        .gantt-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .gantt-task-name {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+        .gantt-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .gantt-bar-container {
+            height: 50px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+            position: relative;
+            padding: 8px;
+        }
+        .gantt-bar {
+            height: 34px;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            border-radius: 6px;
+            position: absolute;
+            top: 8px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            color: white;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* 物料卡片 */
+        .material-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        .material-card {
+            background: white;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        .material-card:hover {
+            border-color: #00890b;
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.1);
+        }
+        .material-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .material-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+        .material-status {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .status-sufficient {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .status-shortage {
+            background: #ffebee;
+            color: #f44336;
+        }
+        .material-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            font-size: 13px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .info-label {
+            color: #999;
+            font-size: 12px;
+        }
+        .info-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        /* 标签内容 */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 工序时间线 */
+        .process-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            position: relative;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 40px;
+            width: 2px;
+            height: calc(100% - 20px);
+            background: #e0e0e0;
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 137, 11, 0.1);
+            border: 3px solid #00890b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+        .timeline-marker.pending {
+            background: #f5f5f5;
+            border-color: #e0e0e0;
+        }
+        .timeline-marker.completed {
+            background: #00890b;
+            border-color: #00890b;
+            color: white;
+        }
+        .timeline-content {
+            flex: 1;
+            padding-bottom: 15px;
+        }
+        .timeline-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .timeline-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .timeline-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            padding: 24px 30px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .close-btn:hover {
+            background: #e0e0e0;
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-cancel {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-cancel:hover {
+            border-color: #999;
+            color: #333;
+        }
+        .btn-submit {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #00890b;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-submit:hover {
+            background: #007009;
+        }
+        .analysis-result {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        .result-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .result-value {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .result-value.good {
+            color: #00890b;
+        }
+        .result-value.warning {
+            color: #f57c00;
+        }
+        .result-value.danger {
+            color: #f44336;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item active">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="main-wrapper">
+            <div class="main-content">
+                <!-- 页面标题 -->
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>🏭 生产管理</h1>
+                        <p class="page-subtitle">本月计划 15 个 | 进行中 8 个 | 已完成 5 个 | 延期 2 个</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-secondary" onclick="location.href='production-test-report.html'">🔬 测试报告</button>
+                        <button class="btn-secondary" onclick="openSOPManagement()">📋 SOP管理</button>
+                        <button class="btn-secondary" onclick="openCapacityAnalysis()">📊 产能分析</button>
+                        <button class="btn-secondary" onclick="openMRPCalculation()">📈 MRP运算</button>
+                        <button class="btn-primary" onclick="openCreatePlan()">➕ 创建生产计划</button>
+                    </div>
+                </div>
+
+                <!-- 数据概览 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-label">本月计划总数</div>
+                        <div class="stat-value">15</div>
+                        <div class="stat-change">↑ 较上月增加 3 个</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-label">进行中</div>
+                        <div class="stat-value">8</div>
+                        <div class="stat-change">平均进度 67%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-label">本月完成</div>
+                        <div class="stat-value">5</div>
+                        <div class="stat-change">↑ 完成率 33%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-label">延期计划</div>
+                        <div class="stat-value">2</div>
+                        <div class="stat-change" style="color: #f44336;">需要关注</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-label">物料缺口</div>
+                        <div class="stat-value">3</div>
+                        <div class="stat-change" style="color: #f57c00;">需采购</div>
+                    </div>
+                </div>
+
+                <!-- 标签页 -->
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab('plan')">生产计划</div>
+                    <div class="tab" onclick="switchTab('order')">工单管理</div>
+                    <div class="tab" onclick="switchTab('mrp')">物料需求(MRP)</div>
+                    <div class="tab" onclick="switchTab('capacity')">产能分析</div>
+                    <div class="tab" onclick="switchTab('serial')">序列号追溯</div>
+                </div>
+
+                <!-- 生产计划 -->
+                <div id="planTab" class="tab-content active">
+                    <!-- 生产计划列表 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">生产计划列表</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon">🔍 筛选</button>
+                                <button class="btn-icon">⬇️ 导出</button>
+                                <button class="btn-icon">⚙️ 设置</button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>计划编号</th>
+                                    <th>产品名称</th>
+                                    <th>生产类型</th>
+                                    <th>优先级</th>
+                                    <th>计划数量</th>
+                                    <th>物料种类</th>
+                                    <th>标准周期</th>
+                                    <th>开始日期</th>
+                                    <th>预计完成</th>
+                                    <th>SOP</th>
+                                    <th>进度</th>
+                                    <th>审批状态</th>
+                                    <th>状态</th>
+                                    <th>负责人</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="plan-id" onclick="location.href='production-detail.html'" style="cursor: pointer;">PP-2025-0012</td>
+                                    <td>
+                                        <div style="font-weight: 600;">ESP32游戏手柄 v2.0</div>
+                                        <div style="font-size: 11px; color: #666; margin-top: 2px;">BOM: 主控板-V2.1</div>
+                                    </td>
+                                    <td><span style="background: #e8f5e9; color: #00890b; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">📦 订单生产</span></td>
+                                    <td><span class="priority-badge priority-urgent">紧急</span></td>
+                                    <td>200 台</td>
+                                    <td><span style="background: #e6f7ff; color: #1890ff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">68 种</span><div style="font-size: 11px; color: #52c41a; margin-top: 2px;">✓ 已确认</div></td>
+                                    <td><span style="color: #00890b; font-weight: 600;">14天</span><div style="font-size: 11px; color: #999;">实际: 11天</div></td>
+                                    <td>2025-10-01</td>
+                                    <td>2025-10-15</td>
+                                    <td><button class="btn-icon" onclick="viewSOP('ESP32游戏手柄-v2.0')" style="background: #e3f2fd; color: #1976d2;" title="查看SOP">📋</button></td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 75%"></div>
+                                            </div>
+                                            <span class="progress-text">75%</span>
+                                        </div>
+                                    </td>
+                                    <td><span style="background: #e8f5e9; color: #52c41a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ 已批准</span></td>
+                                    <td><span class="status-badge status-in-progress">生产中</span></td>
+                                    <td>张工</td>
+                                    <td><a href="production-detail.html" style="color: #00890b; text-decoration: none;">查看</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="plan-id" onclick="location.href='production-detail.html'" style="cursor: pointer;">PP-2025-0011</td>
+                                    <td>
+                                        <div style="font-weight: 600;">双通道示波器模块</div>
+                                        <div style="font-size: 11px; color: #666; margin-top: 2px;">BOM: 数据采集板-V2.0</div>
+                                    </td>
+                                    <td><span style="background: #fff3e0; color: #f57c00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">🔬 样品生产</span></td>
+                                    <td><span class="priority-badge priority-high">高</span></td>
+                                    <td>10 台</td>
+                                    <td><span style="background: #fff7e6; color: #fa8c16; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">45 种</span><div style="font-size: 11px; color: #faad14; margin-top: 2px;">⚠ 待确认</div></td>
+                                    <td><span style="color: #f39c12; font-weight: 600;">7天</span><div style="font-size: 11px; color: #999;">预计: 7天</div></td>
+                                    <td>2025-09-28</td>
+                                    <td>2025-10-05</td>
+                                    <td><button class="btn-icon" onclick="viewSOP('双通道示波器模块')" style="background: #e3f2fd; color: #1976d2;" title="查看SOP">📋</button></td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 45%"></div>
+                                            </div>
+                                            <span class="progress-text">45%</span>
+                                        </div>
+                                    </td>
+                                    <td><span style="background: #fff7e6; color: #fa8c16; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">⏳ 待审批</span></td>
+                                    <td><span class="status-badge status-in-progress">生产中</span></td>
+                                    <td>李工</td>
+                                    <td><a href="production-detail.html" style="color: #00890b; text-decoration: none;">查看</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="plan-id" onclick="location.href='production-detail.html'" style="cursor: pointer;">PP-2025-0010</td>
+                                    <td>
+                                        <div style="font-weight: 600;">ATT 501 I/O扩展板</div>
+                                        <div style="font-size: 11px; color: #666; margin-top: 2px;">BOM: 飞控主板-V3.1</div>
+                                    </td>
+                                    <td><span style="background: #e8f5e9; color: #00890b; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">📦 订单生产</span></td>
+                                    <td><span class="priority-badge priority-normal">正常</span></td>
+                                    <td>300 台</td>
+                                    <td><span style="background: #e6f7ff; color: #1890ff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">152 种</span><div style="font-size: 11px; color: #52c41a; margin-top: 2px;">✓ 已确认</div></td>
+                                    <td><span style="color: #00890b; font-weight: 600;">15天</span><div style="font-size: 11px; color: #999;">实际: 15天</div></td>
+                                    <td>2025-09-20</td>
+                                    <td>2025-10-05</td>
+                                    <td><button class="btn-icon" onclick="viewSOP('ATT-501-IO扩展板')" style="background: #e3f2fd; color: #1976d2;" title="查看SOP">📋</button></td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-text">100%</span>
+                                        </div>
+                                    </td>
+                                    <td><span style="background: #e8f5e9; color: #52c41a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ 已批准</span></td>
+                                    <td><span class="status-badge status-completed">已完成</span></td>
+                                    <td>王工</td>
+                                    <td><a href="production-detail.html" style="color: #00890b; text-decoration: none;">查看</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="plan-id" onclick="location.href='production-detail.html'" style="cursor: pointer;">PP-2025-0009</td>
+                                    <td>
+                                        <div style="font-weight: 600;">智能温控模块</div>
+                                        <div style="font-size: 11px; color: #666; margin-top: 2px;">BOM: 温控板-V1.3</div>
+                                    </td>
+                                    <td><span style="background: #e8f5e9; color: #00890b; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">📦 订单生产</span></td>
+                                    <td><span class="priority-badge priority-high">高</span></td>
+                                    <td>180 台</td>
+                                    <td><span style="background: #e6f7ff; color: #1890ff; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">89 种</span><div style="font-size: 11px; color: #52c41a; margin-top: 2px;">✓ 已确认</div></td>
+                                    <td><span style="color: #00890b; font-weight: 600;">12天</span><div style="font-size: 11px; color: #999;">实际: 14天</div></td>
+                                    <td>2025-09-15</td>
+                                    <td>2025-10-01</td>
+                                    <td><button class="btn-icon" onclick="viewSOP('智能温控模块')" style="background: #e3f2fd; color: #1976d2;" title="查看SOP">📋</button></td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 65%"></div>
+                                            </div>
+                                            <span class="progress-text">65%</span>
+                                        </div>
+                                    </td>
+                                    <td><span style="background: #e8f5e9; color: #52c41a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ 已批准</span></td>
+                                    <td><span class="status-badge status-delayed">已延期</span></td>
+                                    <td>赵工</td>
+                                    <td><a href="production-detail.html" style="color: #00890b; text-decoration: none;">查看</a></td>
+                                </tr>
+                                <tr>
+                                    <td class="plan-id" onclick="location.href='production-detail.html'" style="cursor: pointer;">PP-2025-0008</td>
+                                    <td>
+                                        <div style="font-weight: 600;">STM32开发板 Pro</div>
+                                        <div style="font-size: 11px; color: #666; margin-top: 2px;">BOM: 开发板-V4.0</div>
+                                    </td>
+                                    <td><span style="background: #fff3e0; color: #f57c00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">🔬 样品生产</span></td>
+                                    <td><span class="priority-badge priority-normal">正常</span></td>
+                                    <td>250 台</td>
+                                    <td><span style="background: #fff7e6; color: #fa8c16; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">126 种</span><div style="font-size: 11px; color: #faad14; margin-top: 2px;">⚠ 待确认</div></td>
+                                    <td><span style="color: #f39c12; font-weight: 600;">10天</span><div style="font-size: 11px; color: #999;">预计: 10天</div></td>
+                                    <td>2025-10-05</td>
+                                    <td>2025-10-20</td>
+                                    <td><button class="btn-icon" onclick="viewSOP('STM32开发板-Pro')" style="background: #e3f2fd; color: #1976d2;" title="查看SOP">📋</button></td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 15%"></div>
+                                            </div>
+                                            <span class="progress-text">15%</span>
+                                        </div>
+                                    </td>
+                                    <td><span style="background: #fff7e6; color: #fa8c16; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">⏳ 待审批</span></td>
+                                    <td><span class="status-badge status-planning">计划中</span></td>
+                                    <td>刘工</td>
+                                    <td><a href="production-detail.html" style="color: #00890b; text-decoration: none;">查看</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 甘特图 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">生产排程甘特图</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon">📅 本周</button>
+                                <button class="btn-icon">📅 本月</button>
+                                <button class="btn-icon">🔍 缩放</button>
+                            </div>
+                        </div>
+                        <div class="gantt-container">
+                            <div class="gantt-header">
+                                <div class="gantt-title">2025年10月生产排程</div>
+                                <div style="font-size: 13px; color: #666;">10月1日 - 10月31日</div>
+                            </div>
+                            <div class="gantt-timeline">
+                                <div class="gantt-tasks">
+                                    <div class="gantt-task-name">ESP32游戏手柄 v2.0</div>
+                                    <div class="gantt-task-name">双通道示波器模块</div>
+                                    <div class="gantt-task-name">ATT 501 I/O扩展板</div>
+                                    <div class="gantt-task-name">智能温控模块</div>
+                                    <div class="gantt-task-name">STM32开发板 Pro</div>
+                                </div>
+                                <div class="gantt-bars">
+                                    <div class="gantt-bar-container">
+                                        <div class="gantt-bar" style="left: 0%; width: 50%;">10/1 - 10/15 (75%)</div>
+                                    </div>
+                                    <div class="gantt-bar-container">
+                                        <div class="gantt-bar" style="left: 5%; width: 35%; opacity: 0.8;">9/28 - 10/10 (45%)</div>
+                                    </div>
+                                    <div class="gantt-bar-container">
+                                        <div class="gantt-bar" style="left: 0%; width: 16%; background: linear-gradient(135deg, #4caf50, #66bb6a);">9/20 - 10/5 (已完成)</div>
+                                    </div>
+                                    <div class="gantt-bar-container">
+                                        <div class="gantt-bar" style="left: 0%; width: 55%; background: linear-gradient(135deg, #f44336, #ef5350);">9/15 - 10/1 (延期)</div>
+                                    </div>
+                                    <div class="gantt-bar-container">
+                                        <div class="gantt-bar" style="left: 16%; width: 50%; opacity: 0.6;">10/5 - 10/20 (15%)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工单管理 -->
+                <div id="orderTab" class="tab-content">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">工单列表</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon">🔍 搜索</button>
+                                <button class="btn-icon">🎛️ 筛选</button>
+                                <button class="btn-icon">⬇️ 导出</button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>工单编号</th>
+                                    <th>产品名称</th>
+                                    <th>生产计划</th>
+                                    <th>优先级</th>
+                                    <th>数量</th>
+                                    <th>开始时间</th>
+                                    <th>预计完成</th>
+                                    <th>进度</th>
+                                    <th>状态</th>
+                                    <th>负责人</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="order-id" onclick="location.href='work-order-detail.html'" style="cursor: pointer;">WO-2025-0089</span></td>
+                                    <td>ESP32游戏手柄 v2.0</td>
+                                    <td>PP-2025-0012</td>
+                                    <td><span class="priority-badge priority-urgent">紧急</span></td>
+                                    <td>200 台</td>
+                                    <td>2025-10-01</td>
+                                    <td>2025-10-15</td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 75%"></div>
+                                            </div>
+                                            <span class="progress-text">75%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-in-progress">生产中</span></td>
+                                    <td>张工</td>
+                                    <td><button class="btn-icon" onclick="location.href='work-order-detail.html'">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-id" onclick="location.href='work-order-detail.html'" style="cursor: pointer;">WO-2025-0088</span></td>
+                                    <td>双通道示波器模块</td>
+                                    <td>PP-2025-0011</td>
+                                    <td><span class="priority-badge priority-high">高</span></td>
+                                    <td>150 台</td>
+                                    <td>2025-09-28</td>
+                                    <td>2025-10-10</td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 45%"></div>
+                                            </div>
+                                            <span class="progress-text">45%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-in-progress">生产中</span></td>
+                                    <td>李工</td>
+                                    <td><button class="btn-icon" onclick="location.href='work-order-detail.html'">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-id" onclick="location.href='work-order-detail.html'" style="cursor: pointer;">WO-2025-0087</span></td>
+                                    <td>ATT 501 I/O扩展板</td>
+                                    <td>PP-2025-0010</td>
+                                    <td><span class="priority-badge priority-normal">正常</span></td>
+                                    <td>300 台</td>
+                                    <td>2025-09-20</td>
+                                    <td>2025-10-05</td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-text">100%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-completed">已完成</span></td>
+                                    <td>王工</td>
+                                    <td><button class="btn-icon" onclick="location.href='work-order-detail.html'">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="order-id" onclick="location.href='work-order-detail.html'" style="cursor: pointer;">WO-2025-0086</span></td>
+                                    <td>智能温控模块</td>
+                                    <td>PP-2025-0009</td>
+                                    <td><span class="priority-badge priority-high">高</span></td>
+                                    <td>180 台</td>
+                                    <td>2025-09-15</td>
+                                    <td>2025-10-01</td>
+                                    <td>
+                                        <div class="progress-cell">
+                                            <div class="progress-bar-small">
+                                                <div class="progress-fill-small" style="width: 65%"></div>
+                                            </div>
+                                            <span class="progress-text">65%</span>
+                                        </div>
+                                    </td>
+                                    <td><span class="status-badge status-paused">已暂停</span></td>
+                                    <td>赵工</td>
+                                    <td><button class="btn-icon" onclick="location.href='work-order-detail.html'">查看</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 工序进度示例 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">工序进度跟踪 - WO-2025-0089</h3>
+                        </div>
+                        <div class="process-timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker completed">✓</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">1. SMT贴片</div>
+                                    <div class="timeline-desc">表面贴装元器件</div>
+                                    <div class="timeline-meta">
+                                        <span>✅ 已完成</span>
+                                        <span>工位: SMT-01</span>
+                                        <span>用时: 2天</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker completed">✓</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">2. 回流焊接</div>
+                                    <div class="timeline-desc">高温回流焊接</div>
+                                    <div class="timeline-meta">
+                                        <span>✅ 已完成</span>
+                                        <span>工位: REFLOW-01</span>
+                                        <span>用时: 1天</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker">⚡</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">3. AOI检测</div>
+                                    <div class="timeline-desc">自动光学检测</div>
+                                    <div class="timeline-meta">
+                                        <span style="color: #f57c00;">⏳ 进行中 (75%)</span>
+                                        <span>工位: AOI-01</span>
+                                        <span>预计: 0.5天</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker pending">○</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">4. 功能测试</div>
+                                    <div class="timeline-desc">电气性能测试</div>
+                                    <div class="timeline-meta">
+                                        <span>⏰ 待开始</span>
+                                        <span>工位: TEST-01</span>
+                                        <span>预计: 2天</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-marker pending">○</div>
+                                <div class="timeline-content">
+                                    <div class="timeline-title">5. 包装入库</div>
+                                    <div class="timeline-desc">成品包装与入库</div>
+                                    <div class="timeline-meta">
+                                        <span>⏰ 待开始</span>
+                                        <span>工位: PKG-01</span>
+                                        <span>预计: 1天</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 物料需求分析 -->
+                <div id="mrpTab" class="tab-content">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">物料需求分析（MRP）</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon">🔄 重新计算</button>
+                                <button class="btn-icon">⬇️ 导出MRP</button>
+                            </div>
+                        </div>
+                        <div class="material-grid">
+                            <div class="material-card">
+                                <div class="material-header">
+                                    <div class="material-name">ESP32-WROOM-32</div>
+                                    <div class="material-status status-shortage">缺料</div>
+                                </div>
+                                <div class="material-info">
+                                    <div class="info-item">
+                                        <div class="info-label">需求数量</div>
+                                        <div class="info-value">350 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">当前库存</div>
+                                        <div class="info-value">18 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">在途数量</div>
+                                        <div class="info-value">200 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">缺口</div>
+                                        <div class="info-value" style="color: #f44336;">132 个</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="material-card">
+                                <div class="material-header">
+                                    <div class="material-name">STM32G034R8</div>
+                                    <div class="material-status status-shortage">缺料</div>
+                                </div>
+                                <div class="material-info">
+                                    <div class="info-item">
+                                        <div class="info-label">需求数量</div>
+                                        <div class="info-value">280 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">当前库存</div>
+                                        <div class="info-value">25 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">在途数量</div>
+                                        <div class="info-value">0 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">缺口</div>
+                                        <div class="info-value" style="color: #f44336;">255 个</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="material-card">
+                                <div class="material-header">
+                                    <div class="material-name">LM358M 运放</div>
+                                    <div class="material-status status-shortage">严重缺料</div>
+                                </div>
+                                <div class="material-info">
+                                    <div class="info-item">
+                                        <div class="info-label">需求数量</div>
+                                        <div class="info-value">420 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">当前库存</div>
+                                        <div class="info-value">3 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">在途数量</div>
+                                        <div class="info-value">50 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">缺口</div>
+                                        <div class="info-value" style="color: #f44336;">367 个</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="material-card">
+                                <div class="material-header">
+                                    <div class="material-name">0805电阻 10kΩ</div>
+                                    <div class="material-status status-sufficient">充足</div>
+                                </div>
+                                <div class="material-info">
+                                    <div class="info-item">
+                                        <div class="info-label">需求数量</div>
+                                        <div class="info-value">1,850 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">当前库存</div>
+                                        <div class="info-value">3,240 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">在途数量</div>
+                                        <div class="info-value">500 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">富余</div>
+                                        <div class="info-value" style="color: #4caf50;">1,890 个</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="material-card">
+                                <div class="material-header">
+                                    <div class="material-name">0603电容 100nF</div>
+                                    <div class="material-status status-sufficient">充足</div>
+                                </div>
+                                <div class="material-info">
+                                    <div class="info-item">
+                                        <div class="info-label">需求数量</div>
+                                        <div class="info-value">2,200 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">当前库存</div>
+                                        <div class="info-value">4,500 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">在途数量</div>
+                                        <div class="info-value">1,000 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">富余</div>
+                                        <div class="info-value" style="color: #4caf50;">3,300 个</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="material-card">
+                                <div class="material-header">
+                                    <div class="material-name">AMS1117-3.3 稳压</div>
+                                    <div class="material-status status-shortage">缺料</div>
+                                </div>
+                                <div class="material-info">
+                                    <div class="info-item">
+                                        <div class="info-label">需求数量</div>
+                                        <div class="info-value">180 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">当前库存</div>
+                                        <div class="info-value">15 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">在途数量</div>
+                                        <div class="info-value">100 个</div>
+                                    </div>
+                                    <div class="info-item">
+                                        <div class="info-label">缺口</div>
+                                        <div class="info-value" style="color: #f44336;">65 个</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 产能分析 -->
+                <div id="capacityTab" class="tab-content">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">产能利用率分析</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon">📊 本周</button>
+                                <button class="btn-icon">📊 本月</button>
+                            </div>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 60px 40px; border-radius: 8px; text-align: center; color: #999; min-height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                            <div style="font-size: 48px; margin-bottom: 20px;">📊</div>
+                            <div style="font-size: 18px; font-weight: 600; margin-bottom: 10px; color: #666;">产能利用率图表区域</div>
+                            <div style="font-size: 14px;">显示各工位、产线的产能利用率趋势</div>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="stat-card">
+                            <div class="stat-icon">🏭</div>
+                            <div class="stat-label">SMT产线利用率</div>
+                            <div class="stat-value">78%</div>
+                            <div class="stat-change">运行正常</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚙️</div>
+                            <div class="stat-label">组装产线利用率</div>
+                            <div class="stat-value">85%</div>
+                            <div class="stat-change">↑ 较上周提升 5%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🔍</div>
+                            <div class="stat-label">测试产线利用率</div>
+                            <div class="stat-value">92%</div>
+                            <div class="stat-change">接近满载</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📦</div>
+                            <div class="stat-label">包装产线利用率</div>
+                            <div class="stat-value">65%</div>
+                            <div class="stat-change">有余量</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 序列号追溯 -->
+                <div id="serialTab" class="tab-content">
+                    <!-- 序列号查询 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">序列号查询与追溯</h3>
+                            <div class="card-actions">
+                                <button class="btn-primary" onclick="openBatchGenerateSN()">📝 批量生成序列号</button>
+                            </div>
+                        </div>
+
+                        <div style="padding: 24px; background: #f8f9fa; border-radius: 8px; margin-bottom: 24px;">
+                            <div style="display: flex; gap: 16px; align-items: center;">
+                                <input type="text" id="snSearchInput" placeholder="输入序列号进行查询，如：SN202410-ESP32-000001" style="flex: 1; padding: 14px 20px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; transition: border-color 0.3s;" onfocus="this.style.borderColor='#00890b'" onblur="this.style.borderColor='#e0e0e0'">
+                                <button class="btn-primary" onclick="searchSerialNumber()" style="padding: 14px 32px; white-space: nowrap;">🔍 查询</button>
+                                <button class="btn-icon" onclick="scanSerialNumber()" style="padding: 14px 24px;">📷 扫码查询</button>
+                            </div>
+                        </div>
+
+                        <!-- 查询结果 -->
+                        <div id="snSearchResult" style="display: none;">
+                            <div style="background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; padding: 24px; border-radius: 12px; margin-bottom: 24px;">
+                                <h4 style="font-size: 18px; margin-bottom: 16px;">✅ 序列号信息</h4>
+                                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                                    <div>
+                                        <div style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">序列号</div>
+                                        <div style="font-size: 18px; font-weight: 700;" id="snNumber">SN202410-ESP32-000156</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">产品型号</div>
+                                        <div style="font-size: 18px; font-weight: 700;" id="snProduct">ESP32游戏手柄 v2.0</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 12px; opacity: 0.9; margin-bottom: 4px;">生产日期</div>
+                                        <div style="font-size: 18px; font-weight: 700;" id="snDate">2025-10-08</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 追溯链路 -->
+                            <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #3d4647;">📋 完整追溯链路</h4>
+
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+                                    <div style="font-size: 14px; color: #666; margin-bottom: 12px;">🏭 生产信息</div>
+                                    <div style="font-size: 13px; line-height: 1.8; color: #3d4647;">
+                                        <div><strong>工单编号：</strong> WO-2025-0089</div>
+                                        <div><strong>生产批次：</strong> BATCH-20251008-003</div>
+                                        <div><strong>生产计划：</strong> PP-2025-0012</div>
+                                        <div><strong>生产厂商：</strong> 深圳华强PCB</div>
+                                        <div><strong>负责人：</strong> 张工</div>
+                                    </div>
+                                </div>
+
+                                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+                                    <div style="font-size: 14px; color: #666; margin-bottom: 12px;">🔬 质量检测</div>
+                                    <div style="font-size: 13px; line-height: 1.8; color: #3d4647;">
+                                        <div><strong>AOI检测：</strong> <span style="color: #00890b;">✅ 通过</span></div>
+                                        <div><strong>功能测试：</strong> <span style="color: #00890b;">✅ 通过</span></div>
+                                        <div><strong>老化测试：</strong> <span style="color: #00890b;">✅ 通过 (48h)</span></div>
+                                        <div><strong>终检：</strong> <span style="color: #00890b;">✅ 通过</span></div>
+                                        <div><strong>检测时间：</strong> 2025-10-08 14:35</div>
+                                    </div>
+                                </div>
+
+                                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+                                    <div style="font-size: 14px; color: #666; margin-bottom: 12px;">📦 关键物料批次</div>
+                                    <div style="font-size: 13px; line-height: 1.8; color: #3d4647;">
+                                        <div><strong>ESP32-WROOM-32：</strong> LOT-ESP32-20250920</div>
+                                        <div><strong>PCB板：</strong> PCB-BATCH-20250928-A</div>
+                                        <div><strong>TFT显示屏：</strong> LCD-LOT-20250915</div>
+                                        <div><strong>锂电池：</strong> BAT-BATCH-20250901</div>
+                                        <div style="margin-top: 8px;"><a href="#" style="color: #00890b; text-decoration: none;">查看完整BOM批次 →</a></div>
+                                    </div>
+                                </div>
+
+                                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px;">
+                                    <div style="font-size: 14px; color: #666; margin-bottom: 12px;">📤 出货信息</div>
+                                    <div style="font-size: 13px; line-height: 1.8; color: #3d4647;">
+                                        <div><strong>出货单号：</strong> SO-2025-0234</div>
+                                        <div><strong>客户：</strong> 深圳创客空间</div>
+                                        <div><strong>出货日期：</strong> 2025-10-10</div>
+                                        <div><strong>物流单号：</strong> SF1234567890</div>
+                                        <div><strong>签收状态：</strong> <span style="color: #00890b;">✅ 已签收</span></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 维修/退货记录 -->
+                            <h4 style="font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #3d4647;">🔧 售后服务记录</h4>
+                            <div style="background: #f0f8ff; border: 2px solid #bae7ff; border-radius: 8px; padding: 20px;">
+                                <div style="text-align: center; color: #666; font-size: 14px;">
+                                    ✅ 该设备无维修或退货记录，运行状态良好
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 序列号列表 -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">序列号管理</h3>
+                            <div class="card-actions">
+                                <button class="btn-icon">🔍 筛选</button>
+                                <button class="btn-icon">⬇️ 导出</button>
+                            </div>
+                        </div>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>序列号</th>
+                                    <th>产品型号</th>
+                                    <th>工单编号</th>
+                                    <th>生产批次</th>
+                                    <th>生产日期</th>
+                                    <th>质检状态</th>
+                                    <th>出货状态</th>
+                                    <th>客户</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="color: #197bc0; font-weight: 600; cursor: pointer;" onclick="viewSerialDetail('SN202410-ESP32-000156')">SN202410-ESP32-000156</td>
+                                    <td>ESP32游戏手柄 v2.0</td>
+                                    <td>WO-2025-0089</td>
+                                    <td>BATCH-20251008-003</td>
+                                    <td>2025-10-08</td>
+                                    <td><span class="status-badge status-completed">✅ 已通过</span></td>
+                                    <td><span class="status-badge status-completed">✅ 已出货</span></td>
+                                    <td>深圳创客空间</td>
+                                    <td><button class="btn-icon" onclick="viewSerialDetail('SN202410-ESP32-000156')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #197bc0; font-weight: 600; cursor: pointer;" onclick="viewSerialDetail('SN202410-ESP32-000155')">SN202410-ESP32-000155</td>
+                                    <td>ESP32游戏手柄 v2.0</td>
+                                    <td>WO-2025-0089</td>
+                                    <td>BATCH-20251008-003</td>
+                                    <td>2025-10-08</td>
+                                    <td><span class="status-badge status-completed">✅ 已通过</span></td>
+                                    <td><span class="status-badge status-in-progress">📦 待出货</span></td>
+                                    <td>-</td>
+                                    <td><button class="btn-icon" onclick="viewSerialDetail('SN202410-ESP32-000155')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #197bc0; font-weight: 600; cursor: pointer;" onclick="viewSerialDetail('SN202410-ESP32-000154')">SN202410-ESP32-000154</td>
+                                    <td>ESP32游戏手柄 v2.0</td>
+                                    <td>WO-2025-0089</td>
+                                    <td>BATCH-20251008-003</td>
+                                    <td>2025-10-08</td>
+                                    <td><span class="status-badge status-warning">⚠️ 待复检</span></td>
+                                    <td><span class="status-badge">⏸️ 暂停</span></td>
+                                    <td>-</td>
+                                    <td><button class="btn-icon" onclick="viewSerialDetail('SN202410-ESP32-000154')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #197bc0; font-weight: 600; cursor: pointer;" onclick="viewSerialDetail('SN202410-OSC-000432')">SN202410-OSC-000432</td>
+                                    <td>双通道示波器模块</td>
+                                    <td>WO-2025-0088</td>
+                                    <td>BATCH-20251005-001</td>
+                                    <td>2025-10-05</td>
+                                    <td><span class="status-badge status-completed">✅ 已通过</span></td>
+                                    <td><span class="status-badge status-completed">✅ 已出货</span></td>
+                                    <td>北京科技大学</td>
+                                    <td><button class="btn-icon" onclick="viewSerialDetail('SN202410-OSC-000432')">查看</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="color: #197bc0; font-weight: 600; cursor: pointer;" onclick="viewSerialDetail('SN202409-ATT-001256')">SN202409-ATT-001256</td>
+                                    <td>ATT 501 I/O扩展板</td>
+                                    <td>WO-2025-0087</td>
+                                    <td>BATCH-20250928-002</td>
+                                    <td>2025-09-28</td>
+                                    <td><span class="status-badge status-completed">✅ 已通过</span></td>
+                                    <td><span class="status-badge status-completed">✅ 已出货</span></td>
+                                    <td>上海工业自动化</td>
+                                    <td><button class="btn-icon" onclick="viewSerialDetail('SN202409-ATT-001256')">查看</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 统计图表 -->
+                    <div class="stats-grid" style="grid-template-columns: repeat(4, 1fr);">
+                        <div class="stat-card">
+                            <div class="stat-icon">🏷️</div>
+                            <div class="stat-label">已生成序列号</div>
+                            <div class="stat-value">1,256</div>
+                            <div class="stat-change">本月 +342</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">✅</div>
+                            <div class="stat-label">质检通过</div>
+                            <div class="stat-value">1,198</div>
+                            <div class="stat-change">通过率 95.4%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📤</div>
+                            <div class="stat-label">已出货</div>
+                            <div class="stat-value">1,089</div>
+                            <div class="stat-change">出货率 86.7%</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">🔧</div>
+                            <div class="stat-label">售后返修</div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-change">返修率 1.1%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量生成序列号模态框 -->
+    <div id="batchGenerateSNModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">批量生成序列号</h3>
+                <button class="close-btn" onclick="closeBatchGenerateSN()">×</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="submitBatchGenerateSN(event)">
+                    <div class="form-group">
+                        <label class="form-label">选择工单 *</label>
+                        <select class="form-select" id="snWorkOrder" onchange="loadWorkOrderInfo()" required>
+                            <option value="">请选择工单</option>
+                            <option value="WO-2025-0089">WO-2025-0089 - ESP32游戏手柄 v2.0 (200台)</option>
+                            <option value="WO-2025-0088">WO-2025-0088 - 双通道示波器模块 (150台)</option>
+                            <option value="WO-2025-0087">WO-2025-0087 - ATT 501 I/O扩展板 (300台)</option>
+                            <option value="WO-2025-0086">WO-2025-0086 - 智能温控模块 (180台)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">产品型号 *</label>
+                            <input type="text" class="form-input" id="snProductModel" value="ESP32游戏手柄 v2.0" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">生产批次 *</label>
+                            <input type="text" class="form-input" id="snBatchNumber" value="BATCH-20251008-003" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">序列号前缀 *</label>
+                            <input type="text" class="form-input" id="snPrefix" value="SN202410-ESP32-" placeholder="例如：SN202410-ESP32-" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">起始编号 *</label>
+                            <input type="number" class="form-input" id="snStartNumber" value="1" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">生成数量 *</label>
+                            <input type="number" class="form-input" id="snQuantity" value="200" min="1" max="1000" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">编号位数 *</label>
+                            <select class="form-select" id="snDigits" required>
+                                <option value="4">4位 (0001-9999)</option>
+                                <option value="5">5位 (00001-99999)</option>
+                                <option value="6" selected>6位 (000001-999999)</option>
+                                <option value="7">7位 (0000001-9999999)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">序列号预览</label>
+                        <div style="background: #f8f9fa; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; font-family: monospace; font-size: 14px; color: #333;">
+                            <div style="margin-bottom: 8px;"><strong>起始：</strong> <span id="snPreviewStart">SN202410-ESP32-000001</span></div>
+                            <div style="margin-bottom: 8px;"><strong>示例：</strong> <span id="snPreviewMiddle">SN202410-ESP32-000100</span></div>
+                            <div><strong>结束：</strong> <span id="snPreviewEnd">SN202410-ESP32-000200</span></div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f0f8ff; border-left: 4px solid #00890b; padding: 16px; border-radius: 6px; margin-top: 20px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #00890b;">💡 注意事项</div>
+                        <ul style="margin-left: 20px; color: #666; font-size: 13px; line-height: 1.8;">
+                            <li>序列号生成后不可修改，请仔细确认前缀和编号规则</li>
+                            <li>系统会自动关联工单、批次、BOM等生产信息</li>
+                            <li>建议在生产开始前统一生成，打印标签后贴在产品上</li>
+                            <li>序列号将用于全生命周期追溯管理</li>
+                        </ul>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" onclick="closeBatchGenerateSN()">取消</button>
+                        <button type="submit" class="btn-submit">🏷️ 生成序列号</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建生产计划模态框 -->
+    <div id="createPlanModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">创建生产计划</h3>
+                <button class="close-btn" onclick="closeCreatePlan()">×</button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="submitCreatePlan(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">计划编号 *</label>
+                            <input type="text" class="form-input" value="PP-2025-0013" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">优先级 *</label>
+                            <select class="form-select" required>
+                                <option value="">请选择优先级</option>
+                                <option value="urgent">紧急</option>
+                                <option value="high">高</option>
+                                <option value="normal" selected>正常</option>
+                                <option value="low">低</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">关联项目 *</label>
+                        <select class="form-select" id="selectProject" onchange="loadProjectBOM()" required>
+                            <option value="">请选择项目</option>
+                            <option value="proj-001">ESP32游戏手柄 v2.0</option>
+                            <option value="proj-002">双通道示波器模块</option>
+                            <option value="proj-003">ATT 501 I/O扩展板</option>
+                            <option value="proj-004">智能温控模块</option>
+                            <option value="proj-005">STM32开发板 Pro</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">BOM版本 *</label>
+                        <select class="form-select" id="selectBOM" onchange="checkInventory()" required>
+                            <option value="">请先选择项目</option>
+                        </select>
+                    </div>
+
+                    <div id="inventoryCheck" style="display: none; margin-bottom: 20px;">
+                        <div style="background: #f0f9ff; border: 1px solid #bae7ff; border-radius: 8px; padding: 15px;">
+                            <div style="font-weight: 600; margin-bottom: 10px; color: #1976d2;">📊 库存检查结果</div>
+                            <div id="inventoryResult" style="font-size: 13px; line-height: 1.8;"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">计划数量 *</label>
+                            <input type="number" class="form-input" placeholder="请输入数量" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">单位 *</label>
+                            <select class="form-select" required>
+                                <option value="台">台</option>
+                                <option value="件">件</option>
+                                <option value="个">个</option>
+                                <option value="套">套</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">开始日期 *</label>
+                            <input type="date" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">预计完成日期 *</label>
+                            <input type="date" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">负责人 *</label>
+                        <select class="form-select" required>
+                            <option value="">请选择负责人</option>
+                            <option value="张工">张工</option>
+                            <option value="李工">李工</option>
+                            <option value="王工">王工</option>
+                            <option value="赵工">赵工</option>
+                            <option value="刘工">刘工</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">生产厂商 *</label>
+                        <select class="form-select" id="manufacturerSelect" required>
+                            <option value="">请选择PCB贴片厂商</option>
+                            <option value="深圳华强PCB">深圳华强PCB - SMT贴片加工</option>
+                            <option value="捷配电子">捷配电子 - SMT/DIP加工</option>
+                            <option value="嘉立创">嘉立创 - PCB+SMT一站式</option>
+                            <option value="立创商城">立创商城 - SMT贴片服务</option>
+                            <option value="博敏电子">博敏电子 - 高精度SMT</option>
+                            <option value="中京电子">中京电子 - SMT批量生产</option>
+                            <option value="生益科技">生益科技 - PCB+SMT</option>
+                            <option value="东莞凯昶德">东莞凯昶德 - 专业SMT</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">备注</label>
+                        <textarea class="form-textarea" placeholder="请输入备注信息（可选）"></textarea>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" onclick="closeCreatePlan()">取消</button>
+                        <button type="submit" class="btn-submit">创建计划</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MRP运算模态框 -->
+    <div id="mrpModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">MRP物料需求运算</h3>
+                <button class="close-btn" onclick="closeMRPCalculation()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">选择生产计划</label>
+                    <select class="form-select" id="mrpPlanSelect" onchange="calculateMRP()">
+                        <option value="">请选择计划</option>
+                        <option value="PP-2025-0012">PP-2025-0012 - ESP32游戏手柄 v2.0 (200台)</option>
+                        <option value="PP-2025-0011">PP-2025-0011 - 双通道示波器模块 (150台)</option>
+                        <option value="PP-2025-0010">PP-2025-0010 - ATT 501 I/O扩展板 (300台)</option>
+                        <option value="PP-2025-0009">PP-2025-0009 - 智能温控模块 (180台)</option>
+                        <option value="PP-2025-0008">PP-2025-0008 - STM32开发板 Pro (250台)</option>
+                    </select>
+                </div>
+
+                <div id="mrpResult" style="display: none;">
+                    <div style="margin: 20px 0;">
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #333;">运算结果</h4>
+                        <div class="analysis-result">
+                            <div class="result-item">
+                                <span class="result-label">总需求物料数</span>
+                                <span class="result-value">28 种</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">库存充足</span>
+                                <span class="result-value good">19 种</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">需要采购</span>
+                                <span class="result-value warning">6 种</span>
+                            </div>
+                            <div class="result-item">
+                                <span class="result-label">严重缺料</span>
+                                <span class="result-value danger">3 种</span>
+                            </div>
+                        </div>
+
+                        <h4 style="font-size: 16px; font-weight: 600; margin: 20px 0 15px; color: #333;">缺料清单</h4>
+                        <div style="background: #fff5f5; border: 1px solid #ffcdd2; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                            <div style="font-size: 13px; line-height: 1.8; color: #333;">
+                                <div style="margin-bottom: 8px;">• ESP32-WROOM-32: 缺 132 个</div>
+                                <div style="margin-bottom: 8px;">• STM32G034R8: 缺 255 个</div>
+                                <div style="margin-bottom: 8px;">• LM358M 运放: 缺 367 个</div>
+                                <div style="margin-bottom: 8px;">• AMS1117-3.3 稳压: 缺 65 个</div>
+                                <div style="margin-bottom: 8px;">• SN74HC595 移位寄存器: 缺 45 个</div>
+                                <div>• DS18B20 温度传感器: 缺 28 个</div>
+                            </div>
+                        </div>
+
+                        <div style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 8px; padding: 12px; font-size: 13px; color: #2e7d32;">
+                            💡 建议：立即启动采购流程，预计采购周期 5-7 个工作日
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeMRPCalculation()">关闭</button>
+                    <button type="button" class="btn-submit" onclick="exportMRP()">导出MRP报表</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 产能分析模态框 -->
+    <div id="capacityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">产能分析</h3>
+                <button class="close-btn" onclick="closeCapacityAnalysis()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">分析周期</label>
+                    <select class="form-select" id="capacityPeriod" onchange="updateCapacityAnalysis()">
+                        <option value="week">本周</option>
+                        <option value="month" selected>本月</option>
+                        <option value="quarter">本季度</option>
+                    </select>
+                </div>
+
+                <div>
+                    <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #333;">产线利用率概览</h4>
+                    <div class="analysis-result">
+                        <div class="result-item">
+                            <span class="result-label">🏭 SMT产线</span>
+                            <span class="result-value good">78%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">⚙️ 组装产线</span>
+                            <span class="result-value good">85%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">🔍 测试产线</span>
+                            <span class="result-value warning">92%</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">📦 包装产线</span>
+                            <span class="result-value good">65%</span>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 16px; font-weight: 600; margin: 20px 0 15px; color: #333;">产能瓶颈分析</h4>
+                    <div style="background: #fff8e1; border: 1px solid #ffecb3; border-radius: 8px; padding: 15px; margin-bottom: 15px;">
+                        <div style="font-size: 14px; font-weight: 600; color: #f57c00; margin-bottom: 10px;">⚠️ 发现产能瓶颈</div>
+                        <div style="font-size: 13px; line-height: 1.8; color: #333;">
+                            <div style="margin-bottom: 8px;">• 测试产线利用率达 92%，接近满载</div>
+                            <div style="margin-bottom: 8px;">• 预计下周二将超负荷运转</div>
+                            <div>• 建议增加一条测试产线或延长工作时间</div>
+                        </div>
+                    </div>
+
+                    <h4 style="font-size: 16px; font-weight: 600; margin: 20px 0 15px; color: #333;">优化建议</h4>
+                    <div style="background: #e3f2fd; border: 1px solid #bbdefb; border-radius: 8px; padding: 15px;">
+                        <div style="font-size: 13px; line-height: 1.8; color: #333;">
+                            <div style="margin-bottom: 8px;">✓ SMT产线有 22% 余量，可承接更多订单</div>
+                            <div style="margin-bottom: 8px;">✓ 包装产线有 35% 余量，资源利用率较低</div>
+                            <div>✓ 建议将部分包装产线人员调配至测试环节</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeCapacityAnalysis()">关闭</button>
+                    <button type="button" class="btn-submit" onclick="exportCapacity()">导出分析报告</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 标签页切换
+        function switchTab(tabName) {
+            // 移除所有活动标签
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // 激活当前标签
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // 显示工单详情
+        function showWorkOrderDetail(orderId) {
+            alert('查看工单详情: ' + orderId + '\n\n实际应用中，这里会打开工单详情侧边栏或模态框，显示：\n- 基本信息\n- 工序进度\n- 质量数据\n- 物料消耗\n- 操作记录');
+        }
+
+        // 查看SOP
+        function viewSOP(productName) {
+            location.href = 'sop-view.html?product=' + encodeURIComponent(productName) + '&from=sop-management';
+        }
+
+        // ========== 创建生产计划 ==========
+        // 项目BOM数据（示例）
+        const projectBOMData = {
+            'proj-001': [
+                { id: 'bom-001-v1', name: 'BOM v1.0 (2025-09-15)', materials: 32, status: 'current' },
+                { id: 'bom-001-v2', name: 'BOM v2.0 (2025-10-01)', materials: 35, status: 'latest' }
+            ],
+            'proj-002': [
+                { id: 'bom-002-v1', name: 'BOM v1.0 (2025-09-10)', materials: 28, status: 'current' }
+            ],
+            'proj-003': [
+                { id: 'bom-003-v1', name: 'BOM v1.0 (2025-08-20)', materials: 42, status: 'current' }
+            ],
+            'proj-004': [
+                { id: 'bom-004-v1', name: 'BOM v1.0 (2025-09-05)', materials: 25, status: 'current' }
+            ],
+            'proj-005': [
+                { id: 'bom-005-v1', name: 'BOM v1.0 (2025-09-28)', materials: 38, status: 'current' }
+            ]
+        };
+
+        function openCreatePlan() {
+            document.getElementById('createPlanModal').classList.add('active');
+        }
+
+        function closeCreatePlan() {
+            document.getElementById('createPlanModal').classList.remove('active');
+            // 重置表单
+            document.getElementById('selectProject').value = '';
+            document.getElementById('selectBOM').innerHTML = '<option value="">请先选择项目</option>';
+            document.getElementById('inventoryCheck').style.display = 'none';
+        }
+
+        // 加载项目BOM列表
+        function loadProjectBOM() {
+            const projectSelect = document.getElementById('selectProject');
+            const bomSelect = document.getElementById('selectBOM');
+            const projectId = projectSelect.value;
+
+            if (!projectId) {
+                bomSelect.innerHTML = '<option value="">请先选择项目</option>';
+                document.getElementById('inventoryCheck').style.display = 'none';
+                return;
+            }
+
+            const boms = projectBOMData[projectId] || [];
+            bomSelect.innerHTML = '<option value="">请选择BOM版本</option>';
+
+            boms.forEach(bom => {
+                const option = document.createElement('option');
+                option.value = bom.id;
+                option.textContent = `${bom.name} (${bom.materials}种物料)`;
+                if (bom.status === 'latest') {
+                    option.textContent += ' - 最新版本';
+                }
+                bomSelect.appendChild(option);
+            });
+
+            document.getElementById('inventoryCheck').style.display = 'none';
+        }
+
+        // ========== 新增：BOM物料确认状态检查 ==========
+        function checkBOMMaterialConfirmation(bomId) {
+            // 模拟BOM物料确认状态数据（实际应从后端API获取）
+            // 不同BOM有不同的物料确认状态
+            const bomMaterialsStatus = {
+                '1': {  // BOM-2024-001 主控板 - 全部确认
+                    allConfirmed: true,
+                    totalCount: 68,
+                    confirmedCount: 68,
+                    unconfirmedCount: 0,
+                    unconfirmedMaterials: []
+                },
+                '2': {  // BOM-2024-002 显示模块 - 有未确认
+                    allConfirmed: false,
+                    totalCount: 24,
+                    confirmedCount: 19,
+                    unconfirmedCount: 5,
+                    unconfirmedMaterials: [
+                        { code: 'LCD-2.8-001', name: 'TFT LCD 2.8寸屏幕' },
+                        { code: 'IC-FT6236', name: 'FT6236触摸芯片' },
+                        { code: 'CON-FPC-24P', name: 'FPC连接器24PIN' },
+                        { code: 'R-0805-100K', name: '贴片电阻0805 100K' },
+                        { code: 'C-0603-22pF', name: '贴片电容0603 22pF' }
+                    ]
+                },
+                '3': {  // BOM-2024-003 数据采集板 - 全部确认
+                    allConfirmed: true,
+                    totalCount: 45,
+                    confirmedCount: 45,
+                    unconfirmedCount: 0,
+                    unconfirmedMaterials: []
+                }
+            };
+
+            // 返回对应BOM的物料确认状态，默认全部确认
+            return bomMaterialsStatus[bomId] || {
+                allConfirmed: true,
+                totalCount: 0,
+                confirmedCount: 0,
+                unconfirmedCount: 0,
+                unconfirmedMaterials: []
+            };
+        }
+
+        // 检查库存
+        function checkInventory() {
+            const bomSelect = document.getElementById('selectBOM');
+            const bomId = bomSelect.value;
+
+            if (!bomId) {
+                document.getElementById('inventoryCheck').style.display = 'none';
+                return;
+            }
+
+            // 模拟库存检查结果
+            const inventoryData = {
+                totalMaterials: 32,
+                sufficient: 24,
+                shortage: 8,
+                shortageList: [
+                    { code: 'IC-ESP32-001', name: 'ESP32-WROOM-32', shortage: 182 },
+                    { code: 'IC-LM358', name: 'LM358M运放', shortage: 397 },
+                    { code: 'IC-AMS1117', name: 'AMS1117-3.3', shortage: 185 }
+                ]
+            };
+
+            let resultHTML = `
+                <div style="margin-bottom: 8px;">
+                    ✓ 总物料数: <strong>${inventoryData.totalMaterials}</strong> 种
+                </div>
+                <div style="margin-bottom: 8px;">
+                    ✓ 库存充足: <strong style="color: #4caf50;">${inventoryData.sufficient}</strong> 种
+                </div>
+                <div style="margin-bottom: 12px;">
+                    ✗ 库存不足: <strong style="color: #f44336;">${inventoryData.shortage}</strong> 种
+                </div>
+            `;
+
+            if (inventoryData.shortage > 0) {
+                resultHTML += '<div style="font-weight: 600; color: #f44336; margin-bottom: 6px;">缺料清单（前3项）:</div>';
+                inventoryData.shortageList.forEach(item => {
+                    resultHTML += `<div style="color: #666;">• ${item.code} - ${item.name}: 缺 ${item.shortage} 个</div>`;
+                });
+                resultHTML += '<div style="margin-top: 10px; padding: 8px; background: #fff3e0; border-radius: 4px; color: #f57c00;">⚠️ 建议先完成采购后再创建生产计划</div>';
+            } else {
+                resultHTML += '<div style="margin-top: 10px; padding: 8px; background: #e8f5e9; border-radius: 4px; color: #4caf50;">✅ 所有物料库存充足，可以创建生产计划</div>';
+            }
+
+            document.getElementById('inventoryResult').innerHTML = resultHTML;
+            document.getElementById('inventoryCheck').style.display = 'block';
+        }
+
+        async function submitCreatePlan(event) {
+            event.preventDefault();
+
+            const projectSelect = document.getElementById('selectProject');
+            const bomSelect = document.getElementById('selectBOM');
+            const quantityInput = document.getElementById('planQuantity');
+
+            if (!projectSelect.value || !bomSelect.value) {
+                alert('❌ 请选择项目和BOM版本');
+                return;
+            }
+
+            const projectId = projectSelect.value;
+            const projectName = projectSelect.options[projectSelect.selectedIndex].text;
+            const bomId = bomSelect.value;
+            const quantity = quantityInput ? parseInt(quantityInput.value) || 100 : 100;
+
+            // ========== 新增：BOM物料确认检查 ==========
+            // 检查BOM中是否有未确认的物料
+            const bomMaterialStatus = checkBOMMaterialConfirmation(bomId);
+            if (!bomMaterialStatus.allConfirmed) {
+                const unconfirmedList = bomMaterialStatus.unconfirmedMaterials
+                    .map(m => `• ${m.code} - ${m.name}`)
+                    .join('\n');
+
+                const userConfirm = confirm(
+                    `⚠️ BOM物料确认检查失败\n\n` +
+                    `该BOM中有 ${bomMaterialStatus.unconfirmedCount} 种物料尚未确认：\n\n${unconfirmedList}\n\n` +
+                    `未确认的物料可能导致：\n` +
+                    `• 规格参数不准确\n` +
+                    `• 采购信息缺失\n` +
+                    `• 生产计划延误\n\n` +
+                    `建议先到BOM详情页确认所有物料后再创建生产单。\n\n` +
+                    `是否仍要继续创建生产单？`
+                );
+
+                if (!userConfirm) {
+                    return;
+                }
+            }
+
+            // 生成生产计划ID
+            const planId = 'PROD-PLAN-' + Date.now();
+
+            // 获取BOM物料清单（实际应从后端API获取）
+            const bomMaterials = getMockBOMMaterials(bomId, quantity);
+
+            // 使用MaterialReservation系统预留物料
+            let reservationResult = { success: true, reservations: [], errors: [] };
+            if (typeof MaterialReservation !== 'undefined' && bomMaterials.length > 0) {
+                reservationResult = MaterialReservation.reserveMaterials(
+                    'production',
+                    planId,
+                    bomMaterials
+                );
+
+                // 如果有物料短缺，显示详细信息
+                if (!reservationResult.success) {
+                    const confirmed = await showMaterialShortageDialog(
+                        reservationResult.errors,
+                        reservationResult.reservations
+                    );
+
+                    if (!confirmed) {
+                        // 用户取消，释放已占用的物料
+                        reservationResult.reservations.forEach(r => {
+                            MaterialReservation.releaseReservation(r.id, '用户取消生产计划创建');
+                        });
+                        return;
+                    }
+                }
+            }
+
+            // 记录审计日志
+            if (typeof AuditLog !== 'undefined') {
+                AuditLog.logCreate('production_plan', planId, {
+                    projectId: projectId,
+                    projectName: projectName,
+                    bomId: bomId,
+                    quantity: quantity,
+                    reservedMaterials: reservationResult.reservations.length,
+                    materialShortage: reservationResult.errors.length,
+                    status: 'pending'
+                }, `创建生产计划: ${projectName} × ${quantity}`);
+            }
+
+            // 显示成功消息
+            const shortageWarning = reservationResult.errors.length > 0
+                ? `\n\n⚠️ 注意：有 ${reservationResult.errors.length} 种物料库存不足，需要采购！`
+                : '';
+
+            alert(`✅ 生产计划创建成功！\n\n计划编号：${planId}\n项目：${projectName}\n数量：${quantity}\n\n系统已：\n• 关联项目BOM信息\n• 预留库存物料 ${reservationResult.reservations.length} 种\n• 生成物料需求计划\n• 创建生产工单${shortageWarning}\n\n计划已添加到生产计划列表中。`);
+
+            closeCreatePlan();
+        }
+
+        /**
+         * 获取模拟BOM物料清单
+         */
+        function getMockBOMMaterials(bomId, quantity) {
+            // 实际应从后端API获取: GET /api/bom/{bomId}/materials
+            // 这里返回模拟数据
+            return [
+                { materialId: 'MAT-IC-001', materialName: 'ESP32-WROOM-32', quantity: quantity * 1, unit: 'pcs' },
+                { materialId: 'MAT-IC-002', materialName: 'LM358M运放', quantity: quantity * 2, unit: 'pcs' },
+                { materialId: 'MAT-IC-003', materialName: 'AMS1117-3.3', quantity: quantity * 1, unit: 'pcs' },
+                { materialId: 'MAT-R-001', materialName: '电阻 10KΩ 0805', quantity: quantity * 10, unit: 'pcs' },
+                { materialId: 'MAT-C-001', materialName: '电容 100nF 0603', quantity: quantity * 15, unit: 'pcs' }
+            ];
+        }
+
+        /**
+         * 显示物料短缺对话框
+         */
+        function showMaterialShortageDialog(errors, reservedMaterials) {
+            return new Promise((resolve) => {
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10000;
+                `;
+
+                modal.innerHTML = `
+                    <div class="modal-content" style="background: white; border-radius: 12px; width: 700px; max-height: 80vh; overflow: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                        <div class="modal-header" style="padding: 24px; background: #fff3e0; border-bottom: 1px solid #e0e0e0; border-radius: 12px 12px 0 0; border-top: 4px solid #ff9800;">
+                            <div style="font-size: 20px; font-weight: 700; color: #1a1a1a;">⚠️ 物料库存不足</div>
+                            <div style="font-size: 13px; color: #666; margin-top: 4px;">部分物料库存不足，无法完全满足生产需求</div>
+                        </div>
+                        <div class="modal-body" style="padding: 24px;">
+                            <!-- 短缺物料列表 -->
+                            <div style="margin-bottom: 20px;">
+                                <div style="font-size: 16px; font-weight: 700; margin-bottom: 12px; color: #ff9800;">缺料清单 (${errors.length}种)</div>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead>
+                                        <tr style="background: #f8f9fa;">
+                                            <th style="padding: 12px; text-align: left; font-size: 12px; color: #666;">物料名称</th>
+                                            <th style="padding: 12px; text-align: right; font-size: 12px; color: #666;">需求数量</th>
+                                            <th style="padding: 12px; text-align: right; font-size: 12px; color: #666;">可用数量</th>
+                                            <th style="padding: 12px; text-align: right; font-size: 12px; color: #666;">短缺数量</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${errors.map(e => `
+                                            <tr style="border-bottom: 1px solid #f0f0f0;">
+                                                <td style="padding: 12px; font-size: 13px; font-weight: 600;">${e.materialName}</td>
+                                                <td style="padding: 12px; text-align: right; font-size: 13px;">${e.required}</td>
+                                                <td style="padding: 12px; text-align: right; font-size: 13px; color: #ff9800;">${e.available}</td>
+                                                <td style="padding: 12px; text-align: right; font-size: 13px; font-weight: 700; color: #f44336;">${e.shortage}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            ${reservedMaterials.length > 0 ? `
+                                <!-- 已预留物料 -->
+                                <div style="background: #e8f5e9; padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                                    <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #00890b;">✅ 已成功预留 ${reservedMaterials.length} 种物料</div>
+                                    <div style="font-size: 13px; color: #666;">这些物料已锁定，不会被其他项目占用</div>
+                                </div>
+                            ` : ''}
+
+                            <!-- 处理建议 -->
+                            <div style="background: #fff3e0; padding: 16px; border-radius: 8px;">
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #f57c00;">💡 建议操作</div>
+                                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                                    1. 立即采购短缺物料（推荐）<br>
+                                    2. 调整生产数量以匹配库存<br>
+                                    3. 从其他项目借用物料<br>
+                                    4. 等待其他生产计划完成后释放库存
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                            <button class="btn" style="background: #f0f0f0; color: #666; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="this.closest('.modal-overlay').remove(); window.materialShortageResolve(false);">取消创建</button>
+                            <div style="display: flex; gap: 12px;">
+                                <button class="btn" style="background: #ff9800; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="this.closest('.modal-overlay').remove(); alert('跳转到采购页面...'); location.href='procurement.html';">立即采购</button>
+                                <button class="btn btn-primary" style="background: #00890b; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="this.closest('.modal-overlay').remove(); window.materialShortageResolve(true);">继续创建</button>
+                            </div>
+                `;
+
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.remove();
+                        resolve(false);
+                    }
+                });
+
+                window.materialShortageResolve = (result) => {
+                    resolve(result);
+                };
+
+                document.body.appendChild(modal);
+            });
+        }
+
+        // ========== MRP运算 ==========
+        function openMRPCalculation() {
+            document.getElementById('mrpModal').classList.add('active');
+        }
+
+        function closeMRPCalculation() {
+            document.getElementById('mrpModal').classList.remove('active');
+            document.getElementById('mrpResult').style.display = 'none';
+            document.getElementById('mrpPlanSelect').value = '';
+        }
+
+        function calculateMRP() {
+            const select = document.getElementById('mrpPlanSelect');
+            if (select.value) {
+                // 显示运算结果
+                document.getElementById('mrpResult').style.display = 'block';
+            } else {
+                document.getElementById('mrpResult').style.display = 'none';
+            }
+        }
+
+        function exportMRP() {
+            alert('📊 MRP报表导出成功！\n\n文件已保存到下载目录。');
+        }
+
+        // ========== 产能分析 ==========
+        function openCapacityAnalysis() {
+            document.getElementById('capacityModal').classList.add('active');
+        }
+
+        function closeCapacityAnalysis() {
+            document.getElementById('capacityModal').classList.remove('active');
+        }
+
+        function updateCapacityAnalysis() {
+            const period = document.getElementById('capacityPeriod').value;
+            // 实际应用中，这里会根据选择的周期更新数据
+            console.log('更新产能分析周期:', period);
+        }
+
+        function exportCapacity() {
+            alert('📊 产能分析报告导出成功！\n\n文件已保存到下载目录。');
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('createPlanModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCreatePlan();
+        });
+
+        document.getElementById('mrpModal').addEventListener('click', function(e) {
+            if (e.target === this) closeMRPCalculation();
+        });
+
+        document.getElementById('capacityModal').addEventListener('click', function(e) {
+            if (e.target === this) closeCapacityAnalysis();
+        });
+
+        // ========== 序列号管理功能 ==========
+
+        // 查询序列号
+        function searchSerialNumber() {
+            const searchInput = document.getElementById('snSearchInput').value.trim();
+
+            if (!searchInput) {
+                alert('请输入要查询的序列号！');
+                return;
+            }
+
+            // 模拟查询（实际会调用API）
+            console.log('查询序列号:', searchInput);
+
+            // 显示查询结果
+            document.getElementById('snSearchResult').style.display = 'block';
+
+            // 更新显示的序列号信息
+            document.getElementById('snNumber').textContent = searchInput;
+
+            // 滚动到结果区域
+            setTimeout(() => {
+                document.getElementById('snSearchResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+
+        // 扫码查询序列号
+        function scanSerialNumber() {
+            alert('📷 启动摄像头扫描...\n\n实际应用中，这里会：\n• 调用设备摄像头\n• 扫描产品上的二维码/条形码\n• 自动填充序列号并查询\n• 显示追溯信息');
+        }
+
+        // 查看序列号详情
+        function viewSerialDetail(serialNumber) {
+            document.getElementById('snSearchInput').value = serialNumber;
+            searchSerialNumber();
+
+            // 切换到序列号追溯tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab')[4].classList.add('active'); // 第5个tab（序列号追溯）
+            document.getElementById('serialTab').classList.add('active');
+        }
+
+        // 打开批量生成序列号模态框
+        function openBatchGenerateSN() {
+            document.getElementById('batchGenerateSNModal').classList.add('active');
+            updateSNPreview(); // 更新预览
+        }
+
+        // 关闭批量生成序列号模态框
+        function closeBatchGenerateSN() {
+            document.getElementById('batchGenerateSNModal').classList.remove('active');
+        }
+
+        // 加载工单信息
+        function loadWorkOrderInfo() {
+            const workOrder = document.getElementById('snWorkOrder').value;
+
+            // 模拟加载工单信息
+            const workOrderData = {
+                'WO-2025-0089': {
+                    product: 'ESP32游戏手柄 v2.0',
+                    batch: 'BATCH-20251008-003',
+                    prefix: 'SN202410-ESP32-'
+                },
+                'WO-2025-0088': {
+                    product: '双通道示波器模块',
+                    batch: 'BATCH-20251005-001',
+                    prefix: 'SN202410-OSC-'
+                },
+                'WO-2025-0087': {
+                    product: 'ATT 501 I/O扩展板',
+                    batch: 'BATCH-20250928-002',
+                    prefix: 'SN202409-ATT-'
+                },
+                'WO-2025-0086': {
+                    product: '智能温控模块',
+                    batch: 'BATCH-20250920-001',
+                    prefix: 'SN202409-TEMP-'
+                }
+            };
+
+            if (workOrder && workOrderData[workOrder]) {
+                const data = workOrderData[workOrder];
+                document.getElementById('snProductModel').value = data.product;
+                document.getElementById('snBatchNumber').value = data.batch;
+                document.getElementById('snPrefix').value = data.prefix;
+                updateSNPreview();
+            }
+        }
+
+        // 更新序列号预览
+        function updateSNPreview() {
+            const prefix = document.getElementById('snPrefix').value || 'SN-';
+            const startNum = parseInt(document.getElementById('snStartNumber').value) || 1;
+            const quantity = parseInt(document.getElementById('snQuantity').value) || 100;
+            const digits = parseInt(document.getElementById('snDigits').value) || 6;
+
+            // 格式化数字
+            const padNumber = (num) => String(num).padStart(digits, '0');
+
+            document.getElementById('snPreviewStart').textContent = prefix + padNumber(startNum);
+            document.getElementById('snPreviewMiddle').textContent = prefix + padNumber(startNum + Math.floor(quantity / 2));
+            document.getElementById('snPreviewEnd').textContent = prefix + padNumber(startNum + quantity - 1);
+        }
+
+        // 监听输入变化，实时更新预览
+        ['snPrefix', 'snStartNumber', 'snQuantity', 'snDigits'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', updateSNPreview);
+                element.addEventListener('change', updateSNPreview);
+            }
+        });
+
+        // 提交批量生成序列号
+        function submitBatchGenerateSN(event) {
+            event.preventDefault();
+
+            const workOrder = document.getElementById('snWorkOrder').value;
+            const product = document.getElementById('snProductModel').value;
+            const batch = document.getElementById('snBatchNumber').value;
+            const prefix = document.getElementById('snPrefix').value;
+            const startNum = document.getElementById('snStartNumber').value;
+            const quantity = document.getElementById('snQuantity').value;
+            const digits = document.getElementById('snDigits').value;
+
+            alert(`✅ 序列号批量生成成功！\n\n工单: ${workOrder}\n产品: ${product}\n批次: ${batch}\n前缀: ${prefix}\n起始编号: ${startNum}\n数量: ${quantity}\n编号位数: ${digits}\n\n已生成 ${quantity} 个序列号，并关联到工单和生产批次。\n\n下一步：\n• 打印序列号标签\n• 在生产过程中贴标\n• 质检时扫码录入\n• 出货时关联客户信息`);
+
+            closeBatchGenerateSN();
+        }
+
+        // 模态框外部点击关闭
+        document.getElementById('batchGenerateSNModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeBatchGenerateSN();
+            }
+        });
+
+        // ========== 页面加载时检查URL参数，恢复到正确的TAB ==========
+        window.addEventListener('DOMContentLoaded', function() {
+            // 获取URL参数
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+
+            if (tab) {
+                // 移除所有活动标签
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+                // 激活指定的标签
+                if (tab === 'order') {
+                    // 激活工单管理标签
+                    document.querySelectorAll('.tab')[1].classList.add('active');
+                    document.getElementById('orderTab').classList.add('active');
+                } else if (tab === 'mrp') {
+                    // 激活物料需求标签
+                    document.querySelectorAll('.tab')[2].classList.add('active');
+                    document.getElementById('mrpTab').classList.add('active');
+                } else if (tab === 'capacity') {
+                    // 激活产能分析标签
+                    document.querySelectorAll('.tab')[3].classList.add('active');
+                    document.getElementById('capacityTab').classList.add('active');
+                } else if (tab === 'serial') {
+                    // 激活序列号追溯标签
+                    document.querySelectorAll('.tab')[4].classList.add('active');
+                    document.getElementById('serialTab').classList.add('active');
+                }
+            }
+        });
+
+        // ========== SOP管理功能 ==========
+        function openSOPManagement() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 12px; width: 90%; max-width: 1200px; max-height: 90vh; overflow-y: auto;">
+                    <div style="padding: 24px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 20px; font-weight: 700; color: #1a1a1a;">📋 SOP管理 - 标准作业程序</h3>
+                        <button onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999;">&times;</button>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <div style="display: flex; gap: 12px;">
+                                <button onclick="createNewSOP()" style="background: #00890b; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;">➕ 创建SOP</button>
+                                <button onclick="importSOP()" style="background: #f0f0f0; color: #666; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;">📥 导入SOP</button>
+                            </div>
+                            <div style="display: flex; gap: 12px;">
+                                <input type="text" placeholder="搜索SOP..." style="padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 6px; width: 250px;">
+                                <select style="padding: 10px 16px; border: 1px solid #e0e0e0; border-radius: 6px; background: white;">
+                                    <option>全部分类</option>
+                                    <option>SMT贴片</option>
+                                    <option>手工焊接</option>
+                                    <option>测试检验</option>
+                                    <option>组装包装</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: #f8f9fa; border-bottom: 2px solid #e0e0e0;">
+                                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666;">SOP编号</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666;">SOP名称</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666;">适用产品</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666;">工序类型</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666;">版本</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666;">创建时间</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666;">状态</th>
+                                    <th style="padding: 12px; text-align: left; font-size: 13px; font-weight: 600; color: #666;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr style="border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 16px 12px;"><strong>SOP-2025-001</strong></td>
+                                    <td style="padding: 16px 12px;">ESP32游戏手柄组装流程</td>
+                                    <td style="padding: 16px 12px;">ESP32游戏手柄 v2.0</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #e8f5e9; color: #00890b; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">组装</span></td>
+                                    <td style="padding: 16px 12px;">v2.1</td>
+                                    <td style="padding: 16px 12px;">2025-09-15</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #e8f5e9; color: #52c41a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ 已发布</span></td>
+                                    <td style="padding: 16px 12px;">
+                                        <button onclick="viewSOP('ESP32游戏手柄-v2.0')" style="color: #00890b; background: none; border: none; cursor: pointer; text-decoration: underline;">查看</button>
+                                        <button onclick="editSOP('SOP-2025-001')" style="color: #1976d2; background: none; border: none; cursor: pointer; text-decoration: underline; margin-left: 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 16px 12px;"><strong>SOP-2025-002</strong></td>
+                                    <td style="padding: 16px 12px;">SMT贴片标准流程</td>
+                                    <td style="padding: 16px 12px;">通用PCB</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #e3f2fd; color: #1976d2; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">SMT</span></td>
+                                    <td style="padding: 16px 12px;">v1.5</td>
+                                    <td style="padding: 16px 12px;">2025-08-20</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #e8f5e9; color: #52c41a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ 已发布</span></td>
+                                    <td style="padding: 16px 12px;">
+                                        <button onclick="viewSOP('SMT贴片')" style="color: #00890b; background: none; border: none; cursor: pointer; text-decoration: underline;">查看</button>
+                                        <button onclick="editSOP('SOP-2025-002')" style="color: #1976d2; background: none; border: none; cursor: pointer; text-decoration: underline; margin-left: 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 16px 12px;"><strong>SOP-2025-003</strong></td>
+                                    <td style="padding: 16px 12px;">功能测试与质检流程</td>
+                                    <td style="padding: 16px 12px;">双通道示波器模块</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #fff3e0; color: #f57c00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">测试</span></td>
+                                    <td style="padding: 16px 12px;">v1.0</td>
+                                    <td style="padding: 16px 12px;">2025-09-28</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #fff7e6; color: #fa8c16; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">⏳ 草稿</span></td>
+                                    <td style="padding: 16px 12px;">
+                                        <button onclick="viewSOP('测试检验')" style="color: #00890b; background: none; border: none; cursor: pointer; text-decoration: underline;">查看</button>
+                                        <button onclick="editSOP('SOP-2025-003')" style="color: #1976d2; background: none; border: none; cursor: pointer; text-decoration: underline; margin-left: 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 16px 12px;"><strong>SOP-2025-004</strong></td>
+                                    <td style="padding: 16px 12px;">ATT-501扩展板焊接流程</td>
+                                    <td style="padding: 16px 12px;">ATT 501 I/O扩展板</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #fce4ec; color: #c2185b; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">手工焊接</span></td>
+                                    <td style="padding: 16px 12px;">v3.0</td>
+                                    <td style="padding: 16px 12px;">2025-09-10</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #e8f5e9; color: #52c41a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ 已发布</span></td>
+                                    <td style="padding: 16px 12px;">
+                                        <button onclick="viewSOP('ATT-501-IO扩展板')" style="color: #00890b; background: none; border: none; cursor: pointer; text-decoration: underline;">查看</button>
+                                        <button onclick="editSOP('SOP-2025-004')" style="color: #1976d2; background: none; border: none; cursor: pointer; text-decoration: underline; margin-left: 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 16px 12px;"><strong>SOP-2025-005</strong></td>
+                                    <td style="padding: 16px 12px;">温控模块包装检验流程</td>
+                                    <td style="padding: 16px 12px;">智能温控模块</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #f3e5f5; color: #7b1fa2; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">包装</span></td>
+                                    <td style="padding: 16px 12px;">v1.2</td>
+                                    <td style="padding: 16px 12px;">2025-09-05</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #e8f5e9; color: #52c41a; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ 已发布</span></td>
+                                    <td style="padding: 16px 12px;">
+                                        <button onclick="viewSOP('智能温控模块')" style="color: #00890b; background: none; border: none; cursor: pointer; text-decoration: underline;">查看</button>
+                                        <button onclick="editSOP('SOP-2025-005')" style="color: #1976d2; background: none; border: none; cursor: pointer; text-decoration: underline; margin-left: 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                                <tr style="border-bottom: 1px solid #f0f0f0;" onmouseover="this.style.background='#f8f9fa'" onmouseout="this.style.background='white'">
+                                    <td style="padding: 16px 12px;"><strong>SOP-2025-006</strong></td>
+                                    <td style="padding: 16px 12px;">STM32开发板烧录流程</td>
+                                    <td style="padding: 16px 12px;">STM32开发板 Pro</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #e0f2f1; color: #00796b; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">烧录</span></td>
+                                    <td style="padding: 16px 12px;">v2.0</td>
+                                    <td style="padding: 16px 12px;">2025-10-02</td>
+                                    <td style="padding: 16px 12px;"><span style="background: #fff7e6; color: #fa8c16; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">⏳ 草稿</span></td>
+                                    <td style="padding: 16px 12px;">
+                                        <button onclick="viewSOP('STM32开发板-Pro')" style="color: #00890b; background: none; border: none; cursor: pointer; text-decoration: underline;">查看</button>
+                                        <button onclick="editSOP('SOP-2025-006')" style="color: #1976d2; background: none; border: none; cursor: pointer; text-decoration: underline; margin-left: 8px;">编辑</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            document.body.appendChild(modal);
+        }
+
+        // 创建新SOP
+        function createNewSOP() {
+            location.href = 'sop-create.html?from=sop-management';
+        }
+
+        // 导入SOP
+        function importSOP() {
+            location.href = 'sop-import.html?from=sop-management';
+        }
+
+        // 编辑SOP
+        function editSOP(sopId) {
+            location.href = 'sop-edit.html?id=' + sopId + '&from=sop-management';
+        }
+
+        // 页面加载时检查是否需要打开SOP管理弹窗
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('openSOPModal') === 'true') {
+                openSOPManagement();
+            }
+        });
+    </script>
+
+    <!-- 引入核心系统脚本 -->
+    <script src="js/permission-control.js"></script>
+    <script src="js/audit-log.js"></script>
+    <script src="js/material-reservation.js"></script>
+</body>
+</html>

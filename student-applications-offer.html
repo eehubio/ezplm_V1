@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的Offer - EZPLM 校园招聘</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+
+
+        /* 顶部栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-left: auto;
+        }
+
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 内容区 */
+        .content {
+            flex: 1;
+            padding: 32px;
+            max-width: 1440px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,137,11,0.2);
+        }
+
+        .header-content h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
+        }
+
+        .header-description {
+            font-size: 15px;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 32px;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+        }
+
+        /* 筛选标签 */
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .filter-chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .filter-chip:hover {
+            background: #e5e7eb;
+        }
+
+        .filter-chip.active {
+            background: #dcfce7;
+            color: #00890b;
+            border-color: #00890b;
+            font-weight: 500;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #00890b;
+            border: 1px solid #00890b;
+        }
+
+        .btn-outline:hover {
+            background: #f0fdf4;
+        }
+
+        /* Offer列表 */
+        .offer-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 24px;
+        }
+
+        .offer-card {
+            background: white;
+            border-radius: 12px;
+            padding: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            overflow: hidden;
+            border: 2px solid transparent;
+        }
+
+        .offer-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+
+        .offer-card.pending {
+            border-color: #fbbf24;
+        }
+
+        .offer-card.accepted {
+            border-color: #00890b;
+        }
+
+        .offer-header {
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(0,137,11,0.05) 0%, rgba(0,179,14,0.05) 100%);
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .offer-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .company-info {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .company-details h3 {
+            font-size: 18px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .company-name {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .offer-status {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-accepted {
+            background: #dcfce7;
+            color: #00890b;
+        }
+
+        .status-rejected {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .status-expired {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .salary-highlight {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+        }
+
+        .salary-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00890b;
+        }
+
+        .salary-unit {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .offer-body {
+            padding: 24px;
+        }
+
+        .offer-section {
+            margin-bottom: 20px;
+        }
+
+        .offer-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #4b5563;
+        }
+
+        .benefit-icon {
+            font-size: 16px;
+        }
+
+        .offer-details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 500;
+        }
+
+        .countdown-alert {
+            background: #fef3c7;
+            border: 1px solid #fbbf24;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .countdown-alert.urgent {
+            background: #fee2e2;
+            border-color: #dc2626;
+        }
+
+        .countdown-icon {
+            font-size: 20px;
+        }
+
+        .countdown-content {
+            flex: 1;
+        }
+
+        .countdown-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 2px;
+        }
+
+        .countdown-alert.urgent .countdown-title {
+            color: #991b1b;
+        }
+
+        .countdown-time {
+            font-size: 12px;
+            color: #78350f;
+        }
+
+        .countdown-alert.urgent .countdown-time {
+            color: #7f1d1d;
+        }
+
+        .offer-actions {
+            display: flex;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .btn-accept {
+            flex: 1;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            justify-content: center;
+        }
+
+        .btn-accept:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+
+        .btn-reject {
+            background: white;
+            color: #dc2626;
+            border: 1px solid #dc2626;
+        }
+
+        .btn-reject:hover {
+            background: #fef2f2;
+        }
+
+        .btn-detail {
+            background: white;
+            color: #4b5563;
+            border: 1px solid #d1d5db;
+        }
+
+        .btn-detail:hover {
+            background: #f9fafb;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 12px;
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .empty-title {
+            font-size: 20px;
+            color: #1f2937;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .empty-description {
+            font-size: 15px;
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+
+        /* 对比模式 */
+        .compare-mode-bar {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .compare-mode-bar.active {
+            display: flex;
+        }
+
+        .compare-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .compare-count {
+            font-weight: 600;
+            color: #1e40af;
+        }
+
+        .btn-compare {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-compare:hover {
+            background: #2563eb;
+        }
+
+        .btn-cancel-compare {
+            background: white;
+            color: #6b7280;
+            border: 1px solid #d1d5db;
+        }
+
+        .offer-card.comparing {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="content">
+        <!-- 返回按钮 -->
+        <div style="margin-bottom: 16px;">
+            <button onclick="location.href='campus-recruitment.html'" style="display: flex; align-items: center; gap: 8px; background: white; border: 2px solid #e0e0e0; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #3d4647; cursor: pointer; transition: all 0.3s;">
+                <span>←</span>
+                <span>返回校园招聘</span>
+            </button>
+        </div>
+
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="header-content">
+                <h2>🎉 我的Offer</h2>
+                <div class="header-description">管理您收到的所有Offer，做出最佳选择</div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">待答复</span>
+                        <span class="stat-value">2</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">已接受</span>
+                        <span class="stat-value">1</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">已拒绝</span>
+                        <span class="stat-value">1</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 筛选和操作栏 -->
+                <div class="filter-section">
+                    <div class="filter-tabs">
+                        <span class="filter-label">状态筛选：</span>
+                        <div class="filter-chip active" onclick="filterStatus('all')">全部 (4)</div>
+                        <div class="filter-chip" onclick="filterStatus('pending')">待答复 (2)</div>
+                        <div class="filter-chip" onclick="filterStatus('accepted')">已接受 (1)</div>
+                        <div class="filter-chip" onclick="filterStatus('rejected')">已拒绝 (1)</div>
+                    </div>
+                    <button class="btn btn-outline" onclick="toggleCompareMode()">
+                        <span>📊</span>
+                        <span>对比Offer</span>
+                    </button>
+                </div>
+
+                <!-- 对比模式提示栏 -->
+                <div class="compare-mode-bar" id="compareModeBar">
+                    <div class="compare-info">
+                        <span style="font-size: 20px;">📊</span>
+                        <span class="compare-count">已选择 <span id="compareCount">0</span> 个Offer进行对比</span>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn btn-compare" onclick="startCompare()">开始对比</button>
+                        <button class="btn btn-cancel-compare" onclick="cancelCompare()">取消</button>
+                    </div>
+                </div>
+
+                <!-- Offer列表 -->
+                <div class="offer-list">
+                    <!-- Offer 1 - 待答复（紧急） -->
+                    <div class="offer-card pending" data-status="pending">
+                        <div class="offer-header">
+                            <div class="offer-header-top">
+                                <div class="company-info">
+                                    <div class="company-logo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">H</div>
+                                    <div class="company-details">
+                                        <h3>硬件工程师</h3>
+                                        <div class="company-name">华为技术有限公司</div>
+                                    </div>
+                                </div>
+                                <div class="offer-status status-pending">待答复</div>
+                            </div>
+                            <div class="salary-highlight">
+                                <span class="salary-amount">18-22K</span>
+                                <span class="salary-unit">/ 月 · 14薪</span>
+                            </div>
+                        </div>
+
+                        <div class="offer-body">
+                            <div class="countdown-alert urgent">
+                                <span class="countdown-icon">⏰</span>
+                                <div class="countdown-content">
+                                    <div class="countdown-title">答复截止时间临近</div>
+                                    <div class="countdown-time">剩余 2 天，请尽快做出决定</div>
+                                </div>
+                            </div>
+
+                            <div class="offer-section">
+                                <div class="section-title">福利待遇</div>
+                                <div class="benefits-grid">
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🏠</span>
+                                        <span>住房补贴</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🍱</span>
+                                        <span>免费三餐</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🏥</span>
+                                        <span>商业保险</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">✈️</span>
+                                        <span>带薪年假</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">📚</span>
+                                        <span>培训发展</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🎁</span>
+                                        <span>节日福利</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="offer-section">
+                                <div class="section-title">工作详情</div>
+                                <div class="offer-details-grid">
+                                    <div class="detail-item">
+                                        <span class="detail-label">工作地点</span>
+                                        <span class="detail-value">深圳 · 龙岗</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">入职时间</span>
+                                        <span class="detail-value">2025年7月1日</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">答复期限</span>
+                                        <span class="detail-value">2025年10月27日</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">试用期</span>
+                                        <span class="detail-value">3个月</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="offer-actions">
+                                <button class="btn btn-accept" onclick="acceptOffer(this)">
+                                    <span>✓</span>
+                                    <span>接受Offer</span>
+                                </button>
+                                <button class="btn btn-reject" onclick="rejectOffer(this)">
+                                    <span>✗</span>
+                                    <span>拒绝</span>
+                                </button>
+                                <button class="btn btn-detail" onclick="viewOfferDetail(this)">详情</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Offer 2 - 待答复 -->
+                    <div class="offer-card pending" data-status="pending">
+                        <div class="offer-header">
+                            <div class="offer-header-top">
+                                <div class="company-info">
+                                    <div class="company-logo" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">D</div>
+                                    <div class="company-details">
+                                        <h3>嵌入式软件工程师</h3>
+                                        <div class="company-name">大疆创新科技有限公司</div>
+                                    </div>
+                                </div>
+                                <div class="offer-status status-pending">待答复</div>
+                            </div>
+                            <div class="salary-highlight">
+                                <span class="salary-amount">20-25K</span>
+                                <span class="salary-unit">/ 月 · 13薪</span>
+                            </div>
+                        </div>
+
+                        <div class="offer-body">
+                            <div class="countdown-alert">
+                                <span class="countdown-icon">⏰</span>
+                                <div class="countdown-content">
+                                    <div class="countdown-title">答复截止时间</div>
+                                    <div class="countdown-time">剩余 7 天</div>
+                                </div>
+                            </div>
+
+                            <div class="offer-section">
+                                <div class="section-title">福利待遇</div>
+                                <div class="benefits-grid">
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">💰</span>
+                                        <span>期权激励</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🍱</span>
+                                        <span>餐饮补助</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🏥</span>
+                                        <span>补充医疗</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🎮</span>
+                                        <span>团建活动</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">📚</span>
+                                        <span>技术培训</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🏋️</span>
+                                        <span>健身房</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="offer-section">
+                                <div class="section-title">工作详情</div>
+                                <div class="offer-details-grid">
+                                    <div class="detail-item">
+                                        <span class="detail-label">工作地点</span>
+                                        <span class="detail-value">深圳 · 南山</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">入职时间</span>
+                                        <span class="detail-value">2025年7月15日</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">答复期限</span>
+                                        <span class="detail-value">2025年11月1日</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">试用期</span>
+                                        <span class="detail-value">6个月</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="offer-actions">
+                                <button class="btn btn-accept" onclick="acceptOffer(this)">
+                                    <span>✓</span>
+                                    <span>接受Offer</span>
+                                </button>
+                                <button class="btn btn-reject" onclick="rejectOffer(this)">
+                                    <span>✗</span>
+                                    <span>拒绝</span>
+                                </button>
+                                <button class="btn btn-detail" onclick="viewOfferDetail(this)">详情</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Offer 3 - 已接受 -->
+                    <div class="offer-card accepted" data-status="accepted">
+                        <div class="offer-header">
+                            <div class="offer-header-top">
+                                <div class="company-info">
+                                    <div class="company-logo" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">T</div>
+                                    <div class="company-details">
+                                        <h3>射频工程师</h3>
+                                        <div class="company-name">腾讯科技（深圳）有限公司</div>
+                                    </div>
+                                </div>
+                                <div class="offer-status status-accepted">已接受</div>
+                            </div>
+                            <div class="salary-highlight">
+                                <span class="salary-amount">22-28K</span>
+                                <span class="salary-unit">/ 月 · 16薪</span>
+                            </div>
+                        </div>
+
+                        <div class="offer-body">
+                            <div class="offer-section">
+                                <div class="section-title">福利待遇</div>
+                                <div class="benefits-grid">
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">💰</span>
+                                        <span>股票期权</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🏠</span>
+                                        <span>安家费</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🍱</span>
+                                        <span>免费三餐</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🏥</span>
+                                        <span>五险一金</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">✈️</span>
+                                        <span>15天年假</span>
+                                    </div>
+                                    <div class="benefit-item">
+                                        <span class="benefit-icon">🎓</span>
+                                        <span>学历津贴</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="offer-section">
+                                <div class="section-title">工作详情</div>
+                                <div class="offer-details-grid">
+                                    <div class="detail-item">
+                                        <span class="detail-label">工作地点</span>
+                                        <span class="detail-value">深圳 · 南山</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">入职时间</span>
+                                        <span class="detail-value">2025年7月1日</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">接受时间</span>
+                                        <span class="detail-value">2025年10月18日</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">试用期</span>
+                                        <span class="detail-value">3个月</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="offer-actions">
+                                <button class="btn btn-detail" onclick="viewOfferDetail(this)" style="flex: 1; justify-content: center;">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Offer 4 - 已拒绝 -->
+                    <div class="offer-card" data-status="rejected">
+                        <div class="offer-header" style="opacity: 0.6;">
+                            <div class="offer-header-top">
+                                <div class="company-info">
+                                    <div class="company-logo" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">X</div>
+                                    <div class="company-details">
+                                        <h3>PCB设计工程师</h3>
+                                        <div class="company-name">小米科技有限责任公司</div>
+                                    </div>
+                                </div>
+                                <div class="offer-status status-rejected">已拒绝</div>
+                            </div>
+                            <div class="salary-highlight">
+                                <span class="salary-amount">15-20K</span>
+                                <span class="salary-unit">/ 月 · 14薪</span>
+                            </div>
+                        </div>
+
+                        <div class="offer-body" style="opacity: 0.6;">
+                            <div class="offer-section">
+                                <div class="section-title">拒绝原因</div>
+                                <div style="padding: 12px; background: #f9fafb; border-radius: 8px; font-size: 14px; color: #6b7280;">
+                                    已选择其他更符合职业规划的机会
+                                </div>
+                            </div>
+
+                            <div class="offer-section">
+                                <div class="section-title">工作详情</div>
+                                <div class="offer-details-grid">
+                                    <div class="detail-item">
+                                        <span class="detail-label">工作地点</span>
+                                        <span class="detail-value">北京 · 海淀</span>
+                                    </div>
+                                    <div class="detail-item">
+                                        <span class="detail-label">拒绝时间</span>
+                                        <span class="detail-value">2025年10月15日</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+    </div>
+
+    <script>
+        let compareMode = false;
+        let selectedOffers = new Set();
+
+        // 筛选功能
+        function filterStatus(status) {
+            const cards = document.querySelectorAll('.offer-card');
+            const chips = document.querySelectorAll('.filter-chip');
+
+            chips.forEach(chip => chip.classList.remove('active'));
+            event.target.classList.add('active');
+
+            cards.forEach(card => {
+                if (status === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    const cardStatus = card.getAttribute('data-status');
+                    card.style.display = cardStatus === status ? 'block' : 'none';
+                }
+            });
+        }
+
+        // 切换对比模式
+        function toggleCompareMode() {
+            compareMode = !compareMode;
+            const compareModeBar = document.getElementById('compareModeBar');
+            const cards = document.querySelectorAll('.offer-card');
+
+            if (compareMode) {
+                compareModeBar.classList.add('active');
+                cards.forEach(card => {
+                    if (card.getAttribute('data-status') !== 'rejected') {
+                        card.style.cursor = 'pointer';
+                        card.addEventListener('click', selectForCompare);
+                    }
+                });
+            } else {
+                cancelCompare();
+            }
+        }
+
+        // 选择Offer进行对比
+        function selectForCompare(e) {
+            if (!compareMode) return;
+            if (e.target.closest('button')) return;
+
+            const card = e.currentTarget;
+            const offerId = Array.from(document.querySelectorAll('.offer-card')).indexOf(card);
+
+            if (selectedOffers.has(offerId)) {
+                selectedOffers.delete(offerId);
+                card.classList.remove('comparing');
+            } else {
+                if (selectedOffers.size < 3) {
+                    selectedOffers.add(offerId);
+                    card.classList.add('comparing');
+                } else {
+                    alert('最多只能选择3个Offer进行对比');
+                }
+            }
+
+            document.getElementById('compareCount').textContent = selectedOffers.size;
+        }
+
+        // 开始对比
+        function startCompare() {
+            if (selectedOffers.size < 2) {
+                alert('请至少选择2个Offer进行对比');
+                return;
+            }
+
+            alert(`对比功能开发中...\n\n将会对比以下内容：\n- 薪资待遇\n- 福利对比\n- 工作地点\n- 发展机会\n- 公司文化\n等多个维度`);
+        }
+
+        // 取消对比
+        function cancelCompare() {
+            compareMode = false;
+            selectedOffers.clear();
+            document.getElementById('compareModeBar').classList.remove('active');
+            document.getElementById('compareCount').textContent = '0';
+
+            const cards = document.querySelectorAll('.offer-card');
+            cards.forEach(card => {
+                card.style.cursor = 'default';
+                card.classList.remove('comparing');
+                card.removeEventListener('click', selectForCompare);
+            });
+        }
+
+        // 接受Offer
+        function acceptOffer(btn) {
+            const card = btn.closest('.offer-card');
+            const jobTitle = card.querySelector('h3').textContent;
+            const companyName = card.querySelector('.company-name').textContent;
+
+            if (confirm(`确定要接受"${companyName}"的"${jobTitle}"职位吗？\n\n接受后将自动拒绝其他待答复的Offer。`)) {
+                const statusBadge = card.querySelector('.offer-status');
+                statusBadge.textContent = '已接受';
+                statusBadge.className = 'offer-status status-accepted';
+                card.setAttribute('data-status', 'accepted');
+                card.classList.remove('pending');
+                card.classList.add('accepted');
+
+                // 移除倒计时提示
+                const countdown = card.querySelector('.countdown-alert');
+                if (countdown) countdown.remove();
+
+                // 更新操作按钮
+                const actionsDiv = card.querySelector('.offer-actions');
+                actionsDiv.innerHTML = `
+                    <button class="btn btn-detail" onclick="viewOfferDetail(this)" style="flex: 1; justify-content: center;">查看详情</button>
+                `;
+
+                alert('恭喜！您已成功接受该Offer。\n\n后续流程：\n1. HR将发送正式录用通知\n2. 准备入职材料\n3. 签署劳动合同');
+            }
+        }
+
+        // 拒绝Offer
+        function rejectOffer(btn) {
+            const card = btn.closest('.offer-card');
+            const jobTitle = card.querySelector('h3').textContent;
+            const companyName = card.querySelector('.company-name').textContent;
+
+            const reason = prompt(`确定要拒绝"${companyName}"的"${jobTitle}"职位吗？\n\n请输入拒绝原因（选填）：`);
+
+            if (reason !== null) {
+                const statusBadge = card.querySelector('.offer-status');
+                statusBadge.textContent = '已拒绝';
+                statusBadge.className = 'offer-status status-rejected';
+                card.setAttribute('data-status', 'rejected');
+                card.classList.remove('pending');
+
+                // 添加透明度
+                card.querySelector('.offer-header').style.opacity = '0.6';
+                card.querySelector('.offer-body').style.opacity = '0.6';
+
+                // 移除倒计时和福利详情
+                const countdown = card.querySelector('.countdown-alert');
+                if (countdown) countdown.remove();
+
+                const benefitsSection = card.querySelector('.offer-section');
+                if (benefitsSection && reason) {
+                    benefitsSection.innerHTML = `
+                        <div class="section-title">拒绝原因</div>
+                        <div style="padding: 12px; background: #f9fafb; border-radius: 8px; font-size: 14px; color: #6b7280;">
+                            ${reason || '已选择其他机会'}
+                    `;
+                }
+
+                alert('已成功拒绝该Offer。感谢您的诚实回复。');
+            }
+        }
+
+        // 查看Offer详情
+        function viewOfferDetail(btn) {
+            const card = btn.closest('.offer-card');
+            const jobTitle = card.querySelector('h3').textContent;
+            const companyName = card.querySelector('.company-name').textContent;
+
+            alert(`Offer详情页面\n\n职位：${jobTitle}\n公司：${companyName}\n\n完整的Offer详情页面功能开发中...\n将包含：\n- 完整薪资结构\n- 详细福利说明\n- 劳动合同预览\n- 公司介绍\n- 团队信息`);
+        }
+    </script>
+</body>
+</html>

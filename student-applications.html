@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 我的投递</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+
+        /* 主内容 */
+        .main-content {
+            max-width: 1440px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        /* 顶部操作栏 */
+        .header-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 16px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00890b;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 标签页 */
+        .tabs {
+            background: white;
+            border-radius: 12px;
+            padding: 8px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            gap: 8px;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab:hover {
+            background: rgba(0,137,11,0.05);
+            color: #00890b;
+        }
+        .tab.active {
+            background: #00890b;
+            color: white;
+        }
+
+        /* 申请列表 */
+        .applications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .application-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+        .application-card:hover {
+            box-shadow: 0 4px 16px rgba(0,137,11,0.12);
+            transform: translateY(-2px);
+        }
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            flex-shrink: 0;
+        }
+        .application-info {
+            flex: 1;
+        }
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .job-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 6px;
+        }
+        .company-name {
+            font-size: 15px;
+            color: #666;
+        }
+        .application-status {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .status-pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .status-reviewing {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .status-interview {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+        .status-offer {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .status-rejected {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .application-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #666;
+        }
+        .application-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .application-timeline {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .timeline-step {
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #666;
+        }
+        .timeline-step.completed {
+            background: rgba(0,137,11,0.1);
+            color: #00890b;
+        }
+        .timeline-step.current {
+            background: #00890b;
+            color: white;
+        }
+        .application-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .btn-action {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-action-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-action-primary:hover {
+            background: #007309;
+        }
+        .btn-action-secondary {
+            background: white;
+            color: #00890b;
+            border: 1px solid #00890b;
+        }
+        .btn-action-secondary:hover {
+            background: rgba(0,137,11,0.05);
+        }
+        .btn-action-danger {
+            background: white;
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+        .btn-action-danger:hover {
+            background: #ffebee;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 80px 40px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .empty-desc {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 24px;
+        }
+
+        /* Tab内容 */
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 顶部统计 -->
+        <div class="header-section">
+            <div class="header-title">📊 投递统计</div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">已投递</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">待审核</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">面试邀请</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2</div>
+                    <div class="stat-label">收到Offer</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 标签页 -->
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('all')">全部投递</button>
+            <button class="tab" onclick="switchTab('reviewing')">待审核</button>
+            <button class="tab" onclick="switchTab('interview')">面试邀请</button>
+            <button class="tab" onclick="switchTab('offer')">Offer</button>
+            <button class="tab" onclick="switchTab('rejected')">未通过</button>
+        </div>
+
+        <!-- 全部投递 -->
+        <div id="tab-all" class="tab-content active">
+            <div class="applications-list">
+                <div class="application-card">
+                    <div class="company-logo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">H</div>
+                    <div class="application-info">
+                        <div class="application-header">
+                            <div>
+                                <div class="job-title">硬件工程师</div>
+                                <div class="company-name">华为技术有限公司</div>
+                            </div>
+                            <div class="application-status status-offer">已发Offer</div>
+                        </div>
+                        <div class="application-meta">
+                            <div class="application-meta-item">📍 深圳</div>
+                            <div class="application-meta-item">💰 15K-25K</div>
+                            <div class="application-meta-item">📅 投递时间：2025-10-15</div>
+                        </div>
+                        <div class="application-timeline">
+                            <span class="timeline-step completed">✓ 已投递</span>
+                            <span class="timeline-step completed">✓ 简历筛选</span>
+                            <span class="timeline-step completed">✓ 技术面试</span>
+                            <span class="timeline-step completed">✓ HR面试</span>
+                            <span class="timeline-step current">📧 已发Offer</span>
+                        </div>
+                        <div class="application-actions">
+                            <button class="btn-action btn-action-primary" onclick="viewOffer(1)">查看Offer</button>
+                            <button class="btn-action btn-action-primary" onclick="acceptOffer(1)">接受Offer</button>
+                            <button class="btn-action btn-action-danger" onclick="rejectOffer(1)">拒绝Offer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="application-card">
+                    <div class="company-logo" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">X</div>
+                    <div class="application-info">
+                        <div class="application-header">
+                            <div>
+                                <div class="job-title">嵌入式软件工程师（实习）</div>
+                                <div class="company-name">小米集团</div>
+                            </div>
+                            <div class="application-status status-interview">面试邀请</div>
+                        </div>
+                        <div class="application-meta">
+                            <div class="application-meta-item">📍 北京</div>
+                            <div class="application-meta-item">💰 200-300元/天</div>
+                            <div class="application-meta-item">📅 投递时间：2025-10-18</div>
+                        </div>
+                        <div class="application-timeline">
+                            <span class="timeline-step completed">✓ 已投递</span>
+                            <span class="timeline-step completed">✓ 简历筛选</span>
+                            <span class="timeline-step current">📞 面试邀请</span>
+                        </div>
+                        <div class="application-actions">
+                            <button class="btn-action btn-action-primary" onclick="viewInterview(2)">查看详情</button>
+                            <button class="btn-action btn-action-primary" onclick="confirmInterview(2)">确认参加</button>
+                            <button class="btn-action btn-action-secondary" onclick="rescheduleInterview(2)">改约时间</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="application-card">
+                    <div class="company-logo" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">D</div>
+                    <div class="application-info">
+                        <div class="application-header">
+                            <div>
+                                <div class="job-title">PCB设计工程师</div>
+                                <div class="company-name">大疆创新</div>
+                            </div>
+                            <div class="application-status status-reviewing">简历评估中</div>
+                        </div>
+                        <div class="application-meta">
+                            <div class="application-meta-item">📍 深圳</div>
+                            <div class="application-meta-item">💰 12K-20K</div>
+                            <div class="application-meta-item">📅 投递时间：2025-10-20</div>
+                        </div>
+                        <div class="application-timeline">
+                            <span class="timeline-step completed">✓ 已投递</span>
+                            <span class="timeline-step current">⏳ 简历评估中</span>
+                        </div>
+                        <div class="application-actions">
+                            <button class="btn-action btn-action-secondary" onclick="viewJobDetail(3)">查看职位</button>
+                            <button class="btn-action btn-action-danger" onclick="withdrawApplication(3)">撤回投递</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="application-card">
+                    <div class="company-logo" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">T</div>
+                    <div class="application-info">
+                        <div class="application-header">
+                            <div>
+                                <div class="job-title">硬件测试工程师</div>
+                                <div class="company-name">腾讯科技</div>
+                            </div>
+                            <div class="application-status status-rejected">未通过</div>
+                        </div>
+                        <div class="application-meta">
+                            <div class="application-meta-item">📍 深圳</div>
+                            <div class="application-meta-item">💰 10K-18K</div>
+                            <div class="application-meta-item">📅 投递时间：2025-10-12</div>
+                        </div>
+                        <div class="application-timeline">
+                            <span class="timeline-step completed">✓ 已投递</span>
+                            <span class="timeline-step completed">✓ 简历筛选</span>
+                            <span class="timeline-step">❌ 未通过</span>
+                        </div>
+                        <div class="application-actions">
+                            <button class="btn-action btn-action-secondary" onclick="viewFeedback(4)">查看反馈</button>
+                            <button class="btn-action btn-action-secondary" onclick="findSimilarJobs(4)">推荐相似职位</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 待审核 -->
+        <div id="tab-reviewing" class="tab-content">
+            <div class="applications-list">
+                <div class="application-card">
+                    <div class="company-logo" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">D</div>
+                    <div class="application-info">
+                        <div class="application-header">
+                            <div>
+                                <div class="job-title">PCB设计工程师</div>
+                                <div class="company-name">大疆创新</div>
+                            </div>
+                            <div class="application-status status-reviewing">简历评估中</div>
+                        </div>
+                        <div class="application-meta">
+                            <div class="application-meta-item">📍 深圳</div>
+                            <div class="application-meta-item">💰 12K-20K</div>
+                            <div class="application-meta-item">📅 投递时间：2025-10-20</div>
+                        </div>
+                        <div class="application-timeline">
+                            <span class="timeline-step completed">✓ 已投递</span>
+                            <span class="timeline-step current">⏳ 简历评估中</span>
+                        </div>
+                        <div class="application-actions">
+                            <button class="btn-action btn-action-secondary" onclick="viewJobDetail(3)">查看职位</button>
+                            <button class="btn-action btn-action-danger" onclick="withdrawApplication(3)">撤回投递</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 面试邀请 -->
+        <div id="tab-interview" class="tab-content">
+            <div class="applications-list">
+                <div class="application-card">
+                    <div class="company-logo" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">X</div>
+                    <div class="application-info">
+                        <div class="application-header">
+                            <div>
+                                <div class="job-title">嵌入式软件工程师（实习）</div>
+                                <div class="company-name">小米集团</div>
+                            </div>
+                            <div class="application-status status-interview">面试邀请</div>
+                        </div>
+                        <div class="application-meta">
+                            <div class="application-meta-item">📍 北京</div>
+                            <div class="application-meta-item">💰 200-300元/天</div>
+                            <div class="application-meta-item">📅 面试时间：2025-10-26 14:00</div>
+                        </div>
+                        <div class="application-timeline">
+                            <span class="timeline-step completed">✓ 已投递</span>
+                            <span class="timeline-step completed">✓ 简历筛选</span>
+                            <span class="timeline-step current">📞 面试邀请</span>
+                        </div>
+                        <div class="application-actions">
+                            <button class="btn-action btn-action-primary" onclick="viewInterview(2)">查看详情</button>
+                            <button class="btn-action btn-action-primary" onclick="confirmInterview(2)">确认参加</button>
+                            <button class="btn-action btn-action-secondary" onclick="rescheduleInterview(2)">改约时间</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offer -->
+        <div id="tab-offer" class="tab-content">
+            <div class="applications-list">
+                <div class="application-card">
+                    <div class="company-logo" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">H</div>
+                    <div class="application-info">
+                        <div class="application-header">
+                            <div>
+                                <div class="job-title">硬件工程师</div>
+                                <div class="company-name">华为技术有限公司</div>
+                            </div>
+                            <div class="application-status status-offer">已发Offer</div>
+                        </div>
+                        <div class="application-meta">
+                            <div class="application-meta-item">📍 深圳</div>
+                            <div class="application-meta-item">💰 15K-25K · 15薪</div>
+                            <div class="application-meta-item">📅 Offer有效期至：2025-11-15</div>
+                        </div>
+                        <div class="application-timeline">
+                            <span class="timeline-step completed">✓ 已投递</span>
+                            <span class="timeline-step completed">✓ 简历筛选</span>
+                            <span class="timeline-step completed">✓ 技术面试</span>
+                            <span class="timeline-step completed">✓ HR面试</span>
+                            <span class="timeline-step current">📧 已发Offer</span>
+                        </div>
+                        <div class="application-actions">
+                            <button class="btn-action btn-action-primary" onclick="viewOffer(1)">查看Offer</button>
+                            <button class="btn-action btn-action-primary" onclick="acceptOffer(1)">接受Offer</button>
+                            <button class="btn-action btn-action-danger" onclick="rejectOffer(1)">拒绝Offer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 未通过 -->
+        <div id="tab-rejected" class="tab-content">
+            <div class="applications-list">
+                <div class="application-card">
+                    <div class="company-logo" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">T</div>
+                    <div class="application-info">
+                        <div class="application-header">
+                            <div>
+                                <div class="job-title">硬件测试工程师</div>
+                                <div class="company-name">腾讯科技</div>
+                            </div>
+                            <div class="application-status status-rejected">未通过</div>
+                        </div>
+                        <div class="application-meta">
+                            <div class="application-meta-item">📍 深圳</div>
+                            <div class="application-meta-item">💰 10K-18K</div>
+                            <div class="application-meta-item">📅 投递时间：2025-10-12</div>
+                        </div>
+                        <div class="application-timeline">
+                            <span class="timeline-step completed">✓ 已投递</span>
+                            <span class="timeline-step completed">✓ 简历筛选</span>
+                            <span class="timeline-step">❌ 未通过</span>
+                        </div>
+                        <div class="application-actions">
+                            <button class="btn-action btn-action-secondary" onclick="viewFeedback(4)">查看反馈</button>
+                            <button class="btn-action btn-action-secondary" onclick="findSimilarJobs(4)">推荐相似职位</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        // 切换标签页
+        function switchTab(tabName) {
+            // 隐藏所有tab内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // 移除所有tab的active状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 显示选中的tab内容
+            document.getElementById('tab-' + tabName).classList.add('active');
+            // 添加选中的tab的active状态
+            event.target.classList.add('active');
+        }
+
+        // 查看Offer
+        function viewOffer(id) {
+            alert('📄 查看Offer详情\n\n这里将显示完整的Offer内容，包括薪资、福利、入职时间等信息。');
+        }
+
+        // 接受Offer
+        function acceptOffer(id) {
+            if (confirm('确认接受这份Offer吗？\n\n接受后您需要按照Offer要求完成入职手续。')) {
+                alert('🎉 恭喜！您已接受Offer\n\n请关注后续入职通知，HR将与您联系办理入职手续。');
+            }
+        }
+
+        // 拒绝Offer
+        function rejectOffer(id) {
+            if (confirm('确认拒绝这份Offer吗？\n\n拒绝后将无法恢复。')) {
+                alert('已拒绝Offer\n\n感谢您的参与，祝您找到理想的工作！');
+            }
+        }
+
+        // 查看面试详情
+        function viewInterview(id) {
+            alert('📞 面试详情\n\n面试时间：2025-10-26 14:00\n面试地点：北京市海淀区小米科技园\n面试形式：技术面试（1小时）\n面试官：张工程师\n\n请提前15分钟到达，携带身份证和简历。');
+        }
+
+        // 确认参加面试
+        function confirmInterview(id) {
+            alert('✅ 已确认参加面试\n\n面试时间和地点已发送到您的邮箱，请按时参加。\n\n温馨提示：\n1. 提前准备好自我介绍\n2. 复习项目经验\n3. 了解公司和职位信息');
+        }
+
+        // 改约面试时间
+        function rescheduleInterview(id) {
+            alert('📅 改约面试时间\n\n请联系HR改约面试时间：\n电话：010-12345678\n邮箱：hr@xiaomi.com');
+        }
+
+        // 查看职位详情
+        function viewJobDetail(id) {
+            location.href = 'job-detail.html?id=' + id;
+        }
+
+        // 撤回投递
+        function withdrawApplication(id) {
+            if (confirm('确认撤回投递吗？\n\n撤回后将无法恢复。')) {
+                alert('已撤回投递');
+            }
+        }
+
+        // 查看反馈
+        function viewFeedback(id) {
+            alert('📋 HR反馈\n\n感谢您的应聘！\n\n经过仔细评估，我们认为您的技能和经验与当前职位的要求存在一定差距。建议您：\n\n1. 继续积累PCB设计经验\n2. 深入学习EMC和信号完整性知识\n3. 参与更多实际项目\n\n欢迎将来再次投递我们的职位！');
+        }
+
+        // 推荐相似职位
+        function findSimilarJobs(id) {
+            location.href = 'campus-recruitment.html';
+        }
+    </script>
+</body>
+</html>

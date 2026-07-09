@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 供应商产品发布</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+        .main-content { padding: 32px; max-width: 1440px; margin: 0 auto; }
+        .page-header {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+        .content-section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 16px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .status-inactive {
+            background: rgba(149, 165, 166, 0.1);
+            color: #95a5a6;
+        }
+        .status-soldout {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        .price-tiers {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        .price-tier-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 60px;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .file-upload {
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .file-upload:hover {
+            border-color: #00890b;
+            background: rgba(0, 137, 11, 0.05);
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+        <!-- 发布新产品表单 -->
+        <div class="content-section">
+            <div class="section-title">📦 发布新产品</div>
+
+            <form id="publishForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">产品型号 *</label>
+                        <input type="text" class="form-input" placeholder="例如: STM32F407VGT6" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">产品名称 *</label>
+                        <input type="text" class="form-input" placeholder="例如: ARM Cortex-M4 MCU芯片" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">制造商 *</label>
+                        <input type="text" class="form-input" placeholder="例如: STMicroelectronics" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">产品分类 *</label>
+                        <select class="form-select" required>
+                            <option value="">请选择分类</option>
+                            <option value="ic">集成电路(IC)</option>
+                            <option value="passive">无源元件</option>
+                            <option value="sensor">传感器</option>
+                            <option value="connector">连接器</option>
+                            <option value="module">模块</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">规格描述 *</label>
+                    <textarea class="form-textarea" placeholder="详细描述产品规格参数..." required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">库存数量 *</label>
+                        <input type="number" class="form-input" placeholder="例如: 5000" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">最小起订量(MOQ) *</label>
+                        <input type="number" class="form-input" placeholder="例如: 100" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">交货周期(天) *</label>
+                        <input type="number" class="form-input" placeholder="例如: 3" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">包装方式</label>
+                        <select class="form-select">
+                            <option value="tray">托盘装</option>
+                            <option value="reel">卷盘装</option>
+                            <option value="tube">管装</option>
+                            <option value="bag">袋装</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">价格阶梯设置 *</label>
+                    <div class="price-tiers">
+                        <div class="price-tier-row">
+                            <input type="number" class="form-input" placeholder="最小数量">
+                            <input type="number" class="form-input" placeholder="最大数量 (可选)">
+                            <input type="number" class="form-input" placeholder="单价(元)" step="0.01">
+                            <button type="button" class="btn btn-primary">+</button>
+                        </div>
+                        <div style="color: #666; font-size: 13px; margin-top: 8px;">
+                            💡 提示：设置合理的价格阶梯可以吸引更多批量采购
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">产品图片</label>
+                        <div class="file-upload" onclick="document.getElementById('imageUpload').click()">
+                            <input type="file" id="imageUpload" style="display: none;" accept="image/*" multiple>
+                            📷 点击上传产品图片<br>
+                            <span style="font-size: 12px; color: #999;">支持jpg, png格式，最多5张</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">规格书(Datasheet)</label>
+                        <div class="file-upload" onclick="document.getElementById('docUpload').click()">
+                            <input type="file" id="docUpload" style="display: none;" accept=".pdf">
+                            📄 点击上传规格书<br>
+                            <span style="font-size: 12px; color: #999;">支持PDF格式，最大10MB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">产品优势说明</label>
+                    <textarea class="form-textarea" placeholder="描述产品的优势、特点、质量保证等信息..."></textarea>
+                </div>
+
+                <div style="display: flex; gap: 16px; justify-content: flex-end; margin-top: 32px;">
+                    <button type="button" class="btn btn-secondary" onclick="resetForm()">重置</button>
+                    <button type="submit" class="btn btn-primary">📤 发布产品</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 已发布产品列表 -->
+        <div class="content-section">
+            <div class="section-title">📋 我发布的产品</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>产品型号</th>
+                        <th>产品名称</th>
+                        <th>库存</th>
+                        <th>起订价</th>
+                        <th>浏览量</th>
+                        <th>询价数</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 600;">STM32F407VGT6</td>
+                        <td>ARM Cortex-M4 MCU芯片</td>
+                        <td>5,000片</td>
+                        <td>¥48.00</td>
+                        <td>256</td>
+                        <td>12</td>
+                        <td><span class="status-badge status-active">上架中</span></td>
+                        <td>
+                            <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px; margin-right: 4px;" onclick="editListing(1)">编辑</button>
+                            <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="toggleStatus(1)">下架</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">ESP32-WROOM-32</td>
+                        <td>WiFi+BT模块</td>
+                        <td>3,000个</td>
+                        <td>¥18.50</td>
+                        <td>189</td>
+                        <td>8</td>
+                        <td><span class="status-badge status-active">上架中</span></td>
+                        <td>
+                            <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px; margin-right: 4px;" onclick="editListing(2)">编辑</button>
+                            <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="toggleStatus(2)">下架</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">LM2596S-ADJ</td>
+                        <td>降压开关稳压器</td>
+                        <td>0</td>
+                        <td>¥3.50</td>
+                        <td>142</td>
+                        <td>5</td>
+                        <td><span class="status-badge status-soldout">缺货</span></td>
+                        <td>
+                            <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px; margin-right: 4px;" onclick="editListing(3)">编辑</button>
+                            <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="replenishStock(3)">补货</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 询价管理 -->
+        <div class="content-section">
+            <div class="section-title">💬 收到的询价</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>询价时间</th>
+                        <th>买家</th>
+                        <th>产品型号</th>
+                        <th>需求数量</th>
+                        <th>交期要求</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>2025-01-27 10:30</td>
+                        <td>深圳XX科技有限公司</td>
+                        <td>STM32F407VGT6</td>
+                        <td>1,000片</td>
+                        <td>15天内</td>
+                        <td><span class="status-badge" style="background: #fff3e0; color: #f57c00;">待报价</span></td>
+                        <td>
+                            <button class="btn btn-primary" style="padding: 4px 12px; font-size: 12px;" onclick="replyQuote(1)">回复报价</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2025-01-26 15:20</td>
+                        <td>北京YY电子</td>
+                        <td>ESP32-WROOM-32</td>
+                        <td>500个</td>
+                        <td>7天内</td>
+                        <td><span class="status-badge status-active">已报价</span></td>
+                        <td>
+                            <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="viewQuote(2)">查看详情</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+    <script>
+        // 提交发布表单
+        document.getElementById('publishForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if (confirm('确认发布此产品？')) {
+                alert('✅ 产品发布成功！\n\n您的产品已成功发布到平台，买家可以搜索到您的产品并进行询价。\n\n💡 提示：及时回复询价可以提高成交率！');
+                this.reset();
+            }
+        });
+
+        function resetForm() {
+            document.getElementById('publishForm').reset();
+        }
+
+        function editListing(id) {
+            alert('编辑产品信息 #' + id + '\n\n实际应用中会打开编辑表单');
+        }
+
+        function toggleStatus(id) {
+            if (confirm('确认下架此产品？\n\n下架后买家将无法看到此产品')) {
+                alert('✓ 产品已下架');
+            }
+        }
+
+        function replenishStock(id) {
+            const qty = prompt('请输入补货数量：');
+            if (qty && qty > 0) {
+                alert('✓ 库存已更新！\n\n新库存数量：' + qty);
+            }
+        }
+
+        function replyQuote(id) {
+            location.href = 'supplier-quote-reply.html?id=' + id;
+        }
+
+        function viewQuote(id) {
+            alert('查看询价详情 #' + id);
+        }
+    </script>
+</body>
+</html>

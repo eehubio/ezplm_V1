@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 团队讨论</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+        .main-content { padding: 32px; max-width: 1440px; margin: 0 auto; }
+        .page-header {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .content-section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 16px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='approval-center.html'">
+                ✅
+                <span style="position: absolute; top: -4px; right: -4px; background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">8</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="个人中心">用</div>
+        </div>
+    </div>
+    <div class="main-content">
+
+        <div class="page-header">
+            <div class="page-title">💬 团队讨论</div>
+            <div class="page-subtitle">项目协作、技术交流、问题讨论</div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 300px 1fr; gap: 24px;">
+            <div class="content-section">
+                <div class="section-title">讨论频道</div>
+                <div style="display: grid; gap: 8px;">
+                    <div style="padding: 12px; background: rgba(0, 137, 11, 0.1); border-radius: 8px; cursor: pointer;">
+                        <div style="font-weight: 600;"># 智能家居控制器v2.0</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">3条未读消息</div>
+                    </div>
+                    <div style="padding: 12px; background: #f8f9fa; border-radius: 8px; cursor: pointer;">
+                        <div style="font-weight: 600;"># 技术讨论</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">12条消息</div>
+                    </div>
+                    <div style="padding: 12px; background: #f8f9fa; border-radius: 8px; cursor: pointer;">
+                        <div style="font-weight: 600;"># 采购协调</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">5条消息</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <div class="section-title"># 智能家居控制器v2.0</div>
+                <div style="height: 400px; overflow-y: auto; margin-bottom: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #00890b; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">张</div>
+                            <div>
+                                <div style="font-weight: 600;">张伟</div>
+                                <div style="font-size: 12px; color: #999;">14:30</div>
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; margin-left: 44px;">
+                            @李明 MCU采购订单已经通过审批，请尽快跟进发货时间
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #667eea; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">李</div>
+                            <div>
+                                <div style="font-weight: 600;">李明</div>
+                                <div style="font-size: 12px; color: #999;">14:45</div>
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; margin-left: 44px;">
+                            好的，我已经联系供应商，对方承诺3天内发货，预计下周一到货
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #f39c12; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600;">王</div>
+                            <div>
+                                <div style="font-weight: 600;">王芳</div>
+                                <div style="font-size: 12px; color: #999;">15:20</div>
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 12px; border-radius: 8px; margin-left: 44px;">
+                            收到，到货后立即安排入库质检 👍
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <input type="text" placeholder="输入消息..." style="flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    <button class="btn btn-primary" onclick="sendMessage()">发送</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function sendMessage() {
+                alert('✓ 消息已发送');
+            }
+        </script>
+        
+    </div>
+</body>
+</html>

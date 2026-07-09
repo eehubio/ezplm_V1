@@ -1,0 +1,2506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 个人中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 个人中心导航标签 */
+        .profile-nav-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding: 8px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+        }
+        .profile-tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: #666;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .profile-tab-btn:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .profile-tab-btn.active {
+            background: #00890b;
+            color: white;
+            font-weight: 600;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 32px;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #3d4647;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-input:disabled {
+            background: #f9f9f9;
+            color: #999;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        /* 按钮 */
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            padding: 10px 28px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+
+        /* 头像上传 */
+        .avatar-upload {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            font-weight: 700;
+        }
+        .avatar-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        /* 套餐卡片 */
+        .plan-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 24px;
+            background: white;
+            margin-bottom: 16px;
+        }
+        .plan-card.current {
+            border-color: #00890b;
+            background: rgba(0, 137, 11, 0.02);
+        }
+        .plan-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .plan-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .plan-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+        }
+        .plan-features {
+            list-style: none;
+            display: grid;
+            gap: 8px;
+        }
+        .plan-feature {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #3d4647;
+        }
+        .current-badge {
+            background: #00890b;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* 通知列表 */
+        .notification-item {
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 16px;
+            align-items: start;
+        }
+        .notification-icon {
+            font-size: 24px;
+        }
+        .notification-content {
+            flex: 1;
+        }
+        .notification-title {
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .notification-text {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .notification-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .notification-unread {
+            background: rgba(0, 137, 11, 0.05);
+            border-left: 4px solid #00890b;
+        }
+
+        /* 开关按钮 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #00890b;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* 设置项 */
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+        .setting-label {
+            flex: 1;
+        }
+        .setting-title {
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .setting-desc {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 统计数据 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-box {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00890b;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #3d4647;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .subscription-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .subscription-info-label {
+            font-weight: 600;
+            color: #3d4647;
+        }
+
+        .subscription-info-value {
+            color: #666;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .invoice-table th {
+            background: #f8f8f8;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #3d4647;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .invoice-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .invoice-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .invoice-status.paid {
+            background: #e8f5e9;
+            color: #00890b;
+        }
+
+        .invoice-status.pending {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        /* 简历管理样式 */
+        .resume-container-profile {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .ai-score-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-score-content h3 {
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+
+        .ai-score-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .ai-score-value {
+            font-size: 48px;
+            font-weight: 800;
+        }
+
+        .resume-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .resume-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-header-resume {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title-resume {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-edit {
+            background: white;
+            color: #00890b;
+            border: 1px solid #00890b;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-edit:hover {
+            background: #00890b;
+            color: white;
+        }
+
+        .basic-info-resume {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        .avatar-resume {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            font-weight: 800;
+        }
+
+        .info-grid-resume {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .info-item-resume {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .info-label-resume {
+            font-size: 13px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .info-value-resume {
+            font-size: 16px;
+            color: #3d4647;
+            font-weight: 500;
+        }
+
+        .education-item, .project-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .education-item:last-child, .project-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .education-header, .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .education-school, .project-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 6px;
+        }
+
+        .education-degree {
+            font-size: 15px;
+            color: #666;
+        }
+
+        .project-role {
+            font-size: 14px;
+            color: #00890b;
+            font-weight: 600;
+        }
+
+        .education-date, .project-date {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .education-details, .project-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .project-tag {
+            padding: 4px 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .skill-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .skill-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 10px;
+        }
+
+        .skill-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .edit-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 20000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .edit-modal-overlay.active {
+            display: flex;
+        }
+
+        .edit-modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .edit-modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .edit-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+
+        .edit-modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .edit-modal-close:hover {
+            color: #3d4647;
+        }
+
+        .edit-modal-body {
+            padding: 32px;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            min-height: 120px;
+            resize: vertical;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+
+        .edit-modal-footer {
+            padding: 20px 32px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-cancel {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-cancel:hover {
+            border-color: #999;
+        }
+
+        /* 简历类型切换按钮 */
+        .resume-type-btn {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .resume-type-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        .resume-type-btn.active {
+            border-color: #00890b;
+            background: #00890b;
+            color: white;
+        }
+
+        /* 能力标签样式 */
+        .skill-tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag-item {
+            padding: 8px 16px;
+            background: #f3f4f6;
+            border: 1px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #4b5563;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: default;
+        }
+
+        .skill-tag-item:hover {
+            background: #e5e7eb;
+            border-color: #d1d5db;
+        }
+
+        .skill-tag-item.primary {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            border-color: #00890b;
+            font-weight: 600;
+        }
+
+        /* EZPLM项目特殊样式 */
+        .ezplm-project {
+            border-left: 4px solid #00890b;
+            background: linear-gradient(135deg, rgba(0,137,11,0.02) 0%, rgba(0,179,14,0.02) 100%);
+        }
+
+        /* 工程师专属内容 */
+        .engineer-only {
+            display: block;
+        }
+
+        .student-mode .engineer-only {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <!--
+    ========================================
+    页面信息 - Arena风格设计
+    ========================================
+    页面名称: 个人中心（设置+通知+帮助）
+    路由路径: /profile
+    访问权限: 所有登录用户
+    设计风格: Arena Solutions
+
+    功能说明:
+    - ✅ 合并个人资料、账户设置、通知设置
+    - ✅ 套餐管理和升级入口
+    - ✅ 通知中心
+    - ✅ 个人数据统计
+    ========================================
+    -->
+
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    <!-- 布局 -->
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 个人中心导航标签 -->
+            <div class="profile-nav-tabs">
+                <button class="profile-tab-btn active" data-tab="profile">
+                    <span>👤</span>
+                    <span>个人资料</span>
+                </button>
+                <button class="profile-tab-btn" data-tab="account">
+                    <span>⚙️</span>
+                    <span>账户设置</span>
+                </button>
+                <button class="profile-tab-btn" data-tab="subscription">
+                    <span>💳</span>
+                    <span>套餐管理</span>
+                </button>
+                <button class="profile-tab-btn" data-tab="notifications">
+                    <span>🔔</span>
+                    <span>通知中心</span>
+                </button>
+                <button class="profile-tab-btn" data-tab="security">
+                    <span>🔒</span>
+                    <span>安全设置</span>
+                </button>
+                <button class="profile-tab-btn" data-tab="stats">
+                    <span>📊</span>
+                    <span>个人统计</span>
+                </button>
+                <button class="profile-tab-btn" data-tab="resume">
+                    <span>📄</span>
+                    <span>简历管理</span>
+                </button>
+            </div>
+
+            <!-- 个人中心内容标签页 -->
+
+            <!-- 个人资料标签页 -->
+            <div class="tab-content" id="profile-tab">
+                <h1 class="page-title">个人资料</h1>
+                <p class="page-subtitle">管理您的个人信息和头像</p>
+
+                <div class="content-card">
+                    <h3 class="section-title">基本信息</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">头像</label>
+                        <div class="avatar-upload">
+                            <div class="avatar-preview">ZS</div>
+                            <div class="avatar-actions">
+                                <button class="btn-secondary">上传新头像</button>
+                                <button class="btn-secondary">删除头像</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">姓名</label>
+                            <input type="text" class="form-input" value="张三">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">职位</label>
+                            <input type="text" class="form-input" value="硬件工程师">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">邮箱</label>
+                            <input type="email" class="form-input" value="zhangsan@example.com" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">手机号</label>
+                            <input type="tel" class="form-input" value="138****8888">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">公司</label>
+                        <input type="text" class="form-input" value="深圳智能科技有限公司">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">个人简介</label>
+                        <textarea class="form-input" rows="4" placeholder="简单介绍一下自己...">10年硬件开发经验，专注于智能穿戴设备和IoT产品设计</textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-primary">保存更改</button>
+                        <button class="btn-secondary">取消</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 账户设置标签页 -->
+            <div class="tab-content" id="account-tab" style="display: none;">
+                <h1 class="page-title">账户设置</h1>
+                <p class="page-subtitle">管理您的账户偏好设置</p>
+
+                <div class="content-card">
+                    <h3 class="section-title">语言和时区</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">语言</label>
+                            <select class="form-input">
+                                <option>简体中文</option>
+                                <option>English</option>
+                                <option>繁體中文</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">时区</label>
+                            <select class="form-input">
+                                <option>北京时间 (GMT+8)</option>
+                                <option>纽约时间 (GMT-5)</option>
+                                <option>伦敦时间 (GMT+0)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="section-title">通知偏好</h3>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-title">邮件通知</div>
+                            <div class="setting-desc">接收项目更新和系统通知邮件</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-title">桌面通知</div>
+                            <div class="setting-desc">在浏览器中显示桌面通知</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-title">微信通知</div>
+                            <div class="setting-desc">通过微信接收重要通知</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-title">每日摘要</div>
+                            <div class="setting-desc">每天早上发送项目摘要</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="section-title">界面设置</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">主题模式</label>
+                        <select class="form-input">
+                            <option>浅色模式</option>
+                            <option>深色模式</option>
+                            <option>跟随系统</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-title">紧凑模式</div>
+                            <div class="setting-desc">使用更紧凑的布局显示更多内容</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 套餐管理标签页 -->
+            <div class="tab-content" id="subscription-tab" style="display: none;">
+                <h1 class="page-title">套餐管理</h1>
+                <p class="page-subtitle">查看和管理您的订阅套餐</p>
+
+                <div class="content-card">
+                    <h3 class="section-title">当前套餐</h3>
+
+                    <div class="plan-card current">
+                        <div class="plan-header">
+                            <div>
+                                <div class="plan-name">标准版</div>
+                                <div style="font-size: 14px; color: #666; margin-top: 4px;">下次续费: 2025-11-19</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div class="current-badge">当前套餐</div>
+                                <div class="plan-price" style="margin-top: 8px;">¥49<span style="font-size: 14px; font-weight: 400; color: #666;">/月</span></div>
+                            </div>
+                        </div>
+                        <ul class="plan-features">
+                            <li class="plan-feature">✅ 无限物料和BOM</li>
+                            <li class="plan-feature">✅ 无限项目数量</li>
+                            <li class="plan-feature">✅ 库存管理</li>
+                            <li class="plan-feature">✅ 采购管理</li>
+                            <li class="plan-feature">✅ 50GB存储空间</li>
+                            <li class="plan-feature">❌ 组织管理</li>
+                            <li class="plan-feature">❌ 生产管理</li>
+                            <li class="plan-feature">❌ API访问</li>
+                        </ul>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap;">
+                        <button class="btn-secondary" onclick="openManageSubscription()">管理订阅</button>
+                        <button class="btn-secondary" onclick="openInvoiceList()">查看发票</button>
+                        <button class="btn-primary" onclick="location.href='organization-create.html'">创建组织</button>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="section-title">其他套餐</h3>
+
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <div>
+                                <div class="plan-name">免费版</div>
+                            </div>
+                            <div class="plan-price">¥0<span style="font-size: 14px; font-weight: 400; color: #666;">/月</span></div>
+                        </div>
+                        <ul class="plan-features">
+                            <li class="plan-feature">✅ 最多100个物料</li>
+                            <li class="plan-feature">✅ 最多5个项目</li>
+                            <li class="plan-feature">✅ 基础BOM管理</li>
+                            <li class="plan-feature">✅ 5GB存储空间</li>
+                            <li class="plan-feature">❌ 组织管理</li>
+                            <li class="plan-feature">❌ 库存管理</li>
+                            <li class="plan-feature">❌ 数据分析</li>
+                        </ul>
+                        <div style="margin-top: 12px;">
+                            <button class="btn-primary" onclick="location.href='organization-create.html'" style="background: #00890b; padding: 8px 16px; font-size: 14px;">创建组织</button>
+                        </div>
+                    </div>
+
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <div>
+                                <div class="plan-name">专业版</div>
+                            </div>
+                            <div class="plan-price">¥79<span style="font-size: 14px; font-weight: 400; color: #666;">/月</span></div>
+                        </div>
+                        <ul class="plan-features">
+                            <li class="plan-feature">✅ 无限物料和BOM</li>
+                            <li class="plan-feature">✅ 无限项目数量</li>
+                            <li class="plan-feature">✅ 组织管理功能</li>
+                            <li class="plan-feature">✅ 库存和采购管理</li>
+                            <li class="plan-feature">✅ 生产管理功能</li>
+                            <li class="plan-feature">✅ 高级数据分析</li>
+                            <li class="plan-feature">✅ API访问权限</li>
+                            <li class="plan-feature">✅ 优先技术支持</li>
+                        </ul>
+                        <div style="margin-top: 12px;">
+                            <button class="btn-secondary" style="padding: 8px 16px; font-size: 14px;">升级到专业版</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通知中心标签页 -->
+            <div class="tab-content" id="notifications-tab" style="display: none;">
+                <h1 class="page-title">通知中心</h1>
+                <p class="page-subtitle">查看所有系统通知和消息</p>
+
+                <div class="content-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 class="section-title" style="margin: 0; border: none; padding: 0;">未读通知 (3)</h3>
+                        <button class="btn-secondary" style="padding: 8px 16px;">全部标为已读</button>
+                    </div>
+
+                    <div class="notification-item notification-unread">
+                        <div class="notification-icon">📋</div>
+                        <div class="notification-content">
+                            <div class="notification-title">李明 更新了项目进度</div>
+                            <div class="notification-text">智能手环 V2.0 开发项目进度更新至 68%，已完成PCB设计和物料采购</div>
+                            <div class="notification-time">2小时前</div>
+                        </div>
+                    </div>
+
+                    <div class="notification-item notification-unread">
+                        <div class="notification-icon">⚠️</div>
+                        <div class="notification-content">
+                            <div class="notification-title">库存预警</div>
+                            <div class="notification-text">8个物料库存低于安全线，建议及时补货</div>
+                            <div class="notification-time">5小时前</div>
+                        </div>
+                    </div>
+
+                    <div class="notification-item notification-unread">
+                        <div class="notification-icon">✅</div>
+                        <div class="notification-content">
+                            <div class="notification-title">BOM审批通过</div>
+                            <div class="notification-text">您提交的 "智能手环主板 V2.1" BOM已通过审批</div>
+                            <div class="notification-time">昨天</div>
+                        </div>
+                    </div>
+
+                    <h3 class="section-title" style="margin-top: 32px;">历史通知</h3>
+
+                    <div class="notification-item">
+                        <div class="notification-icon">📦</div>
+                        <div class="notification-content">
+                            <div class="notification-title">新物料创建成功</div>
+                            <div class="notification-text">您创建的物料 "MT-IC-2024-0156" 已保存</div>
+                            <div class="notification-time">2天前</div>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon">👥</div>
+                        <div class="notification-content">
+                            <div class="notification-title">加入新项目</div>
+                            <div class="notification-text">您已被添加到 "无线充电器设计优化" 项目</div>
+                            <div class="notification-time">3天前</div>
+                        </div>
+                    </div>
+
+                    <div class="notification-item">
+                        <div class="notification-icon">🎉</div>
+                        <div class="notification-content">
+                            <div class="notification-title">套餐升级成功</div>
+                            <div class="notification-text">您的账户已成功升级到专业版</div>
+                            <div class="notification-time">7天前</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 安全设置标签页 -->
+            <div class="tab-content" id="security-tab" style="display: none;">
+                <h1 class="page-title">安全设置</h1>
+                <p class="page-subtitle">保护您的账户安全</p>
+
+                <div class="content-card">
+                    <h3 class="section-title">修改密码</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">当前密码</label>
+                        <input type="password" class="form-input" placeholder="请输入当前密码">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">新密码</label>
+                            <input type="password" class="form-input" placeholder="至少8位，包含字母和数字">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">确认新密码</label>
+                            <input type="password" class="form-input" placeholder="再次输入新密码">
+                        </div>
+                    </div>
+
+                    <button class="btn-primary">更新密码</button>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="section-title">两步验证</h3>
+
+                    <div class="setting-item">
+                        <div class="setting-label">
+                            <div class="setting-title">启用两步验证</div>
+                            <div class="setting-desc">登录时需要额外的验证码，提高账户安全性</div>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="section-title">登录历史</h3>
+
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid #e0e0e0;">
+                                <th style="text-align: left; padding: 12px; color: #666; font-size: 13px;">时间</th>
+                                <th style="text-align: left; padding: 12px; color: #666; font-size: 13px;">IP地址</th>
+                                <th style="text-align: left; padding: 12px; color: #666; font-size: 13px;">设备</th>
+                                <th style="text-align: left; padding: 12px; color: #666; font-size: 13px;">位置</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #f0f0f0;">
+                                <td style="padding: 12px; font-size: 14px;">2024-10-19 14:30</td>
+                                <td style="padding: 12px; font-size: 14px;">192.168.1.100</td>
+                                <td style="padding: 12px; font-size: 14px;">Chrome / macOS</td>
+                                <td style="padding: 12px; font-size: 14px;">深圳, 中国</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #f0f0f0;">
+                                <td style="padding: 12px; font-size: 14px;">2024-10-18 09:15</td>
+                                <td style="padding: 12px; font-size: 14px;">192.168.1.100</td>
+                                <td style="padding: 12px; font-size: 14px;">Safari / iOS</td>
+                                <td style="padding: 12px; font-size: 14px;">深圳, 中国</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="section-title">危险操作</h3>
+                    <p style="color: #666; margin-bottom: 16px; font-size: 14px;">以下操作将永久删除您的账户和所有数据，此操作不可撤销</p>
+                    <button class="btn-danger">删除账户</button>
+                </div>
+            </div>
+
+            <!-- 个人统计标签页 -->
+            <div class="tab-content" id="stats-tab" style="display: none;">
+                <h1 class="page-title">个人统计</h1>
+                <p class="page-subtitle">查看您的使用情况和贡献</p>
+
+                <div class="content-card">
+                    <h3 class="section-title">整体数据</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">128</div>
+                            <div class="stat-label">创建物料</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">45</div>
+                            <div class="stat-label">创建BOM</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">参与项目</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">89%</div>
+                            <div class="stat-label">任务完成率</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="section-title">本月活动</h3>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-value">23</div>
+                            <div class="stat-label">完成任务</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">15</div>
+                            <div class="stat-label">创建物料</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">8</div>
+                            <div class="stat-label">审批事项</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">协作次数</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h3 class="section-title">存储使用</h3>
+                    <div style="margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 14px; color: #3d4647; font-weight: 600;">已使用 12.5GB / 无限制</span>
+                            <span style="font-size: 14px; color: #00890b; font-weight: 600;">专业版</span>
+                        </div>
+                        <div style="width: 100%; height: 12px; background: #e0e0e0; border-radius: 6px; overflow: hidden;">
+                            <div style="width: 12.5%; height: 100%; background: linear-gradient(90deg, #00890b 0%, #00b30e 100%);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 简历管理标签页 -->
+            <div class="tab-content" id="resume-tab" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; gap: 20px;">
+                    <div style="flex: 1;">
+                        <h1 class="page-title">简历管理</h1>
+                        <p class="page-subtitle">管理您的个人简历信息，展示您的专业能力和项目经验</p>
+
+                        <!-- 身份切换 -->
+                        <div style="display: flex; gap: 12px; margin-top: 16px;">
+                            <button class="resume-type-btn active" data-type="engineer" onclick="switchResumeType('engineer')">
+                                <span>👨‍💻</span>
+                                <span>工程师简历</span>
+                            </button>
+                            <button class="resume-type-btn" data-type="student" onclick="switchResumeType('student')">
+                                <span>🎓</span>
+                                <span>学生简历</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-secondary" onclick="previewResume()">👁️ 预览简历</button>
+                        <button class="btn-secondary" onclick="shareResume()">🔗 分享链接</button>
+                        <button class="btn-primary" onclick="exportResume()">📄 导出PDF</button>
+                    </div>
+                </div>
+
+                <!-- 能力标签快速筛选 -->
+                <div class="content-card" style="margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 class="section-title" style="margin: 0; border: none; padding: 0;">🏷️ 我的能力标签</h3>
+                        <button class="btn-edit" onclick="editSkillTags()">管理标签</button>
+                    </div>
+                    <div class="skill-tags-container" id="skillTagsContainer">
+                        <span class="skill-tag-item primary">PCB设计</span>
+                        <span class="skill-tag-item primary">嵌入式开发</span>
+                        <span class="skill-tag-item primary">硬件电路设计</span>
+                        <span class="skill-tag-item">STM32</span>
+                        <span class="skill-tag-item">ESP32</span>
+                        <span class="skill-tag-item">Altium Designer</span>
+                        <span class="skill-tag-item">FreeRTOS</span>
+                        <span class="skill-tag-item">物联网</span>
+                        <span class="skill-tag-item">电源管理</span>
+                        <span class="skill-tag-item">EMC优化</span>
+                        <span class="skill-tag-item">信号完整性</span>
+                        <span class="skill-tag-item">KiCad</span>
+                    </div>
+                    <p style="font-size: 13px; color: #666; margin-top: 12px;">💡 这些标签可帮助用人单位快速了解您的技能方向，标签会显示在简历顶部</p>
+                </div>
+
+                <div class="resume-container-profile">
+                    <!-- AI完善度 -->
+                    <div class="ai-score-banner">
+                        <div class="ai-score-content">
+                            <h3>🤖 AI简历完善度</h3>
+                            <p>您的简历完善度较高，建议继续完善项目经验和技能描述</p>
+                        </div>
+                        <div class="ai-score-value">85%</div>
+                    </div>
+
+                    <!-- 基本信息 -->
+                    <div class="resume-section">
+                        <div class="section-header-resume">
+                            <h2 class="section-title-resume">👤 基本信息</h2>
+                            <button class="btn-edit" onclick="editSection('basic')">编辑</button>
+                        </div>
+                        <div class="basic-info-resume">
+                            <div class="avatar-resume">张</div>
+                            <div class="info-grid-resume">
+                                <div class="info-item-resume">
+                                    <div class="info-label-resume">姓名</div>
+                                    <div class="info-value-resume">张三</div>
+                                </div>
+                                <div class="info-item-resume">
+                                    <div class="info-label-resume">性别</div>
+                                    <div class="info-value-resume">男</div>
+                                </div>
+                                <div class="info-item-resume">
+                                    <div class="info-label-resume">年龄</div>
+                                    <div class="info-value-resume">23岁</div>
+                                </div>
+                                <div class="info-item-resume">
+                                    <div class="info-label-resume">学历</div>
+                                    <div class="info-value-resume">本科 · 在读</div>
+                                </div>
+                                <div class="info-item-resume">
+                                    <div class="info-label-resume">手机</div>
+                                    <div class="info-value-resume">138****8888</div>
+                                </div>
+                                <div class="info-item-resume">
+                                    <div class="info-label-resume">邮箱</div>
+                                    <div class="info-value-resume">zhangsan@example.com</div>
+                                </div>
+                                <div class="info-item-resume">
+                                    <div class="info-label-resume">期望职位</div>
+                                    <div class="info-value-resume">硬件工程师 / 嵌入式开发</div>
+                                </div>
+                                <div class="info-item-resume">
+                                    <div class="info-label-resume">期望城市</div>
+                                    <div class="info-value-resume">北京 / 深圳</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 教育经历 -->
+                    <div class="resume-section">
+                        <div class="section-header-resume">
+                            <h2 class="section-title-resume">🎓 教育经历</h2>
+                            <button class="btn-edit" onclick="editSection('education')">编辑</button>
+                        </div>
+                        <div class="education-item">
+                            <div class="education-header">
+                                <div>
+                                    <div class="education-school">清华大学</div>
+                                    <div class="education-degree">电子信息工程 · 本科</div>
+                                </div>
+                                <div class="education-date">2021.09 - 2025.06</div>
+                            </div>
+                            <div class="education-details">
+                                • GPA: 3.8/4.0，专业排名前10%<br>
+                                • 主修课程：模拟电子技术、数字电路、信号与系统、通信原理、嵌入式系统设计<br>
+                                • 获得校级一等奖学金2次，国家奖学金1次
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 工作经历（仅工程师） -->
+                    <div class="resume-section engineer-only">
+                        <div class="section-header-resume">
+                            <h2 class="section-title-resume">💼 工作经历</h2>
+                            <button class="btn-edit" onclick="editSection('work')">编辑</button>
+                        </div>
+                        <div class="education-item">
+                            <div class="education-header">
+                                <div>
+                                    <div class="education-school">深圳智能科技有限公司</div>
+                                    <div class="education-degree">高级硬件工程师</div>
+                                </div>
+                                <div class="education-date">2021.07 - 至今</div>
+                            </div>
+                            <div class="education-details">
+                                • 负责智能穿戴设备的硬件电路设计和PCB Layout，完成10+款产品的硬件开发<br>
+                                • 主导低功耗电源管理方案设计，将待机功耗降低40%，显著提升产品续航能力<br>
+                                • 带领3人硬件团队，指导初级工程师完成技术攻关和项目交付<br>
+                                • 建立完善的硬件测试流程和文档体系，提高开发效率30%
+                            </div>
+                        </div>
+                        <div class="education-item">
+                            <div class="education-header">
+                                <div>
+                                    <div class="education-school">北京物联网技术有限公司</div>
+                                    <div class="education-degree">硬件工程师</div>
+                                </div>
+                                <div class="education-date">2018.07 - 2021.06</div>
+                            </div>
+                            <div class="education-details">
+                                • 参与物联网网关、传感器节点等产品的硬件设计工作<br>
+                                • 独立完成5款产品的原理图和PCB设计，通过EMC测试和认证<br>
+                                • 负责供应商对接和器件选型，优化BOM成本15%
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 项目经验 -->
+                    <div class="resume-section">
+                        <div class="section-header-resume">
+                            <h2 class="section-title-resume">🚀 项目经验</h2>
+                            <button class="btn-edit" onclick="editSection('projects')">编辑</button>
+                        </div>
+
+                        <!-- EZPLM平台项目 -->
+                        <div class="project-item ezplm-project">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <span style="background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">📦 EZPLM平台项目</span>
+                                <span style="color: #00890b; font-size: 13px; font-weight: 600;">🔗 可在线查看</span>
+                            </div>
+                            <div class="project-header">
+                                <div>
+                                    <div class="project-name">智能手环硬件开发 V2.0</div>
+                                    <div class="project-role">硬件负责人 · 项目经理</div>
+                                </div>
+                                <div class="project-date">2024.01 - 2024.06</div>
+                            </div>
+                            <div class="project-desc">
+                                • 设计基于Nordic nRF52832的低功耗蓝牙主控方案，实现7天续航能力<br>
+                                • 完成6层HDI PCB设计，集成心率传感器、加速度计、触摸屏等功能模块<br>
+                                • 解决信号完整性和EMC问题，产品顺利通过CE、FCC认证<br>
+                                • 项目在EZPLM平台完整管理，包含原理图、PCB、BOM等完整设计文档
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">nRF52832</span>
+                                <span class="project-tag">低功耗设计</span>
+                                <span class="project-tag">HDI PCB</span>
+                                <span class="project-tag">心率传感器</span>
+                                <span class="project-tag">蓝牙BLE</span>
+                            </div>
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e0e0e0;">
+                                <a href="projects.html?id=smartband-v2" style="display: inline-flex; align-items: center; gap: 6px; color: #00890b; text-decoration: none; font-size: 14px; font-weight: 600;">
+                                    <span>🔗</span>
+                                    <span>在EZPLM中查看完整项目</span>
+                                    <span style="font-size: 12px;">→</span>
+                                </a>
+                                <span style="margin: 0 12px; color: #d1d5db;">|</span>
+                                <span style="font-size: 13px; color: #666;">
+                                    <span style="color: #00890b; font-weight: 600;">856</span> 浏览 ·
+                                    <span style="color: #00890b; font-weight: 600;">42</span> 收藏
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 另一个EZPLM项目 -->
+                        <div class="project-item ezplm-project">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <span style="background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">📦 EZPLM平台项目</span>
+                                <span style="color: #00890b; font-size: 13px; font-weight: 600;">🔗 可在线查看</span>
+                            </div>
+                            <div class="project-header">
+                                <div>
+                                    <div class="project-name">工业级4G路由器硬件设计</div>
+                                    <div class="project-role">硬件设计工程师</div>
+                                </div>
+                                <div class="project-date">2023.05 - 2023.12</div>
+                            </div>
+                            <div class="project-desc">
+                                • 基于高通MDM9x07平台设计工业级4G通信模块，支持全网通和多频段<br>
+                                • 完成电源、射频、以太网、串口等复杂电路设计，通过严苛的工业环境测试<br>
+                                • 优化PCB布局和散热设计，确保-40℃~85℃温度范围稳定工作<br>
+                                • 完整的设计资料已在EZPLM平台开源分享，获得社区广泛好评
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">4G LTE</span>
+                                <span class="project-tag">高通MDM</span>
+                                <span class="project-tag">射频设计</span>
+                                <span class="project-tag">工业级</span>
+                                <span class="project-tag">电源设计</span>
+                            </div>
+                            <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #e0e0e0;">
+                                <a href="projects.html?id=4g-router" style="display: inline-flex; align-items: center; gap: 6px; color: #00890b; text-decoration: none; font-size: 14px; font-weight: 600;">
+                                    <span>🔗</span>
+                                    <span>在EZPLM中查看完整项目</span>
+                                    <span style="font-size: 12px;">→</span>
+                                </a>
+                                <span style="margin: 0 12px; color: #d1d5db;">|</span>
+                                <span style="font-size: 13px; color: #666;">
+                                    <span style="color: #00890b; font-weight: 600;">1.2K</span> 浏览 ·
+                                    <span style="color: #00890b; font-weight: 600;">89</span> 收藏 ·
+                                    <span style="color: #f59e0b; font-weight: 600;">⭐ 开源项目</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- 传统项目 -->
+                        <div class="project-item">
+                            <div class="project-header">
+                                <div>
+                                    <div class="project-name">ESP32智能小车竞赛项目</div>
+                                    <div class="project-role">硬件负责人 · 队长</div>
+                                </div>
+                                <div class="project-date">2024.03 - 2024.06</div>
+                            </div>
+                            <div class="project-desc">
+                                • 负责智能小车的硬件电路设计，包括电源管理、电机驱动、传感器接口等模块<br>
+                                • 使用Altium Designer完成4层PCB设计，实现高集成度和EMC优化<br>
+                                • 完成ESP32主控程序编写，实现寻迹、避障、远程控制等功能<br>
+                                • 项目获得全国电子设计竞赛一等奖，团队获得最佳设计奖
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">ESP32</span>
+                                <span class="project-tag">Altium Designer</span>
+                                <span class="project-tag">PCB设计</span>
+                                <span class="project-tag">嵌入式C</span>
+                                <span class="project-tag">PID控制</span>
+                            </div>
+                        </div>
+
+                        <div class="project-item">
+                            <div class="project-header">
+                                <div>
+                                    <div class="project-name">基于STM32的智能家居网关</div>
+                                    <div class="project-role">硬件与嵌入式开发</div>
+                                </div>
+                                <div class="project-date">2023.09 - 2024.01</div>
+                            </div>
+                            <div class="project-desc">
+                                • 设计并实现基于STM32F4的物联网网关硬件，集成WiFi、Zigbee、蓝牙模块<br>
+                                • 移植FreeRTOS操作系统，实现多协议数据转换和设备管理<br>
+                                • 开发上位机软件，实现远程监控和控制功能<br>
+                                • 项目作为毕业设计选题，目前进展顺利
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">STM32</span>
+                                <span class="project-tag">FreeRTOS</span>
+                                <span class="project-tag">物联网</span>
+                                <span class="project-tag">Zigbee</span>
+                                <span class="project-tag">MQTT</span>
+                            </div>
+                        </div>
+
+                        <!-- 添加项目提示 -->
+                        <div style="margin-top: 16px; padding: 16px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px;">
+                            <div style="display: flex; align-items: start; gap: 12px;">
+                                <span style="font-size: 24px;">💡</span>
+                                <div>
+                                    <div style="font-weight: 600; color: #15803d; margin-bottom: 4px;">展示您在EZPLM平台的项目</div>
+                                    <div style="font-size: 14px; color: #166534; line-height: 1.6;">
+                                        将EZPLM平台的项目链接添加到简历中，用人单位可以直接查看您的完整项目设计、BOM清单、设计文档等，更直观地了解您的技术能力。
+                                    </div>
+                                    <button class="btn-edit" onclick="linkEZPLMProject()" style="margin-top: 12px; font-size: 13px;">
+                                        🔗 关联EZPLM项目
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 专业技能 -->
+                    <div class="resume-section">
+                        <div class="section-header-resume">
+                            <h2 class="section-title-resume">🔧 专业技能</h2>
+                            <button class="btn-edit" onclick="editSection('skills')">编辑</button>
+                        </div>
+                        <div class="skills-grid">
+                            <div class="skill-item">
+                                <div class="skill-name">硬件电路设计</div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-name">PCB设计 (Altium Designer)</div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-name">嵌入式C/C++</div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 88%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-name">单片机开发 (STM32/ESP32)</div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 92%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-name">RTOS (FreeRTOS)</div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 75%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <div class="skill-name">通信协议 (UART/SPI/I2C)</div>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" style="width: 85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 获奖荣誉 -->
+                    <div class="resume-section">
+                        <div class="section-header-resume">
+                            <h2 class="section-title-resume">🏆 获奖荣誉</h2>
+                            <button class="btn-edit" onclick="editSection('awards')">编辑</button>
+                        </div>
+                        <div class="education-details" style="line-height: 2;">
+                            • 2024年全国大学生电子设计竞赛一等奖<br>
+                            • 2023年"挑战杯"全国大学生课外学术科技作品竞赛二等奖<br>
+                            • 2023-2024学年国家奖学金<br>
+                            • 2022-2023学年校级一等奖学金<br>
+                            • 2023年清华大学优秀学生干部
+                        </div>
+                    </div>
+
+                    <!-- 自我评价 -->
+                    <div class="resume-section">
+                        <div class="section-header-resume">
+                            <h2 class="section-title-resume">✍️ 自我评价</h2>
+                            <button class="btn-edit" onclick="editSection('summary')">编辑</button>
+                        </div>
+                        <div class="education-details" style="line-height: 1.8;">
+                            热爱电子硬件和嵌入式开发，具有扎实的理论基础和丰富的项目经验。熟练掌握硬件电路设计、PCB Layout及嵌入式软件开发。在校期间积极参与各类竞赛和项目，具有良好的团队协作能力和问题解决能力。对新技术充满好奇，善于学习和钻研。希望能够加入优秀的团队，在实际工作中不断提升自己的专业能力。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理订阅模态框 -->
+    <div class="modal-overlay" id="manageSubscriptionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">管理订阅</h2>
+                <button class="modal-close" onclick="closeManageSubscription()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="subscription-info-item">
+                    <span class="subscription-info-label">当前套餐</span>
+                    <span class="subscription-info-value">标准版</span>
+                </div>
+                <div class="subscription-info-item">
+                    <span class="subscription-info-label">月费</span>
+                    <span class="subscription-info-value">¥49/月</span>
+                </div>
+                <div class="subscription-info-item">
+                    <span class="subscription-info-label">订阅状态</span>
+                    <span class="subscription-info-value" style="color: #00890b; font-weight: 600;">✓ 有效</span>
+                </div>
+                <div class="subscription-info-item">
+                    <span class="subscription-info-label">订阅开始日期</span>
+                    <span class="subscription-info-value">2024-10-19</span>
+                </div>
+                <div class="subscription-info-item">
+                    <span class="subscription-info-label">下次续费日期</span>
+                    <span class="subscription-info-value">2025-11-19</span>
+                </div>
+                <div class="subscription-info-item">
+                    <span class="subscription-info-label">支付方式</span>
+                    <span class="subscription-info-value">微信支付 (****1234)</span>
+                </div>
+                <div class="subscription-info-item" style="border-bottom: none;">
+                    <span class="subscription-info-label">自动续费</span>
+                    <span class="subscription-info-value" style="color: #00890b; font-weight: 600;">✓ 已开启</span>
+                </div>
+
+                <div style="margin-top: 32px; padding-top: 24px; border-top: 2px solid #e0e0e0;">
+                    <h3 style="font-size: 16px; font-weight: 700; color: #3d4647; margin-bottom: 16px;">订阅操作</h3>
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <button class="btn-secondary" onclick="alert('升级套餐功能')">升级套餐</button>
+                        <button class="btn-secondary" onclick="alert('降级套餐功能')">降级套餐</button>
+                        <button class="btn-secondary" onclick="alert('更改支付方式')">更改支付方式</button>
+                        <button class="btn-secondary" onclick="toggleAutoRenewal()">关闭自动续费</button>
+                        <button class="btn-secondary" style="color: #d32f2f;" onclick="confirmCancelSubscription()">取消订阅</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发票列表模态框 -->
+    <div class="modal-overlay" id="invoiceListModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">发票管理</h2>
+                <button class="modal-close" onclick="closeInvoiceList()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <p style="color: #666; font-size: 14px;">共 12 张发票</p>
+                    <button class="btn-primary" style="padding: 8px 16px; font-size: 14px;" onclick="alert('开具新发票')">开具发票</button>
+                </div>
+
+                <table class="invoice-table">
+                    <thead>
+                        <tr>
+                            <th>发票号</th>
+                            <th>日期</th>
+                            <th>金额</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>INV-2024-001234</td>
+                            <td>2024-11-19</td>
+                            <td>¥79.00</td>
+                            <td><span class="invoice-status paid">已支付</span></td>
+                            <td>
+                                <a href="#" style="color: #197bc0; text-decoration: none; margin-right: 12px;" onclick="downloadInvoice('INV-2024-001234'); return false;">下载</a>
+                                <a href="#" style="color: #197bc0; text-decoration: none;" onclick="viewInvoice('INV-2024-001234'); return false;">查看</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>INV-2024-001123</td>
+                            <td>2024-10-19</td>
+                            <td>¥79.00</td>
+                            <td><span class="invoice-status paid">已支付</span></td>
+                            <td>
+                                <a href="#" style="color: #197bc0; text-decoration: none; margin-right: 12px;" onclick="downloadInvoice('INV-2024-001123'); return false;">下载</a>
+                                <a href="#" style="color: #197bc0; text-decoration: none;" onclick="viewInvoice('INV-2024-001123'); return false;">查看</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>INV-2024-001012</td>
+                            <td>2024-09-19</td>
+                            <td>¥79.00</td>
+                            <td><span class="invoice-status paid">已支付</span></td>
+                            <td>
+                                <a href="#" style="color: #197bc0; text-decoration: none; margin-right: 12px;" onclick="downloadInvoice('INV-2024-001012'); return false;">下载</a>
+                                <a href="#" style="color: #197bc0; text-decoration: none;" onclick="viewInvoice('INV-2024-001012'); return false;">查看</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>INV-2024-000901</td>
+                            <td>2024-08-19</td>
+                            <td>¥79.00</td>
+                            <td><span class="invoice-status paid">已支付</span></td>
+                            <td>
+                                <a href="#" style="color: #197bc0; text-decoration: none; margin-right: 12px;" onclick="downloadInvoice('INV-2024-000901'); return false;">下载</a>
+                                <a href="#" style="color: #197bc0; text-decoration: none;" onclick="viewInvoice('INV-2024-000901'); return false;">查看</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>INV-2024-000790</td>
+                            <td>2024-07-19</td>
+                            <td>¥79.00</td>
+                            <td><span class="invoice-status paid">已支付</span></td>
+                            <td>
+                                <a href="#" style="color: #197bc0; text-decoration: none; margin-right: 12px;" onclick="downloadInvoice('INV-2024-000790'); return false;">下载</a>
+                                <a href="#" style="color: #197bc0; text-decoration: none;" onclick="viewInvoice('INV-2024-000790'); return false;">查看</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 24px; padding: 16px; background: #f8f8f8; border-radius: 8px;">
+                    <p style="font-size: 14px; color: #666; margin-bottom: 8px;">💡 发票说明：</p>
+                    <ul style="font-size: 13px; color: #666; padding-left: 20px; line-height: 1.8;">
+                        <li>每月自动生成电子发票，可随时下载</li>
+                        <li>支持增值税普通发票和专用发票</li>
+                        <li>如需更改发票抬头，请联系客服</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载时检查URL参数
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+
+            // 如果URL中包含tab参数，自动切换到指定标签页
+            if (tab) {
+                const targetBtn = document.querySelector(`.profile-tab-btn[data-tab="${tab}"]`);
+                if (targetBtn) {
+                    targetBtn.click();
+                }
+            }
+        });
+
+        // 个人中心标签页切换
+        document.querySelectorAll('.profile-tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // 更新按钮激活状态
+                document.querySelectorAll('.profile-tab-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+
+                // 切换内容显示
+                const tab = this.dataset.tab;
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.getElementById(tab + '-tab').style.display = 'block';
+            });
+        });
+
+        // 管理订阅功能
+        function openManageSubscription() {
+            document.getElementById('manageSubscriptionModal').classList.add('active');
+        }
+
+        function closeManageSubscription() {
+            document.getElementById('manageSubscriptionModal').classList.remove('active');
+        }
+
+        function toggleAutoRenewal() {
+            if (confirm('确定要关闭自动续费吗？关闭后订阅到期将不会自动续费。')) {
+                alert('自动续费已关闭。您可以在订阅到期前重新开启。');
+                closeManageSubscription();
+            }
+        }
+
+        function confirmCancelSubscription() {
+            if (confirm('确定要取消订阅吗？取消后将在当前计费周期结束后失效，您将无法继续使用专业版功能。')) {
+                alert('订阅取消请求已提交。您的专业版功能将在 2025-11-19 到期后失效。');
+                closeManageSubscription();
+            }
+        }
+
+        // 发票管理功能
+        function openInvoiceList() {
+            document.getElementById('invoiceListModal').classList.add('active');
+        }
+
+        function closeInvoiceList() {
+            document.getElementById('invoiceListModal').classList.remove('active');
+        }
+
+        function downloadInvoice(invoiceNumber) {
+            alert('正在下载发票 ' + invoiceNumber + '...\n\n实际应用中会下载PDF文件');
+        }
+
+        function viewInvoice(invoiceNumber) {
+            alert('正在查看发票 ' + invoiceNumber + '...\n\n实际应用中会打开发票详情页面');
+        }
+
+        // 点击模态框背景关闭
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // 简历管理功能
+        let currentEditSection = '';
+
+        function editSection(section) {
+            currentEditSection = section;
+            const modal = document.getElementById('editModal');
+            const title = document.getElementById('editModalTitle');
+            const body = document.getElementById('editModalBody');
+
+            const sectionTitles = {
+                'basic': '👤 编辑基本信息',
+                'education': '🎓 编辑教育经历',
+                'projects': '💼 编辑项目经验',
+                'skills': '🔧 编辑专业技能',
+                'awards': '🏆 编辑获奖荣誉',
+                'summary': '✍️ 编辑自我评价'
+            };
+
+            const sectionForms = {
+                'basic': `
+                    <div class="form-group">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-input" value="张三" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">手机</label>
+                        <input type="text" class="form-input" value="138****8888" placeholder="请输入手机号">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-input" value="zhangsan@example.com" placeholder="请输入邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">期望职位</label>
+                        <input type="text" class="form-input" value="硬件工程师 / 嵌入式开发" placeholder="请输入期望职位">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">期望城市</label>
+                        <input type="text" class="form-input" value="北京 / 深圳" placeholder="请输入期望城市">
+                    </div>
+                `,
+                'education': `
+                    <div class="form-group">
+                        <label class="form-label">学校名称</label>
+                        <input type="text" class="form-input" value="清华大学" placeholder="请输入学校名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">专业</label>
+                        <input type="text" class="form-input" value="电子信息工程" placeholder="请输入专业">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">学历</label>
+                        <input type="text" class="form-input" value="本科" placeholder="请输入学历">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">在读时间</label>
+                        <input type="text" class="form-input" value="2021.09 - 2025.06" placeholder="例如: 2021.09 - 2025.06">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">详细描述</label>
+                        <textarea class="form-textarea" placeholder="请输入教育经历详细描述">• GPA: 3.8/4.0，专业排名前10%
+• 主修课程：模拟电子技术、数字电路、信号与系统、通信原理、嵌入式系统设计
+• 获得校级一等奖学金2次，国家奖学金1次</textarea>
+                    </div>
+                `,
+                'projects': `
+                    <div class="form-group">
+                        <label class="form-label">项目名称</label>
+                        <input type="text" class="form-input" value="ESP32智能小车竞赛项目" placeholder="请输入项目名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">项目角色</label>
+                        <input type="text" class="form-input" value="硬件负责人 · 队长" placeholder="请输入项目角色">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">项目时间</label>
+                        <input type="text" class="form-input" value="2024.03 - 2024.06" placeholder="例如: 2024.03 - 2024.06">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">项目描述</label>
+                        <textarea class="form-textarea" placeholder="请输入项目描述，每行一个要点">• 负责智能小车的硬件电路设计，包括电源管理、电机驱动、传感器接口等模块
+• 使用Altium Designer完成4层PCB设计，实现高集成度和EMC优化
+• 完成ESP32主控程序编写，实现寻迹、避障、远程控制等功能
+• 项目获得全国电子设计竞赛一等奖，团队获得最佳设计奖</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">技术标签</label>
+                        <input type="text" class="form-input" value="ESP32, Altium Designer, PCB设计, 嵌入式C, PID控制" placeholder="用逗号分隔多个标签">
+                    </div>
+                `,
+                'skills': `
+                    <div class="form-group">
+                        <label class="form-label">技能名称</label>
+                        <input type="text" class="form-input" placeholder="例如: 硬件电路设计">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">熟练度 (0-100)</label>
+                        <input type="number" class="form-input" min="0" max="100" placeholder="请输入0-100的数字">
+                    </div>
+                    <p style="color: #666; font-size: 13px; margin-top: 12px;">提示：添加新技能后会在简历中显示</p>
+                `,
+                'awards': `
+                    <div class="form-group">
+                        <label class="form-label">获奖荣誉列表</label>
+                        <textarea class="form-textarea" placeholder="每行输入一个获奖荣誉">2024年全国大学生电子设计竞赛一等奖
+2023年"挑战杯"全国大学生课外学术科技作品竞赛二等奖
+2023-2024学年国家奖学金
+2022-2023学年校级一等奖学金
+2023年清华大学优秀学生干部</textarea>
+                    </div>
+                `,
+                'summary': `
+                    <div class="form-group">
+                        <label class="form-label">自我评价</label>
+                        <textarea class="form-textarea" placeholder="请输入自我评价，简要介绍您的优势和特点">热爱电子硬件和嵌入式开发，具有扎实的理论基础和丰富的项目经验。熟练掌握硬件电路设计、PCB Layout及嵌入式软件开发。在校期间积极参与各类竞赛和项目，具有良好的团队协作能力和问题解决能力。对新技术充满好奇，善于学习和钻研。希望能够加入优秀的团队，在实际工作中不断提升自己的专业能力。</textarea>
+                    </div>
+                `
+            };
+
+            title.textContent = sectionTitles[section] || '编辑信息';
+            body.innerHTML = sectionForms[section] || '<p>暂无编辑表单</p>';
+            modal.classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        function saveEdit() {
+            alert('✅ 保存成功！\n\n您的简历已更新。');
+            closeEditModal();
+        }
+
+        function exportResume() {
+            alert('📄 导出PDF功能开发中...\n\n简历将以PDF格式导出，方便投递和打印。');
+        }
+
+        // 点击编辑模态框背景关闭
+        document.getElementById('editModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // 简历类型切换
+        function switchResumeType(type) {
+            const buttons = document.querySelectorAll('.resume-type-btn');
+            buttons.forEach(btn => {
+                if (btn.dataset.type === type) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            const resumeContainer = document.querySelector('.resume-container-profile');
+            if (type === 'student') {
+                resumeContainer.classList.add('student-mode');
+            } else {
+                resumeContainer.classList.remove('student-mode');
+            }
+
+            console.log('切换到' + (type === 'engineer' ? '工程师' : '学生') + '简历模式');
+        }
+
+        // 预览简历
+        function previewResume() {
+            // 打开新窗口显示简历预览
+            window.open('resume-preview.html', '_blank', 'width=1200,height=800');
+        }
+
+        // 分享简历
+        function shareResume() {
+            const shareUrl = 'https://ezplm.com/resume/zhangsan-12345';
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('🔗 简历链接已复制！\n\n' + shareUrl + '\n\n您可以将此链接分享给用人单位，他们可以直接查看您的在线简历，包括：\n\n✓ 完整的简历信息\n✓ EZPLM平台项目链接\n✓ 能力标签快速筛选\n✓ 项目浏览数和收藏数');
+                });
+            } else {
+                alert('🔗 您的简历分享链接：\n\n' + shareUrl + '\n\n请手动复制此链接分享给用人单位');
+            }
+        }
+
+        // 管理能力标签
+        function editSkillTags() {
+            alert('🏷️ 管理能力标签\n\n功能说明：\n\n1. 选择您的核心技能标签（最多3个）标记为"主要技能"\n2. 添加其他相关技能标签\n3. 标签会在简历顶部显示，方便HR快速筛选\n4. 建议选择与行业相关的热门技术标签\n\n常用标签分类：\n• 硬件设计：PCB设计、电路设计、原理图\n• 嵌入式：STM32、ESP32、FreeRTOS\n• 工具软件：Altium Designer、KiCad、OrCAD\n• 专业领域：物联网、电源管理、射频设计');
+        }
+
+        // 关联EZPLM项目
+        function linkEZPLMProject() {
+            alert('🔗 关联EZPLM项目\n\n功能说明：\n\n1. 从您在EZPLM平台的项目列表中选择要展示的项目\n2. 已关联的项目会在简历中显示特殊标识\n3. 用人单位可以点击链接查看：\n   • 完整的项目原理图和PCB设计\n   • 详细的BOM清单\n   • 设计文档和说明\n   • 项目的浏览数和收藏数\n\n4. 建议选择您最有代表性的2-3个项目\n5. 开源项目会显示特殊标识，更受HR青睐');
+        }
+    </script>
+
+    <!-- 编辑简历模态框 -->
+    <div class="edit-modal-overlay" id="editModal">
+        <div class="edit-modal">
+            <div class="edit-modal-header">
+                <h3 class="edit-modal-title" id="editModalTitle">编辑信息</h3>
+                <button class="edit-modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="edit-modal-body" id="editModalBody">
+                <!-- 动态内容将在这里加载 -->
+            </div>
+            <div class="edit-modal-footer">
+                <button class="btn-cancel" onclick="closeEditModal()">取消</button>
+                <button class="btn-primary" onclick="saveEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

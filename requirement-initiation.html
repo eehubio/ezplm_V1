@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 需求发起专栏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+        .main-content { padding: 32px; max-width: 1440px; margin: 0 auto; }
+        .page-header {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .content-section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            background: #f0f0f0;
+            color: #666;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            background: #00890b;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 16px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='approval-center.html'">
+                ✅
+                <span style="position: absolute; top: -4px; right: -4px; background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">8</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="个人中心">用</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div>
+                <div class="page-title">📝 需求发起专栏</div>
+                <div class="page-subtitle">客户需求收集、评估、立项管理</div>
+            </div>
+            <button class="btn btn-primary" onclick="showNewRequirementForm()">+ 新建需求</button>
+        </div>
+
+        <div class="content-section">
+            <div class="section-title">需求管理</div>
+            <div class="filter-tabs">
+                <button class="tab active" onclick="filterRequirements('all')">全部需求 (18)</button>
+                <button class="tab" onclick="filterRequirements('pending')">待评估 (5)</button>
+                <button class="tab" onclick="filterRequirements('evaluating')">评估中 (4)</button>
+                <button class="tab" onclick="filterRequirements('approved')">已批准 (6)</button>
+                <button class="tab" onclick="filterRequirements('converted')">已立项 (2)</button>
+                <button class="tab" onclick="filterRequirements('rejected')">已拒绝 (1)</button>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>需求编号</th>
+                        <th>需求名称</th>
+                        <th>客户名称</th>
+                        <th>产品类型</th>
+                        <th>预估数量</th>
+                        <th>预期交期</th>
+                        <th>销售负责人</th>
+                        <th>提交时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="requirementTableBody">
+                    <tr data-status="pending">
+                        <td style="font-weight: 600;">REQ-2025-008</td>
+                        <td>
+                            <div style="font-weight: 600; margin-bottom: 2px;">智能楼宇控制系统</div>
+                            <div style="font-size: 11px; color: #999;">需要集成门禁、照明、空调控制</div>
+                        </td>
+                        <td>深圳XX科技有限公司</td>
+                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">智能控制器</span></td>
+                        <td>500套</td>
+                        <td>2025-05-01</td>
+                        <td>
+                            <div style="font-weight: 600;">刘经理</div>
+                            <div style="font-size: 11px; color: #999;">📞 138****0020</div>
+                        </td>
+                        <td>2025-01-27 09:30</td>
+                        <td><span style="background: #fff3e0; color: #f57c00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">⏳ 待评估</span></td>
+                        <td>
+                            <button style="background: #00890b; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;" onclick="viewRequirement('REQ-2025-008')">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr data-status="evaluating">
+                        <td style="font-weight: 600;">REQ-2025-007</td>
+                        <td>
+                            <div style="font-weight: 600; margin-bottom: 2px;">工业温湿度监测设备</div>
+                            <div style="font-size: 11px; color: #999;">需支持LoRa远程传输</div>
+                        </td>
+                        <td>上海YY实业有限公司</td>
+                        <td><span style="background: #e8f5e9; color: #00890b; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">传感器模组</span></td>
+                        <td>1000台</td>
+                        <td>2025-04-15</td>
+                        <td>
+                            <div style="font-weight: 600;">王经理</div>
+                            <div style="font-size: 11px; color: #999;">📞 138****0021</div>
+                        </td>
+                        <td>2025-01-25 14:20</td>
+                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">🔍 评估中</span></td>
+                        <td>
+                            <button style="background: #00890b; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;" onclick="viewRequirement('REQ-2025-007')">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr data-status="approved">
+                        <td style="font-weight: 600;">REQ-2025-006</td>
+                        <td>
+                            <div style="font-weight: 600; margin-bottom: 2px;">智能电表v3.0定制版</div>
+                            <div style="font-size: 11px; color: #999;">基于标准版增加GPRS模块</div>
+                        </td>
+                        <td>北京ZZ电力有限公司</td>
+                        <td><span style="background: #fff3e0; color: #f57c00; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">电力设备</span></td>
+                        <td>2000台</td>
+                        <td>2025-06-01</td>
+                        <td>
+                            <div style="font-weight: 600;">陈经理</div>
+                            <div style="font-size: 11px; color: #999;">📞 138****0022</div>
+                        </td>
+                        <td>2025-01-20 10:00</td>
+                        <td><span style="background: #e8f5e9; color: #00890b; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">✓ 已批准</span></td>
+                        <td>
+                            <button style="background: #4dabf7; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;" onclick="convertToProject('REQ-2025-006')">转为项目</button>
+                        </td>
+                    </tr>
+                    <tr data-status="converted">
+                        <td style="font-weight: 600;">REQ-2025-005</td>
+                        <td>
+                            <div style="font-weight: 600; margin-bottom: 2px;">车载终端控制器</div>
+                            <div style="font-size: 11px; color: #999;">支持4G通信、GPS定位</div>
+                        </td>
+                        <td>广州AA汽车科技</td>
+                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">车载设备</span></td>
+                        <td>3000台</td>
+                        <td>2025-07-01</td>
+                        <td>
+                            <div style="font-weight: 600;">张经理</div>
+                            <div style="font-size: 11px; color: #999;">📞 138****0023</div>
+                        </td>
+                        <td>2025-01-15 16:00</td>
+                        <td>
+                            <span style="background: #9333ea; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">🚀 已立项</span>
+                            <div style="font-size: 11px; color: #666; margin-top: 4px;">→ PRO-2025-005</div>
+                        </td>
+                        <td>
+                            <button style="background: #666; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;" onclick="location.href='projects.html'">查看项目</button>
+                        </td>
+                    </tr>
+                    <tr data-status="pending">
+                        <td style="font-weight: 600;">REQ-2025-004</td>
+                        <td>
+                            <div style="font-weight: 600; margin-bottom: 2px;">智能门锁控制模块</div>
+                            <div style="font-size: 11px; color: #999;">需要蓝牙和指纹识别</div>
+                        </td>
+                        <td>杭州BB智能家居</td>
+                        <td><span style="background: #e8f5e9; color: #00890b; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">智能锁模块</span></td>
+                        <td>800套</td>
+                        <td>2025-04-20</td>
+                        <td>
+                            <div style="font-weight: 600;">李经理</div>
+                            <div style="font-size: 11px; color: #999;">📞 138****0024</div>
+                        </td>
+                        <td>2025-01-26 11:30</td>
+                        <td><span style="background: #fff3e0; color: #f57c00; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">⏳ 待评估</span></td>
+                        <td>
+                            <button style="background: #00890b; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;" onclick="viewRequirement('REQ-2025-004')">查看详情</button>
+                        </td>
+                    </tr>
+                    <tr data-status="rejected">
+                        <td style="font-weight: 600;">REQ-2025-003</td>
+                        <td>
+                            <div style="font-weight: 600; margin-bottom: 2px;">无人机飞控系统</div>
+                            <div style="font-size: 11px; color: #999;">高精度惯导、实时图传</div>
+                        </td>
+                        <td>深圳CC无人机科技</td>
+                        <td><span style="background: #fff3e0; color: #f57c00; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">飞控系统</span></td>
+                        <td>100套</td>
+                        <td>2025-03-15</td>
+                        <td>
+                            <div style="font-weight: 600;">赵经理</div>
+                            <div style="font-size: 11px; color: #999;">📞 138****0025</div>
+                        </td>
+                        <td>2025-01-18 09:00</td>
+                        <td>
+                            <span style="background: #ffebee; color: #ff4757; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">❌ 已拒绝</span>
+                            <div style="font-size: 11px; color: #999; margin-top: 4px;">技术难度过高</div>
+                        </td>
+                        <td>
+                            <button style="background: #999; color: white; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;" onclick="viewRequirement('REQ-2025-003')">查看原因</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <script>
+        function filterRequirements(status) {
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter table rows
+            const rows = document.querySelectorAll('#requirementTableBody tr');
+            rows.forEach(row => {
+                if (status === 'all') {
+                    row.style.display = '';
+                } else {
+                    if (row.dataset.status === status) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        function showNewRequirementForm() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                overflow-y: auto;
+                padding: 20px;
+            `;
+
+            modal.innerHTML = `
+                <div class="modal-content" style="background: white; border-radius: 12px; width: 900px; max-width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+                    <div class="modal-header" style="padding: 24px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: #1a1a1a;">📝 新建客户需求</div>
+                        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999; line-height: 1;">×</button>
+                    </div>
+                    <div class="modal-body" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+                        <form id="newRequirementForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">客户名称 *</label>
+                                    <input type="text" class="form-input" placeholder="请输入客户公司名称" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">销售负责人 *</label>
+                                    <select class="form-select" required>
+                                        <option value="">请选择</option>
+                                        <option value="1">刘经理</option>
+                                        <option value="2">王经理</option>
+                                        <option value="3">陈经理</option>
+                                        <option value="4">张经理</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">需求名称 *</label>
+                                <input type="text" class="form-input" placeholder="简短描述客户需求的产品或项目" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">详细需求描述 *</label>
+                                <textarea class="form-textarea" placeholder="请详细描述客户的需求内容、功能要求、技术规格等..." required></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">产品类型 *</label>
+                                    <select class="form-select" required>
+                                        <option value="">请选择</option>
+                                        <option value="controller">智能控制器</option>
+                                        <option value="sensor">传感器模组</option>
+                                        <option value="power">电力设备</option>
+                                        <option value="vehicle">车载设备</option>
+                                        <option value="smart_lock">智能锁模块</option>
+                                        <option value="other">其他</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">预估数量 *</label>
+                                    <input type="number" class="form-input" placeholder="请输入预估订单数量" required>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">预期交期 *</label>
+                                    <input type="date" class="form-input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">目标单价 (元)</label>
+                                    <input type="number" class="form-input" placeholder="客户期望的单价" step="0.01">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">客户联系人</label>
+                                <input type="text" class="form-input" placeholder="客户方对接人姓名">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">联系电话</label>
+                                    <input type="tel" class="form-input" placeholder="客户联系电话">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">联系邮箱</label>
+                                    <input type="email" class="form-input" placeholder="客户联系邮箱">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">补充说明</label>
+                                <textarea class="form-textarea" placeholder="其他需要说明的信息..." style="min-height: 80px;"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid #e0e0e0; display: flex; justify-content: flex-end; gap: 12px;">
+                        <button class="btn" style="background: #f0f0f0; color: #666; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="this.closest('.modal-overlay').remove()">取消</button>
+                        <button class="btn btn-primary" style="background: #00890b; color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600;" onclick="submitNewRequirement()">提交需求</button>
+                    </div>
+                </div>
+            `;
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+
+            document.body.appendChild(modal);
+        }
+
+        function submitNewRequirement() {
+            alert('✓ 需求已提交！\n\n需求编号：REQ-2025-009\n状态：待评估\n\n相关人员将收到评估通知');
+            document.querySelector('.modal-overlay').remove();
+            // Refresh page or update table
+        }
+
+        function viewRequirement(reqId) {
+            alert(`查看需求详情: ${reqId}\n\n包含以下信息：\n- 完整需求描述\n- 客户信息\n- 评估记录\n- 附件文档\n- 沟通记录`);
+        }
+
+        function convertToProject(reqId) {
+            // 1. 权限检查
+            if (!PermissionControl.hasPermission('requirement', 'update') ||
+                !PermissionControl.hasPermission('project', 'create')) {
+                PermissionControl.showPermissionError('转为项目');
+                return;
+            }
+
+            if (confirm(`确认将需求 ${reqId} 转为项目？\n\n系统将自动创建项目，同步客户信息、数量、交期等数据，并通知相关团队成员`)) {
+                // 2. 获取需求数据（实际应从后端API获取）
+                const reqData = getRequirementData(reqId);
+
+                // 3. 自动创建项目数据，同步需求信息
+                const projectId = generateProjectNumber();
+                const projectData = {
+                    projectNumber: projectId,
+                    projectName: reqData.requirementName,
+                    customerName: reqData.customerName,
+                    customerContact: reqData.customerContact,
+                    contactPhone: reqData.contactPhone,
+                    contactEmail: reqData.contactEmail,
+                    productType: reqData.productType,
+                    quantity: reqData.quantity,
+                    expectedDeliveryDate: reqData.expectedDate,
+                    targetPrice: reqData.targetPrice,
+                    salesManager: reqData.salesManager,
+                    description: reqData.description,
+                    status: 'planning',
+                    sourceRequirement: reqId,
+                    createdAt: new Date().toISOString(),
+                    createdBy: PermissionControl.getCurrentUser()
+                };
+
+                // 4. 创建初始项目里程碑
+                projectData.milestones = [
+                    {
+                        id: 'M1',
+                        name: '项目启动',
+                        startDate: new Date().toISOString().split('T')[0],
+                        endDate: addDays(new Date(), 7).toISOString().split('T')[0],
+                        status: 'pending'
+                    },
+                    {
+                        id: 'M2',
+                        name: '需求分析',
+                        startDate: addDays(new Date(), 7).toISOString().split('T')[0],
+                        endDate: addDays(new Date(), 14).toISOString().split('T')[0],
+                        status: 'pending'
+                    },
+                    {
+                        id: 'M3',
+                        name: '设计评审',
+                        startDate: addDays(new Date(), 14).toISOString().split('T')[0],
+                        endDate: addDays(new Date(), 21).toISOString().split('T')[0],
+                        status: 'pending'
+                    }
+                ];
+
+                // 5. 保存项目（实际应调用后端API）
+                saveProject(projectData);
+
+                // 6. 更新需求状态为"已立项"
+                updateRequirementStatus(reqId, 'converted', projectId);
+
+                // 7. 记录审计日志
+                AuditLog.logUpdate('requirement', reqId,
+                    { status: 'approved' },
+                    { status: 'converted', projectId: projectId },
+                    `需求转为项目: ${projectId}`
+                );
+                AuditLog.logCreate('project', projectId, projectData,
+                    `由需求 ${reqId} 自动创建`
+                );
+
+                // 8. 发送通知给相关人员
+                notifyTeam({
+                    type: 'project_created',
+                    projectId: projectId,
+                    projectName: projectData.projectName,
+                    message: `新项目已创建：${projectData.projectName}`,
+                    recipients: ['project_manager', 'technical_lead', 'sales_team']
+                });
+
+                // 9. 显示成功消息并跳转
+                alert(`✓ 项目创建成功！\n\n项目编号：${projectId}\n项目名称：${projectData.projectName}\n客户：${projectData.customerName}\n数量：${projectData.quantity}\n交期：${projectData.expectedDeliveryDate}\n\n系统已自动同步需求数据，并通知项目经理启动流程`);
+
+                // 跳转到项目页面
+                setTimeout(() => {
+                    location.href = `projects.html?id=${projectId}`;
+                }, 1500);
+            }
+        }
+
+        // ==================== 辅助函数 ====================
+
+        function getRequirementData(reqId) {
+            // 实际应从后端API获取，这里模拟数据
+            const mockData = {
+                'REQ-2025-006': {
+                    requirementName: '智能电表v3.0定制版',
+                    customerName: '北京ZZ电力有限公司',
+                    customerContact: '李总',
+                    contactPhone: '138****0022',
+                    contactEmail: 'li@zz-power.com',
+                    productType: '电力设备',
+                    quantity: '2000台',
+                    expectedDate: '2025-06-01',
+                    targetPrice: '85.00',
+                    salesManager: '陈经理',
+                    description: '基于标准版智能电表增加GPRS模块，支持远程抄表和数据传输'
+                }
+            };
+            return mockData[reqId] || {};
+        }
+
+        function generateProjectNumber() {
+            const year = new Date().getFullYear();
+            const seq = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `PRO-${year}-${seq}`;
+        }
+
+        function addDays(date, days) {
+            const result = new Date(date);
+            result.setDate(result.getDate() + days);
+            return result;
+        }
+
+        function saveProject(projectData) {
+            // 实际应调用后端API: POST /api/projects
+            // 这里保存到localStorage模拟
+            const projects = JSON.parse(localStorage.getItem('projects') || '[]');
+            projects.push(projectData);
+            localStorage.setItem('projects', JSON.stringify(projects));
+            console.log('项目已保存:', projectData);
+        }
+
+        function updateRequirementStatus(reqId, newStatus, projectId) {
+            // 实际应调用后端API: PUT /api/requirements/{reqId}
+            // 这里更新DOM模拟
+            const row = document.querySelector(`tr td:first-child:contains('${reqId}')`);
+            if (row) {
+                const statusCell = row.closest('tr').cells[8];
+                statusCell.innerHTML = `
+                    <span style="background: #9333ea; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600;">🚀 已立项</span>
+                    <div style="font-size: 11px; color: #666; margin-top: 4px;">→ ${projectId}</div>
+                `;
+            }
+            console.log(`需求 ${reqId} 状态更新为: ${newStatus}`);
+        }
+
+        function notifyTeam(notification) {
+            // 实际应调用后端API: POST /api/notifications
+            console.log('发送通知:', notification);
+
+            // 模拟发送通知
+            const notificationData = {
+                id: 'NOTIF-' + Date.now(),
+                type: notification.type,
+                title: '新项目创建',
+                message: notification.message,
+                projectId: notification.projectId,
+                timestamp: new Date().toISOString(),
+                recipients: notification.recipients,
+                read: false
+            };
+
+            // 保存到localStorage
+            const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+            notifications.unshift(notificationData);
+            localStorage.setItem('notifications', JSON.stringify(notifications));
+        }
+
+        // ==================== 页面加载时初始化 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 检查页面访问权限
+            if (typeof PermissionControl !== 'undefined') {
+                PermissionControl.checkPageAccess('requirement', 'read');
+                PermissionControl.applyUIPermissions();
+            }
+        });
+    </script>
+
+    <!-- 引入核心系统脚本 -->
+    <script src="js/permission-control.js"></script>
+    <script src="js/audit-log.js"></script>
+    <script src="js/material-reservation.js"></script>
+</body>
+</html>

@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 系统设置</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f4; color: #3d4647; }
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .layout { display: flex; min-height: calc(100vh - 80px); }
+        .sidebar { width: 260px; background: white; box-shadow: 2px 0 8px rgba(0,0,0,0.05); padding: 24px 0; }
+        .nav-section-title { padding: 8px 24px; font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; }
+        .nav-item { padding: 12px 24px; display: flex; align-items: center; gap: 12px; color: #3d4647; text-decoration: none; transition: all 0.2s; }
+        .nav-item:hover { background: rgba(0, 137, 11, 0.05); color: #00890b; }
+        .nav-item.active { background: rgba(0, 137, 11, 0.1); color: #00890b; font-weight: 600; border-right: 3px solid #00890b; }
+        .main-content { flex: 1; padding: 32px; }
+        .settings-nav { display: flex; gap: 8px; margin-bottom: 32px; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .settings-tab { padding: 12px 24px; background: transparent; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .settings-tab.active { background: #00890b; color: white; }
+        .card { background: white; border-radius: 8px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #f0f0f0; }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; margin-bottom: 8px; font-size: 14px; font-weight: 600; }
+        .form-input { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; }
+        .btn-primary { background: #00890b; color: white; border: none; padding: 12px 32px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #f0f0f0; }
+        .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 26px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: #00890b; }
+        input:checked + .slider:before { transform: translateX(24px); }
+
+        /* Modal样式 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { padding: 24px 32px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 20px; font-weight: 700; color: #3d4647; }
+        .modal-close { background: none; border: none; font-size: 28px; color: #999; cursor: pointer; line-height: 1; transition: color 0.3s; }
+        .modal-close:hover { color: #3d4647; }
+        .modal-body { padding: 32px; }
+        .modal-footer { padding: 20px 32px; border-top: 1px solid #e0e0e0; display: flex; justify-content: flex-end; gap: 12px; }
+        .btn-cancel { background: white; color: #3d4647; border: 2px solid #e0e0e0; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-cancel:hover { border-color: #999; }
+        .btn-danger { background: #e74c3c; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
+        .btn-danger:hover { background: #c0392b; }
+        .warning-box { background: #fff3cd; border-left: 4px solid #f39c12; padding: 16px; border-radius: 6px; margin-bottom: 20px; }
+
+        /* 内容区域切换 */
+        .settings-content { display: none; }
+        .settings-content.active { display: block; }
+
+        /* 表格样式 */
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f9f9f9; padding: 12px; text-align: left; font-size: 13px; color: #666; font-weight: 700; border-bottom: 2px solid #e0e0e0; }
+        td { padding: 12px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+        tr:hover { background: #f9f9f9; }
+
+        /* 角色标签 */
+        .role-badge { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; display: inline-block; }
+        .role-admin { background: rgba(231, 76, 60, 0.1); color: #e74c3c; }
+        .role-manager { background: rgba(52, 152, 219, 0.1); color: #3498db; }
+        .role-user { background: rgba(149, 165, 166, 0.1); color: #95a5a6; }
+
+        /* 集成卡片 */
+        .integration-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .integration-card { background: #f9f9f9; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; transition: all 0.3s; }
+        .integration-card:hover { border-color: #00890b; background: rgba(0, 137, 11, 0.05); }
+        .integration-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .integration-name { font-size: 16px; font-weight: 700; color: #3d4647; }
+        .integration-status { padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+        .status-connected { background: rgba(0, 137, 11, 0.1); color: #00890b; }
+        .status-disconnected { background: rgba(149, 165, 166, 0.1); color: #95a5a6; }
+        .integration-desc { font-size: 13px; color: #666; margin-bottom: 16px; }
+
+        /* 备份历史 */
+        .backup-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f9f9f9; border-radius: 6px; margin-bottom: 12px; }
+        .backup-info { flex: 1; }
+        .backup-name { font-weight: 600; margin-bottom: 4px; }
+        .backup-meta { font-size: 13px; color: #666; }
+        .backup-actions { display: flex; gap: 8px; }
+
+        /* 按钮样式 */
+        .btn-secondary { background: white; border: 2px solid #e0e0e0; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-secondary:hover { border-color: #00890b; color: #00890b; }
+        .btn-small { padding: 6px 12px; font-size: 12px; }
+
+        /* 用户管理Modal */
+        .user-modal .modal-content { max-width: 800px; max-height: 90vh; overflow-y: auto; }
+        .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+
+        /* 权限配置 */
+        .permissions-section { margin-top: 24px; }
+        .permission-module { background: #f9f9f9; border-radius: 6px; padding: 16px; margin-bottom: 12px; }
+        .module-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .module-name { font-weight: 600; font-size: 15px; color: #3d4647; }
+        .permission-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .permission-item { display: flex; align-items: center; gap: 8px; }
+        .permission-item input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
+        .permission-item label { font-size: 13px; cursor: pointer; user-select: none; }
+        .select-all-btn { font-size: 12px; color: #00890b; cursor: pointer; text-decoration: underline; }
+        .select-all-btn:hover { color: #007309; }
+        .info-box { background: #e3f2fd; border-left: 4px solid #2196f3; padding: 12px; border-radius: 6px; margin-top: 16px; font-size: 13px; color: #666; }
+
+        /* AI助手按钮 */
+        .ai-assistant-btn {
+            background: white;
+            border: 2px solid #00890b;
+            color: #00890b;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ai-assistant-btn:hover {
+            background: #00890b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,137,11,0.2);
+        }
+
+                /* AI助手模态框 */
+        .ai-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+        }
+        .ai-modal-overlay.active {
+            display: block;
+        }
+        .ai-modal-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .ai-modal-close {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00890b;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,137,11,0.3);
+            z-index: 10000;
+            font-weight: 300;
+            line-height: 1;
+        }
+        .ai-modal-close:hover {
+            background: #006b09;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,137,11,0.4);
+        }
+        .ai-modal-body {
+            width: 100%;
+            height: 100%;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-left: auto;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item active">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="main-content">
+            <div class="settings-nav">
+                <button class="settings-tab active" onclick="switchSettingsTab('organization')">组织设置</button>
+                <button class="settings-tab" onclick="switchSettingsTab('integrations')">集成配置</button>
+                <button class="settings-tab" onclick="switchSettingsTab('backup')">数据备份</button>
+            </div>
+
+            <!-- 组织设置 -->
+            <div class="settings-content active" id="content-organization">
+                <div class="card">
+                    <div class="section-title">组织信息</div>
+                    <div class="form-group">
+                        <label class="form-label">组织名称</label>
+                        <input type="text" class="form-input" value="深圳智能科技有限公司">
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <div class="form-group">
+                            <label class="form-label">行业</label>
+                            <select class="form-input">
+                                <option>电子制造</option>
+                                <option>智能硬件</option>
+                                <option>物联网</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">员工规模</label>
+                            <select class="form-input">
+                                <option>50-200人</option>
+                                <option>200-500人</option>
+                                <option>500+人</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="saveSettings()">保存设置</button>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">功能开关</div>
+                    <div class="setting-item">
+                        <div><div style="font-weight: 600; margin-bottom: 4px;">启用云搜索</div><div style="font-size: 13px; color: #666;">从全球物料数据库搜索组件</div></div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div style="font-weight: 600; margin-bottom: 4px;">自动库存预警</div><div style="font-size: 13px; color: #666;">库存低于安全线时自动通知</div></div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div style="font-weight: 600; margin-bottom: 4px;">BOM自动版本控制</div><div style="font-size: 13px; color: #666;">BOM修改时自动创建新版本</div></div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-item">
+                        <div><div style="font-weight: 600; margin-bottom: 4px;">启用审批流程</div><div style="font-size: 13px; color: #666;">BOM和采购需要审批后生效</div></div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">API设置</div>
+                    <div class="form-group">
+                        <label class="form-label">API密钥</label>
+                        <input type="text" class="form-input" id="apiKey" value="ezplm_****************************" disabled>
+                    </div>
+                    <button style="background: white; border: 2px solid #e0e0e0; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer;" onclick="openRegenerateKeyModal()">重新生成密钥</button>
+                </div>
+            </div>
+
+            <!-- 集成配置 -->
+            <div class="settings-content" id="content-integrations">
+                <div class="card">
+                    <div class="section-title">第三方集成</div>
+                    <div class="integration-grid">
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <div class="integration-name">🔧 Altium Designer</div>
+                                <span class="integration-status status-connected">已连接</span>
+                            </div>
+                            <div class="integration-desc">自动导入PCB设计中的BOM数据到系统</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-secondary btn-small" onclick="configureIntegration('altium')">配置</button>
+                                <button class="btn-secondary btn-small" onclick="disconnectIntegration('altium')">断开</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <div class="integration-name">📦 ERP系统</div>
+                                <span class="integration-status status-connected">已连接</span>
+                            </div>
+                            <div class="integration-desc">同步库存数据和采购订单到ERP系统</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-secondary btn-small" onclick="configureIntegration('erp')">配置</button>
+                                <button class="btn-secondary btn-small" onclick="disconnectIntegration('erp')">断开</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <div class="integration-name">🐙 Git / GitHub</div>
+                                <span class="integration-status status-disconnected">未连接</span>
+                            </div>
+                            <div class="integration-desc">版本控制和项目文档协作管理</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-primary btn-small" onclick="connectIntegration('git')">连接</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <div class="integration-name">💬 钉钉/企业微信</div>
+                                <span class="integration-status status-disconnected">未连接</span>
+                            </div>
+                            <div class="integration-desc">接收库存预警、审批通知等消息推送</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-primary btn-small" onclick="connectIntegration('dingtalk')">连接</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <div class="integration-name">🛒 立创商城 API</div>
+                                <span class="integration-status status-connected">已连接</span>
+                            </div>
+                            <div class="integration-desc">实时获取物料价格和库存信息</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-secondary btn-small" onclick="configureIntegration('lcsc')">配置</button>
+                                <button class="btn-secondary btn-small" onclick="disconnectIntegration('lcsc')">断开</button>
+                            </div>
+                        </div>
+
+                        <div class="integration-card">
+                            <div class="integration-header">
+                                <div class="integration-name">📊 数据分析平台</div>
+                                <span class="integration-status status-disconnected">未连接</span>
+                            </div>
+                            <div class="integration-desc">导出数据到BI工具进行深度分析</div>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn-primary btn-small" onclick="connectIntegration('bi')">连接</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">Webhook配置</div>
+                    <div class="form-group">
+                        <label class="form-label">Webhook URL</label>
+                        <input type="text" class="form-input" placeholder="https://your-domain.com/webhook">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">触发事件</label>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" checked>
+                                <span>物料创建/更新</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" checked>
+                                <span>BOM变更</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox">
+                                <span>库存预警</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox">
+                                <span>采购订单状态变更</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="saveWebhook()">保存Webhook配置</button>
+                </div>
+            </div>
+
+            <!-- 数据备份 -->
+            <div class="settings-content" id="content-backup">
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div class="section-title" style="margin-bottom: 0;">备份与恢复</div>
+                        <button class="btn-primary" onclick="createBackup()">🔄 立即备份</button>
+                    </div>
+
+                    <div style="background: #e8f5e9; border-left: 4px solid #00890b; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #00890b;">✓ 自动备份已启用</div>
+                        <div style="color: #666; font-size: 14px;">
+                            系统每天凌晨2点自动备份，保留最近30天的备份文件
+                        </div>
+                    </div>
+
+                    <div class="setting-item">
+                        <div><div style="font-weight: 600; margin-bottom: 4px;">启用自动备份</div><div style="font-size: 13px; color: #666;">每天定时自动备份系统数据</div></div>
+                        <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                    </div>
+
+                    <div class="setting-item">
+                        <div><div style="font-weight: 600; margin-bottom: 4px;">备份保留天数</div><div style="font-size: 13px; color: #666;">自动删除超过指定天数的备份</div></div>
+                        <select class="form-input" style="width: 150px;">
+                            <option>7天</option>
+                            <option>15天</option>
+                            <option selected>30天</option>
+                            <option>60天</option>
+                            <option>90天</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="section-title">备份历史</div>
+
+                    <div class="backup-item">
+                        <div class="backup-info">
+                            <div class="backup-name">📦 完整备份 - 2024-10-21</div>
+                            <div class="backup-meta">大小: 245 MB | 创建时间: 2024-10-21 02:00:15 | 类型: 自动备份</div>
+                        </div>
+                        <div class="backup-actions">
+                            <button class="btn-secondary btn-small" onclick="downloadBackup('backup-20241021')">下载</button>
+                            <button class="btn-secondary btn-small" onclick="restoreBackup('backup-20241021')">恢复</button>
+                            <button class="btn-secondary btn-small" onclick="deleteBackup('backup-20241021')">删除</button>
+                        </div>
+                    </div>
+
+                    <div class="backup-item">
+                        <div class="backup-info">
+                            <div class="backup-name">📦 完整备份 - 2024-10-20</div>
+                            <div class="backup-meta">大小: 242 MB | 创建时间: 2024-10-20 02:00:10 | 类型: 自动备份</div>
+                        </div>
+                        <div class="backup-actions">
+                            <button class="btn-secondary btn-small" onclick="downloadBackup('backup-20241020')">下载</button>
+                            <button class="btn-secondary btn-small" onclick="restoreBackup('backup-20241020')">恢复</button>
+                            <button class="btn-secondary btn-small" onclick="deleteBackup('backup-20241020')">删除</button>
+                        </div>
+                    </div>
+
+                    <div class="backup-item">
+                        <div class="backup-info">
+                            <div class="backup-name">📦 完整备份 - 2024-10-19</div>
+                            <div class="backup-meta">大小: 238 MB | 创建时间: 2024-10-19 02:00:08 | 类型: 自动备份</div>
+                        </div>
+                        <div class="backup-actions">
+                            <button class="btn-secondary btn-small" onclick="downloadBackup('backup-20241019')">下载</button>
+                            <button class="btn-secondary btn-small" onclick="restoreBackup('backup-20241019')">恢复</button>
+                            <button class="btn-secondary btn-small" onclick="deleteBackup('backup-20241019')">删除</button>
+                        </div>
+                    </div>
+
+                    <div class="backup-item">
+                        <div class="backup-info">
+                            <div class="backup-name">📦 手动备份 - 升级前备份</div>
+                            <div class="backup-meta">大小: 235 MB | 创建时间: 2024-10-15 14:30:22 | 类型: 手动备份</div>
+                        </div>
+                        <div class="backup-actions">
+                            <button class="btn-secondary btn-small" onclick="downloadBackup('backup-manual-1015')">下载</button>
+                            <button class="btn-secondary btn-small" onclick="restoreBackup('backup-manual-1015')">恢复</button>
+                            <button class="btn-secondary btn-small" onclick="deleteBackup('backup-manual-1015')">删除</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 重新生成API密钥确认Modal -->
+    <div class="modal-overlay" id="regenerateKeyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⚠️ 重新生成API密钥</h3>
+                <button class="modal-close" onclick="closeRegenerateKeyModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="warning-box">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #f39c12;">⚠️ 警告</div>
+                    <div style="color: #666; font-size: 14px; line-height: 1.6;">
+                        重新生成API密钥后，旧密钥将立即失效。所有使用旧密钥的集成和API调用都将停止工作。
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <p style="font-weight: 600; margin-bottom: 12px; color: #3d4647;">请确认您了解以下影响：</p>
+                    <ul style="margin-left: 20px; color: #666; font-size: 14px; line-height: 1.8;">
+                        <li>所有使用当前API密钥的第三方集成将失效</li>
+                        <li>您需要在所有应用中更新为新的密钥</li>
+                        <li>此操作无法撤销</li>
+                    </ul>
+                </div>
+
+                <div style="margin-top: 20px; padding: 16px; background: #f9f9f9; border-radius: 6px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="confirmRegenerate" style="width: 18px; height: 18px;">
+                        <span style="font-size: 14px; font-weight: 600;">我了解风险，确认重新生成密钥</span>
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeRegenerateKeyModal()">取消</button>
+                <button class="btn-danger" onclick="confirmRegenerateKey()">确认生成新密钥</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加用户Modal -->
+    <div class="modal-overlay user-modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">➕ 添加用户</h3>
+                <button class="modal-close" onclick="closeAddUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">姓名 *</label>
+                            <input type="text" class="form-input" id="addUserName" placeholder="请输入姓名" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">邮箱 *</label>
+                            <input type="email" class="form-input" id="addUserEmail" placeholder="user@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">角色 *</label>
+                            <select class="form-input" id="addUserRole" onchange="loadRoleTemplate()">
+                                <option value="">请选择角色</option>
+                                <option value="admin">系统管理员</option>
+                                <option value="manager">项目经理</option>
+                                <option value="user">普通用户</option>
+                                <option value="teacher">教师/导师</option>
+                                <option value="student">学生</option>
+                                <option value="enterprise">企业用户</option>
+                                <option value="engineer">工程师</option>
+                                <option value="platform-admin">平台管理员</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">部门</label>
+                            <select class="form-input" id="addUserDept">
+                                <option value="">请选择部门</option>
+                                <option value="tech">技术部</option>
+                                <option value="project">项目部</option>
+                                <option value="rd">研发部</option>
+                                <option value="purchase">采购部</option>
+                                <option value="production">生产部</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        💡 <strong>提示：</strong>选择角色后会自动加载该角色的默认权限，您可以根据需要进行调整。邀请链接将发送到用户邮箱。
+                    </div>
+
+                    <div class="permissions-section">
+                        <div style="font-weight: 600; font-size: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;">
+                            功能权限配置
+                        </div>
+
+                        <!-- 物料管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">📦 物料管理</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('material', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-material-view" class="perm-material">
+                                    <label for="perm-material-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-material-create" class="perm-material">
+                                    <label for="perm-material-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-material-edit" class="perm-material">
+                                    <label for="perm-material-edit">编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-material-delete" class="perm-material">
+                                    <label for="perm-material-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BOM管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">🔧 BOM管理</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('bom', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-bom-view" class="perm-bom">
+                                    <label for="perm-bom-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-bom-create" class="perm-bom">
+                                    <label for="perm-bom-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-bom-edit" class="perm-bom">
+                                    <label for="perm-bom-edit">编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-bom-delete" class="perm-bom">
+                                    <label for="perm-bom-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 项目管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">📋 项目管理</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('project', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-project-view" class="perm-project">
+                                    <label for="perm-project-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-project-create" class="perm-project">
+                                    <label for="perm-project-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-project-edit" class="perm-project">
+                                    <label for="perm-project-edit">编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-project-delete" class="perm-project">
+                                    <label for="perm-project-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 库存管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">📊 库存管理</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('inventory', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-inventory-view" class="perm-inventory">
+                                    <label for="perm-inventory-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-inventory-in" class="perm-inventory">
+                                    <label for="perm-inventory-in">入库</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-inventory-out" class="perm-inventory">
+                                    <label for="perm-inventory-out">出库</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-inventory-adjust" class="perm-inventory">
+                                    <label for="perm-inventory-adjust">调整</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 采购管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">🛒 采购管理</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('procurement', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-procurement-view" class="perm-procurement">
+                                    <label for="perm-procurement-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-procurement-create" class="perm-procurement">
+                                    <label for="perm-procurement-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-procurement-approve" class="perm-procurement">
+                                    <label for="perm-procurement-approve">审批</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-procurement-delete" class="perm-procurement">
+                                    <label for="perm-procurement-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 生产管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">🏭 生产管理</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('production', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-production-view" class="perm-production">
+                                    <label for="perm-production-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-production-create" class="perm-production">
+                                    <label for="perm-production-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-production-edit" class="perm-production">
+                                    <label for="perm-production-edit">编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-production-delete" class="perm-production">
+                                    <label for="perm-production-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 活动专区权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">🎯 活动专区</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('activities', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-activities-view" class="perm-activities">
+                                    <label for="perm-activities-view">查看活动</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-activities-create" class="perm-activities">
+                                    <label for="perm-activities-create">创建活动</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-activities-edit" class="perm-activities">
+                                    <label for="perm-activities-edit">编辑活动</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-activities-delete" class="perm-activities">
+                                    <label for="perm-activities-delete">删除活动</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-activities-approve" class="perm-activities">
+                                    <label for="perm-activities-approve">审核活动</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-activities-register" class="perm-activities">
+                                    <label for="perm-activities-register">报名管理</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 教育中心权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">🎓 教育中心</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('education', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-education-view-topic" class="perm-education">
+                                    <label for="perm-education-view-topic">查看题目</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-education-publish-topic" class="perm-education">
+                                    <label for="perm-education-publish-topic">发布题目</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-education-select-topic" class="perm-education">
+                                    <label for="perm-education-select-topic">选题</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-education-submit-work" class="perm-education">
+                                    <label for="perm-education-submit-work">提交作品</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-education-review-work" class="perm-education">
+                                    <label for="perm-education-review-work">评审作品</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-education-view-result" class="perm-education">
+                                    <label for="perm-education-view-result">查看评审结果</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-education-manage-competition" class="perm-education">
+                                    <label for="perm-education-manage-competition">管理竞赛</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-education-manage-experiment" class="perm-education">
+                                    <label for="perm-education-manage-experiment">管理实验</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 服务外包权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">💼 服务外包</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('outsourcing', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-outsourcing-view" class="perm-outsourcing">
+                                    <label for="perm-outsourcing-view">浏览项目</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-outsourcing-publish" class="perm-outsourcing">
+                                    <label for="perm-outsourcing-publish">发布项目</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-outsourcing-bid" class="perm-outsourcing">
+                                    <label for="perm-outsourcing-bid">提交报价</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-outsourcing-manage-project" class="perm-outsourcing">
+                                    <label for="perm-outsourcing-manage-project">管理项目</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-outsourcing-review" class="perm-outsourcing">
+                                    <label for="perm-outsourcing-review">评价工程师</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-outsourcing-audit" class="perm-outsourcing">
+                                    <label for="perm-outsourcing-audit">审核项目</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-outsourcing-monitor" class="perm-outsourcing">
+                                    <label for="perm-outsourcing-monitor">平台监管</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-outsourcing-dispute" class="perm-outsourcing">
+                                    <label for="perm-outsourcing-dispute">处理争议</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 系统设置权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">⚙️ 系统设置</div>
+                                <span class="select-all-btn" onclick="toggleModulePermissions('settings', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-settings-view" class="perm-settings">
+                                    <label for="perm-settings-view">访问</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-settings-modify" class="perm-settings">
+                                    <label for="perm-settings-modify">修改</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="perm-settings-users" class="perm-settings">
+                                    <label for="perm-settings-users">用户管理</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAddUserModal()">取消</button>
+                <button class="btn-primary" onclick="submitAddUser()">发送邀请</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑用户Modal -->
+    <div class="modal-overlay user-modal" id="editUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">✏️ 编辑用户</h3>
+                <button class="modal-close" onclick="closeEditUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">姓名 *</label>
+                            <input type="text" class="form-input" id="editUserName" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">邮箱 *</label>
+                            <input type="email" class="form-input" id="editUserEmail" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">角色 *</label>
+                            <select class="form-input" id="editUserRole" onchange="loadEditRoleTemplate()">
+                                <option value="admin">系统管理员</option>
+                                <option value="manager">项目经理</option>
+                                <option value="user">普通用户</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">部门</label>
+                            <select class="form-input" id="editUserDept">
+                                <option value="tech">技术部</option>
+                                <option value="project">项目部</option>
+                                <option value="rd">研发部</option>
+                                <option value="purchase">采购部</option>
+                                <option value="production">生产部</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">账户状态</label>
+                            <select class="form-input" id="editUserStatus">
+                                <option value="active">激活</option>
+                                <option value="inactive">停用</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end;">
+                            <button type="button" class="btn-secondary" style="width: 100%;" onclick="resetUserPassword()">重置密码</button>
+                        </div>
+                    </div>
+
+                    <div class="permissions-section">
+                        <div style="font-weight: 600; font-size: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;">
+                            功能权限配置
+                        </div>
+
+                        <!-- 物料管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">📦 物料管理</div>
+                                <span class="select-all-btn" onclick="toggleEditModulePermissions('material', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-material-view" class="edit-perm-material">
+                                    <label for="edit-perm-material-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-material-create" class="edit-perm-material">
+                                    <label for="edit-perm-material-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-material-edit" class="edit-perm-material">
+                                    <label for="edit-perm-material-edit">编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-material-delete" class="edit-perm-material">
+                                    <label for="edit-perm-material-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BOM管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">🔧 BOM管理</div>
+                                <span class="select-all-btn" onclick="toggleEditModulePermissions('bom', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-bom-view" class="edit-perm-bom">
+                                    <label for="edit-perm-bom-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-bom-create" class="edit-perm-bom">
+                                    <label for="edit-perm-bom-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-bom-edit" class="edit-perm-bom">
+                                    <label for="edit-perm-bom-edit">编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-bom-delete" class="edit-perm-bom">
+                                    <label for="edit-perm-bom-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 项目管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">📋 项目管理</div>
+                                <span class="select-all-btn" onclick="toggleEditModulePermissions('project', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-project-view" class="edit-perm-project">
+                                    <label for="edit-perm-project-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-project-create" class="edit-perm-project">
+                                    <label for="edit-perm-project-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-project-edit" class="edit-perm-project">
+                                    <label for="edit-perm-project-edit">编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-project-delete" class="edit-perm-project">
+                                    <label for="edit-perm-project-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 库存管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">📊 库存管理</div>
+                                <span class="select-all-btn" onclick="toggleEditModulePermissions('inventory', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-inventory-view" class="edit-perm-inventory">
+                                    <label for="edit-perm-inventory-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-inventory-in" class="edit-perm-inventory">
+                                    <label for="edit-perm-inventory-in">入库</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-inventory-out" class="edit-perm-inventory">
+                                    <label for="edit-perm-inventory-out">出库</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-inventory-adjust" class="edit-perm-inventory">
+                                    <label for="edit-perm-inventory-adjust">调整</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 采购管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">🛒 采购管理</div>
+                                <span class="select-all-btn" onclick="toggleEditModulePermissions('procurement', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-procurement-view" class="edit-perm-procurement">
+                                    <label for="edit-perm-procurement-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-procurement-create" class="edit-perm-procurement">
+                                    <label for="edit-perm-procurement-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-procurement-approve" class="edit-perm-procurement">
+                                    <label for="edit-perm-procurement-approve">审批</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-procurement-delete" class="edit-perm-procurement">
+                                    <label for="edit-perm-procurement-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 生产管理权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">🏭 生产管理</div>
+                                <span class="select-all-btn" onclick="toggleEditModulePermissions('production', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-production-view" class="edit-perm-production">
+                                    <label for="edit-perm-production-view">查看</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-production-create" class="edit-perm-production">
+                                    <label for="edit-perm-production-create">创建</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-production-edit" class="edit-perm-production">
+                                    <label for="edit-perm-production-edit">编辑</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-production-delete" class="edit-perm-production">
+                                    <label for="edit-perm-production-delete">删除</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 系统设置权限 -->
+                        <div class="permission-module">
+                            <div class="module-header">
+                                <div class="module-name">⚙️ 系统设置</div>
+                                <span class="select-all-btn" onclick="toggleEditModulePermissions('settings', true)">全选</span>
+                            </div>
+                            <div class="permission-grid">
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-settings-view" class="edit-perm-settings">
+                                    <label for="edit-perm-settings-view">访问</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-settings-modify" class="edit-perm-settings">
+                                    <label for="edit-perm-settings-modify">修改</label>
+                                </div>
+                                <div class="permission-item">
+                                    <input type="checkbox" id="edit-perm-settings-users" class="edit-perm-settings">
+                                    <label for="edit-perm-settings-users">用户管理</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeEditUserModal()">取消</button>
+                <button class="btn-primary" onclick="submitEditUser()">保存更改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 配置角色权限Modal -->
+    <div class="modal-overlay user-modal" id="rolePermissionsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="roleModalTitle">⚙️ 配置角色权限</h3>
+                <button class="modal-close" onclick="closeRolePermissionsModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="info-box">
+                    💡 <strong>提示:</strong> 这里配置的权限将作为该角色的默认权限模板。当创建或编辑用户并选择此角色时，会自动应用这些权限。
+                </div>
+
+                <div class="permissions-section">
+                    <div style="font-weight: 600; font-size: 16px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #e0e0e0;">
+                        功能权限配置
+                    </div>
+
+                    <!-- 物料管理权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">📦 物料管理</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('material', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-material-view" class="role-perm-material">
+                                <label for="role-perm-material-view">查看</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-material-create" class="role-perm-material">
+                                <label for="role-perm-material-create">创建</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-material-edit" class="role-perm-material">
+                                <label for="role-perm-material-edit">编辑</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-material-delete" class="role-perm-material">
+                                <label for="role-perm-material-delete">删除</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BOM管理权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">🔧 BOM管理</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('bom', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-bom-view" class="role-perm-bom">
+                                <label for="role-perm-bom-view">查看</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-bom-create" class="role-perm-bom">
+                                <label for="role-perm-bom-create">创建</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-bom-edit" class="role-perm-bom">
+                                <label for="role-perm-bom-edit">编辑</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-bom-delete" class="role-perm-bom">
+                                <label for="role-perm-bom-delete">删除</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 项目管理权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">📋 项目管理</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('project', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-project-view" class="role-perm-project">
+                                <label for="role-perm-project-view">查看</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-project-create" class="role-perm-project">
+                                <label for="role-perm-project-create">创建</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-project-edit" class="role-perm-project">
+                                <label for="role-perm-project-edit">编辑</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-project-delete" class="role-perm-project">
+                                <label for="role-perm-project-delete">删除</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 库存管理权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">📊 库存管理</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('inventory', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-inventory-view" class="role-perm-inventory">
+                                <label for="role-perm-inventory-view">查看</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-inventory-in" class="role-perm-inventory">
+                                <label for="role-perm-inventory-in">入库</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-inventory-out" class="role-perm-inventory">
+                                <label for="role-perm-inventory-out">出库</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-inventory-adjust" class="role-perm-inventory">
+                                <label for="role-perm-inventory-adjust">调整</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 采购管理权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">🛒 采购管理</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('procurement', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-procurement-view" class="role-perm-procurement">
+                                <label for="role-perm-procurement-view">查看</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-procurement-create" class="role-perm-procurement">
+                                <label for="role-perm-procurement-create">创建</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-procurement-approve" class="role-perm-procurement">
+                                <label for="role-perm-procurement-approve">审批</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-procurement-delete" class="role-perm-procurement">
+                                <label for="role-perm-procurement-delete">删除</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 生产管理权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">🏭 生产管理</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('production', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-production-view" class="role-perm-production">
+                                <label for="role-perm-production-view">查看</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-production-create" class="role-perm-production">
+                                <label for="role-perm-production-create">创建</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-production-edit" class="role-perm-production">
+                                <label for="role-perm-production-edit">编辑</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-production-delete" class="role-perm-production">
+                                <label for="role-perm-production-delete">删除</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 业务扩展模块权限分隔 -->
+                    <div style="margin: 24px 0; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; color: white; font-weight: 600; text-align: center;">
+                        🌐 业务扩展模块权限
+                    </div>
+
+                    <!-- 元器件供货权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">🏪 元器件供货</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('supply', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-supply-view" class="role-perm-supply">
+                                <label for="role-perm-supply-view">访问</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-supply-publish" class="role-perm-supply">
+                                <label for="role-perm-supply-publish">发布产品</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-supply-inquiry" class="role-perm-supply">
+                                <label for="role-perm-supply-inquiry">响应询价</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-supply-manage" class="role-perm-supply">
+                                <label for="role-perm-supply-manage">产品管理</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 板卡商城权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">🛍️ 板卡商城</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('marketplace', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-marketplace-view" class="role-perm-marketplace">
+                                <label for="role-perm-marketplace-view">浏览</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-marketplace-buy" class="role-perm-marketplace">
+                                <label for="role-perm-marketplace-buy">购买</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-marketplace-publish" class="role-perm-marketplace">
+                                <label for="role-perm-marketplace-publish">发布板卡</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-marketplace-manage" class="role-perm-marketplace">
+                                <label for="role-perm-marketplace-manage">商品管理</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 教育中心权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">🎓 教育中心</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('education', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-education-view" class="role-perm-education">
+                                <label for="role-perm-education-view">访问</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-education-learn" class="role-perm-education">
+                                <label for="role-perm-education-learn">学习课程</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-education-submit" class="role-perm-education">
+                                <label for="role-perm-education-submit">提交实验</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-education-teach" class="role-perm-education">
+                                <label for="role-perm-education-teach">发布课程</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-education-grade" class="role-perm-education">
+                                <label for="role-perm-education-grade">批改作业</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-education-manage" class="role-perm-education">
+                                <label for="role-perm-education-manage">学生管理</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 服务外包权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">💼 服务外包</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('outsourcing', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-outsourcing-view" class="role-perm-outsourcing">
+                                <label for="role-perm-outsourcing-view">访问</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-outsourcing-post" class="role-perm-outsourcing">
+                                <label for="role-perm-outsourcing-post">发布需求</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-outsourcing-bid" class="role-perm-outsourcing">
+                                <label for="role-perm-outsourcing-bid">接单报价</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-outsourcing-manage" class="role-perm-outsourcing">
+                                <label for="role-perm-outsourcing-manage">项目管理</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 校园招聘权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">🎯 校园招聘</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('recruitment', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-recruitment-view" class="role-perm-recruitment">
+                                <label for="role-perm-recruitment-view">访问</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-recruitment-apply" class="role-perm-recruitment">
+                                <label for="role-perm-recruitment-apply">投递简历</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-recruitment-post" class="role-perm-recruitment">
+                                <label for="role-perm-recruitment-post">发布职位</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-recruitment-review" class="role-perm-recruitment">
+                                <label for="role-perm-recruitment-review">筛选简历</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-recruitment-interview" class="role-perm-recruitment">
+                                <label for="role-perm-recruitment-interview">安排面试</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 活动专区权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">🎯 活动专区</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('activity', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-activity-view" class="role-perm-activity">
+                                <label for="role-perm-activity-view">访问</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-activity-join" class="role-perm-activity">
+                                <label for="role-perm-activity-join">参与活动</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-activity-create" class="role-perm-activity">
+                                <label for="role-perm-activity-create">创建活动</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-activity-manage" class="role-perm-activity">
+                                <label for="role-perm-activity-manage">活动管理</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 系统设置权限 -->
+                    <div class="permission-module">
+                        <div class="module-header">
+                            <div class="module-name">⚙️ 系统设置</div>
+                            <span class="select-all-btn" onclick="toggleRoleModulePermissions('settings', true)">全选</span>
+                        </div>
+                        <div class="permission-grid">
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-settings-view" class="role-perm-settings">
+                                <label for="role-perm-settings-view">访问</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-settings-modify" class="role-perm-settings">
+                                <label for="role-perm-settings-modify">修改</label>
+                            </div>
+                            <div class="permission-item">
+                                <input type="checkbox" id="role-perm-settings-users" class="role-perm-settings">
+                                <label for="role-perm-settings-users">用户管理</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeRolePermissionsModal()">取消</button>
+                <button class="btn-primary" onclick="saveRolePermissions()">保存权限配置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching
+        function switchSettingsTab(tabName) {
+            // Remove active from all tabs and contents
+            document.querySelectorAll('.settings-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.settings-content').forEach(content => content.classList.remove('active'));
+
+            // Add active to selected tab and content
+            event.target.classList.add('active');
+            document.getElementById('content-' + tabName).classList.add('active');
+        }
+
+        // Organization settings
+        function saveSettings() {
+            alert('设置已保存！\n\n组织设置已成功更新。');
+        }
+
+        // Open role documentation
+        function openRoleDocumentation() {
+            window.location.href = 'role-permissions-documentation.html';
+        }
+
+        // Regenerate API Key Modal
+        function openRegenerateKeyModal() {
+            document.getElementById('regenerateKeyModal').classList.add('active');
+        }
+
+        function closeRegenerateKeyModal() {
+            document.getElementById('regenerateKeyModal').classList.remove('active');
+            document.getElementById('confirmRegenerate').checked = false;
+        }
+
+        function confirmRegenerateKey() {
+            const confirmed = document.getElementById('confirmRegenerate').checked;
+
+            if (!confirmed) {
+                alert('请先确认您了解重新生成密钥的风险！');
+                return;
+            }
+
+            const newKey = 'ezplm_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+            document.getElementById('apiKey').value = newKey;
+            alert(`新的API密钥已生成！\n\n${newKey}\n\n请立即复制并保存此密钥，它只会显示一次。`);
+            closeRegenerateKeyModal();
+
+            setTimeout(() => {
+                document.getElementById('apiKey').value = 'ezplm_****************************';
+            }, 5000);
+        }
+
+        // Permission management
+        function openAddUserModal() {
+            document.getElementById('addUserModal').classList.add('active');
+            // Reset form
+            document.getElementById('addUserForm').reset();
+            // Clear all permissions
+            document.querySelectorAll('#addUserModal input[type="checkbox"]').forEach(cb => cb.checked = false);
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('active');
+        }
+
+        function submitAddUser() {
+            const name = document.getElementById('addUserName').value;
+            const email = document.getElementById('addUserEmail').value;
+            const role = document.getElementById('addUserRole').value;
+            const dept = document.getElementById('addUserDept').value;
+
+            if (!name || !email || !role) {
+                alert('请填写所有必填项！');
+                return;
+            }
+
+            // Get selected permissions
+            const permissions = getSelectedPermissions('#addUserModal');
+
+            alert(`用户添加成功！\n\n姓名: ${name}\n邮箱: ${email}\n角色: ${role}\n\n邀请链接已发送到用户邮箱。`);
+            closeAddUserModal();
+        }
+
+        // User data for editing
+        const userData = {
+            1: { name: '张三', email: 'zhangsan@example.com', role: 'admin', dept: 'tech', status: 'active' },
+            2: { name: '李明', email: 'liming@example.com', role: 'manager', dept: 'project', status: 'active' },
+            3: { name: '王芳', email: 'wangfang@example.com', role: 'user', dept: 'purchase', status: 'active' },
+            4: { name: '赵强', email: 'zhaoqiang@example.com', role: 'manager', dept: 'rd', status: 'active' },
+            5: { name: '刘洋', email: 'liuyang@example.com', role: 'user', dept: 'production', status: 'inactive' }
+        };
+
+        let currentEditUserId = null;
+
+        function editUser(userId) {
+            currentEditUserId = userId;
+            const user = userData[userId];
+
+            if (!user) return;
+
+            // Populate form fields
+            document.getElementById('editUserName').value = user.name;
+            document.getElementById('editUserEmail').value = user.email;
+            document.getElementById('editUserRole').value = user.role;
+            document.getElementById('editUserDept').value = user.dept;
+            document.getElementById('editUserStatus').value = user.status;
+
+            // Load role-based permissions
+            loadEditRoleTemplate();
+
+            // Show modal
+            document.getElementById('editUserModal').classList.add('active');
+        }
+
+        function closeEditUserModal() {
+            document.getElementById('editUserModal').classList.remove('active');
+            currentEditUserId = null;
+        }
+
+        function submitEditUser() {
+            const name = document.getElementById('editUserName').value;
+            const email = document.getElementById('editUserEmail').value;
+            const role = document.getElementById('editUserRole').value;
+            const dept = document.getElementById('editUserDept').value;
+            const status = document.getElementById('editUserStatus').value;
+
+            if (!name || !email || !role) {
+                alert('请填写所有必填项！');
+                return;
+            }
+
+            // Get selected permissions
+            const permissions = getSelectedPermissions('#editUserModal');
+
+            alert(`用户更新成功！\n\n姓名: ${name}\n邮箱: ${email}\n角色: ${role}\n状态: ${status === 'active' ? '激活' : '停用'}`);
+            closeEditUserModal();
+        }
+
+        function resetUserPassword() {
+            if (confirm('确定要重置该用户的密码吗？\n\n密码将被重置为临时密码，并发送到用户邮箱。')) {
+                alert('密码重置成功！\n\n临时密码已发送到用户邮箱，用户首次登录时需要修改密码。');
+            }
+        }
+
+        // Helper function to get selected permissions
+        function getSelectedPermissions(modalSelector) {
+            const permissions = {};
+            const checkboxes = document.querySelectorAll(`${modalSelector} input[type="checkbox"]:checked`);
+            checkboxes.forEach(cb => {
+                const id = cb.id.replace('perm-', '').replace('edit-perm-', '');
+                permissions[id] = true;
+            });
+            return permissions;
+        }
+
+        // Role permission templates
+        const rolePermissions = {
+            'admin': [
+                'material-view', 'material-create', 'material-edit', 'material-delete',
+                'bom-view', 'bom-create', 'bom-edit', 'bom-delete',
+                'project-view', 'project-create', 'project-edit', 'project-delete',
+                'inventory-view', 'inventory-in', 'inventory-out', 'inventory-adjust',
+                'procurement-view', 'procurement-create', 'procurement-approve', 'procurement-delete',
+                'production-view', 'production-create', 'production-edit', 'production-delete',
+                'settings-view', 'settings-modify', 'settings-users'
+            ],
+            'manager': [
+                'material-view', 'material-create', 'material-edit',
+                'bom-view', 'bom-create', 'bom-edit',
+                'project-view', 'project-create', 'project-edit', 'project-delete',
+                'inventory-view', 'inventory-in', 'inventory-out',
+                'procurement-view', 'procurement-create', 'procurement-approve',
+                'production-view', 'production-create', 'production-edit',
+                'settings-view'
+            ],
+            'user': [
+                'material-view',
+                'bom-view',
+                'project-view',
+                'inventory-view',
+                'procurement-view', 'procurement-create',
+                'production-view'
+            ]
+        };
+
+        // Load role-based permission template for Add User modal
+        function loadRoleTemplate() {
+            const role = document.getElementById('addUserRole').value;
+
+            // First, clear all permissions
+            document.querySelectorAll('#addUserModal input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+
+            // If no role selected, return
+            if (!role || !rolePermissions[role]) return;
+
+            // Check the permissions for this role
+            rolePermissions[role].forEach(perm => {
+                const checkbox = document.getElementById('perm-' + perm);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+
+        // Load role-based permission template for Edit User modal
+        function loadEditRoleTemplate() {
+            const role = document.getElementById('editUserRole').value;
+
+            // First, clear all permissions
+            document.querySelectorAll('#editUserModal input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+
+            // If no role selected, return
+            if (!role || !rolePermissions[role]) return;
+
+            // Check the permissions for this role
+            rolePermissions[role].forEach(perm => {
+                const checkbox = document.getElementById('edit-perm-' + perm);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+        }
+
+        // Toggle all permissions for a module in Add User modal
+        function toggleModulePermissions(moduleName, selectAll) {
+            const checkboxes = document.querySelectorAll(`#addUserModal .perm-${moduleName}`);
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll;
+            });
+        }
+
+        // Toggle all permissions for a module in Edit User modal
+        function toggleEditModulePermissions(moduleName, selectAll) {
+            const checkboxes = document.querySelectorAll(`#editUserModal .edit-perm-${moduleName}`);
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll;
+            });
+        }
+
+        // Role configuration
+        let currentEditRole = null;
+
+        function editRole(role) {
+            currentEditRole = role;
+            const roleNames = {
+                'admin': '系统管理员',
+                'manager': '项目经理',
+                'user': '普通用户'
+            };
+
+            // Update modal title
+            document.getElementById('roleModalTitle').textContent = `⚙️ 配置 "${roleNames[role]}" 权限`;
+
+            // Clear all checkboxes first
+            document.querySelectorAll('#rolePermissionsModal input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+
+            // Load current permissions for this role
+            if (rolePermissions[role]) {
+                rolePermissions[role].forEach(perm => {
+                    const checkbox = document.getElementById('role-perm-' + perm);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                    }
+                });
+            }
+
+            // Show modal
+            document.getElementById('rolePermissionsModal').classList.add('active');
+        }
+
+        function closeRolePermissionsModal() {
+            document.getElementById('rolePermissionsModal').classList.remove('active');
+            currentEditRole = null;
+        }
+
+        function saveRolePermissions() {
+            if (!currentEditRole) return;
+
+            // Collect all checked permissions
+            const permissions = [];
+            document.querySelectorAll('#rolePermissionsModal input[type="checkbox"]:checked').forEach(cb => {
+                const permId = cb.id.replace('role-perm-', '');
+                permissions.push(permId);
+            });
+
+            // Update the role permissions
+            rolePermissions[currentEditRole] = permissions;
+
+            const roleNames = {
+                'admin': '系统管理员',
+                'manager': '项目经理',
+                'user': '普通用户'
+            };
+
+            alert(`"${roleNames[currentEditRole]}" 的权限配置已保存！\n\n已配置 ${permissions.length} 项权限。\n\n新创建的用户将自动应用这些权限。`);
+            closeRolePermissionsModal();
+        }
+
+        // Toggle all permissions for a module in Role Permissions modal
+        function toggleRoleModulePermissions(moduleName, selectAll) {
+            const checkboxes = document.querySelectorAll(`#rolePermissionsModal .role-perm-${moduleName}`);
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll;
+            });
+        }
+
+        // Integration management
+        function configureIntegration(name) {
+            const integrationNames = {
+                'altium': 'Altium Designer',
+                'erp': 'ERP系统',
+                'lcsc': '立创商城 API'
+            };
+            alert(`配置${integrationNames[name]}集成\n\n这里可以配置集成参数：\n- API端点\n- 认证信息\n- 同步频率\n- 字段映射`);
+        }
+
+        function disconnectIntegration(name) {
+            const integrationNames = {
+                'altium': 'Altium Designer',
+                'erp': 'ERP系统',
+                'lcsc': '立创商城 API'
+            };
+            if (confirm(`确定要断开与${integrationNames[name]}的连接吗？\n\n断开后将无法自动同步数据。`)) {
+                alert(`已断开与${integrationNames[name]}的连接`);
+            }
+        }
+
+        function connectIntegration(name) {
+            const integrationNames = {
+                'git': 'Git / GitHub',
+                'dingtalk': '钉钉/企业微信',
+                'bi': '数据分析平台'
+            };
+            alert(`连接${integrationNames[name]}\n\n请输入以下信息：\n- API密钥/Token\n- 仓库地址/应用ID\n- 配置参数`);
+        }
+
+        function saveWebhook() {
+            alert('Webhook配置已保存！\n\n系统将在选定的事件发生时向指定URL发送通知。');
+        }
+
+        // Backup management
+        function createBackup() {
+            if (confirm('确定要立即创建备份吗？\n\n这可能需要几分钟时间，期间系统性能可能会受到影响。')) {
+                alert('正在创建备份...\n\n备份任务已启动，完成后会通过邮件通知您。');
+            }
+        }
+
+        function downloadBackup(backupId) {
+            alert(`下载备份: ${backupId}\n\n备份文件将开始下载...`);
+        }
+
+        function restoreBackup(backupId) {
+            if (confirm(`确定要恢复备份"${backupId}"吗？\n\n⚠️ 警告：\n- 当前数据将被覆盖\n- 恢复后的数据将是备份时的状态\n- 此操作无法撤销\n\n建议在恢复前先创建当前数据的备份。`)) {
+                alert(`正在恢复备份: ${backupId}\n\n恢复任务已启动，完成后系统将自动重启。`);
+            }
+        }
+
+        function deleteBackup(backupId) {
+            if (confirm(`确定要删除备份"${backupId}"吗？\n\n删除后无法恢复该备份文件。`)) {
+                alert(`备份"${backupId}"已删除`);
+            }
+        }
+
+        // Click outside to close modal
+        document.getElementById('regenerateKeyModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRegenerateKeyModal();
+            }
+        });
+
+        document.getElementById('addUserModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddUserModal();
+            }
+        });
+
+        document.getElementById('editUserModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditUserModal();
+            }
+        });
+
+        document.getElementById('rolePermissionsModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRolePermissionsModal();
+            }
+        });
+    
+        // AI助手功能
+        function openCodeAssistant() {
+            document.getElementById('codeAssistantModal').classList.add('active');
+        }
+
+        function closeCodeAssistant() {
+            document.getElementById('codeAssistantModal').classList.remove('active');
+        }
+
+        function openPCBLayout() {
+            document.getElementById('pcbLayoutModal').classList.add('active');
+        }
+
+        function closePCBLayout() {
+            document.getElementById('pcbLayoutModal').classList.remove('active');
+        }</script>
+
+        <!-- 编程助手模态框 -->
+    <div class="ai-modal-overlay" id="codeAssistantModal">
+        <button class="ai-modal-close" onclick="closeCodeAssistant()">&times;</button>
+        <iframe src="ai_coding_embedded.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+
+    <!-- PCB预布局模态框 -->
+    <div class="ai-modal-overlay" id="pcbLayoutModal">
+        <button class="ai-modal-close" onclick="closePCBLayout()">&times;</button>
+        <iframe src="pcb-editor-styled.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</body>
+</html>

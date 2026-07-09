@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 供应商详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+        .main-content { padding: 32px; max-width: 1440px; margin: 0 auto; }
+        .page-header {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .supplier-header {
+            display: flex;
+            gap: 24px;
+            align-items: start;
+            margin-bottom: 24px;
+        }
+        .supplier-logo {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            font-weight: 700;
+        }
+        .supplier-info { flex: 1; }
+        .supplier-name {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .supplier-tags {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .tag {
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .tag-verified {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .tag-premium {
+            background: rgba(255, 193, 7, 0.1);
+            color: #f39c12;
+        }
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .stars {
+            color: #f39c12;
+            font-size: 20px;
+        }
+        .rating-score {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: #00890b;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+        .content-section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .info-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .info-label {
+            width: 120px;
+            font-size: 13px;
+            color: #999;
+            font-weight: 600;
+        }
+        .info-value {
+            flex: 1;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+        .product-list {
+            display: grid;
+            gap: 12px;
+        }
+        .product-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .product-item:hover {
+            background: #e8ecf0;
+            transform: translateX(4px);
+        }
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .product-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00890b;
+        }
+        .review-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .reviewer-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        .review-date {
+            font-size: 12px;
+            color: #999;
+        }
+        .review-text {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='approval-center.html'">
+                ✅
+                <span style="position: absolute; top: -4px; right: -4px; background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">8</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="个人中心">用</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <div class="supplier-header">
+                <div class="supplier-logo">深电</div>
+                <div class="supplier-info">
+                    <div class="supplier-name">深圳市XX电子有限公司</div>
+                    <div class="supplier-tags">
+                        <span class="tag tag-verified">✓ 官方认证</span>
+                        <span class="tag tag-premium">⭐ 金牌供应商</span>
+                    </div>
+                    <div class="rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-score">4.8</span>
+                        <span style="font-size: 13px; color: #999;">(128条评价)</span>
+                    </div>
+                    <div style="font-size: 14px; color: #666; line-height: 1.6;">
+                        专业的电子元器件供应商，ST官方授权代理商，提供MCU、传感器、电源芯片等产品。成立于2010年，拥有15年行业经验。
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-secondary" onclick="history.back()">← 返回</button>
+                    <button class="btn btn-primary" onclick="contact()">📞 联系供应商</button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">236</div>
+                    <div class="stat-label">累计订单</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">98.5%</div>
+                    <div class="stat-label">按时交付率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">7天</div>
+                    <div class="stat-label">平均交付周期</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">¥2.3M</div>
+                    <div class="stat-label">累计交易额</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div>
+                <div class="content-section">
+                    <div class="section-title">📋 基本信息</div>
+                    <div class="info-row">
+                        <div class="info-label">公司全称</div>
+                        <div class="info-value">深圳市XX电子有限公司</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">统一社会信用代码</div>
+                        <div class="info-value">91440300XXXXXXXXXX</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">成立时间</div>
+                        <div class="info-value">2010-03-15</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">注册资本</div>
+                        <div class="info-value">1000万元</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">公司地址</div>
+                        <div class="info-value">深圳市南山区科技园XXX路XXX号</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">联系电话</div>
+                        <div class="info-value">0755-12345678</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="info-label">业务联系人</div>
+                        <div class="info-value">张经理 (13800138000)</div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-title">📦 主营产品</div>
+                    <div class="product-list">
+                        <div class="product-item">
+                            <div>
+                                <div class="product-name">STM32系列MCU</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 4px;">ARM Cortex-M内核微控制器</div>
+                            </div>
+                            <div class="product-price">¥28.50起</div>
+                        </div>
+                        <div class="product-item">
+                            <div>
+                                <div class="product-name">传感器模块</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 4px;">温湿度、压力、光照等传感器</div>
+                            </div>
+                            <div class="product-price">¥15.80起</div>
+                        </div>
+                        <div class="product-item">
+                            <div>
+                                <div class="product-name">电源管理芯片</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 4px;">LDO、DC-DC转换器</div>
+                            </div>
+                            <div class="product-price">¥5.20起</div>
+                        </div>
+                        <div class="product-item">
+                            <div>
+                                <div class="product-name">通信模块</div>
+                                <div style="font-size: 12px; color: #999; margin-top: 4px;">WiFi、蓝牙、Zigbee模块</div>
+                            </div>
+                            <div class="product-price">¥45.00起</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-title">⭐ 客户评价 (128条)</div>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div>
+                                <span class="reviewer-name">李工</span>
+                                <span class="stars" style="margin-left: 8px; font-size: 14px;">★★★★★</span>
+                            </div>
+                            <div class="review-date">2025-01-20</div>
+                        </div>
+                        <div class="review-text">
+                            产品质量非常好，芯片都是原装正品，交付及时，包装也很专业。客服响应速度快，技术支持到位。已经合作多次，非常满意！
+                        </div>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div>
+                                <span class="reviewer-name">王经理</span>
+                                <span class="stars" style="margin-left: 8px; font-size: 14px;">★★★★☆</span>
+                            </div>
+                            <div class="review-date">2025-01-15</div>
+                        </div>
+                        <div class="review-text">
+                            整体不错，价格有竞争力，交付时间稍有延迟但在可接受范围内。希望能提供更多的技术文档和应用案例。
+                        </div>
+                    </div>
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div>
+                                <span class="reviewer-name">张总</span>
+                                <span class="stars" style="margin-left: 8px; font-size: 14px;">★★★★★</span>
+                            </div>
+                            <div class="review-date">2025-01-10</div>
+                        </div>
+                        <div class="review-text">
+                            长期合作伙伴，信誉良好，产品质量稳定。这次紧急采购，对方加急发货，解决了我们的燃眉之急。推荐！
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="content-section">
+                    <div class="section-title">🏆 资质认证</div>
+                    <div style="display: grid; gap: 12px;">
+                        <div style="padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">✓ ISO 9001质量管理体系</div>
+                            <div style="font-size: 12px; color: #999;">有效期至：2026-12-31</div>
+                        </div>
+                        <div style="padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">✓ ST官方授权代理商</div>
+                            <div style="font-size: 12px; color: #999;">证书编号：ST-CN-2024-XXX</div>
+                        </div>
+                        <div style="padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">✓ 海关报关单位注册</div>
+                            <div style="font-size: 12px; color: #999;">编号：4403XXXXXXXX</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-title">💰 价格优势</div>
+                    <div style="padding: 16px; background: linear-gradient(135deg, rgba(0, 137, 11, 0.05) 0%, rgba(0, 179, 14, 0.05) 100%); border-radius: 8px; border: 2px solid rgba(0, 137, 11, 0.2);">
+                        <div style="font-size: 18px; font-weight: 700; color: #00890b; margin-bottom: 8px;">比同行低8%</div>
+                        <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                            作为ST官方授权代理商，直接从厂家采购，省去中间环节，价格更有优势。批量采购享受更多优惠。
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-title">📦 服务承诺</div>
+                    <div style="display: grid; gap: 12px;">
+                        <div style="display: flex; align-items: start; gap: 12px;">
+                            <span style="font-size: 24px;">✓</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">7天快速交付</div>
+                                <div style="font-size: 12px; color: #666;">常规订单7个工作日内发货</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 12px;">
+                            <span style="font-size: 24px;">✓</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">原厂正品保证</div>
+                                <div style="font-size: 12px; color: #666;">100%原装正品，假一赔十</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 12px;">
+                            <span style="font-size: 24px;">✓</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">技术支持</div>
+                                <div style="font-size: 12px; color: #666;">提供选型指导和技术文档</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: start; gap: 12px;">
+                            <span style="font-size: 24px;">✓</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">售后保障</div>
+                                <div style="font-size: 12px; color: #666;">质量问题30天内免费退换货</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-section">
+                    <div class="section-title">📊 合作历史</div>
+                    <div style="text-align: center; padding: 20px 0;">
+                        <div style="font-size: 32px; font-weight: 700; color: #00890b; margin-bottom: 8px;">15个月</div>
+                        <div style="font-size: 13px; color: #666;">合作时长</div>
+                    </div>
+                    <div style="border-top: 1px solid #f0f0f0; padding-top: 16px; margin-top: 16px;">
+                        <div style="font-size: 13px; color: #666; margin-bottom: 8px;">近期交易：</div>
+                        <div style="font-size: 12px; color: #999; line-height: 1.8;">
+                            • 2025-01-15: MCU芯片采购 ¥35,000<br>
+                            • 2024-12-20: 传感器模块 ¥12,500<br>
+                            • 2024-11-10: 电源芯片 ¥8,800
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function contact() {
+            alert('📞 联系方式：\n\n业务联系人：张经理\n电话：13800138000\n邮箱：zhang@example.com\n\n系统将为您自动创建询价单');
+        }
+    </script>
+</body>
+</html>

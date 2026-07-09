@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 参考设计详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-bar-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 22px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .btn-primary:hover {
+            background: #007309;
+            transform: scale(1.05);
+        }
+        .btn-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ff4757;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+            min-width: 20px;
+            text-align: center;
+        }
+        .btn-badge.success {
+            background: #00890b;
+        }
+        .btn-outline {
+            background: white;
+            color: #00890b;
+            border: 2px solid #00890b;
+        }
+        .btn-outline:hover {
+            background: #00890b;
+            color: white;
+        }
+        .btn-favorite {
+            background: white;
+            color: #d32f2f;
+            border: 2px solid #d32f2f;
+        }
+        .btn-favorite:hover {
+            background: #d32f2f;
+            color: white;
+        }
+        .btn-favorite.favorited {
+            background: #d32f2f;
+            color: white;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* 面包屑导航 */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            font-size: 14px;
+            color: #666;
+        }
+        .breadcrumb a {
+            color: #00890b;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .breadcrumb a:hover {
+            color: #00b30e;
+        }
+        .breadcrumb-separator {
+            color: #999;
+        }
+
+        /* 内容网格 */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        /* 左侧主要信息 */
+        .main-info {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 设计头部卡片 */
+        .design-header-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .design-hero-image {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            position: relative;
+        }
+        .design-hero-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .design-badges {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 12px;
+        }
+        .badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            backdrop-filter: blur(10px);
+        }
+        .badge-opensource {
+            background: rgba(0, 137, 11, 0.95);
+            color: white;
+        }
+        .badge-verified {
+            background: rgba(102, 126, 234, 0.95);
+            color: white;
+        }
+        .design-header-content {
+            padding: 32px;
+        }
+        .design-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2d2d2d;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+        .design-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        .meta-icon {
+            font-size: 16px;
+        }
+        .meta-value {
+            font-weight: 600;
+            color: #2d2d2d;
+        }
+
+        /* 来源信息 */
+        .source-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .source-logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            border: 2px solid #e0e0e0;
+        }
+        .source-details {
+            flex: 1;
+        }
+        .source-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        .source-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 4px;
+        }
+        .source-url {
+            font-size: 13px;
+            color: #00890b;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .source-url:hover {
+            text-decoration: underline;
+        }
+
+        /* 功能模块标签 */
+        .modules-section {
+            margin-top: 20px;
+        }
+        .modules-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .modules-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .module-tag {
+            padding: 8px 16px;
+            background: #e8f5e9;
+            border: 2px solid #00890b;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #00890b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .module-icon {
+            font-size: 16px;
+        }
+
+        /* 描述卡片 */
+        .description-card {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .card-icon {
+            font-size: 28px;
+        }
+        .description-text {
+            font-size: 15px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        /* 特性列表 */
+        .features-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+        .features-list li {
+            padding: 12px 16px;
+            background: #f9f9f9;
+            border-left: 4px solid #00890b;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .features-list li::before {
+            content: '✓ ';
+            color: #00890b;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        /* 在线查看器 */
+        .viewer-card {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+        .viewer-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 4px;
+        }
+        .viewer-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 8px 8px 0 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .viewer-tab:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .viewer-tab.active {
+            background: #00890b;
+            color: white;
+        }
+        .viewer-content {
+            display: none;
+        }
+        .viewer-content.active {
+            display: block;
+        }
+        .viewer-frame {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .viewer-frame img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .viewer-placeholder {
+            text-align: center;
+            color: #999;
+        }
+        .viewer-placeholder-icon {
+            font-size: 80px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+        .viewer-placeholder-text {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .viewer-controls {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+        .viewer-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #00890b;
+            color: #00890b;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .viewer-btn:hover {
+            background: #00890b;
+            color: white;
+        }
+        .viewer-btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .viewer-btn-primary:hover {
+            background: #007309;
+        }
+
+        /* 文件列表 */
+        .files-card {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .file-item:hover {
+            border-color: #00890b;
+            background: rgba(0, 137, 11, 0.02);
+        }
+        .file-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .file-info {
+            flex: 1;
+        }
+        .file-name {
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 4px;
+        }
+        .file-meta {
+            font-size: 13px;
+            color: #666;
+        }
+        .file-download {
+            padding: 8px 20px;
+            background: #00890b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .file-download:hover {
+            background: #00b30e;
+            transform: translateY(-2px);
+        }
+
+        /* BOM表格 */
+        .bom-card {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .bom-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .bom-table thead {
+            background: #f9f9f9;
+        }
+        .bom-table th,
+        .bom-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .bom-table th {
+            font-weight: 700;
+            color: #666;
+            font-size: 13px;
+        }
+        .bom-table td {
+            font-size: 14px;
+            color: #2d2d2d;
+        }
+        .bom-table tr:hover {
+            background: rgba(0, 137, 11, 0.02);
+        }
+
+        /* 右侧边栏 */
+        .sidebar-info {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 操作卡片 */
+        .actions-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .action-btn-full {
+            padding: 16px 24px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-download-all {
+            background: #00890b;
+            color: white;
+        }
+        .btn-download-all:hover {
+            background: #00b30e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+        .btn-add-favorite {
+            background: white;
+            color: #d32f2f;
+            border: 2px solid #d32f2f;
+        }
+        .btn-add-favorite:hover {
+            background: #d32f2f;
+            color: white;
+        }
+        .btn-add-favorite.favorited {
+            background: #d32f2f;
+            color: white;
+        }
+
+        /* 统计卡片 */
+        .stats-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 12px;
+        }
+        .stat-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 作者卡片 */
+        .author-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .author-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .author-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            font-weight: 700;
+        }
+        .author-info {
+            flex: 1;
+        }
+        .author-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 4px;
+        }
+        .author-title {
+            font-size: 13px;
+            color: #666;
+        }
+        .author-stats {
+            display: flex;
+            gap: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .author-stat {
+            text-align: center;
+        }
+        .author-stat-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00890b;
+            margin-bottom: 4px;
+        }
+        .author-stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 相关设计 */
+        .related-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .related-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .related-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+        }
+        .related-thumb {
+            width: 80px;
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .related-info {
+            flex: 1;
+        }
+        .related-title {
+            font-weight: 600;
+            color: #2d2d2d;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .related-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 元器件详情弹窗 */
+        .component-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 3000;
+            animation: fadeIn 0.2s;
+        }
+        .component-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .component-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 1440px;
+            height: 85vh;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s;
+        }
+        .component-modal-header {
+            padding: 20px 30px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .component-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d2d2d;
+        }
+        .component-modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f0f0f0;
+            border: none;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .component-modal-close:hover {
+            background: #e0e0e0;
+        }
+        .component-modal-body {
+            flex: 1;
+            overflow: hidden;
+        }
+        .component-modal-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1440px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            .features-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 顶部导航链接 */
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .nav-icon-text {
+            font-size: 18px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 主布局 -->
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 面包屑导航 -->
+        <div class="breadcrumb">
+            <a href="dashboard-pro.html">首页</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="reference-designs.html">参考设计库</a>
+            <span class="breadcrumb-separator">›</span>
+            <span id="breadcrumbName">加载中...</span>
+        </div>
+
+        <!-- 内容网格 -->
+        <div class="content-grid">
+            <!-- 左侧主要信息 -->
+            <div class="main-info">
+                <!-- 设计头部 -->
+                <div class="design-header-card">
+                    <div class="design-hero-image">
+                        <span>🔲</span>
+                        <div class="design-badges">
+                            <div class="badge badge-opensource">开源</div>
+                            <div class="badge badge-verified">官方验证</div>
+                        </div>
+                    </div>
+                    <div class="design-header-content">
+                        <div class="design-title" id="designTitle">STM32最小系统开发板</div>
+                        <div class="design-meta">
+                            <div class="meta-item">
+                                <span class="meta-icon">👁️</span>
+                                <span class="meta-value">3,256</span> 次浏览
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-icon">📥</span>
+                                <span class="meta-value">1,842</span> 次下载
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-icon">⭐</span>
+                                <span class="meta-value">4.8</span> 评分
+                            </div>
+                            <div class="meta-item">
+                                <span class="meta-icon">📅</span>
+                                更新于 <span class="meta-value">2025-01-15</span>
+                            </div>
+                        </div>
+
+                        <!-- 来源信息 -->
+                        <div class="source-info">
+                            <div class="source-logo">🏢</div>
+                            <div class="source-details">
+                                <div class="source-label">来源厂商</div>
+                                <div class="source-name" id="sourceName">STMicroelectronics</div>
+                                <a href="https://www.st.com/content/st_com/en/stm32-open-development-environment.html" target="_blank" class="source-url">
+                                    🔗 访问原始页面
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 功能模块 -->
+                        <div class="modules-section">
+                            <div class="modules-title">🔧 包含的电路功能模块</div>
+                            <div class="modules-tags" id="moduleTags">
+                                <div class="module-tag">
+                                    <span class="module-icon">⚡</span>
+                                    <span>电源管理</span>
+                                </div>
+                                <div class="module-tag">
+                                    <span class="module-icon">🔌</span>
+                                    <span>USB接口</span>
+                                </div>
+                                <div class="module-tag">
+                                    <span class="module-icon">📡</span>
+                                    <span>串口通信</span>
+                                </div>
+                                <div class="module-tag">
+                                    <span class="module-icon">💡</span>
+                                    <span>LED指示灯</span>
+                                </div>
+                                <div class="module-tag">
+                                    <span class="module-icon">🔘</span>
+                                    <span>按键输入</span>
+                                </div>
+                                <div class="module-tag">
+                                    <span class="module-icon">🔄</span>
+                                    <span>复位电路</span>
+                                </div>
+                                <div class="module-tag">
+                                    <span class="module-icon">⏱️</span>
+                                    <span>晶振电路</span>
+                                </div>
+                                <div class="module-tag">
+                                    <span class="module-icon">🔍</span>
+                                    <span>调试接口</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设计描述 -->
+                <div class="description-card">
+                    <div class="card-title">
+                        <span class="card-icon">📝</span>
+                        设计描述
+                    </div>
+                    <div class="description-text">
+                        这是一个基于STM32F103C8T6微控制器的最小系统开发板设计，适合用于学习、原型开发和小批量生产。该设计包含完整的电源管理电路、USB通信接口、串口调试接口以及常用的外设接口。
+                        <br><br>
+                        设计采用模块化思路，各功能模块相互独立，便于理解和修改。PCB布局合理，信号完整性良好，适合初学者学习和参考。所有设计文件均为开源，包括原理图、PCB文件、BOM清单、Gerber文件等。
+                    </div>
+                    <ul class="features-list">
+                        <li>基于STM32F103C8T6，72MHz主频，64KB Flash</li>
+                        <li>USB 2.0全速接口，支持USB固件升级</li>
+                        <li>板载3.3V稳压电路，支持5V供电</li>
+                        <li>SWD调试接口，支持在线调试和编程</li>
+                        <li>完整的复位和时钟电路</li>
+                        <li>丰富的扩展IO接口，兼容Arduino扩展板</li>
+                        <li>PCB尺寸紧凑（50mm × 30mm），4层板设计</li>
+                        <li>提供完整的测试代码和使用文档</li>
+                    </ul>
+                </div>
+
+                <!-- 在线查看器 -->
+                <div class="viewer-card">
+                    <div class="card-title">
+                        <span class="card-icon">👁️</span>
+                        在线查看
+                    </div>
+                    <div class="viewer-tabs">
+                        <button class="viewer-tab active" onclick="switchViewerTab('schematic')">
+                            <span>📐</span>
+                            <span>原理图</span>
+                        </button>
+                        <button class="viewer-tab" onclick="switchViewerTab('pcb')">
+                            <span>🔲</span>
+                            <span>PCB布局</span>
+                        </button>
+                        <button class="viewer-tab" onclick="switchViewerTab('3d')">
+                            <span>📦</span>
+                            <span>3D预览</span>
+                        </button>
+                        <button class="viewer-tab" onclick="switchViewerTab('bom')">
+                            <span>📋</span>
+                            <span>BOM清单</span>
+                        </button>
+                    </div>
+
+                    <!-- 原理图查看器 -->
+                    <div id="viewer-schematic" class="viewer-content active">
+                        <div class="viewer-frame">
+                            <div class="viewer-placeholder">
+                                <div class="viewer-placeholder-icon">📐</div>
+                                <div class="viewer-placeholder-text">原理图查看器</div>
+                                <p style="color: #999; font-size: 14px; margin-top: 8px;">
+                                    STM32F103C8T6最小系统原理图 - 包含电源、时钟、USB、调试接口等模块
+                                </p>
+                            </div>
+                        </div>
+                        <div class="viewer-controls">
+                            <button class="viewer-btn" onclick="zoomIn()">🔍 放大</button>
+                            <button class="viewer-btn" onclick="zoomOut()">🔎 缩小</button>
+                            <button class="viewer-btn" onclick="resetZoom()">↺ 重置</button>
+                            <button class="viewer-btn viewer-btn-primary" onclick="downloadFile('schematic')">📥 下载原理图</button>
+                        </div>
+                    </div>
+
+                    <!-- PCB查看器 -->
+                    <div id="viewer-pcb" class="viewer-content">
+                        <div class="viewer-frame">
+                            <div class="viewer-placeholder">
+                                <div class="viewer-placeholder-icon">🔲</div>
+                                <div class="viewer-placeholder-text">PCB布局查看器</div>
+                                <p style="color: #999; font-size: 14px; margin-top: 8px;">
+                                    4层PCB设计，尺寸50mm × 30mm，优化信号完整性和电源分配
+                                </p>
+                            </div>
+                        </div>
+                        <div class="viewer-controls">
+                            <button class="viewer-btn" onclick="toggleLayer('top')">🔴 顶层</button>
+                            <button class="viewer-btn" onclick="toggleLayer('bottom')">🔵 底层</button>
+                            <button class="viewer-btn" onclick="toggleLayer('all')">👁️ 全部</button>
+                            <button class="viewer-btn viewer-btn-primary" onclick="downloadFile('pcb')">📥 下载PCB文件</button>
+                        </div>
+                    </div>
+
+                    <!-- 3D查看器 -->
+                    <div id="viewer-3d" class="viewer-content">
+                        <div class="viewer-frame">
+                            <div class="viewer-placeholder">
+                                <div class="viewer-placeholder-icon">📦</div>
+                                <div class="viewer-placeholder-text">3D模型查看器</div>
+                                <p style="color: #999; font-size: 14px; margin-top: 8px;">
+                                    360°旋转查看PCB 3D模型，包含元器件三维封装
+                                </p>
+                            </div>
+                        </div>
+                        <div class="viewer-controls">
+                            <button class="viewer-btn" onclick="rotate3D('left')">← 左转</button>
+                            <button class="viewer-btn" onclick="rotate3D('right')">→ 右转</button>
+                            <button class="viewer-btn" onclick="rotate3D('reset')">↺ 重置视角</button>
+                            <button class="viewer-btn viewer-btn-primary" onclick="downloadFile('gerber')">📥 下载Gerber文件</button>
+                        </div>
+                    </div>
+
+                    <!-- BOM清单查看器 -->
+                    <div id="viewer-bom" class="viewer-content">
+                        <div style="overflow-x: auto;">
+                            <table class="bom-table">
+                                <thead>
+                                    <tr>
+                                        <th>序号</th>
+                                        <th>位号</th>
+                                        <th>元器件名称</th>
+                                        <th>封装</th>
+                                        <th>数量</th>
+                                        <th>参考价格</th>
+                                        <th>厂商</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>U1</td>
+                                        <td>
+                                            <a href="javascript:void(0)"
+                                               onclick="openComponentDetail('STM32F103C8T6')"
+                                               style="color: #00890b; text-decoration: none; font-weight: 600; cursor: pointer;">
+                                                STM32F103C8T6
+                                            </a>
+                                        </td>
+                                        <td>LQFP48</td>
+                                        <td>1</td>
+                                        <td>¥12.50</td>
+                                        <td>STMicroelectronics</td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>C1,C2</td>
+                                        <td>22pF 电容</td>
+                                        <td>0603</td>
+                                        <td>2</td>
+                                        <td>¥0.02</td>
+                                        <td>通用</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>Y1</td>
+                                        <td>8MHz 晶振</td>
+                                        <td>HC-49S</td>
+                                        <td>1</td>
+                                        <td>¥0.50</td>
+                                        <td>TXC</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>U2</td>
+                                        <td>
+                                            <a href="javascript:void(0)"
+                                               onclick="openComponentDetail('AMS1117-3.3')"
+                                               style="color: #00890b; text-decoration: none; font-weight: 600; cursor: pointer;">
+                                                AMS1117-3.3
+                                            </a>
+                                        </td>
+                                        <td>SOT-223</td>
+                                        <td>1</td>
+                                        <td>¥0.35</td>
+                                        <td>AMS</td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>R1-R4</td>
+                                        <td>10K 电阻</td>
+                                        <td>0603</td>
+                                        <td>4</td>
+                                        <td>¥0.01</td>
+                                        <td>通用</td>
+                                    </tr>
+                                    <tr>
+                                        <td>6</td>
+                                        <td>LED1,LED2</td>
+                                        <td>LED灯珠（红色）</td>
+                                        <td>0603</td>
+                                        <td>2</td>
+                                        <td>¥0.05</td>
+                                        <td>通用</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="viewer-controls">
+                            <button class="viewer-btn" onclick="exportBOM('excel')">📊 导出Excel</button>
+                            <button class="viewer-btn" onclick="exportBOM('csv')">📄 导出CSV</button>
+                            <button class="viewer-btn viewer-btn-primary" onclick="addAllToBOM()">🛒 全部加入采购清单</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 设计文件 -->
+                <div class="files-card">
+                    <div class="card-title">
+                        <span class="card-icon">📦</span>
+                        设计文件
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📐</div>
+                        <div class="file-info">
+                            <div class="file-name">原理图文件 (Schematic)</div>
+                            <div class="file-meta">PDF格式 · 2.3 MB · 最后更新 2025-01-15</div>
+                        </div>
+                        <button class="file-download" onclick="downloadFile('schematic')">下载</button>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">🔲</div>
+                        <div class="file-info">
+                            <div class="file-name">PCB工程文件 (KiCad)</div>
+                            <div class="file-meta">ZIP压缩包 · 8.7 MB · 包含所有层文件</div>
+                        </div>
+                        <button class="file-download" onclick="downloadFile('pcb')">下载</button>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📄</div>
+                        <div class="file-info">
+                            <div class="file-name">BOM清单 (Excel)</div>
+                            <div class="file-meta">XLSX格式 · 45 KB · 含采购链接</div>
+                        </div>
+                        <button class="file-download" onclick="downloadFile('bom')">下载</button>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">⚙️</div>
+                        <div class="file-info">
+                            <div class="file-name">Gerber生产文件</div>
+                            <div class="file-meta">ZIP压缩包 · 1.2 MB · 可直接打板</div>
+                        </div>
+                        <button class="file-download" onclick="downloadFile('gerber')">下载</button>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">💻</div>
+                        <div class="file-info">
+                            <div class="file-name">示例代码 (C语言)</div>
+                            <div class="file-meta">ZIP压缩包 · 5.4 MB · 含测试程序</div>
+                        </div>
+                        <button class="file-download" onclick="downloadFile('code')">下载</button>
+                    </div>
+                    <div class="file-item">
+                        <div class="file-icon">📚</div>
+                        <div class="file-info">
+                            <div class="file-name">使用文档</div>
+                            <div class="file-meta">PDF格式 · 3.8 MB · 详细使用说明</div>
+                        </div>
+                        <button class="file-download" onclick="downloadFile('doc')">下载</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 右侧边栏 -->
+            <div class="sidebar-info">
+                <!-- 操作按钮 -->
+                <div class="actions-card">
+                    <button class="action-btn-full btn-download-all" onclick="downloadAll()">
+                        📥 下载全部文件
+                    </button>
+                    <button class="action-btn-full btn-add-favorite" id="favoriteBtnSide" onclick="toggleFavorite()">
+                        <span id="favoriteIconSide">❤️</span>
+                        <span id="favoriteTextSide">添加到收藏</span>
+                    </button>
+                </div>
+
+                <!-- 统计信息 -->
+                <div class="stats-card">
+                    <div class="card-title">
+                        <span class="card-icon">📊</span>
+                        统计信息
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">3,256</div>
+                            <div class="stat-label">浏览量</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">1,842</div>
+                            <div class="stat-label">下载量</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">458</div>
+                            <div class="stat-label">收藏数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">4.8</div>
+                            <div class="stat-label">评分</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 作者信息 -->
+                <div class="author-card">
+                    <div class="card-title">
+                        <span class="card-icon">👤</span>
+                        作者信息
+                    </div>
+                    <div class="author-header">
+                        <div class="author-avatar">ST</div>
+                        <div class="author-info">
+                            <div class="author-name">STMicroelectronics</div>
+                            <div class="author-title">官方账号 · 已认证</div>
+                        </div>
+                    </div>
+                    <div class="author-stats">
+                        <div class="author-stat">
+                            <div class="author-stat-value">156</div>
+                            <div class="author-stat-label">设计</div>
+                        </div>
+                        <div class="author-stat">
+                            <div class="author-stat-value">28.5K</div>
+                            <div class="author-stat-label">粉丝</div>
+                        </div>
+                        <div class="author-stat">
+                            <div class="author-stat-value">4.9</div>
+                            <div class="author-stat-label">评分</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 相关设计 -->
+                <div class="related-card">
+                    <div class="card-title">
+                        <span class="card-icon">🔗</span>
+                        相关设计
+                    </div>
+                    <div class="related-item" onclick="viewDesign(2)">
+                        <div class="related-thumb">📋</div>
+                        <div class="related-info">
+                            <div class="related-title">STM32开发板扩展板</div>
+                            <div class="related-meta">2.1K 下载 · 4.6 评分</div>
+                        </div>
+                    </div>
+                    <div class="related-item" onclick="viewDesign(3)">
+                        <div class="related-thumb">📋</div>
+                        <div class="related-info">
+                            <div class="related-title">USB转串口调试器</div>
+                            <div class="related-meta">1.5K 下载 · 4.7 评分</div>
+                        </div>
+                    </div>
+                    <div class="related-item" onclick="viewDesign(4)">
+                        <div class="related-thumb">📋</div>
+                        <div class="related-info">
+                            <div class="related-title">电源管理模块设计</div>
+                            <div class="related-meta">1.8K 下载 · 4.5 评分</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 元器件详情弹窗 -->
+    <div id="componentModal" class="component-modal" onclick="closeComponentModal(event)">
+        <div class="component-modal-content" onclick="event.stopPropagation()">
+            <div class="component-modal-header">
+                <div class="component-modal-title" id="componentModalTitle">元器件详情</div>
+                <button class="component-modal-close" onclick="closeComponentModal()">✕</button>
+            </div>
+            <div class="component-modal-body">
+                <iframe id="componentModalIframe" class="component-modal-iframe"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 收藏状态
+        let isFavorited = false;
+
+        // 切换收藏状态
+        function toggleFavorite() {
+            isFavorited = !isFavorited;
+
+            const btn = document.getElementById('favoriteBtn');
+            const btnSide = document.getElementById('favoriteBtnSide');
+            const icon = document.getElementById('favoriteIcon');
+            const iconSide = document.getElementById('favoriteIconSide');
+            const text = document.getElementById('favoriteText');
+            const textSide = document.getElementById('favoriteTextSide');
+
+            if (isFavorited) {
+                btn.classList.add('favorited');
+                btnSide.classList.add('favorited');
+                icon.textContent = '❤️';
+                iconSide.textContent = '❤️';
+                text.textContent = '已收藏';
+                textSide.textContent = '已收藏';
+                alert('已添加到您的收藏！\n可在个人空间中查看收藏的设计。');
+            } else {
+                btn.classList.remove('favorited');
+                btnSide.classList.remove('favorited');
+                icon.textContent = '🤍';
+                iconSide.textContent = '🤍';
+                text.textContent = '收藏';
+                textSide.textContent = '添加到收藏';
+                alert('已取消收藏');
+            }
+        }
+
+        // 下载单个文件
+        function downloadFile(type) {
+            const fileNames = {
+                'schematic': '原理图文件',
+                'pcb': 'PCB工程文件',
+                'bom': 'BOM清单',
+                'gerber': 'Gerber生产文件',
+                'code': '示例代码',
+                'doc': '使用文档'
+            };
+            alert(`开始下载 ${fileNames[type]}...`);
+        }
+
+        // 下载全部文件
+        function downloadAll() {
+            alert('开始打包下载全部文件...\n预计文件大小：21.4 MB');
+        }
+
+        // 查看其他设计
+        function viewDesign(id) {
+            window.location.href = `reference-design-detail.html?id=${id}`;
+        }
+
+        // 切换查看器标签页
+        function switchViewerTab(tabName) {
+            // 移除所有active状态
+            document.querySelectorAll('.viewer-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.viewer-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 激活选中的标签页
+            event.target.closest('.viewer-tab').classList.add('active');
+            document.getElementById(`viewer-${tabName}`).classList.add('active');
+        }
+
+        // 原理图查看器控制
+        function zoomIn() {
+            alert('原理图放大功能');
+        }
+
+        function zoomOut() {
+            alert('原理图缩小功能');
+        }
+
+        function resetZoom() {
+            alert('原理图重置缩放');
+        }
+
+        // PCB查看器控制
+        function toggleLayer(layer) {
+            alert(`切换PCB层显示: ${layer}`);
+        }
+
+        // 3D查看器控制
+        function rotate3D(direction) {
+            alert(`3D模型旋转: ${direction}`);
+        }
+
+        // BOM操作
+        function exportBOM(format) {
+            alert(`导出BOM清单为 ${format.toUpperCase()} 格式`);
+        }
+
+        function addAllToBOM() {
+            alert('已将所有元器件加入采购清单');
+        }
+
+        // 打开元器件详情弹窗
+        function openComponentDetail(componentName) {
+            const modal = document.getElementById('componentModal');
+            const iframe = document.getElementById('componentModalIframe');
+            const title = document.getElementById('componentModalTitle');
+
+            // 设置标题
+            title.textContent = componentName + ' - 元器件详情';
+
+            // 加载component-detail-popup.html页面，并传递参数
+            iframe.src = `component-detail-popup.html?component=${encodeURIComponent(componentName)}`;
+
+            // 显示弹窗
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 禁止背景滚动
+        }
+
+        // 关闭元器件详情弹窗
+        function closeComponentModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+
+            const modal = document.getElementById('componentModal');
+            const iframe = document.getElementById('componentModalIframe');
+
+            modal.classList.remove('active');
+            iframe.src = ''; // 清空iframe
+            document.body.style.overflow = ''; // 恢复背景滚动
+        }
+
+        // ESC键关闭弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeComponentModal();
+            }
+        });
+
+        // 初始化
+        document.getElementById('breadcrumbName').textContent = 'STM32最小系统开发板';
+    </script>
+</body>
+</html>

@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 测试标准管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-left: 40px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .notification-bell {
+            font-size: 20px;
+            color: #3d4647;
+            cursor: pointer;
+            position: relative;
+        }
+        .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background: #ff4d4f;
+            border-radius: 50%;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon { font-size: 18px; }
+
+        /* 主内容 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+            padding: 30px 35px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0, 137, 11, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-white {
+            background: white;
+            color: #00890b;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* 产品选择器 */
+        .product-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+            margin-bottom: 25px;
+        }
+        .selector-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .product-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .product-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+            color: #666;
+            background: #f8f9fa;
+            border: 2px solid transparent;
+        }
+        .product-tab:hover {
+            background: #e8f5e9;
+            color: #00890b;
+            border-color: #00890b;
+        }
+        .product-tab.active {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+            border-color: #00890b;
+        }
+
+        /* 标准卡片 */
+        .standards-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .standard-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .standard-card:hover {
+            border-color: #00890b;
+            box-shadow: 0 6px 20px rgba(0, 137, 11, 0.1);
+            transform: translateY(-3px);
+        }
+        .standard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .standard-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 137, 11, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .product-badge {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        .standard-status {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .status-active {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+        .status-draft {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .standard-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .standard-desc {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .standard-items {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .standard-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e0e0e0;
+            font-size: 13px;
+        }
+        .standard-item:last-child {
+            border-bottom: none;
+        }
+        .item-label {
+            color: #666;
+        }
+        .item-value {
+            font-weight: 600;
+            color: #333;
+        }
+        .standard-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 2px solid #f5f5f5;
+        }
+        .standard-meta {
+            font-size: 12px;
+            color: #999;
+        }
+        .standard-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .btn-action {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-edit {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .btn-edit:hover {
+            background: #1976d2;
+            color: white;
+        }
+        .btn-delete {
+            background: #ffebee;
+            color: #f44336;
+        }
+        .btn-delete:hover {
+            background: #f44336;
+            color: white;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+            padding: 25px 30px;
+            border-radius: 16px 16px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        .modal-close:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .form-label.required::after {
+            content: " *";
+            color: #f44336;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+            box-shadow: 0 0 0 3px rgba(0, 137, 11, 0.1);
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .params-list {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+        .param-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr 40px;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        .param-item:last-child {
+            margin-bottom: 0;
+        }
+        .btn-remove-param {
+            width: 36px;
+            height: 36px;
+            background: #ffebee;
+            color: #f44336;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .btn-remove-param:hover {
+            background: #f44336;
+            color: white;
+        }
+        .btn-add-param {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            border: 2px dashed #00890b;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-add-param:hover {
+            background: #00890b;
+            color: white;
+        }
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid #f5f5f5;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+            <div class="user-avatar">用</div>
+        </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item active">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="main-wrapper">
+            <div class="main-content">
+                <!-- 返回按钮 -->
+                <a href="production-test-report.html" class="back-btn">
+                    ← 返回测试报告
+                </a>
+
+                <!-- 页面头部 -->
+                <div class="page-header">
+                    <div class="page-title">
+                        <h1>⚙️ 测试标准管理</h1>
+                        <p class="page-subtitle">管理各类产品的测试标准，定义测试项目和合格标准</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-white" onclick="openCreateModal()">➕ 新建标准</button>
+                    </div>
+                </div>
+
+                <!-- 产品选择器 -->
+                <div class="product-selector">
+                    <label class="selector-label">📦 选择产品查看测试标准</label>
+                    <div class="product-tabs">
+                        <div class="product-tab active" onclick="filterByProduct('all')">全部产品</div>
+                        <div class="product-tab" onclick="filterByProduct('ESP32游戏手柄 v2.0')">🎮 ESP32游戏手柄 v2.0</div>
+                        <div class="product-tab" onclick="filterByProduct('双通道示波器模块')">📊 双通道示波器模块</div>
+                        <div class="product-tab" onclick="filterByProduct('ATT 501 I/O扩展板')">🔌 ATT 501 I/O扩展板</div>
+                        <div class="product-tab" onclick="filterByProduct('智能门锁控制器')">🔐 智能门锁控制器</div>
+                        <div class="product-tab" onclick="filterByProduct('工业传感器节点')">📡 工业传感器节点</div>
+                    </div>
+                </div>
+
+                <!-- 标准列表 -->
+                <div class="standards-grid" id="standardsGrid">
+                    <!-- ESP32游戏手柄 - 电气性能标准 -->
+                    <div class="standard-card" data-product="ESP32游戏手柄 v2.0" onclick="viewStandard(1)">
+                        <div class="product-badge">🎮 ESP32游戏手柄 v2.0</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">⚡</div>
+                            <div class="standard-status status-active">启用中</div>
+                        </div>
+                        <div class="standard-title">电气性能测试标准</div>
+                        <div class="standard-desc">ESP32游戏手柄的基本电气性能测试，包括电压、电流、功耗等参数</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">工作电压</span>
+                                <span class="item-value">3.3V ±5%</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">工作电流</span>
+                                <span class="item-value">≤150mA</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">待机电流</span>
+                                <span class="item-value">≤10μA</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">充电电流</span>
+                                <span class="item-value">≤500mA</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">更新于 2025-10-15 | 应用次数: 42</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(1, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(1, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ESP32游戏手柄 - 无线通信标准 -->
+                    <div class="standard-card" data-product="ESP32游戏手柄 v2.0" onclick="viewStandard(2)">
+                        <div class="product-badge">🎮 ESP32游戏手柄 v2.0</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">📡</div>
+                            <div class="standard-status status-active">启用中</div>
+                        </div>
+                        <div class="standard-title">蓝牙通信测试标准</div>
+                        <div class="standard-desc">游戏手柄蓝牙连接和通信功能的测试标准，包括连接、信号强度、传输速率等</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">蓝牙连接</span>
+                                <span class="item-value">≤3秒成功</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">信号强度</span>
+                                <span class="item-value">≥-70dBm</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">响应延迟</span>
+                                <span class="item-value">≤20ms</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">有效距离</span>
+                                <span class="item-value">≥10米</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">更新于 2025-10-12 | 应用次数: 38</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(2, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(2, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 双通道示波器模块 - 电气性能标准 -->
+                    <div class="standard-card" data-product="双通道示波器模块" onclick="viewStandard(3)">
+                        <div class="product-badge">📊 双通道示波器模块</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">⚡</div>
+                            <div class="standard-status status-active">启用中</div>
+                        </div>
+                        <div class="standard-title">电气性能测试标准</div>
+                        <div class="standard-desc">示波器模块的电气性能测试标准，包括电压精度、采样率、带宽等参数</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">工作电压</span>
+                                <span class="item-value">5V ±3%</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">采样率</span>
+                                <span class="item-value">≥1MSPS</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">带宽</span>
+                                <span class="item-value">≥200kHz</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">电压精度</span>
+                                <span class="item-value">±2%</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">更新于 2025-10-18 | 应用次数: 28</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(3, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(3, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 双通道示波器模块 - 功能测试标准 -->
+                    <div class="standard-card" data-product="双通道示波器模块" onclick="viewStandard(4)">
+                        <div class="product-badge">📊 双通道示波器模块</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">🎮</div>
+                            <div class="standard-status status-active">启用中</div>
+                        </div>
+                        <div class="standard-title">功能测试标准</div>
+                        <div class="standard-desc">示波器模块功能验证测试标准，包括通道切换、触发、波形显示等功能</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">通道切换</span>
+                                <span class="item-value">正常工作</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">触发功能</span>
+                                <span class="item-value">正常触发</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">USB通信</span>
+                                <span class="item-value">数据正常</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">波形显示</span>
+                                <span class="item-value">稳定显示</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">更新于 2025-10-16 | 应用次数: 25</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(4, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(4, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ATT 501 I/O扩展板 - 接口测试标准 -->
+                    <div class="standard-card" data-product="ATT 501 I/O扩展板" onclick="viewStandard(5)">
+                        <div class="product-badge">🔌 ATT 501 I/O扩展板</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">🔌</div>
+                            <div class="standard-status status-active">启用中</div>
+                        </div>
+                        <div class="standard-title">I/O接口测试标准</div>
+                        <div class="standard-desc">I/O扩展板接口功能测试标准，包括数字I/O、模拟输入、PWM输出等</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">数字I/O</span>
+                                <span class="item-value">16路正常</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">模拟输入</span>
+                                <span class="item-value">8路正常</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">PWM输出</span>
+                                <span class="item-value">4路正常</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">I2C通信</span>
+                                <span class="item-value">正常通信</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">更新于 2025-10-14 | 应用次数: 56</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(5, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(5, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 智能门锁控制器 - 安全测试标准 -->
+                    <div class="standard-card" data-product="智能门锁控制器" onclick="viewStandard(6)">
+                        <div class="product-badge">🔐 智能门锁控制器</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">🛡️</div>
+                            <div class="standard-status status-active">启用中</div>
+                        </div>
+                        <div class="standard-title">安全性能测试标准</div>
+                        <div class="standard-desc">门锁控制器安全性测试标准，包括加密、认证、防护等安全功能</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">数据加密</span>
+                                <span class="item-value">AES-256</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">认证次数</span>
+                                <span class="item-value">≥10000次</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">防拆保护</span>
+                                <span class="item-value">正常告警</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">低电预警</span>
+                                <span class="item-value">≤20%提醒</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">更新于 2025-10-19 | 应用次数: 32</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(6, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(6, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 智能门锁控制器 - 环境测试标准 -->
+                    <div class="standard-card" data-product="智能门锁控制器" onclick="viewStandard(7)">
+                        <div class="product-badge">🔐 智能门锁控制器</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">🌡️</div>
+                            <div class="standard-status status-active">启用中</div>
+                        </div>
+                        <div class="standard-title">环境适应性测试标准</div>
+                        <div class="standard-desc">门锁控制器环境适应性测试，适用于室外使用环境的温度、湿度测试</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">工作温度</span>
+                                <span class="item-value">-20~60°C</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">存储温度</span>
+                                <span class="item-value">-40~80°C</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">工作湿度</span>
+                                <span class="item-value">10~95%RH</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">防水等级</span>
+                                <span class="item-value">IP65</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">更新于 2025-10-17 | 应用次数: 29</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(7, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(7, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 工业传感器节点 - 电气性能标准 -->
+                    <div class="standard-card" data-product="工业传感器节点" onclick="viewStandard(8)">
+                        <div class="product-badge">📡 工业传感器节点</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">⚡</div>
+                            <div class="standard-status status-active">启用中</div>
+                        </div>
+                        <div class="standard-title">电气性能测试标准</div>
+                        <div class="standard-desc">工业传感器节点电气性能测试，包括宽电压输入、低功耗等工业级要求</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">输入电压</span>
+                                <span class="item-value">9~36V</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">工作电流</span>
+                                <span class="item-value">≤80mA</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">休眠电流</span>
+                                <span class="item-value">≤5μA</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">电源效率</span>
+                                <span class="item-value">≥85%</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">更新于 2025-10-20 | 应用次数: 18</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(8, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(8, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 工业传感器节点 - 通信测试标准 -->
+                    <div class="standard-card" data-product="工业传感器节点" onclick="viewStandard(9)">
+                        <div class="product-badge">📡 工业传感器节点</div>
+                        <div class="standard-header">
+                            <div class="standard-icon">📡</div>
+                            <div class="standard-status status-draft">草稿</div>
+                        </div>
+                        <div class="standard-title">LoRa通信测试标准</div>
+                        <div class="standard-desc">工业传感器节点LoRa无线通信测试标准，包括传输距离、抗干扰能力等</div>
+                        <div class="standard-items">
+                            <div class="standard-item">
+                                <span class="item-label">传输距离</span>
+                                <span class="item-value">≥2km(空旷)</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">发射功率</span>
+                                <span class="item-value">≤20dBm</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">接收灵敏度</span>
+                                <span class="item-value">≥-140dBm</span>
+                            </div>
+                            <div class="standard-item">
+                                <span class="item-label">数据丢包率</span>
+                                <span class="item-value">≤1%</span>
+                            </div>
+                        </div>
+                        <div class="standard-footer">
+                            <div class="standard-meta">创建于 2025-10-21 | 应用次数: 0</div>
+                            <div class="standard-actions">
+                                <button class="btn-action btn-edit" onclick="editStandard(9, event)">✏️ 编辑</button>
+                                <button class="btn-action btn-delete" onclick="deleteStandard(9, event)">🗑️ 删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建/编辑标准模态框 -->
+    <div class="modal" id="standardModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新建测试标准</h3>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label required">关联产品</label>
+                    <select class="form-select" id="productSelect">
+                        <option value="">请选择产品</option>
+                        <option value="ESP32游戏手柄 v2.0">🎮 ESP32游戏手柄 v2.0</option>
+                        <option value="双通道示波器模块">📊 双通道示波器模块</option>
+                        <option value="ATT 501 I/O扩展板">🔌 ATT 501 I/O扩展板</option>
+                        <option value="智能门锁控制器">🔐 智能门锁控制器</option>
+                        <option value="工业传感器节点">📡 工业传感器节点</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">标准名称</label>
+                    <input type="text" class="form-input" id="standardName" placeholder="例如：电气性能测试标准">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">测试类型</label>
+                    <select class="form-select" id="standardType">
+                        <option value="">请选择测试类型</option>
+                        <option value="electrical">⚡ 电气性能</option>
+                        <option value="wireless">📡 无线通信</option>
+                        <option value="functional">🎮 功能测试</option>
+                        <option value="aging">🔥 老化测试</option>
+                        <option value="environmental">🌡️ 环境测试</option>
+                        <option value="safety">🛡️ 安全测试</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">标准描述</label>
+                    <textarea class="form-textarea" id="standardDesc" placeholder="描述此测试标准的适用范围和主要内容..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">测试参数</label>
+                    <div class="params-list" id="paramsList">
+                        <div class="param-item">
+                            <input type="text" class="form-input" placeholder="参数名称（如：工作电压）" name="paramName">
+                            <input type="text" class="form-input" placeholder="标准值（如：3.3V ±5%）" name="paramValue">
+                            <button class="btn-remove-param" onclick="removeParam(this)">×</button>
+                        </div>
+                    </div>
+                    <button class="btn-add-param" onclick="addParam()">➕ 添加参数</button>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">状态</label>
+                    <select class="form-select" id="standardStatus">
+                        <option value="draft">草稿</option>
+                        <option value="active" selected>启用</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal()">取消</button>
+                <button class="btn-primary" onclick="saveStandard()">保存标准</button>
+            </div>
+
+    <script>
+        // 按产品筛选
+        function filterByProduct(productName) {
+            // 更新产品标签页的激活状态
+            document.querySelectorAll('.product-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 筛选标准卡片
+            const cards = document.querySelectorAll('.standard-card');
+            cards.forEach(card => {
+                if (productName === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    const cardProduct = card.getAttribute('data-product');
+                    if (cardProduct === productName) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // 查看标准详情
+        function viewStandard(id) {
+            alert('查看标准详情: ' + id);
+        }
+
+        // 打开创建模态框
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = '新建测试标准';
+            document.getElementById('standardModal').classList.add('active');
+            // 清空表单
+            document.getElementById('productSelect').value = '';
+            document.getElementById('standardName').value = '';
+            document.getElementById('standardType').value = '';
+            document.getElementById('standardDesc').value = '';
+            document.getElementById('standardStatus').value = 'active';
+            // 重置参数列表
+            document.getElementById('paramsList').innerHTML = `
+                <div class="param-item">
+                    <input type="text" class="form-input" placeholder="参数名称（如：工作电压）" name="paramName">
+                    <input type="text" class="form-input" placeholder="标准值（如：3.3V ±5%）" name="paramValue">
+                    <button class="btn-remove-param" onclick="removeParam(this)">×</button>
+            `;
+        }
+
+        // 编辑标准
+        function editStandard(id, event) {
+            event.stopPropagation();
+            document.getElementById('modalTitle').textContent = '编辑测试标准';
+            document.getElementById('standardModal').classList.add('active');
+            alert('加载标准数据: ' + id);
+        }
+
+        // 删除标准
+        function deleteStandard(id, event) {
+            event.stopPropagation();
+            if (confirm('确定要删除此测试标准吗？\n\n删除后将无法恢复，且正在使用此标准的测试报告将不受影响。')) {
+                alert('✅ 标准已删除');
+            }
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('standardModal').classList.remove('active');
+        }
+
+        // 添加参数
+        function addParam() {
+            const paramsList = document.getElementById('paramsList');
+            const newParam = document.createElement('div');
+            newParam.className = 'param-item';
+            newParam.innerHTML = `
+                <input type="text" class="form-input" placeholder="参数名称（如：工作电压）" name="paramName">
+                <input type="text" class="form-input" placeholder="标准值（如：3.3V ±5%）" name="paramValue">
+                <button class="btn-remove-param" onclick="removeParam(this)">×</button>
+            `;
+            paramsList.appendChild(newParam);
+        }
+
+        // 删除参数
+        function removeParam(btn) {
+            const paramsList = document.getElementById('paramsList');
+            if (paramsList.children.length > 1) {
+                btn.parentElement.remove();
+            } else {
+                alert('至少需要保留一个测试参数');
+            }
+        }
+
+        // 保存标准
+        function saveStandard() {
+            const product = document.getElementById('productSelect').value;
+            const name = document.getElementById('standardName').value;
+            const type = document.getElementById('standardType').value;
+            const desc = document.getElementById('standardDesc').value;
+            const status = document.getElementById('standardStatus').value;
+
+            if (!product) {
+                alert('❌ 请选择关联产品');
+                return;
+            }
+            if (!name) {
+                alert('❌ 请输入标准名称');
+                return;
+            }
+            if (!type) {
+                alert('❌ 请选择测试类型');
+                return;
+            }
+
+            // 验证参数
+            const params = document.querySelectorAll('.param-item');
+            let hasEmptyParam = false;
+            params.forEach(param => {
+                const paramName = param.querySelector('input[name="paramName"]').value;
+                const paramValue = param.querySelector('input[name="paramValue"]').value;
+                if (!paramName || !paramValue) {
+                    hasEmptyParam = true;
+                }
+            });
+
+            if (hasEmptyParam) {
+                alert('❌ 请填写所有测试参数的名称和标准值');
+                return;
+            }
+
+            alert('✅ 测试标准保存成功！\n\n关联产品：' + product + '\n标准名称：' + name + '\n测试类型：' + type + '\n参数数量：' + params.length);
+            closeModal();
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('standardModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

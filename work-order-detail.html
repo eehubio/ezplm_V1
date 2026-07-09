@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 工单详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-left: 40px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .notification-bell {
+            font-size: 20px;
+            color: #3d4647;
+            cursor: pointer;
+            position: relative;
+        }
+        .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background: #ff4d4f;
+            border-radius: 50%;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon { font-size: 18px; }
+
+        /* 主内容 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+            padding: 30px 35px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0, 137, 11, 0.2);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .page-title h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .order-id-large {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-primary {
+            background: white;
+            color: #00890b;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .info-label {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-in-progress {
+            background: white;
+            color: #f57c00;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f5f5f5;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-icon {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-icon:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 工序时间线 */
+        .process-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .timeline-item {
+            display: flex;
+            gap: 15px;
+            position: relative;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 40px;
+            width: 2px;
+            height: calc(100% - 20px);
+            background: #e0e0e0;
+        }
+        .timeline-item:last-child::before {
+            display: none;
+        }
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0, 137, 11, 0.1);
+            border: 3px solid #00890b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+            z-index: 1;
+        }
+        .timeline-marker.pending {
+            background: #f5f5f5;
+            border-color: #e0e0e0;
+        }
+        .timeline-marker.completed {
+            background: #00890b;
+            border-color: #00890b;
+            color: white;
+        }
+        .timeline-content {
+            flex: 1;
+            padding-bottom: 15px;
+        }
+        .timeline-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 15px;
+        }
+        .timeline-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .timeline-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #999;
+        }
+        .timeline-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 表格样式 */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .data-table thead {
+            background: #f8f9fa;
+        }
+        .data-table th {
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .data-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card-small {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #00890b;
+        }
+        .stat-label-small {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .stat-value-small {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            padding: 24px 30px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .close-btn:hover {
+            background: #e0e0e0;
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-cancel {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-cancel:hover {
+            border-color: #999;
+            color: #333;
+        }
+        .btn-submit {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #00890b;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-submit:hover {
+            background: #007009;
+        }
+
+        /* 日志列表 */
+        .log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .log-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #00890b;
+        }
+        .log-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .log-user {
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .log-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .log-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+            <div class="user-avatar">用</div>
+        </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item active">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="main-wrapper">
+            <div class="main-content">
+                <!-- 返回按钮 -->
+                <a href="production.html?tab=order" class="back-btn">
+                    ← 返回工单管理
+                </a>
+
+                <!-- 页面头部 -->
+                <div class="page-header">
+                    <div class="header-top">
+                        <div class="page-title">
+                            <h1>生产工单详情</h1>
+                            <p class="order-id-large">工单编号: WO-2025-0089</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-secondary" onclick="pauseOrder()">⏸️ 暂停工单</button>
+                            <button class="btn-primary" onclick="completeProcess()">✓ 完成当前工序</button>
+                        </div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">产品名称</div>
+                            <div class="info-value">ESP32游戏手柄 v2.0</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">生产计划</div>
+                            <div class="info-value">PP-2025-0012</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">生产数量</div>
+                            <div class="info-value">200 台</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">开始时间</div>
+                            <div class="info-value">2025-10-01</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">负责人</div>
+                            <div class="info-value">张工</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">当前状态</div>
+                            <div class="info-value"><span class="status-badge status-in-progress">生产中</span></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">完成进度</div>
+                            <div class="info-value">75%</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">当前工序</div>
+                            <div class="info-value">AOI检测</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 生产统计 -->
+                <div class="stats-grid">
+                    <div class="stat-card-small">
+                        <div class="stat-label-small">已完成数量</div>
+                        <div class="stat-value-small">150 台</div>
+                    </div>
+                    <div class="stat-card-small" style="border-left-color: #f57c00;">
+                        <div class="stat-label-small">进行中数量</div>
+                        <div class="stat-value-small" style="color: #f57c00;">50 台</div>
+                    </div>
+                    <div class="stat-card-small" style="border-left-color: #4caf50;">
+                        <div class="stat-label-small">合格率</div>
+                        <div class="stat-value-small" style="color: #4caf50;">98.5%</div>
+                    </div>
+                    <div class="stat-card-small" style="border-left-color: #f44336;">
+                        <div class="stat-label-small">不良品数</div>
+                        <div class="stat-value-small" style="color: #f44336;">3 台</div>
+                    </div>
+                </div>
+
+                <!-- 工序进度跟踪 -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">⚙️ 工序进度跟踪</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon" onclick="refreshProcess()">🔄 刷新</button>
+                        </div>
+                    </div>
+                    <div class="process-timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker completed">✓</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">1. SMT贴片</div>
+                                <div class="timeline-desc">表面贴装元器件，完成所有SMD元件的贴片</div>
+                                <div class="timeline-meta">
+                                    <span>✅ 已完成</span>
+                                    <span>工位: SMT-01</span>
+                                    <span>实际用时: 2天</span>
+                                    <span>操作员: 王师傅</span>
+                                    <span>完成时间: 2025-10-03 16:30</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker completed">✓</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">2. 回流焊接</div>
+                                <div class="timeline-desc">高温回流焊接，确保焊点质量</div>
+                                <div class="timeline-meta">
+                                    <span>✅ 已完成</span>
+                                    <span>工位: REFLOW-01</span>
+                                    <span>实际用时: 1天</span>
+                                    <span>操作员: 李师傅</span>
+                                    <span>完成时间: 2025-10-04 18:00</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker">⚡</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">3. AOI检测 (进行中)</div>
+                                <div class="timeline-desc">自动光学检测，检查焊接质量和元件正确性</div>
+                                <div class="timeline-meta">
+                                    <span style="color: #f57c00;">⏳ 进行中 (75%)</span>
+                                    <span>工位: AOI-01</span>
+                                    <span>预计剩余: 2小时</span>
+                                    <span>操作员: 张师傅</span>
+                                    <span>开始时间: 2025-10-05 08:00</span>
+                                </div>
+                                <div class="timeline-actions">
+                                    <button class="btn-icon" onclick="completeProcess()">✓ 完成工序</button>
+                                    <button class="btn-icon" onclick="addQualityRecord()">📝 添加检测记录</button>
+                                    <button class="btn-icon" onclick="reportIssue()">⚠️ 报告问题</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker pending">○</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">4. 功能测试</div>
+                                <div class="timeline-desc">电气性能测试，确保产品功能正常</div>
+                                <div class="timeline-meta">
+                                    <span>⏰ 待开始</span>
+                                    <span>工位: TEST-01</span>
+                                    <span>预计用时: 2天</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker pending">○</div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">5. 包装入库</div>
+                                <div class="timeline-desc">成品包装与入库登记</div>
+                                <div class="timeline-meta">
+                                    <span>⏰ 待开始</span>
+                                    <span>工位: PKG-01</span>
+                                    <span>预计用时: 1天</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 物料消耗记录 -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">📦 物料消耗记录</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon" onclick="addMaterialConsumption()">➕ 添加消耗</button>
+                            <button class="btn-icon" onclick="exportConsumption()">📤 导出</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>物料编号</th>
+                                <th>物料名称</th>
+                                <th>规格型号</th>
+                                <th>计划用量</th>
+                                <th>实际消耗</th>
+                                <th>损耗率</th>
+                                <th>消耗时间</th>
+                                <th>操作人</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>IC-ESP32-001</td>
+                                <td>ESP32-WROOM-32</td>
+                                <td>ESP32-WROOM-32D</td>
+                                <td>200</td>
+                                <td>205</td>
+                                <td style="color: #4caf50;">2.5%</td>
+                                <td>2025-10-03 14:30</td>
+                                <td>王师傅</td>
+                            </tr>
+                            <tr>
+                                <td>R-0805-10K</td>
+                                <td>贴片电阻</td>
+                                <td>10kΩ ±1%</td>
+                                <td>2000</td>
+                                <td>2015</td>
+                                <td style="color: #4caf50;">0.75%</td>
+                                <td>2025-10-03 14:30</td>
+                                <td>王师傅</td>
+                            </tr>
+                            <tr>
+                                <td>C-0603-100N</td>
+                                <td>陶瓷电容</td>
+                                <td>100nF 50V</td>
+                                <td>2200</td>
+                                <td>2250</td>
+                                <td style="color: #f57c00;">2.27%</td>
+                                <td>2025-10-03 14:30</td>
+                                <td>王师傅</td>
+                            </tr>
+                            <tr>
+                                <td>IC-LM358</td>
+                                <td>LM358M运放</td>
+                                <td>LM358M</td>
+                                <td>400</td>
+                                <td>412</td>
+                                <td style="color: #4caf50;">3.0%</td>
+                                <td>2025-10-03 14:30</td>
+                                <td>王师傅</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 质量检验记录 -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">🔍 质量检验记录</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon" onclick="addQualityRecord()">➕ 添加记录</button>
+                        </div>
+                    </div>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>检验时间</th>
+                                <th>检验工序</th>
+                                <th>检验数量</th>
+                                <th>合格数量</th>
+                                <th>不良数量</th>
+                                <th>合格率</th>
+                                <th>不良原因</th>
+                                <th>检验员</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-10-03 17:00</td>
+                                <td>SMT首检</td>
+                                <td>10</td>
+                                <td>10</td>
+                                <td>0</td>
+                                <td style="color: #4caf50; font-weight: 600;">100%</td>
+                                <td>-</td>
+                                <td>质检员A</td>
+                            </tr>
+                            <tr>
+                                <td>2025-10-04 12:00</td>
+                                <td>SMT巡检</td>
+                                <td>50</td>
+                                <td>49</td>
+                                <td>1</td>
+                                <td style="color: #4caf50; font-weight: 600;">98%</td>
+                                <td>焊点虚焊</td>
+                                <td>质检员B</td>
+                            </tr>
+                            <tr>
+                                <td>2025-10-05 10:30</td>
+                                <td>AOI检测</td>
+                                <td>100</td>
+                                <td>98</td>
+                                <td>2</td>
+                                <td style="color: #4caf50; font-weight: 600;">98%</td>
+                                <td>元件偏移</td>
+                                <td>张师傅</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 生产日志 -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">📝 生产日志</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon" onclick="addLog()">➕ 添加日志</button>
+                        </div>
+                    </div>
+                    <div class="log-list">
+                        <div class="log-item">
+                            <div class="log-header">
+                                <span class="log-user">张师傅</span>
+                                <span class="log-time">2025-10-05 14:30</span>
+                            </div>
+                            <div class="log-content">
+                                AOI检测进行中，已完成150台检测，发现2台有元件偏移问题，已标记返工。整体进度正常。
+                            </div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-header">
+                                <span class="log-user">李师傅</span>
+                                <span class="log-time">2025-10-04 18:00</span>
+                            </div>
+                            <div class="log-content">
+                                回流焊接工序已完成，焊接质量良好。温度曲线符合要求，焊点饱满光亮。
+                            </div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-header">
+                                <span class="log-user">王师傅</span>
+                                <span class="log-time">2025-10-03 16:30</span>
+                            </div>
+                            <div class="log-content">
+                                SMT贴片工序完成。使用替代料IC-ESP32-002替换了部分ESP32-WROOM-32，因原料库存不足。贴片质量检查合格。
+                            </div>
+                        </div>
+                        <div class="log-item">
+                            <div class="log-header">
+                                <span class="log-user">张工</span>
+                                <span class="log-time">2025-10-01 08:00</span>
+                            </div>
+                            <div class="log-content">
+                                工单WO-2025-0089正式启动，已完成物料备料。开始SMT贴片工序。
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 完成工序模态框 -->
+    <div id="completeProcessModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">完成工序</h3>
+                <button class="close-btn" onclick="closeCompleteProcessModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">当前工序</label>
+                    <input type="text" class="form-input" value="AOI检测" readonly>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">完成数量 *</label>
+                    <input type="number" class="form-input" placeholder="请输入完成数量" value="150" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">不良数量</label>
+                    <input type="number" class="form-input" placeholder="请输入不良数量" value="2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工序备注</label>
+                    <textarea class="form-textarea" placeholder="请输入工序完成情况说明"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCompleteProcessModal()">取消</button>
+                <button class="btn-submit" onclick="submitCompleteProcess()">确认完成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加消耗记录模态框 -->
+    <div id="addConsumptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加物料消耗</h3>
+                <button class="close-btn" onclick="closeAddConsumptionModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">物料编号 *</label>
+                    <input type="text" class="form-input" placeholder="请输入或选择物料编号" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">消耗数量 *</label>
+                    <input type="number" class="form-input" placeholder="请输入消耗数量" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">工序</label>
+                    <select class="form-select">
+                        <option value="">请选择工序</option>
+                        <option value="smt">SMT贴片</option>
+                        <option value="reflow">回流焊接</option>
+                        <option value="aoi">AOI检测</option>
+                        <option value="test">功能测试</option>
+                        <option value="package">包装入库</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-textarea" placeholder="请输入备注信息"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAddConsumptionModal()">取消</button>
+                <button class="btn-submit" onclick="submitAddConsumption()">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加质检记录模态框 -->
+    <div id="addQualityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加质检记录</h3>
+                <button class="close-btn" onclick="closeAddQualityModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">检验工序 *</label>
+                    <select class="form-select" required>
+                        <option value="">请选择工序</option>
+                        <option value="smt_first">SMT首检</option>
+                        <option value="smt_patrol">SMT巡检</option>
+                        <option value="aoi">AOI检测</option>
+                        <option value="function">功能测试</option>
+                        <option value="final">最终检验</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">检验数量 *</label>
+                    <input type="number" class="form-input" placeholder="请输入检验数量" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">合格数量 *</label>
+                    <input type="number" class="form-input" placeholder="请输入合格数量" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">不良数量</label>
+                    <input type="number" class="form-input" placeholder="请输入不良数量" value="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">不良原因</label>
+                    <textarea class="form-textarea" placeholder="如有不良品，请详细说明不良原因"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAddQualityModal()">取消</button>
+                <button class="btn-submit" onclick="submitAddQuality()">确认添加</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加日志模态框 -->
+    <div id="addLogModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加生产日志</h3>
+                <button class="close-btn" onclick="closeAddLogModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">日志内容 *</label>
+                    <textarea class="form-textarea" placeholder="请输入生产日志内容" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAddLogModal()">取消</button>
+                <button class="btn-submit" onclick="submitAddLog()">确认添加</button>
+
+    <script>
+        // 完成工序
+        function completeProcess() {
+            document.getElementById('completeProcessModal').classList.add('active');
+        }
+
+        function closeCompleteProcessModal() {
+            document.getElementById('completeProcessModal').classList.remove('active');
+        }
+
+        function submitCompleteProcess() {
+            alert('✅ 工序已完成！\n\n系统将自动进入下一工序。');
+            closeCompleteProcessModal();
+        }
+
+        // 添加物料消耗
+        function addMaterialConsumption() {
+            document.getElementById('addConsumptionModal').classList.add('active');
+        }
+
+        function closeAddConsumptionModal() {
+            document.getElementById('addConsumptionModal').classList.remove('active');
+        }
+
+        function submitAddConsumption() {
+            alert('✅ 物料消耗记录已添加！');
+            closeAddConsumptionModal();
+        }
+
+        // 添加质检记录
+        function addQualityRecord() {
+            document.getElementById('addQualityModal').classList.add('active');
+        }
+
+        function closeAddQualityModal() {
+            document.getElementById('addQualityModal').classList.remove('active');
+        }
+
+        function submitAddQuality() {
+            alert('✅ 质检记录已添加！');
+            closeAddQualityModal();
+        }
+
+        // 添加日志
+        function addLog() {
+            document.getElementById('addLogModal').classList.add('active');
+        }
+
+        function closeAddLogModal() {
+            document.getElementById('addLogModal').classList.remove('active');
+        }
+
+        function submitAddLog() {
+            alert('✅ 生产日志已添加！');
+            closeAddLogModal();
+        }
+
+        // 暂停工单
+        function pauseOrder() {
+            if (confirm('确定要暂停此工单吗？')) {
+                alert('⏸️ 工单已暂停');
+            }
+        }
+
+        // 刷新工序
+        function refreshProcess() {
+            alert('🔄 工序状态已刷新');
+        }
+
+        // 报告问题
+        function reportIssue() {
+            alert('⚠️ 问题报告功能');
+        }
+
+        // 导出消耗记录
+        function exportConsumption() {
+            alert('📤 物料消耗记录导出成功！');
+        }
+
+        // 点击模态框背景关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

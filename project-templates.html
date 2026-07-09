@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目模板管理 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主容器 */
+        .container {
+            flex: 1;
+            padding: 40px 20px;
+            max-width: 1440px;
+        }
+
+        /* 页面头部 - 与 projects.html 一致 */
+        .page-header {
+            background: transparent;
+            color: #1a1a1a;
+            padding: 0 24px 16px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 24px;
+        }
+        .page-header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0;
+        }
+        .page-header p {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 操作栏 */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .btn-cancel {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-cancel:hover {
+            border-color: #999;
+        }
+
+        /* 模板卡片 */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+        }
+        .template-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .template-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            border-color: #00890b;
+            transform: translateY(-2px);
+        }
+        .template-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .template-name {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #1a1a1a;
+        }
+        .template-desc {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+        .template-stages {
+            background: #f9f9f9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+        }
+        .stage-tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 4px 4px 4px 0;
+        }
+        .template-meta {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 16px;
+        }
+        .template-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .btn-use {
+            background: #00890b;
+            color: white;
+        }
+        .btn-use:hover {
+            background: #007309;
+        }
+        .btn-edit {
+            background: #1976d2;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #1565c0;
+        }
+        .btn-delete {
+            background: #ff4d4f;
+            color: white;
+        }
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+
+        /* Modal样式 */
+        .modal-overlay, .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active, .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+        }
+        .modal-close:hover {
+            color: #333;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        .form-label.required::after {
+            content: '*';
+            color: #ff4d4f;
+            margin-left: 4px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        /* 阶段列表 */
+        .stage-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: white;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+        }
+        .stage-item input {
+            flex: 1;
+            border: none;
+            padding: 4px 8px;
+            font-size: 14px;
+        }
+        .stage-item input:focus {
+            outline: none;
+        }
+        .stage-item button {
+            background: #ff4d4f;
+            color: white;
+            border: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='projects.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 布局 -->
+    <div class="layout">
+                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item active">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主容器 -->
+        <div class="container">
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <h1>项目模板管理</h1>
+            <p>创建和管理项目模板，提高团队协作效率</p>
+        </div>
+
+        <!-- 操作栏 -->
+        <div class="action-bar">
+            <div style="font-size: 14px; color: #666;">
+                共 <strong style="color: #00890b;" id="templateCount">8</strong> 个模板
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-secondary" onclick="location.href='projects.html'">← 返回项目列表</button>
+                <button class="btn-secondary" onclick="openCloudTemplatesModal()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none;">☁️ 云端模板</button>
+                <button class="btn-primary" onclick="openCreateTemplateModal()">+ 新建模板</button>
+            </div>
+        </div>
+
+        <!-- 模板卡片网格 -->
+        <div class="template-grid" id="templateGrid">
+            <!-- 模板卡片将通过JavaScript动态生成 -->
+        </div>
+        </div>
+    </div>
+
+    <!-- 新建/编辑模板Modal -->
+    <div class="modal-overlay" id="createTemplateModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="templateModalTitle">📋 新建项目模板</h3>
+                <button class="modal-close" onclick="closeCreateTemplateModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="templateForm">
+                    <div class="form-group">
+                        <label class="form-label required">模板名称</label>
+                        <input type="text" class="form-input" id="templateName" placeholder="例如：硬件开发标准模板" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">模板类型</label>
+                            <select class="form-select" id="templateType" required>
+                                <option value="">-- 请选择 --</option>
+                                <option value="hardware">🔧 硬件开发</option>
+                                <option value="software">💻 软件开发</option>
+                                <option value="iot">🌐 物联网产品</option>
+                                <option value="prototype">⚡ 快速原型</option>
+                                <option value="production">🏭 生产制造</option>
+                                <option value="test">🧪 测试验证</option>
+                                <option value="custom">🎯 自定义</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">图标选择</label>
+                            <select class="form-select" id="templateIcon">
+                                <option value="🔧">🔧 硬件</option>
+                                <option value="💻">💻 软件</option>
+                                <option value="🌐">🌐 物联网</option>
+                                <option value="⚡">⚡ 快速</option>
+                                <option value="🏭">🏭 生产</option>
+                                <option value="🧪">🧪 测试</option>
+                                <option value="📱">📱 移动</option>
+                                <option value="🤖">🤖 AI</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">模板描述</label>
+                        <textarea class="form-textarea" id="templateDescription" placeholder="描述该模板的适用场景和特点"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">项目阶段配置</label>
+                        <div style="background: #f9f9f9; padding: 16px; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <div style="margin-bottom: 12px; color: #666; font-size: 13px;">添加项目阶段及检查条目：</div>
+                            <div id="stagesList" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px;">
+                                <!-- 阶段项将动态添加到这里 -->
+                            </div>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" id="newStageName" placeholder="阶段名称，例如：需求分析" style="flex: 1; padding: 8px; border: 2px solid #e0e0e0; border-radius: 4px;">
+                                <button type="button" onclick="addStage()" style="background: #00890b; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; white-space: nowrap;">+ 添加阶段</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">预计工期（天）</label>
+                            <input type="number" class="form-input" id="templateDuration" placeholder="例如：90" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">团队规模建议</label>
+                            <select class="form-select" id="templateTeamSize">
+                                <option value="">-- 请选择 --</option>
+                                <option value="small">小型（1-5人）</option>
+                                <option value="medium">中型（6-15人）</option>
+                                <option value="large">大型（16人以上）</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCreateTemplateModal()">取消</button>
+                <button class="btn-primary" onclick="submitTemplate()">保存模板</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 云端模板Modal -->
+    <div id="cloudTemplatesModal" class="modal">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                    ☁️ 云端模板库
+                </h3>
+                <button class="close-btn" onclick="closeCloudTemplatesModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px; padding: 12px; background: linear-gradient(135deg, #667eea22 0%, #764ba222 100%); border-radius: 8px; border-left: 4px solid #667eea;">
+                    💡 <strong>提示：</strong>从云端选择经过验证的行业标准模板，快速启动您的项目
+                </div>
+
+                <div id="cloudTemplatesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    <!-- 云端模板将动态加载 -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCloudTemplatesModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模板数据
+        let templates = [
+            {
+                id: 1,
+                name: '硬件开发标准模板',
+                type: 'hardware',
+                icon: '🔧',
+                description: '适用于硬件产品开发项目',
+                stages: [
+                    { name: '需求分析', checklists: [] },
+                    { name: '原理图设计', checklists: [] },
+                    { name: 'PCB设计', checklists: [] },
+                    { name: '样品制作', checklists: [] },
+                    { name: '测试验证', checklists: [] }
+                ],
+                duration: 90,
+                teamSize: 'medium',
+                creator: '李明',
+                createTime: '2024-01-15',
+                useCount: 28
+            },
+            {
+                id: 2,
+                name: '软件开发敏捷模板',
+                type: 'software',
+                icon: '💻',
+                description: '适用于敏捷开发项目',
+                stages: [
+                    { name: 'Sprint规划', checklists: [] },
+                    { name: '开发', checklists: [] },
+                    { name: '测试', checklists: [] },
+                    { name: '评审', checklists: [] },
+                    { name: '发布', checklists: [] }
+                ],
+                duration: 60,
+                teamSize: 'small',
+                creator: '王芳',
+                createTime: '2024-02-10',
+                useCount: 15
+            },
+            {
+                id: 3,
+                name: '物联网产品开发模板',
+                type: 'iot',
+                icon: '🌐',
+                description: '软硬结合的物联网项目',
+                stages: [
+                    { name: '需求调研', checklists: [] },
+                    { name: '硬件开发', checklists: [] },
+                    { name: '固件开发', checklists: [] },
+                    { name: '云平台', checklists: [] },
+                    { name: 'APP开发', checklists: [] },
+                    { name: '联调测试', checklists: [] }
+                ],
+                duration: 120,
+                teamSize: 'large',
+                creator: '赵强',
+                createTime: '2024-03-05',
+                useCount: 22
+            },
+            {
+                id: 4,
+                name: '快速原型验证模板',
+                type: 'prototype',
+                icon: '⚡',
+                description: '适用于概念验证和原型开发',
+                stages: [
+                    { name: '概念设计', checklists: [] },
+                    { name: '原型制作', checklists: [] },
+                    { name: '功能验证', checklists: [] }
+                ],
+                duration: 30,
+                teamSize: 'small',
+                creator: '孙丽',
+                createTime: '2024-04-12',
+                useCount: 12
+            }
+        ];
+
+        // 云端模板数据
+        const cloudTemplates = [
+            {
+                id: 'cloud-1',
+                name: '消费电子产品开发',
+                type: 'hardware',
+                icon: '📱',
+                description: '适用于智能手表、耳机等消费电子产品',
+                stages: [
+                    {
+                        name: '市场调研',
+                        checklists: [
+                            { id: 1, name: '完成市场分析报告', required: true },
+                            { id: 2, name: '竞品分析完成', required: true },
+                            { id: 3, name: '用户需求调研', required: true }
+                        ]
+                    },
+                    {
+                        name: '产品定义',
+                        checklists: [
+                            { id: 1, name: 'PRD文档完成', required: true },
+                            { id: 2, name: '技术可行性评估', required: true }
+                        ]
+                    },
+                    {
+                        name: '硬件设计',
+                        checklists: [
+                            { id: 1, name: '原理图设计审核通过', required: true },
+                            { id: 2, name: 'PCB Layout完成', required: true },
+                            { id: 3, name: 'DFM检查通过', required: true }
+                        ]
+                    },
+                    {
+                        name: '样机制作',
+                        checklists: [
+                            { id: 1, name: 'PCB加工完成', required: true },
+                            { id: 2, name: 'BOM物料齐套', required: true },
+                            { id: 3, name: '样机组装完成', required: true }
+                        ]
+                    },
+                    {
+                        name: '测试认证',
+                        checklists: [
+                            { id: 1, name: '功能测试通过', required: true },
+                            { id: 2, name: '可靠性测试完成', required: true },
+                            { id: 3, name: 'CE/FCC认证通过', required: true }
+                        ]
+                    }
+                ],
+                duration: 120,
+                teamSize: 'medium',
+                downloads: 1580
+            },
+            {
+                id: 'cloud-2',
+                name: '工业物联网系统',
+                type: 'iot',
+                icon: '🏭',
+                description: '适用于工业传感器、网关等IoT系统',
+                stages: [
+                    {
+                        name: '需求分析',
+                        checklists: [
+                            { id: 1, name: '系统架构设计完成', required: true },
+                            { id: 2, name: '通信协议确定', required: true }
+                        ]
+                    },
+                    {
+                        name: '硬件开发',
+                        checklists: [
+                            { id: 1, name: '传感器选型完成', required: true },
+                            { id: 2, name: '电路设计完成', required: true }
+                        ]
+                    },
+                    {
+                        name: '固件开发',
+                        checklists: [
+                            { id: 1, name: '驱动程序开发', required: true },
+                            { id: 2, name: '通信协议实现', required: true }
+                        ]
+                    },
+                    {
+                        name: '平台对接',
+                        checklists: [
+                            { id: 1, name: '云平台API对接', required: true },
+                            { id: 2, name: '数据上传测试', required: true }
+                        ]
+                    },
+                    {
+                        name: '系统集成',
+                        checklists: [
+                            { id: 1, name: '端到端联调', required: true },
+                            { id: 2, name: '压力测试通过', required: true }
+                        ]
+                    }
+                ],
+                duration: 150,
+                teamSize: 'large',
+                downloads: 892
+            },
+            {
+                id: 'cloud-3',
+                name: '医疗器械开发',
+                type: 'hardware',
+                icon: '🏥',
+                description: '符合医疗器械法规的开发流程',
+                stages: [
+                    {
+                        name: '法规研究',
+                        checklists: [
+                            { id: 1, name: '确定器械分类', required: true },
+                            { id: 2, name: '法规要求清单', required: true }
+                        ]
+                    },
+                    {
+                        name: '设计开发',
+                        checklists: [
+                            { id: 1, name: '设计输入确认', required: true },
+                            { id: 2, name: '风险分析完成', required: true },
+                            { id: 3, name: '设计验证', required: true }
+                        ]
+                    },
+                    {
+                        name: '样机验证',
+                        checklists: [
+                            { id: 1, name: '性能测试', required: true },
+                            { id: 2, name: '生物相容性测试', required: true }
+                        ]
+                    },
+                    {
+                        name: '临床试验',
+                        checklists: [
+                            { id: 1, name: '伦理审批', required: true },
+                            { id: 2, name: '临床试验完成', required: true }
+                        ]
+                    },
+                    {
+                        name: '注册申报',
+                        checklists: [
+                            { id: 1, name: '技术文件齐全', required: true },
+                            { id: 2, name: '注册检验通过', required: true },
+                            { id: 3, name: '获得注册证', required: true }
+                        ]
+                    }
+                ],
+                duration: 180,
+                teamSize: 'large',
+                downloads: 456
+            },
+            {
+                id: 'cloud-4',
+                name: 'Web应用全栈开发',
+                type: 'software',
+                icon: '🌐',
+                description: '前后端分离的Web应用开发',
+                stages: [
+                    {
+                        name: '需求分析',
+                        checklists: [
+                            { id: 1, name: '需求文档评审', required: true },
+                            { id: 2, name: '原型设计确认', required: true }
+                        ]
+                    },
+                    {
+                        name: '技术选型',
+                        checklists: [
+                            { id: 1, name: '前端框架确定', required: true },
+                            { id: 2, name: '后端技术栈确定', required: true },
+                            { id: 3, name: '数据库选型', required: true }
+                        ]
+                    },
+                    {
+                        name: '开发实施',
+                        checklists: [
+                            { id: 1, name: 'API接口开发', required: true },
+                            { id: 2, name: '前端页面开发', required: true },
+                            { id: 3, name: '代码审查完成', required: true }
+                        ]
+                    },
+                    {
+                        name: '测试',
+                        checklists: [
+                            { id: 1, name: '单元测试覆盖率>80%', required: true },
+                            { id: 2, name: '集成测试通过', required: true },
+                            { id: 3, name: '性能测试达标', required: true }
+                        ]
+                    },
+                    {
+                        name: '上线',
+                        checklists: [
+                            { id: 1, name: '部署文档完成', required: true },
+                            { id: 2, name: '灰度发布验证', required: true },
+                            { id: 3, name: '监控告警配置', required: true }
+                        ]
+                    }
+                ],
+                duration: 90,
+                teamSize: 'medium',
+                downloads: 2134
+            },
+            {
+                id: 'cloud-5',
+                name: '移动应用开发',
+                type: 'software',
+                icon: '📱',
+                description: 'iOS/Android跨平台应用开发',
+                stages: [
+                    {
+                        name: 'UI/UX设计',
+                        checklists: [
+                            { id: 1, name: '交互设计评审', required: true },
+                            { id: 2, name: 'UI设计稿确认', required: true }
+                        ]
+                    },
+                    {
+                        name: '功能开发',
+                        checklists: [
+                            { id: 1, name: '核心功能实现', required: true },
+                            { id: 2, name: '第三方SDK集成', required: true }
+                        ]
+                    },
+                    {
+                        name: '测试优化',
+                        checklists: [
+                            { id: 1, name: '功能测试完成', required: true },
+                            { id: 2, name: '性能优化', required: true },
+                            { id: 3, name: '兼容性测试', required: true }
+                        ]
+                    },
+                    {
+                        name: '发布上架',
+                        checklists: [
+                            { id: 1, name: '应用商店资料准备', required: true },
+                            { id: 2, name: '审核通过', required: true }
+                        ]
+                    }
+                ],
+                duration: 75,
+                teamSize: 'small',
+                downloads: 1765
+            },
+            {
+                id: 'cloud-6',
+                name: 'AI模型训练部署',
+                type: 'software',
+                icon: '🤖',
+                description: '机器学习模型开发与部署',
+                stages: [
+                    {
+                        name: '数据准备',
+                        checklists: [
+                            { id: 1, name: '数据采集完成', required: true },
+                            { id: 2, name: '数据清洗标注', required: true },
+                            { id: 3, name: '数据集划分', required: true }
+                        ]
+                    },
+                    {
+                        name: '模型训练',
+                        checklists: [
+                            { id: 1, name: '模型架构设计', required: true },
+                            { id: 2, name: '超参数调优', required: true },
+                            { id: 3, name: '验证集准确率达标', required: true }
+                        ]
+                    },
+                    {
+                        name: '模型优化',
+                        checklists: [
+                            { id: 1, name: '模型压缩', required: true },
+                            { id: 2, name: '推理加速', required: true }
+                        ]
+                    },
+                    {
+                        name: '部署上线',
+                        checklists: [
+                            { id: 1, name: '模型封装API', required: true },
+                            { id: 2, name: '服务部署', required: true },
+                            { id: 3, name: '监控系统配置', required: true }
+                        ]
+                    }
+                ],
+                duration: 60,
+                teamSize: 'small',
+                downloads: 987
+            }
+        ];
+
+        let currentEditingId = null;
+        let stagesList = [];
+
+        // 页面加载时渲染模板
+        window.onload = function() {
+            renderTemplates();
+        };
+
+        // 渲染模板卡片
+        function renderTemplates() {
+            const grid = document.getElementById('templateGrid');
+            grid.innerHTML = '';
+
+            templates.forEach(template => {
+                const stageColors = {
+                    'hardware': { bg: '#e8f5e9', color: '#00890b' },
+                    'software': { bg: '#e3f2fd', color: '#1976d2' },
+                    'iot': { bg: '#fff3e0', color: '#e65100' },
+                    'prototype': { bg: '#f3e5f5', color: '#7b1fa2' },
+                    'production': { bg: '#fce4ec', color: '#c2185b' },
+                    'test': { bg: '#e0f2f1', color: '#00897b' }
+                };
+
+                const colors = stageColors[template.type] || { bg: '#f5f5f5', color: '#666' };
+
+                const stagesHTML = template.stages.map(stage => {
+                    const stageName = typeof stage === 'string' ? stage : stage.name;
+                    return `<span class="stage-tag" style="background: ${colors.bg}; color: ${colors.color};">${stageName}</span>`;
+                }).join('');
+
+                const card = `
+                    <div class="template-card" data-template-id="${template.id}">
+                        <div class="template-icon">${template.icon}</div>
+                        <div class="template-name">${template.name}</div>
+                        <div class="template-desc">${template.description}</div>
+                        <div class="template-stages">
+                            <div style="font-size: 13px; color: #666; margin-bottom: 8px;"><strong>包含阶段：</strong></div>
+                            ${stagesHTML}
+                        </div>
+                        <div class="template-meta">
+                            📅 ${template.createTime} | 👤 ${template.creator} | 🔥 使用 ${template.useCount} 次
+                        </div>
+                        <div class="template-actions">
+                            <button class="action-btn btn-use" onclick="useTemplate(${template.id})">✓ 使用模板</button>
+                            <button class="action-btn btn-edit" onclick="editTemplate(${template.id})">✏️ 编辑</button>
+                            <button class="action-btn btn-delete" onclick="deleteTemplate(${template.id})">🗑️ 删除</button>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+
+            document.getElementById('templateCount').textContent = templates.length;
+        }
+
+        // 打开新建模板Modal
+        function openCreateTemplateModal() {
+            currentEditingId = null;
+            stagesList = [];
+            document.getElementById('templateModalTitle').textContent = '📋 新建项目模板';
+            document.getElementById('templateForm').reset();
+            document.getElementById('stagesList').innerHTML = '';
+            document.getElementById('createTemplateModal').classList.add('active');
+        }
+
+        // 关闭创建模板Modal
+        function closeCreateTemplateModal() {
+            document.getElementById('createTemplateModal').classList.remove('active');
+        }
+
+        // 添加阶段
+        function addStage() {
+            const stageName = document.getElementById('newStageName').value.trim();
+            if (!stageName) {
+                alert('请输入阶段名称');
+                return;
+            }
+
+            stagesList.push({ name: stageName, checklists: [] });
+            renderStagesList();
+            document.getElementById('newStageName').value = '';
+        }
+
+        // 渲染阶段列表
+        function renderStagesList() {
+            const container = document.getElementById('stagesList');
+            container.innerHTML = '';
+
+            stagesList.forEach((stage, stageIndex) => {
+                const stageName = typeof stage === 'string' ? stage : stage.name;
+                const checklists = typeof stage === 'string' ? [] : (stage.checklists || []);
+
+                // 创建阶段容器
+                const stageDiv = document.createElement('div');
+                stageDiv.style.cssText = 'background: white; padding: 12px; border-radius: 6px; border: 1px solid #ddd;';
+
+                // 创建阶段项
+                const stageItemDiv = document.createElement('div');
+                stageItemDiv.className = 'stage-item';
+
+                const stageNum = document.createElement('span');
+                stageNum.style.cssText = 'color: #999; font-weight: 600; min-width: 24px;';
+                stageNum.textContent = `${stageIndex + 1}.`;
+
+                const stageInput = document.createElement('input');
+                stageInput.type = 'text';
+                stageInput.value = stageName;
+                stageInput.readOnly = true;
+                stageInput.style.cssText = 'flex: 1;';
+                stageInput.onchange = function() { updateStage(stageIndex, this.value); };
+
+                const addCheckBtn = document.createElement('button');
+                addCheckBtn.textContent = '+ 检查项';
+                addCheckBtn.style.cssText = 'padding: 6px 12px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap;';
+                addCheckBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showAddChecklistInput(stageIndex);
+                };
+
+                const removeStageBtn = document.createElement('button');
+                removeStageBtn.textContent = '删除阶段';
+                removeStageBtn.style.cssText = 'padding: 6px 12px;';
+                removeStageBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    removeStage(stageIndex);
+                };
+
+                stageItemDiv.appendChild(stageNum);
+                stageItemDiv.appendChild(stageInput);
+                stageItemDiv.appendChild(addCheckBtn);
+                stageItemDiv.appendChild(removeStageBtn);
+
+                // 创建检查项输入区域
+                const checklistInputDiv = document.createElement('div');
+                checklistInputDiv.id = `checklistInput_${stageIndex}`;
+                checklistInputDiv.style.cssText = 'display: none; margin-top: 8px; padding: 8px; background: #f9f9f9; border-radius: 4px;';
+
+                const inputWrapper = document.createElement('div');
+                inputWrapper.style.cssText = 'display: flex; gap: 8px;';
+
+                const checklistInput = document.createElement('input');
+                checklistInput.type = 'text';
+                checklistInput.id = `newChecklistName_${stageIndex}`;
+                checklistInput.placeholder = '检查项名称，例如：需求文档完成';
+                checklistInput.style.cssText = 'flex: 1; padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px;';
+
+                const addBtn = document.createElement('button');
+                addBtn.textContent = '添加';
+                addBtn.style.cssText = 'padding: 6px 12px; background: #00890b; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;';
+                addBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addChecklist(stageIndex);
+                };
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.textContent = '取消';
+                cancelBtn.style.cssText = 'padding: 6px 12px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px;';
+                cancelBtn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    hideAddChecklistInput(stageIndex);
+                };
+
+                inputWrapper.appendChild(checklistInput);
+                inputWrapper.appendChild(addBtn);
+                inputWrapper.appendChild(cancelBtn);
+                checklistInputDiv.appendChild(inputWrapper);
+
+                stageDiv.appendChild(stageItemDiv);
+                stageDiv.appendChild(checklistInputDiv);
+
+                // 添加已有的检查项
+                if (checklists.length > 0) {
+                    const checklistsContainer = document.createElement('div');
+                    checklistsContainer.style.cssText = 'margin-top: 8px;';
+
+                    checklists.forEach((item, itemIndex) => {
+                        const itemDiv = document.createElement('div');
+                        itemDiv.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 4px 8px; background: #f0f0f0; border-radius: 4px; margin-top: 4px;';
+
+                        const itemSpan = document.createElement('span');
+                        itemSpan.style.cssText = 'flex: 1; font-size: 13px;';
+                        itemSpan.textContent = `✓ ${item.name}`;
+
+                        const deleteBtn = document.createElement('button');
+                        deleteBtn.textContent = '删除';
+                        deleteBtn.style.cssText = 'padding: 2px 8px; font-size: 12px; background: #ff4444; color: white; border: none; border-radius: 3px; cursor: pointer;';
+                        deleteBtn.onclick = function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            removeChecklist(stageIndex, itemIndex);
+                        };
+
+                        itemDiv.appendChild(itemSpan);
+                        itemDiv.appendChild(deleteBtn);
+                        checklistsContainer.appendChild(itemDiv);
+                    });
+
+                    stageDiv.appendChild(checklistsContainer);
+                }
+
+                container.appendChild(stageDiv);
+            });
+        }
+
+        // 显示添加检查项输入框
+        function showAddChecklistInput(stageIndex) {
+            document.getElementById(`checklistInput_${stageIndex}`).style.display = 'block';
+        }
+
+        // 隐藏添加检查项输入框
+        function hideAddChecklistInput(stageIndex) {
+            document.getElementById(`checklistInput_${stageIndex}`).style.display = 'none';
+            document.getElementById(`newChecklistName_${stageIndex}`).value = '';
+        }
+
+        // 添加检查项
+        function addChecklist(stageIndex) {
+            const input = document.getElementById(`newChecklistName_${stageIndex}`);
+            const checklistName = input.value.trim();
+
+            if (!checklistName) {
+                alert('请输入检查项名称');
+                return;
+            }
+
+            if (typeof stagesList[stageIndex] === 'string') {
+                stagesList[stageIndex] = { name: stagesList[stageIndex], checklists: [] };
+            }
+
+            const newId = stagesList[stageIndex].checklists.length > 0
+                ? Math.max(...stagesList[stageIndex].checklists.map(c => c.id)) + 1
+                : 1;
+
+            stagesList[stageIndex].checklists.push({
+                id: newId,
+                name: checklistName,
+                required: true
+            });
+
+            renderStagesList();
+            hideAddChecklistInput(stageIndex);
+        }
+
+        // 删除检查项
+        function removeChecklist(stageIndex, itemIndex) {
+            stagesList[stageIndex].checklists.splice(itemIndex, 1);
+            renderStagesList();
+        }
+
+        // 更新阶段
+        function updateStage(index, value) {
+            if (typeof stagesList[index] === 'string') {
+                stagesList[index] = value;
+            } else {
+                stagesList[index].name = value;
+            }
+        }
+
+        // 删除阶段
+        function removeStage(index) {
+            stagesList.splice(index, 1);
+            renderStagesList();
+        }
+
+        // 提交模板
+        function submitTemplate() {
+            const name = document.getElementById('templateName').value;
+            const type = document.getElementById('templateType').value;
+            const icon = document.getElementById('templateIcon').value;
+            const description = document.getElementById('templateDescription').value;
+            const duration = document.getElementById('templateDuration').value;
+            const teamSize = document.getElementById('templateTeamSize').value;
+
+            if (!name || !type) {
+                alert('请填写必填项！');
+                return;
+            }
+
+            if (stagesList.length === 0) {
+                alert('请至少添加一个项目阶段！');
+                return;
+            }
+
+            const template = {
+                name,
+                type,
+                icon,
+                description,
+                stages: stagesList.slice(),
+                duration: duration ? parseInt(duration) : null,
+                teamSize,
+                creator: '当前用户',
+                createTime: new Date().toISOString().split('T')[0],
+                useCount: 0
+            };
+
+            if (currentEditingId) {
+                // 编辑模式
+                const index = templates.findIndex(t => t.id === currentEditingId);
+                templates[index] = { ...templates[index], ...template };
+                alert('✅ 模板更新成功！');
+            } else {
+                // 新建模式
+                template.id = templates.length > 0 ? Math.max(...templates.map(t => t.id)) + 1 : 1;
+                templates.push(template);
+                alert('✅ 模板创建成功！');
+            }
+
+            renderTemplates();
+            closeCreateTemplateModal();
+        }
+
+        // 使用模板
+        function useTemplate(id) {
+            const template = templates.find(t => t.id === id);
+            if (template) {
+                const stageNames = template.stages.map(s => typeof s === 'string' ? s : s.name);
+                alert(`🎯 使用模板：${template.name}\n\n该模板包含 ${template.stages.length} 个阶段：\n${stageNames.join(' → ')}\n\n将跳转到创建项目页面...`);
+                // 实际使用中，这里应该跳转到创建项目页面，并预填模板信息
+                // location.href = 'projects.html?template=' + id;
+            }
+        }
+
+        // 编辑模板
+        function editTemplate(id) {
+            const template = templates.find(t => t.id === id);
+            if (!template) return;
+
+            currentEditingId = id;
+            // 深拷贝stages数组，保持对象结构
+            stagesList = template.stages.map(stage => {
+                if (typeof stage === 'string') {
+                    return { name: stage, checklists: [] };
+                } else {
+                    return {
+                        name: stage.name,
+                        checklists: stage.checklists ? stage.checklists.map(c => ({...c})) : []
+                    };
+                }
+            });
+
+            document.getElementById('templateModalTitle').textContent = '✏️ 编辑项目模板';
+            document.getElementById('templateName').value = template.name;
+            document.getElementById('templateType').value = template.type;
+            document.getElementById('templateIcon').value = template.icon;
+            document.getElementById('templateDescription').value = template.description || '';
+            document.getElementById('templateDuration').value = template.duration || '';
+            document.getElementById('templateTeamSize').value = template.teamSize || '';
+
+            renderStagesList();
+            document.getElementById('createTemplateModal').classList.add('active');
+        }
+
+        // 删除模板
+        function deleteTemplate(id) {
+            const template = templates.find(t => t.id === id);
+            if (!template) return;
+
+            if (!confirm(`确定要删除模板"${template.name}"吗？\n\n此操作不可恢复！`)) {
+                return;
+            }
+
+            templates = templates.filter(t => t.id !== id);
+            renderTemplates();
+            alert('✅ 模板已删除');
+        }
+
+        // 打开云端模板Modal
+        function openCloudTemplatesModal() {
+            renderCloudTemplates();
+            document.getElementById('cloudTemplatesModal').classList.add('active');
+        }
+
+        // 关闭云端模板Modal
+        function closeCloudTemplatesModal() {
+            document.getElementById('cloudTemplatesModal').classList.remove('active');
+        }
+
+        // 渲染云端模板
+        function renderCloudTemplates() {
+            const grid = document.getElementById('cloudTemplatesGrid');
+            grid.innerHTML = '';
+
+            cloudTemplates.forEach(template => {
+                const stageColors = {
+                    'hardware': { bg: '#e8f5e9', color: '#00890b' },
+                    'software': { bg: '#e3f2fd', color: '#1976d2' },
+                    'iot': { bg: '#fff3e0', color: '#e65100' },
+                    'prototype': { bg: '#f3e5f5', color: '#7b1fa2' }
+                };
+                const colors = stageColors[template.type] || { bg: '#f5f5f5', color: '#666' };
+
+                const stagesHTML = template.stages.map(stage =>
+                    `<span class="stage-tag" style="background: ${colors.bg}; color: ${colors.color};">${stage.name}</span>`
+                ).join('');
+
+                // 统计检查项总数
+                const totalChecklists = template.stages.reduce((sum, stage) => sum + stage.checklists.length, 0);
+
+                const card = `
+                    <div style="background: white; border: 2px solid #e0e0e0; border-radius: 12px; padding: 20px; transition: all 0.3s;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="font-size: 36px;">${template.icon}</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; font-size: 16px; color: #2d3748;">${template.name}</div>
+                                <div style="font-size: 13px; color: #718096; margin-top: 4px;">📥 ${template.downloads} 次下载</div>
+                            </div>
+                        </div>
+                        <div style="font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5;">${template.description}</div>
+                        <div style="margin-bottom: 12px;">
+                            <div style="font-size: 12px; color: #666; margin-bottom: 6px;"><strong>包含阶段：</strong></div>
+                            ${stagesHTML}
+                        </div>
+                        <div style="display: flex; gap: 12px; font-size: 12px; color: #666; margin-bottom: 12px; padding: 8px; background: #f9f9f9; border-radius: 6px;">
+                            <span>📋 ${template.stages.length} 个阶段</span>
+                            <span>✓ ${totalChecklists} 个检查项</span>
+                            <span>⏱️ ${template.duration} 天</span>
+                        </div>
+                        <button onclick="downloadCloudTemplate('${template.id}')" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px;">
+                            ⬇️ 下载并使用此模板
+                        </button>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+        }
+
+        // 下载云端模板
+        function downloadCloudTemplate(cloudId) {
+            const cloudTemplate = cloudTemplates.find(t => t.id === cloudId);
+            if (!cloudTemplate) return;
+
+            // 检查是否已经下载过
+            const existing = templates.find(t => t.name === cloudTemplate.name);
+            if (existing) {
+                if (!confirm(`您已有名为"${cloudTemplate.name}"的模板。\n\n是否要创建副本？`)) {
+                    return;
+                }
+            }
+
+            // 深拷贝模板数据
+            const newTemplate = {
+                id: templates.length > 0 ? Math.max(...templates.map(t => t.id)) + 1 : 1,
+                name: existing ? `${cloudTemplate.name} (副本)` : cloudTemplate.name,
+                type: cloudTemplate.type,
+                icon: cloudTemplate.icon,
+                description: cloudTemplate.description,
+                stages: cloudTemplate.stages.map(stage => ({
+                    name: stage.name,
+                    checklists: stage.checklists.map(c => ({...c}))
+                })),
+                duration: cloudTemplate.duration,
+                teamSize: cloudTemplate.teamSize,
+                creator: '云端',
+                createTime: new Date().toISOString().split('T')[0],
+                useCount: 0
+            };
+
+            templates.push(newTemplate);
+            renderTemplates();
+
+            alert(`✅ 模板"${newTemplate.name}"已成功下载！\n\n包含 ${newTemplate.stages.length} 个阶段，共 ${newTemplate.stages.reduce((sum, s) => sum + s.checklists.length, 0)} 个检查项。`);
+            closeCloudTemplatesModal();
+        }
+
+        // 点击Modal外部关闭
+        document.getElementById('createTemplateModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCreateTemplateModal();
+            }
+        });
+
+        document.getElementById('cloudTemplatesModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCloudTemplatesModal();
+            }
+        });
+    </script>
+</body>
+</html>

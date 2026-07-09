@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历预览 - 张三 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 16px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .toolbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .toolbar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .toolbar-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #4b5563;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #f9fafb;
+            border-color: #d1d5db;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+
+        /* 简历容器 */
+        .resume-wrapper {
+            max-width: 900px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        .resume-container {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* 简历头部 */
+        .resume-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            padding: 48px 48px 32px;
+            position: relative;
+        }
+
+        .header-main {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: white;
+            color: #00890b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: 800;
+            flex-shrink: 0;
+            border: 4px solid rgba(255,255,255,0.3);
+        }
+
+        .header-info {
+            flex: 1;
+        }
+
+        .name {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .title {
+            font-size: 18px;
+            opacity: 0.95;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            font-size: 15px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0.95;
+        }
+
+        /* 能力标签 */
+        .skill-tags-section {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .tags-label {
+            font-size: 13px;
+            opacity: 0.8;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag {
+            padding: 6px 16px;
+            background: rgba(255,255,255,0.95);
+            color: #00890b;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .skill-tag.primary {
+            background: white;
+            color: #00890b;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* 简历主体 */
+        .resume-body {
+            padding: 48px;
+        }
+
+        .resume-section {
+            margin-bottom: 40px;
+        }
+
+        .resume-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #00890b;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #00890b;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* 工作/教育经历 */
+        .experience-item {
+            margin-bottom: 28px;
+            padding-left: 24px;
+            border-left: 3px solid #e5e7eb;
+            position: relative;
+        }
+
+        .experience-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .experience-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 6px;
+            width: 11px;
+            height: 11px;
+            background: #00890b;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 0 0 2px #00890b;
+        }
+
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .experience-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .experience-subtitle {
+            font-size: 15px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .experience-date {
+            font-size: 14px;
+            color: #9ca3af;
+            white-space: nowrap;
+        }
+
+        .experience-desc {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.8;
+        }
+
+        /* 项目经验 */
+        .project-item {
+            margin-bottom: 32px;
+            padding: 24px;
+            background: #f9fafb;
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.3s;
+        }
+
+        .project-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .project-item:hover {
+            border-color: #00890b;
+            box-shadow: 0 4px 12px rgba(0,137,11,0.1);
+        }
+
+        .project-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .project-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .project-role {
+            font-size: 14px;
+            color: #00890b;
+            font-weight: 600;
+        }
+
+        .project-date {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        .project-desc {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .project-tag {
+            padding: 4px 12px;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .project-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #00890b;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding-top: 12px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .project-link:hover {
+            text-decoration: underline;
+        }
+
+        .project-stats {
+            margin-left: 12px;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: normal;
+        }
+
+        /* 技能 */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+        }
+
+        .skill-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .skill-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .skill-bar {
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            border-radius: 5px;
+            transition: width 0.6s ease;
+        }
+
+        /* 荣誉和自我评价 */
+        .simple-content {
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 2;
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white;
+            }
+
+            .toolbar {
+                display: none;
+            }
+
+            .resume-wrapper {
+                margin: 0;
+                padding: 0;
+            }
+
+            .resume-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .project-item {
+                page-break-inside: avoid;
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .resume-header {
+                padding: 32px 24px;
+            }
+
+            .header-main {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .contact-info {
+                grid-template-columns: 1fr;
+            }
+
+            .resume-body {
+                padding: 32px 24px;
+            }
+
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .name {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <div class="toolbar-content">
+            <div class="toolbar-left">
+                <button class="btn btn-secondary" onclick="window.close()">
+                    ← 返回
+                </button>
+                <span class="toolbar-title">简历预览</span>
+            </div>
+            <div class="toolbar-actions">
+                <button class="btn btn-secondary" onclick="window.print()">
+                    🖨️ 打印
+                </button>
+                <button class="btn btn-secondary" onclick="downloadPDF()">
+                    📥 下载PDF
+                </button>
+                <button class="btn btn-primary" onclick="shareResume()">
+                    🔗 分享简历
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 简历内容 -->
+    <div class="resume-wrapper">
+        <div class="resume-container">
+            <!-- 简历头部 -->
+            <div class="resume-header">
+                <div class="header-main">
+                    <div class="avatar">张</div>
+                    <div class="header-info">
+                        <h1 class="name">张三</h1>
+                        <div class="title">高级硬件工程师 · 7年工作经验</div>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <span>📱</span>
+                                <span>138****8888</span>
+                            </div>
+                            <div class="contact-item">
+                                <span>📧</span>
+                                <span>zhangsan@example.com</span>
+                            </div>
+                            <div class="contact-item">
+                                <span>📍</span>
+                                <span>深圳 · 南山区</span>
+                            </div>
+                            <div class="contact-item">
+                                <span>🎂</span>
+                                <span>30岁 · 本科</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 能力标签 -->
+                <div class="skill-tags-section">
+                    <div class="tags-label">核心技能</div>
+                    <div class="skill-tags">
+                        <span class="skill-tag primary">PCB设计</span>
+                        <span class="skill-tag primary">嵌入式开发</span>
+                        <span class="skill-tag primary">硬件电路设计</span>
+                        <span class="skill-tag">STM32</span>
+                        <span class="skill-tag">ESP32</span>
+                        <span class="skill-tag">Altium Designer</span>
+                        <span class="skill-tag">FreeRTOS</span>
+                        <span class="skill-tag">物联网</span>
+                        <span class="skill-tag">电源管理</span>
+                        <span class="skill-tag">EMC优化</span>
+                        <span class="skill-tag">信号完整性</span>
+                        <span class="skill-tag">KiCad</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 简历主体 -->
+            <div class="resume-body">
+                <!-- 工作经历 -->
+                <div class="resume-section">
+                    <h2 class="section-title">
+                        <span>💼</span>
+                        <span>工作经历</span>
+                    </h2>
+
+                    <div class="experience-item">
+                        <div class="experience-header">
+                            <div>
+                                <div class="experience-title">深圳智能科技有限公司</div>
+                                <div class="experience-subtitle">高级硬件工程师</div>
+                            </div>
+                            <div class="experience-date">2021.07 - 至今</div>
+                        </div>
+                        <div class="experience-desc">
+                            • 负责智能穿戴设备的硬件电路设计和PCB Layout，完成10+款产品的硬件开发<br>
+                            • 主导低功耗电源管理方案设计，将待机功耗降低40%，显著提升产品续航能力<br>
+                            • 带领3人硬件团队，指导初级工程师完成技术攻关和项目交付<br>
+                            • 建立完善的硬件测试流程和文档体系，提高开发效率30%
+                        </div>
+                    </div>
+
+                    <div class="experience-item">
+                        <div class="experience-header">
+                            <div>
+                                <div class="experience-title">北京物联网技术有限公司</div>
+                                <div class="experience-subtitle">硬件工程师</div>
+                            </div>
+                            <div class="experience-date">2018.07 - 2021.06</div>
+                        </div>
+                        <div class="experience-desc">
+                            • 参与物联网网关、传感器节点等产品的硬件设计工作<br>
+                            • 独立完成5款产品的原理图和PCB设计，通过EMC测试和认证<br>
+                            • 负责供应商对接和器件选型，优化BOM成本15%
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目经验 -->
+                <div class="resume-section">
+                    <h2 class="section-title">
+                        <span>🚀</span>
+                        <span>项目经验</span>
+                    </h2>
+
+                    <!-- EZPLM项目1 -->
+                    <div class="project-item">
+                        <div class="project-badge">
+                            <span>📦</span>
+                            <span>EZPLM平台项目 · 可在线查看</span>
+                        </div>
+                        <div class="project-header">
+                            <div>
+                                <div class="project-name">智能手环硬件开发 V2.0</div>
+                                <div class="project-role">硬件负责人 · 项目经理</div>
+                            </div>
+                            <div class="project-date">2024.01 - 2024.06</div>
+                        </div>
+                        <div class="project-desc">
+                            • 设计基于Nordic nRF52832的低功耗蓝牙主控方案，实现7天续航能力<br>
+                            • 完成6层HDI PCB设计，集成心率传感器、加速度计、触摸屏等功能模块<br>
+                            • 解决信号完整性和EMC问题，产品顺利通过CE、FCC认证<br>
+                            • 项目在EZPLM平台完整管理，包含原理图、PCB、BOM等完整设计文档
+                        </div>
+                        <div class="project-tags">
+                            <span class="project-tag">nRF52832</span>
+                            <span class="project-tag">低功耗设计</span>
+                            <span class="project-tag">HDI PCB</span>
+                            <span class="project-tag">心率传感器</span>
+                            <span class="project-tag">蓝牙BLE</span>
+                        </div>
+                        <a href="#" class="project-link">
+                            <span>🔗</span>
+                            <span>在EZPLM中查看完整项目</span>
+                            <span class="project-stats">856 浏览 · 42 收藏</span>
+                        </a>
+                    </div>
+
+                    <!-- EZPLM项目2 -->
+                    <div class="project-item">
+                        <div class="project-badge">
+                            <span>📦</span>
+                            <span>EZPLM平台项目 · 开源分享</span>
+                        </div>
+                        <div class="project-header">
+                            <div>
+                                <div class="project-name">工业级4G路由器硬件设计</div>
+                                <div class="project-role">硬件设计工程师</div>
+                            </div>
+                            <div class="project-date">2023.05 - 2023.12</div>
+                        </div>
+                        <div class="project-desc">
+                            • 基于高通MDM9x07平台设计工业级4G通信模块，支持全网通和多频段<br>
+                            • 完成电源、射频、以太网、串口等复杂电路设计，通过严苛的工业环境测试<br>
+                            • 优化PCB布局和散热设计，确保-40℃~85℃温度范围稳定工作<br>
+                            • 完整的设计资料已在EZPLM平台开源分享，获得社区广泛好评
+                        </div>
+                        <div class="project-tags">
+                            <span class="project-tag">4G LTE</span>
+                            <span class="project-tag">高通MDM</span>
+                            <span class="project-tag">射频设计</span>
+                            <span class="project-tag">工业级</span>
+                            <span class="project-tag">电源设计</span>
+                        </div>
+                        <a href="#" class="project-link">
+                            <span>🔗</span>
+                            <span>在EZPLM中查看完整项目</span>
+                            <span class="project-stats">1.2K 浏览 · 89 收藏 · ⭐ 开源项目</span>
+                        </a>
+                    </div>
+
+                    <!-- 传统项目 -->
+                    <div class="project-item">
+                        <div class="project-header">
+                            <div>
+                                <div class="project-name">ESP32智能小车竞赛项目</div>
+                                <div class="project-role">硬件负责人 · 队长</div>
+                            </div>
+                            <div class="project-date">2024.03 - 2024.06</div>
+                        </div>
+                        <div class="project-desc">
+                            • 负责智能小车的硬件电路设计，包括电源管理、电机驱动、传感器接口等模块<br>
+                            • 使用Altium Designer完成4层PCB设计，实现高集成度和EMC优化<br>
+                            • 完成ESP32主控程序编写，实现寻迹、避障、远程控制等功能<br>
+                            • 项目获得全国电子设计竞赛一等奖，团队获得最佳设计奖
+                        </div>
+                        <div class="project-tags">
+                            <span class="project-tag">ESP32</span>
+                            <span class="project-tag">Altium Designer</span>
+                            <span class="project-tag">PCB设计</span>
+                            <span class="project-tag">嵌入式C</span>
+                            <span class="project-tag">PID控制</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 教育背景 -->
+                <div class="resume-section">
+                    <h2 class="section-title">
+                        <span>🎓</span>
+                        <span>教育背景</span>
+                    </h2>
+
+                    <div class="experience-item">
+                        <div class="experience-header">
+                            <div>
+                                <div class="experience-title">清华大学</div>
+                                <div class="experience-subtitle">电子信息工程 · 本科</div>
+                            </div>
+                            <div class="experience-date">2014.09 - 2018.06</div>
+                        </div>
+                        <div class="experience-desc">
+                            • GPA: 3.8/4.0，专业排名前10%<br>
+                            • 主修课程：模拟电子技术、数字电路、信号与系统、通信原理、嵌入式系统设计<br>
+                            • 获得校级一等奖学金2次，国家奖学金1次
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 专业技能 -->
+                <div class="resume-section">
+                    <h2 class="section-title">
+                        <span>🔧</span>
+                        <span>专业技能</span>
+                    </h2>
+
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <div class="skill-name">硬件电路设计</div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">PCB设计 (Altium Designer)</div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">嵌入式C/C++</div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 88%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">单片机开发 (STM32/ESP32)</div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 92%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">RTOS (FreeRTOS)</div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item">
+                            <div class="skill-name">通信协议 (UART/SPI/I2C)</div>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 获奖荣誉 -->
+                <div class="resume-section">
+                    <h2 class="section-title">
+                        <span>🏆</span>
+                        <span>获奖荣誉</span>
+                    </h2>
+
+                    <div class="simple-content">
+                        • 2024年全国大学生电子设计竞赛一等奖<br>
+                        • 2023年"挑战杯"全国大学生课外学术科技作品竞赛二等奖<br>
+                        • 2023-2024学年国家奖学金<br>
+                        • 2022-2023学年校级一等奖学金<br>
+                        • 2023年清华大学优秀学生干部
+                    </div>
+                </div>
+
+                <!-- 自我评价 -->
+                <div class="resume-section">
+                    <h2 class="section-title">
+                        <span>✍️</span>
+                        <span>自我评价</span>
+                    </h2>
+
+                    <div class="simple-content" style="line-height: 1.8;">
+                        热爱电子硬件和嵌入式开发，具有扎实的理论基础和丰富的项目经验。熟练掌握硬件电路设计、PCB Layout及嵌入式软件开发。在校期间积极参与各类竞赛和项目，具有良好的团队协作能力和问题解决能力。对新技术充满好奇，善于学习和钻研。希望能够加入优秀的团队，在实际工作中不断提升自己的专业能力。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 下载PDF
+        function downloadPDF() {
+            alert('📥 下载PDF\n\n正在生成PDF文件...\n\n实际应用中将调用后端API生成PDF并下载。');
+        }
+
+        // 分享简历
+        function shareResume() {
+            const shareUrl = 'https://ezplm.com/resume/zhangsan-12345';
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    alert('🔗 简历链接已复制！\n\n' + shareUrl + '\n\n您可以将此链接分享给用人单位。');
+                });
+            } else {
+                alert('🔗 您的简历链接：\n\n' + shareUrl + '\n\n请手动复制此链接。');
+            }
+        }
+
+        // 动画效果
+        window.addEventListener('load', function() {
+            const skillBars = document.querySelectorAll('.skill-progress');
+            skillBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,3386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 厂商管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .notification-bell {
+            font-size: 20px;
+            color: #3d4647;
+            cursor: pointer;
+            position: relative;
+        }
+        .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background: #ff4d4f;
+            border-radius: 50%;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容包装 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        /* 页面标题栏 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            background: white;
+            padding: 20px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .page-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .view-toggle {
+            display: flex;
+            gap: 4px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            padding: 4px;
+        }
+        .view-btn {
+            padding: 8px 16px;
+            background: transparent;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+        .view-btn:hover {
+            background: rgba(0, 137, 11, 0.1);
+        }
+        .view-btn.active {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+
+        /* 搜索和筛选栏 */
+        .search-bar {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .filter-select {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .filter-select:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 厂商卡片网格 */
+        .supplier-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .supplier-grid.hidden {
+            display: none;
+        }
+
+        /* 厂商列表视图 */
+        .supplier-list {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .supplier-list.active {
+            display: flex;
+        }
+        .supplier-list-item {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .supplier-list-item:hover {
+            box-shadow: 0 4px 16px rgba(0,137,11,0.15);
+            transform: translateX(4px);
+        }
+        .list-item-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #00890b;
+            flex-shrink: 0;
+        }
+        .list-item-content {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .list-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .list-item-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .list-item-desc {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+        .list-item-meta {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .meta-label {
+            font-size: 12px;
+            color: #8c8c8c;
+        }
+        .meta-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+
+        /* 厂商卡片 */
+        .supplier-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .supplier-card:hover {
+            box-shadow: 0 4px 16px rgba(0,137,11,0.15);
+            transform: translateY(-2px);
+        }
+        .supplier-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00890b, #00b96b);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .supplier-card:hover::before {
+            opacity: 1;
+        }
+        .supplier-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .supplier-logo {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #00890b;
+        }
+        .supplier-status {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: #f6ffed;
+            color: #52c41a;
+        }
+        .status-pending {
+            background: #fff7e6;
+            color: #faad14;
+        }
+        .supplier-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .supplier-desc {
+            font-size: 13px;
+            color: #8c8c8c;
+            margin-bottom: 16px;
+            line-height: 1.6;
+            height: 40px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .supplier-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 16px;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+        .info-label {
+            color: #8c8c8c;
+        }
+        .info-value {
+            color: #3d4647;
+            font-weight: 600;
+        }
+        .supplier-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .tag {
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #3d4647;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            padding: 24px 0;
+        }
+        .page-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .page-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .page-btn.active {
+            background: #00890b;
+            color: white;
+            border-color: #00890b;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-content.large {
+            max-width: 900px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .close-btn {
+            font-size: 24px;
+            cursor: pointer;
+            color: #8c8c8c;
+            background: none;
+            border: none;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* 智能建议下拉框 */
+        .suggestion-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #00890b;
+            border-radius: 6px;
+            margin-top: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+        .suggestion-dropdown.active {
+            display: block;
+        }
+        .suggestion-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+        .suggestion-item:hover {
+            background: #f0f9f0;
+        }
+        .suggestion-item.ai-suggestion {
+            background: #f0f5ff;
+        }
+        .suggestion-item.ai-suggestion:hover {
+            background: #e6f0ff;
+        }
+        .suggestion-name {
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+        .suggestion-meta {
+            font-size: 12px;
+            color: #8c8c8c;
+            display: flex;
+            gap: 12px;
+        }
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: #1890ff;
+            color: white;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .loading-indicator {
+            padding: 12px 16px;
+            text-align: center;
+            color: #8c8c8c;
+            font-size: 13px;
+        }
+
+        /* 已加载的云端信息显示 */
+        .cloud-info-loaded {
+            background: #f0f9f0;
+            border: 2px dashed #00890b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .cloud-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .cloud-info-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #00890b;
+        }
+        .cloud-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .cloud-info-item {
+            font-size: 13px;
+        }
+        .cloud-info-label {
+            color: #8c8c8c;
+            margin-bottom: 4px;
+        }
+        .cloud-info-value {
+            color: #3d4647;
+            font-weight: 600;
+        }
+        .btn-link {
+            background: none;
+            border: none;
+            color: #00890b;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+        .btn-cancel {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-cancel:hover {
+            border-color: #8c8c8c;
+        }
+
+        /* 厂商详情页样式 */
+        .detail-section {
+            margin-bottom: 24px;
+        }
+        .detail-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .detail-label {
+            font-size: 13px;
+            color: #8c8c8c;
+        }
+        .detail-value {
+            font-size: 14px;
+            color: #3d4647;
+            font-weight: 600;
+        }
+        .detail-value a {
+            color: #00890b;
+            text-decoration: none;
+        }
+        .detail-value a:hover {
+            text-decoration: underline;
+        }
+        .detail-full-width {
+            grid-column: 1 / -1;
+        }
+        .relation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .relation-item {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .btn-edit {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-edit:hover {
+            background: #007309;
+        }
+        .editable-section {
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+
+        /* 开关按钮样式 */
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: #d9d9d9;
+            border-radius: 12px;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+        .toggle-switch .toggle-slider {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input[type="checkbox"]:checked + .toggle-switch {
+            background: #00890b;
+        }
+        input[type="checkbox"]:checked + .toggle-switch .toggle-slider {
+            transform: translateX(20px);
+        }
+
+        /* 别名标签样式 */
+        .alias-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #3d4647;
+        }
+        .alias-tag-remove {
+            cursor: pointer;
+            color: #999;
+            font-weight: bold;
+            transition: color 0.2s;
+        }
+        .alias-tag-remove:hover {
+            color: #ff4d4f;
+        }
+
+        /* 不可编辑字段样式 */
+        .readonly-field {
+            background: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .cloud-source-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            background: #e6f7ff;
+            color: #1890ff;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        /* 厂商类型标签页 */
+        .vendor-type-tabs {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+        }
+        .vendor-type-tab {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .vendor-type-tab:hover {
+            background: #f5f5f5;
+            color: #00890b;
+        }
+        .vendor-type-tab.active {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+        }
+        .vendor-type-tab .count {
+            padding: 2px 8px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+    <link rel="stylesheet" href="assets/ai-enhance.css?v=2">
+    <script defer src="assets/ai-enhance.js?v=2"></script>
+</head>
+<body data-ai-context="supplier-management">
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item active">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-wrapper">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <h2>厂商管理</h2>
+                <div class="header-actions">
+                    <button class="btn-ai" onclick="aiOpenModal('aiSupplierRulesModal')" title="自动催办：交期/交期临近/RoHS/质量反馈 (需求 采-4)">AI 自动催办</button>
+                    <button class="btn-ai" onclick="aiOpenModal('aiSupplierScoreModal')">AI 质量评分</button>
+                    <button class="btn-ai" onclick="aiOpenModal('aiSupplierApModal')" title="供应商对账单上传 → 比对系统应付 → 生成 AP (需求 采-5)">AP 对账上传</button>
+                    <button class="btn-ai" onclick="aiOpenModal('aiOpoTemplateModal')" title="OPO 交期回复模板 + 每两周自动催 (需求 采-4)">OPO 交期协同</button>
+                    <button class="btn-secondary" onclick="syncCloudData()" title="同步云端数据">
+                        ☁️ 同步云端
+                    </button>
+                    <button class="btn-secondary" onclick="openCloudSearchModal()" title="从云端导入">
+                        🔍 云端导入
+                    </button>
+                    <button class="btn-secondary" onclick="batchImport()" title="批量导入">
+                        📤 批量导入
+                    </button>
+                    <button class="btn-primary" onclick="openSupplierModal()">
+                        <span>+</span>
+                        <span>手动添加</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ▼ AI 增强：Agent ⑦ 自动催办规则面板 -->
+            <div class="ai-panel">
+                <div class="ai-panel-title">供应商协同 · Agent ⑦ 自动催办
+                    <span class="ai-risk ai-risk-low" style="margin-left:8px;">本月已发 96 封</span>
+                </div>
+                <div class="ai-panel-sub">基于交期、合规、批次质量三类事件，AI 自动按规则触发邮件 / 短信 / 站内消息催办，关键节点自动同步到采购看板。</div>
+                <div class="ai-rule-grid">
+                    <div class="ai-rule">
+                        <div class="ai-rule-head"><span class="ai-rule-name">交期未回复</span><input type="checkbox" class="ai-rule-toggle" checked /></div>
+                        <div class="ai-rule-desc">PO 发出后 <b>3 天</b> 内供应商未确认交期 → 触发首封提醒，每 <b>2 天</b> 重发，最多 3 次。<br/><span class="ai-rule-meta">📧 邮件 · 抄送采购员</span></div>
+                    </div>
+                    <div class="ai-rule">
+                        <div class="ai-rule-head"><span class="ai-rule-name">临近交期未发货</span><input type="checkbox" class="ai-rule-toggle" checked /></div>
+                        <div class="ai-rule-desc">距离 EDD 还有 <b>5 天</b> 仍未提供运单 → 自动触发邮件 + 短信双通道催发货。<br/><span class="ai-rule-meta">📧 邮件 + 📱 短信</span></div>
+                    </div>
+                    <div class="ai-rule">
+                        <div class="ai-rule-head"><span class="ai-rule-name">RoHS / Reach 文件即将过期</span><input type="checkbox" class="ai-rule-toggle" checked /></div>
+                        <div class="ai-rule-desc">合规文件距离过期 <b>30 天</b> → 触发续证提醒，并自动锁定相关物料的新 PO 创建。<br/><span class="ai-rule-meta">📧 邮件 · 每 14 天</span></div>
+                    </div>
+                    <div class="ai-rule">
+                        <div class="ai-rule-head"><span class="ai-rule-name">批次质量反馈未回</span><input type="checkbox" class="ai-rule-toggle" /></div>
+                        <div class="ai-rule-desc">IQC 异常报告发送后 <b>5 个工作日</b> 未回复 PDCA → 升级到供应商负责人。<br/><span class="ai-rule-meta">📧 邮件 + 站内</span></div>
+                    </div>
+                </div>
+                <div style="margin-top:12px; font-size:12px; color:#666;">
+                    ✦ 本周自动统计：交期回复率 <b style="color:var(--brand-500);">94%</b> · 平均回复时长 <b style="color:var(--brand-500);">8.4 小时</b> · 较上月 ↑ 12%
+                </div>
+            </div>
+
+            <!-- 厂商统计卡片 -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 16px rgba(0,137,11,0.15)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 14px; color: #8c8c8c;">厂商总数</span>
+                        <span style="font-size: 28px;">🏢</span>
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; color: #00890b; margin-bottom: 8px;">8</div>
+                    <div style="font-size: 13px; color: #8c8c8c;">较上月 +2</div>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 16px rgba(0,137,11,0.15)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 14px; color: #8c8c8c;">原厂/制造商</span>
+                        <span style="font-size: 28px;">🏭</span>
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; color: #00890b; margin-bottom: 8px;">3</div>
+                    <div style="font-size: 13px; color: #8c8c8c;">占比 37.5%</div>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 16px rgba(0,137,11,0.15)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 14px; color: #8c8c8c;">分销商</span>
+                        <span style="font-size: 28px;">🛒</span>
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; color: #00890b; margin-bottom: 8px;">2</div>
+                    <div style="font-size: 13px; color: #8c8c8c;">占比 25%</div>
+                </div>
+
+                <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); cursor: pointer; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 4px 16px rgba(0,137,11,0.15)'" onmouseout="this.style.transform=''; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span style="font-size: 14px; color: #8c8c8c;">其他服务商</span>
+                        <span style="font-size: 28px;">🔧</span>
+                    </div>
+                    <div style="font-size: 32px; font-weight: 700; color: #00890b; margin-bottom: 8px;">3</div>
+                    <div style="font-size: 13px; color: #8c8c8c;">PCB、SMT等</div>
+                </div>
+            </div>
+
+            <!-- 搜索和筛选 -->
+            <div class="search-bar">
+                <input type="text" id="mainSearchInput" class="search-input" placeholder="搜索厂商名称、联系人、产品类型... (按回车搜索)" onkeypress="handleSearchEnter(event)">
+                <select class="filter-select">
+                    <option value="">所有类型</option>
+                    <option value="manufacturer">原厂</option>
+                    <option value="distributor">分销商</option>
+                    <option value="pcb">PCB制造</option>
+                    <option value="smt">SMT贴片</option>
+                </select>
+                <select class="filter-select">
+                    <option value="">所有状态</option>
+                    <option value="active">合作中</option>
+                    <option value="pending">待审核</option>
+                    <option value="inactive">已停用</option>
+                </select>
+                <button class="btn-secondary" onclick="performSearch()">🔍 搜索</button>
+                <div class="view-toggle">
+                    <button class="view-btn active" onclick="switchView('card')" title="卡片视图">🎴</button>
+                    <button class="view-btn" onclick="switchView('list')" title="列表视图">📋</button>
+                </div>
+            </div>
+
+            <!-- 厂商卡片网格 -->
+            <div id="supplierGrid" class="supplier-grid">
+                <!-- 厂商卡片会通过JavaScript动态生成 -->
+            </div>
+
+            <!-- 厂商列表视图 -->
+            <div id="supplierList" class="supplier-list">
+                <!-- 厂商列表会通过JavaScript动态生成 -->
+            </div>
+
+            <!-- 分页 -->
+            <div class="pagination">
+                <button class="page-btn">← 上一页</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">下一页 →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加厂商模态框 -->
+    <div id="supplierModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加</h3>
+                <button class="close-btn" onclick="closeSupplierModal()">×</button>
+            </div>
+
+            <form onsubmit="return submitSupplier(event)">
+                <div class="form-group">
+                    <label class="form-label">* 厂商名称
+                        <span style="font-size: 12px; font-weight: 400; color: #8c8c8c; margin-left: 4px;">
+                            <svg style="width: 14px; height: 14px; vertical-align: middle;" viewBox="0 0 16 16" fill="currentColor">
+                                <circle cx="8" cy="8" r="7" stroke="#8c8c8c" stroke-width="1.5" fill="none"/>
+                                <text x="8" y="11" text-anchor="middle" font-size="10" fill="#8c8c8c" font-weight="bold">?</text>
+                            </svg>
+                        </span>
+                    </label>
+                    <input type="text" id="supplierNameInput" class="form-input" required placeholder="请选择"
+                           oninput="searchSupplier(this.value)" autocomplete="off">
+                    <div id="suggestionDropdown" class="suggestion-dropdown"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">别名</label>
+                    <input type="text" id="aliasInput" class="form-input" placeholder="请输入内容，按回车键添加别名" onkeypress="handleAliasEnter(event)">
+                    <div id="aliasTagsContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">官网链接</label>
+                    <div style="display: flex; align-items: center; border: 2px solid #e0e0e0; border-radius: 6px; overflow: hidden;">
+                        <select style="border: none; padding: 12px; background: #f5f5f5; outline: none; cursor: pointer;">
+                            <option>https://</option>
+                            <option>http://</option>
+                        </select>
+                        <input type="text" id="websiteInput" style="flex: 1; border: none; padding: 12px; outline: none;" placeholder="请输入">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">描述</label>
+                    <textarea id="descInput" class="form-textarea" placeholder="请输入"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Logo URL
+                        <span style="font-size: 12px; font-weight: 400; color: #8c8c8c; margin-left: 4px;">厂商Logo图片地址</span>
+                    </label>
+                    <input type="text" id="logoUrlInput" class="form-input" placeholder="https://www.example.com/logo.png">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">平台URL链接
+                        <span style="font-size: 12px; font-weight: 400; color: #8c8c8c; margin-left: 4px;">对外接口的平台链接</span>
+                    </label>
+                    <input type="text" id="platformUrlInput" class="form-input" placeholder="https://platform.example.com">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">是否制造商</label>
+                    <label style="display: inline-flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" id="isManufacturer" style="display: none;">
+                        <div class="toggle-switch" onclick="toggleSwitch('isManufacturer')">
+                            <div class="toggle-slider"></div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">是否代理商</label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label style="display: inline-flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="isDistributor" style="display: none;">
+                            <div class="toggle-switch" onclick="toggleSwitch('isDistributor')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </label>
+                        <span style="font-size: 13px; color: #8c8c8c; font-style: italic;">您是否从该公司采购物料?</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">是否客户</label>
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <label style="display: inline-flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="isCustomer" style="display: none;">
+                            <div class="toggle-switch" onclick="toggleSwitch('isCustomer')">
+                                <div class="toggle-slider"></div>
+                            </div>
+                        </label>
+                        <span style="font-size: 13px; color: #8c8c8c; font-style: italic;">您是否向该公司出售物料?</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <textarea id="noteInput" class="form-textarea" placeholder="请输入"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-cancel" onclick="closeSupplierModal()">取消</button>
+                    <button type="submit" class="btn-primary">确定</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 云端搜索模态框 -->
+    <div id="cloudSearchModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 class="modal-title">🔍 从云端数据库导入厂商</h3>
+                <button class="close-btn" onclick="closeCloudSearchModal()">×</button>
+            </div>
+            <div style="background: #f0f9f0; border: 2px dashed #00890b; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                <div style="font-size: 14px; color: #00890b;">
+                    💡 云端数据库收录了4000+厂商信息，您可以搜索并导入到本地厂商库
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="text" id="cloudSearchInput" class="form-input" placeholder="输入厂商名称、别名或网址搜索..." onkeypress="handleCloudSearchEnter(event)" oninput="performCloudSearch()">
+            </div>
+            <div id="cloudSearchResults" style="max-height: 400px; overflow-y: auto;">
+                <!-- 搜索结果会动态显示在这里 -->
+                <div style="text-align: center; padding: 40px; color: #8c8c8c;">
+                    输入关键词开始搜索...
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeCloudSearchModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 同步云端数据模态框 -->
+    <div id="syncCloudModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">☁️ 同步云端数据</h3>
+                <button class="close-btn" onclick="closeSyncCloudModal()">×</button>
+            </div>
+
+            <div style="background: #f0f9ff; border-left: 4px solid #1890ff; border-radius: 4px; padding: 16px; margin-bottom: 20px;">
+                <div style="font-size: 14px; color: #096dd9; line-height: 1.6;">
+                    <strong>💡 同步说明：</strong><br>
+                    系统将通过"官网地址"字段匹配本地厂商和云端数据库，自动更新以下信息：<br>
+                    • 厂商别名和英文名称<br>
+                    • 厂商类型分类<br>
+                    • 主要产品线信息<br>
+                    • 厂商简介和标签<br>
+                    • 联系方式（如果本地为空）
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 600; margin-bottom: 12px; display: block;">同步选项</label>
+
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px; background: #fafafa; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+                        <input type="checkbox" id="syncBasicInfo" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        <div>
+                            <div style="font-weight: 600; color: #3d4647;">基本信息同步</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">厂商名称、别名、类型、产品线</div>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px; background: #fafafa; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+                        <input type="checkbox" id="syncDescription" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        <div>
+                            <div style="font-weight: 600; color: #3d4647;">简介和标签</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">厂商简介、行业标签、产品特点</div>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px; background: #fafafa; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+                        <input type="checkbox" id="syncContact" style="width: 18px; height: 18px; cursor: pointer;">
+                        <div>
+                            <div style="font-weight: 600; color: #3d4647;">联系方式（仅补充）</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">当本地联系方式为空时，从云端补充</div>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 12px; background: #fafafa; border-radius: 6px; transition: all 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='#fafafa'">
+                        <input type="checkbox" id="overwriteLocal" style="width: 18px; height: 18px; cursor: pointer;">
+                        <div>
+                            <div style="font-weight: 600; color: #3d4647;">覆盖本地修改</div>
+                            <div style="font-size: 13px; color: #ff4d4f;">⚠️ 勾选后将用云端数据覆盖本地已编辑的信息</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div id="syncProgress" style="display: none; margin-top: 20px;">
+                <div style="display: flex; align-items: center; gap: 12px; padding: 16px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px;">
+                    <div style="font-size: 24px;">⏳</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #3d4647; margin-bottom: 8px;">正在同步云端数据...</div>
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div id="syncProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00890b, #00b96b); transition: width 0.3s;"></div>
+                        </div>
+                        <div id="syncStatus" style="font-size: 13px; color: #8c8c8c; margin-top: 6px;">准备同步...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="syncResult" style="display: none; margin-top: 20px;">
+                <div style="padding: 20px; background: #f6ffed; border: 2px solid #52c41a; border-radius: 8px;">
+                    <div style="font-size: 18px; font-weight: 700; color: #3d4647; margin-bottom: 16px;">✅ 同步完成</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #00890b;" id="matchedCount">0</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">匹配厂商数</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #1890ff;" id="updatedCount">0</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">更新记录数</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #52c41a;" id="linkedCount">0</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">新增云端关联</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #faad14;" id="skippedCount">0</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">跳过记录数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button class="btn-cancel" onclick="closeSyncCloudModal()">取消</button>
+                <button class="btn-primary" id="startSyncBtn" onclick="startSync()">
+                    <span>🔄</span>
+                    <span>开始同步</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批量导入模态框 -->
+    <div id="batchImportModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3 class="modal-title">📤 批量导入厂商</h3>
+                <button class="close-btn" onclick="closeBatchImportModal()">×</button>
+            </div>
+
+            <div style="background: #fff7e6; border-left: 4px solid #faad14; border-radius: 4px; padding: 16px; margin-bottom: 20px;">
+                <div style="font-size: 14px; color: #d46b08; line-height: 1.6;">
+                    <strong>📋 导入说明：</strong><br>
+                    支持 Excel (.xlsx, .xls) 和 CSV (.csv) 格式文件<br>
+                    系统将自动识别表头，匹配以下字段：<br>
+                    • 必填：厂商名称、厂商类型<br>
+                    • 可选：官网地址、联系人、电话、邮箱、地址等
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;">导入模板</label>
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn-secondary" onclick="downloadTemplate('excel')" style="flex: 1;">
+                        <span>📊</span>
+                        <span>下载 Excel 模板</span>
+                    </button>
+                    <button class="btn-secondary" onclick="downloadTemplate('csv')" style="flex: 1;">
+                        <span>📄</span>
+                        <span>下载 CSV 模板</span>
+                    </button>
+                </div>
+                <div style="font-size: 12px; color: #8c8c8c; margin-top: 6px;">
+                    💡 建议先下载模板，按照模板格式填写厂商信息
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 600; margin-bottom: 8px; display: block;">选择文件</label>
+                <div style="border: 2px dashed #d9d9d9; border-radius: 8px; padding: 40px; text-align: center; background: #fafafa; cursor: pointer; transition: all 0.3s;"
+                     id="uploadArea"
+                     onclick="document.getElementById('fileInput').click()"
+                     ondragover="event.preventDefault(); this.style.borderColor='#00890b'; this.style.background='#f0f9f0';"
+                     ondragleave="this.style.borderColor='#d9d9d9'; this.style.background='#fafafa';"
+                     ondrop="handleFileDrop(event)">
+                    <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleFileSelect(event)">
+                    <div style="font-size: 48px; margin-bottom: 12px;">📁</div>
+                    <div style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">点击上传或拖拽文件到此处</div>
+                    <div style="font-size: 13px; color: #8c8c8c;">支持 .xlsx / .xls / .csv 格式，文件大小不超过 10MB</div>
+                </div>
+                <div id="selectedFile" style="display: none; margin-top: 12px; padding: 12px; background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 6px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">📎</span>
+                            <div>
+                                <div style="font-weight: 600; color: #3d4647;" id="fileName"></div>
+                                <div style="font-size: 12px; color: #8c8c8c;" id="fileSize"></div>
+                            </div>
+                        </div>
+                        <button class="btn-secondary" style="padding: 4px 12px; font-size: 12px;" onclick="clearFile()">移除</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 600; margin-bottom: 12px; display: block;">导入选项</label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="skipDuplicate" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        <span style="font-size: 14px; color: #3d4647;">跳过重复厂商（根据厂商名称或官网地址判断）</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="autoMatch" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        <span style="font-size: 14px; color: #3d4647;">自动匹配云端数据（补充完善厂商信息）</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="checkbox" id="validateData" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        <span style="font-size: 14px; color: #3d4647;">验证数据格式（检查必填字段和数据有效性）</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="importProgress" style="display: none; margin-top: 20px;">
+                <div style="padding: 16px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                        <div style="font-size: 24px;">📦</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #3d4647;">正在导入数据...</div>
+                            <div style="font-size: 13px; color: #8c8c8c;" id="importStatus">解析文件中...</div>
+                        </div>
+                    </div>
+                    <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div id="importProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00890b, #00b96b); transition: width 0.3s;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="importResult" style="display: none; margin-top: 20px;">
+                <div style="padding: 20px; background: #f6ffed; border: 2px solid #52c41a; border-radius: 8px;">
+                    <div style="font-size: 18px; font-weight: 700; color: #3d4647; margin-bottom: 16px;">✅ 导入完成</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+                        <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #00890b;" id="importTotal">0</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">读取记录</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #52c41a;" id="importSuccess">0</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">成功导入</div>
+                        </div>
+                        <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                            <div style="font-size: 24px; font-weight: 700; color: #ff4d4f;" id="importFailed">0</div>
+                            <div style="font-size: 13px; color: #8c8c8c;">失败/跳过</div>
+                        </div>
+                    </div>
+                    <div id="importErrors" style="display: none;">
+                        <div style="font-size: 14px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">失败记录：</div>
+                        <div style="max-height: 150px; overflow-y: auto; padding: 12px; background: white; border-radius: 6px; font-size: 13px; color: #8c8c8c;">
+                            <!-- 错误信息会动态显示在这里 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions" style="margin-top: 20px;">
+                <button class="btn-cancel" onclick="closeBatchImportModal()">取消</button>
+                <button class="btn-primary" id="startImportBtn" onclick="startImport()" disabled style="opacity: 0.5;">
+                    <span>📥</span>
+                    <span>开始导入</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 厂商详情模态框 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 class="modal-title" id="detailModalTitle">厂商详情</h3>
+                <button class="close-btn" onclick="closeDetailModal()">×</button>
+            </div>
+
+            <!-- 基本信息 -->
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    <span>基本信息</span>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="detailSourceLabel" style="font-size: 12px; color: #8c8c8c;">来自云端数据库</span>
+                        <button id="syncCloudBtn" class="btn-edit" style="display: none; background: #1890ff;" onclick="syncSupplierCloud()">☁️ 检查更新</button>
+                        <button id="editBasicInfoBtn" class="btn-edit" style="display: none;" onclick="toggleEditBasicInfo()">编辑</button>
+                    </div>
+                </div>
+                <div id="basicInfoDisplay" class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">厂商名称</div>
+                        <div class="detail-value" id="detailName">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">常用名</div>
+                        <div class="detail-value" id="detailAliases">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">类型</div>
+                        <div class="detail-value" id="detailType">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">官网</div>
+                        <div class="detail-value" id="detailWebsite">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Logo URL</div>
+                        <div class="detail-value" id="detailLogoUrl">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">平台URL链接</div>
+                        <div class="detail-value" id="detailPlatformUrl">-</div>
+                    </div>
+                    <div class="detail-item detail-full-width">
+                        <div class="detail-label">主要产品线</div>
+                        <div class="detail-value" id="detailProducts">-</div>
+                    </div>
+                    <div class="detail-item detail-full-width">
+                        <div class="detail-label">简介</div>
+                        <div class="detail-value" id="detailDesc">-</div>
+                    </div>
+                    <div class="detail-item detail-full-width">
+                        <div class="detail-label">关联关系</div>
+                        <div class="detail-value">
+                            <div id="detailRelations" class="relation-list">-</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 可编辑表单（仅本地数据可见） -->
+                <div id="basicInfoEditSection" class="editable-section" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">厂商名称</label>
+                        <input type="text" id="editBasicName" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">常用名（逗号分隔）</label>
+                        <input type="text" id="editBasicAliases" class="form-input" placeholder="例如：TI, 德仪">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">类型</label>
+                        <div style="display: flex; gap: 16px;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="editIsManufacturer">
+                                <span>制造商</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="editIsDistributor">
+                                <span>分销商</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">官网</label>
+                        <input type="text" id="editBasicWebsite" class="form-input" placeholder="https://www.example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Logo URL
+                            <span style="font-size: 12px; font-weight: 400; color: #8c8c8c; margin-left: 4px;">厂商Logo图片地址，用于在业务页面展示</span>
+                        </label>
+                        <input type="text" id="editBasicLogoUrl" class="form-input" placeholder="https://www.example.com/logo.png">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">平台URL链接
+                            <span style="font-size: 12px; font-weight: 400; color: #8c8c8c; margin-left: 4px;">对外接口的平台链接，可在业务页面点击跳转</span>
+                        </label>
+                        <input type="text" id="editBasicPlatformUrl" class="form-input" placeholder="https://platform.example.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">主要产品线（逗号分隔）</label>
+                        <input type="text" id="editBasicProducts" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">简介</label>
+                        <textarea id="editBasicDesc" class="form-textarea"></textarea>
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button class="btn-cancel" onclick="toggleEditBasicInfo()">取消</button>
+                        <button class="btn-primary" onclick="saveBasicInfo()">保存</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 联系信息（可编辑，支持多个联系人） -->
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    <span>联系信息</span>
+                    <button class="btn-edit" onclick="toggleEdit('contact')">管理联系人</button>
+                </div>
+                <div id="contactListDisplay">
+                    <!-- 联系人列表将动态生成 -->
+                    <div style="padding: 16px; background: #f8f9fa; border-radius: 8px; margin-bottom: 12px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: 600; color: #3d4647; margin-bottom: 4px;">📍 华东地区 - 苏州总部</div>
+                                <div style="font-size: 13px; color: #8c8c8c; margin-bottom: 8px;">江苏省苏州市工业园区星湖街328号</div>
+                            </div>
+                            <span style="padding: 4px 10px; background: #f0f0f0; border-radius: 4px; font-size: 12px;">主要联系点</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-left: 20px;">
+                            <div>
+                                <div style="font-size: 12px; color: #8c8c8c;">联系人</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">张经理</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #8c8c8c;">职位</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">销售总监</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #8c8c8c;">电话</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">0512-8888-8888</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #8c8c8c;">手机</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">138-0000-0000</div>
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <div style="font-size: 12px; color: #8c8c8c;">邮箱</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">zhang@example.com</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                            <div>
+                                <div style="font-weight: 600; color: #3d4647; margin-bottom: 4px;">📍 华南地区 - 深圳分部</div>
+                                <div style="font-size: 13px; color: #8c8c8c; margin-bottom: 8px;">广东省深圳市南山区科技园南区</div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-left: 20px;">
+                            <div>
+                                <div style="font-size: 12px; color: #8c8c8c;">联系人</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">李工</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #8c8c8c;">职位</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">技术支持</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #8c8c8c;">电话</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">0755-1234-5678</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 12px; color: #8c8c8c;">手机</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">139-1111-2222</div>
+                            </div>
+                            <div style="grid-column: 1 / -1;">
+                                <div style="font-size: 12px; color: #8c8c8c;">邮箱</div>
+                                <div style="font-size: 14px; font-weight: 600; color: #3d4647;">li@example.com</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="contactEditSection" class="editable-section" style="display: none;">
+                    <div id="contactsContainer">
+                        <!-- 联系人编辑区域将动态生成 -->
+                    </div>
+                    <button class="btn-secondary" style="width: 100%; margin-bottom: 16px;" onclick="addNewContact()">
+                        + 添加新联系人
+                    </button>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button class="btn-cancel" onclick="toggleEdit('contact')">取消</button>
+                        <button class="btn-primary" onclick="saveContactInfo()">保存全部</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 商务信息（可编辑） -->
+            <div class="detail-section">
+                <div class="detail-section-title">
+                    <span>商务信息</span>
+                    <button class="btn-edit" onclick="toggleEdit('business')">编辑</button>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">合作状态</div>
+                        <div class="detail-value" id="detailStatus">
+                            <span style="padding: 4px 10px; background: #f6ffed; color: #52c41a; border-radius: 4px; font-size: 13px; font-weight: 600;">合作中</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">合作开始日期</div>
+                        <div class="detail-value" id="detailStartDate">2023-07-15</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">付款方式</div>
+                        <div class="detail-value" id="detailPayment">月结30天</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">账期天数</div>
+                        <div class="detail-value" id="detailPaymentDays">30天</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">信用额度</div>
+                        <div class="detail-value" id="detailCredit">¥500,000</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">货币类型</div>
+                        <div class="detail-value" id="detailCurrency">人民币(CNY)</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">税号</div>
+                        <div class="detail-value" id="detailTaxNumber">91320500MA1234567X</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">开户银行</div>
+                        <div class="detail-value" id="detailBank">中国工商银行苏州分行</div>
+                    </div>
+                    <div class="detail-item detail-full-width">
+                        <div class="detail-label">银行账号</div>
+                        <div class="detail-value" id="detailBankAccount">1234 5678 9012 3456 789</div>
+                    </div>
+                    <div class="detail-item detail-full-width">
+                        <div class="detail-label">发票抬头</div>
+                        <div class="detail-value" id="detailInvoiceTitle">苏州XX电子科技有限公司</div>
+                    </div>
+                    <div class="detail-item detail-full-width">
+                        <div class="detail-label">商务备注</div>
+                        <div class="detail-value" id="detailBusinessNote">优质厂商，交货及时，质量稳定。小批量订单可享受9折优惠。</div>
+                    </div>
+                </div>
+                <div id="businessEditSection" class="editable-section" style="display: none;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">合作状态</label>
+                            <select id="editStatus" class="form-select">
+                                <option value="active">合作中</option>
+                                <option value="pending">待审核</option>
+                                <option value="inactive">已停用</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">合作开始日期</label>
+                            <input type="date" id="editStartDate" class="form-input" value="2023-07-15">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">付款方式</label>
+                            <select id="editPayment" class="form-select">
+                                <option>现金</option>
+                                <option selected>月结30天</option>
+                                <option>月结60天</option>
+                                <option>月结90天</option>
+                                <option>预付款</option>
+                                <option>货到付款</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">账期天数</label>
+                            <input type="number" id="editPaymentDays" class="form-input" value="30" placeholder="例如：30">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">信用额度（元）</label>
+                            <input type="text" id="editCredit" class="form-input" value="500000" placeholder="例如：500000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">货币类型</label>
+                            <select id="editCurrency" class="form-select">
+                                <option selected>人民币(CNY)</option>
+                                <option>美元(USD)</option>
+                                <option>欧元(EUR)</option>
+                                <option>日元(JPY)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">税号</label>
+                        <input type="text" id="editTaxNumber" class="form-input" value="91320500MA1234567X" placeholder="统一社会信用代码">
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">开户银行</label>
+                            <input type="text" id="editBank" class="form-input" value="中国工商银行苏州分行">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">银行账号</label>
+                            <input type="text" id="editBankAccount" class="form-input" value="1234 5678 9012 3456 789">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">发票抬头</label>
+                        <input type="text" id="editInvoiceTitle" class="form-input" value="苏州XX电子科技有限公司">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">商务备注</label>
+                        <textarea id="editBusinessNote" class="form-textarea">优质厂商，交货及时，质量稳定。小批量订单可享受9折优惠。</textarea>
+                    </div>
+                    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                        <button class="btn-cancel" onclick="toggleEdit('business')">取消</button>
+                        <button class="btn-primary" onclick="saveBusinessInfo()">保存</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeDetailModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟云端厂商数据库（3000+厂商）
+        const cloudDatabase = [
+            {
+                id: 1,
+                name: '德州仪器',
+                aliases: ['TI', 'Texas Instruments', '德仪'],
+                type: '原厂',
+                website: 'https://www.ti.com',
+                description: '全球领先的半导体公司，专注于模拟芯片、嵌入式处理器和数字信号处理器',
+                productLines: ['模拟IC', '嵌入式处理器', 'DSP', '电源管理'],
+                relations: ['授权代理商：Arrow Electronics', '授权代理商：Digi-Key']
+            },
+            {
+                id: 2,
+                name: '意法半导体',
+                aliases: ['ST', 'STMicroelectronics', 'ST半导体'],
+                type: '原厂',
+                website: 'https://www.st.com',
+                description: '欧洲最大的半导体公司，提供MCU、传感器、功率器件等产品',
+                productLines: ['MCU', 'MEMS传感器', '功率器件', '模拟IC'],
+                relations: ['授权代理商：Mouser', '合作伙伴：NXP']
+            },
+            {
+                id: 3,
+                name: '立创商城',
+                aliases: ['LCSC', '立创', 'JLCPCB'],
+                type: '分销商',
+                website: 'https://www.szlcsc.com',
+                description: '中国领先的电子元器件在线商城，提供一站式采购服务',
+                productLines: ['电阻电容', 'IC', '连接器', 'PCB定制'],
+                relations: ['关联公司：嘉立创PCB', '母公司：立创集团']
+            },
+            {
+                id: 4,
+                name: '深圳华强电子',
+                aliases: ['华强', 'Huaqiang'],
+                type: '分销商',
+                website: 'https://www.hqew.com',
+                description: '国内最大的电子元器件分销平台之一',
+                productLines: ['电子元器件', '集成电路', '连接器'],
+                relations: []
+            },
+            {
+                id: 5,
+                name: '苏州思得普信息科技有限公司',
+                aliases: ['思得普', 'SDP'],
+                type: '分销商',
+                website: 'https://www.sdp-tech.com',
+                description: '专注于电子元器件供应，提供高品质的集成电路、传感器及相关电子配件',
+                productLines: ['电子元器件', '集成电路', '传感器'],
+                relations: ['代理品牌：德州仪器', '代理品牌：意法半导体']
+            }
+        ];
+
+        // 厂商数据
+        const suppliersData = [
+            {
+                id: 1,
+                name: '立创商城',
+                logo: '立',
+                status: 'active',
+                description: '中国领先的电子元器件在线商城，提供一站式采购服务',
+                contact: '张经理',
+                phone: '0755-1234-5678',
+                duration: '3年2个月',
+                tags: ['电子元器件', 'PCB定制'],
+                logoUrl: 'https://www.szlcsc.com/images/logo.png',
+                platformUrl: 'https://www.szlcsc.com',
+                cloudData: cloudDatabase[2]
+            },
+            {
+                id: 2,
+                name: '深圳华强电子科技',
+                logo: '华',
+                status: 'active',
+                description: '国内领先的电子元器件分销商，提供全方位的元器件采购解决方案',
+                contact: '李总',
+                phone: '0755-1234-5678',
+                duration: '1年8个月',
+                tags: ['电子元器件', '连接器'],
+                logoUrl: 'https://www.hqew.com/logo.png',
+                platformUrl: 'https://www.hqew.com',
+                cloudData: cloudDatabase[3]
+            },
+            {
+                id: 3,
+                name: '东莞精密PCB制造',
+                logo: '精',
+                status: 'active',
+                description: '专业PCB板制造商，提供单双面板、多层板及HDI高密度板制造服务',
+                contact: '王工',
+                phone: '0769-9999-0000',
+                duration: '3年1个月',
+                tags: ['PCB制造', '多层板'],
+                cloudData: null
+            },
+            {
+                id: 4,
+                name: '上海联合SMT贴片',
+                logo: '联',
+                status: 'pending',
+                description: '提供专业的SMT贴片加工服务，拥有先进的贴片生产线和质量管理体系',
+                contact: '陈经理',
+                phone: '021-6666-7777',
+                duration: '新厂商',
+                tags: ['SMT贴片', '组装加工'],
+                cloudData: null
+            },
+            {
+                id: 5,
+                name: '佛山鑫源机械零件',
+                logo: '鑫',
+                status: 'active',
+                description: '专业生产各类精密机械零件，包括机箱、外壳、支架等金属加工件',
+                contact: '刘厂长',
+                phone: '0757-8888-9999',
+                duration: '4年6个月',
+                tags: ['机械零件', '金属加工'],
+                cloudData: null
+            },
+            {
+                id: 6,
+                name: '宁波瑞达塑料制品',
+                logo: '瑞',
+                status: 'active',
+                description: '专业塑料制品制造商，提供注塑、吸塑等各类塑料件加工服务',
+                contact: '赵总',
+                phone: '0574-7777-8888',
+                duration: '2年9个月',
+                tags: ['塑料制品', '注塑加工'],
+                cloudData: null
+            },
+            {
+                id: 7,
+                name: '德州仪器',
+                logo: 'TI',
+                status: 'active',
+                description: '全球领先的半导体公司，专注于模拟芯片、嵌入式处理器',
+                contact: '李工',
+                phone: '021-5555-6666',
+                duration: '5年1个月',
+                tags: ['模拟IC', '嵌入式处理器'],
+                cloudData: cloudDatabase[0]
+            },
+            {
+                id: 8,
+                name: '意法半导体',
+                logo: 'ST',
+                status: 'active',
+                description: '欧洲最大的半导体公司，提供MCU、传感器、功率器件等产品',
+                contact: '王工',
+                phone: '021-6666-7777',
+                duration: '4年8个月',
+                tags: ['MCU', 'MEMS传感器'],
+                cloudData: cloudDatabase[1]
+            }
+        ];
+
+        let currentView = 'card';
+        let searchTimeout = null;
+        let selectedCloudData = null;
+
+        // 初始化渲染
+        renderSuppliers();
+
+        // 渲染厂商
+        function renderSuppliers() {
+            renderCardView();
+            renderListView();
+        }
+
+        // 切换厂商类型
+        let currentVendorType = 'all';
+        function switchVendorType(type, button) {
+            // 更新按钮状态
+            document.querySelectorAll('.vendor-type-tab').forEach(tab => tab.classList.remove('active'));
+            button.classList.add('active');
+
+            // 保存当前类型
+            currentVendorType = type;
+
+            // 根据类型筛选数据（这里可以实现实际的筛选逻辑）
+            console.log('切换到厂商类型:', type);
+
+            // 提示用户
+            const typeNames = {
+                'all': '全部厂商',
+                'component-supplier': '元器件供应商',
+                'manufacturer': '元器件制造商',
+                'pcb-fab': 'PCB加工商',
+                'recruiter': '招聘企业',
+                'outsourcing': '外包平台',
+                'partner': '合作伙伴'
+            };
+
+            if (type !== 'all') {
+                alert('🔍 正在筛选：' + typeNames[type] + '\n\n在实际系统中，这里会根据厂商类型筛选显示对应的厂商列表。\n\n不同类型的厂商可以提供不同的服务：\n• 元器件供应商 - 元器件采购\n• 元器件制造商 - 样品申请\n• PCB加工商 - PCB打板加工\n• 招聘企业 - 招聘职位\n• 外包平台 - 服务外包需求\n• 合作伙伴 - 战略合作');
+            }
+
+            // 实际应用中这里应该重新渲染列表
+            // renderSuppliers();
+        }
+
+        // 渲染卡片视图
+        function renderCardView() {
+            const grid = document.getElementById('supplierGrid');
+            grid.innerHTML = suppliersData.map(supplier => `
+                <div class="supplier-card" onclick="viewSupplierDetail(${supplier.id})">
+                    <div class="supplier-header">
+                        <div class="supplier-logo">${supplier.logo}</div>
+                        <span class="supplier-status status-${supplier.status}">
+                            ${supplier.status === 'active' ? '合作中' : '待审核'}
+                        </span>
+                    </div>
+                    <div class="supplier-name">${supplier.name}</div>
+                    <div class="supplier-desc">${supplier.description}</div>
+                    <div class="supplier-info">
+                        <div class="info-row">
+                            <span class="info-label">联系人</span>
+                            <span class="info-value">${supplier.contact}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">电话</span>
+                            <span class="info-value">${supplier.phone}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">合作时长</span>
+                            <span class="info-value">${supplier.duration}</span>
+                        </div>
+                    </div>
+                    <div class="supplier-tags">
+                        ${supplier.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 渲染列表视图
+        function renderListView() {
+            const list = document.getElementById('supplierList');
+            list.innerHTML = suppliersData.map(supplier => `
+                <div class="supplier-list-item" onclick="viewSupplierDetail(${supplier.id})">
+                    <div class="list-item-logo">${supplier.logo}</div>
+                    <div class="list-item-content">
+                        <div class="list-item-info">
+                            <div class="list-item-name">${supplier.name}</div>
+                            <div class="list-item-desc">${supplier.description}</div>
+                        </div>
+                        <div class="list-item-meta">
+                            <div class="meta-item">
+                                <div class="meta-label">联系人</div>
+                                <div class="meta-value">${supplier.contact}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">电话</div>
+                                <div class="meta-value">${supplier.phone}</div>
+                            </div>
+                            <div class="meta-item">
+                                <div class="meta-label">状态</div>
+                                <div class="meta-value">
+                                    <span class="supplier-status status-${supplier.status}">
+                                        ${supplier.status === 'active' ? '合作中' : '待审核'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 切换视图
+        function switchView(view) {
+            currentView = view;
+            const cardView = document.getElementById('supplierGrid');
+            const listView = document.getElementById('supplierList');
+            const viewBtns = document.querySelectorAll('.view-btn');
+
+            viewBtns.forEach(btn => btn.classList.remove('active'));
+
+            if (view === 'card') {
+                cardView.style.display = 'grid';
+                listView.classList.remove('active');
+                viewBtns[0].classList.add('active');
+            } else {
+                cardView.style.display = 'none';
+                listView.classList.add('active');
+                viewBtns[1].classList.add('active');
+            }
+        }
+
+        // 搜索厂商（智能匹配）
+        function searchSupplier(query) {
+            clearTimeout(searchTimeout);
+
+            if (!query || query.length < 2) {
+                document.getElementById('suggestionDropdown').classList.remove('active');
+                return;
+            }
+
+            const dropdown = document.getElementById('suggestionDropdown');
+            dropdown.innerHTML = '<div class="loading-indicator">🔍 搜索云端数据库...</div>';
+            dropdown.classList.add('active');
+
+            searchTimeout = setTimeout(() => {
+                // 模拟搜索云端数据库
+                const results = cloudDatabase.filter(company =>
+                    company.name.includes(query) ||
+                    company.aliases.some(alias => alias.toLowerCase().includes(query.toLowerCase()))
+                );
+
+                if (results.length > 0) {
+                    dropdown.innerHTML = results.map(company => `
+                        <div class="suggestion-item" onclick="selectCompany(${company.id})">
+                            <div class="suggestion-name">${company.name}</div>
+                            <div class="suggestion-meta">
+                                <span>${company.type}</span>
+                                <span>•</span>
+                                <span>${company.productLines.slice(0, 2).join(', ')}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    // 如果没有匹配结果，显示AI辅助建议
+                    dropdown.innerHTML = `
+                        <div class="suggestion-item ai-suggestion" onclick="requestAIAssist('${query}')">
+                            <div class="suggestion-name">
+                                <span class="ai-badge">🤖 AI辅助</span>
+                                <span style="margin-left: 8px;">未找到匹配，使用AI智能补全</span>
+                            </div>
+                            <div class="suggestion-meta">
+                                AI将根据您的输入自动查找并补全厂商信息
+                            </div>
+                        </div>
+                    `;
+                }
+            }, 500);
+        }
+
+        // 选择云端厂商
+        function selectCompany(companyId) {
+            const company = cloudDatabase.find(c => c.id === companyId);
+            if (!company) return;
+
+            selectedCloudData = company;
+
+            // 填充输入框
+            document.getElementById('supplierNameInput').value = company.name;
+
+            // 显示云端信息
+            document.getElementById('cloudInfoDisplay').style.display = 'block';
+            document.getElementById('cloudCompanyName').textContent = company.name;
+            document.getElementById('cloudCompanyType').textContent = company.type;
+            document.getElementById('cloudCompanyWebsite').textContent = company.website;
+            document.getElementById('cloudProductLines').textContent = company.productLines.join(', ');
+            document.getElementById('cloudCompanyDesc').textContent = company.description;
+
+            // 隐藏下拉框
+            document.getElementById('suggestionDropdown').classList.remove('active');
+        }
+
+        // AI辅助补全
+        function requestAIAssist(query) {
+            alert('🤖 AI正在分析 "' + query + '" 并尝试补全厂商信息...\n\n这个功能将连接到AI服务，自动识别厂商名称、获取官网、产品线等信息。');
+
+            // 模拟AI返回结果
+            const aiResult = {
+                name: query,
+                type: 'AI推测：可能是分销商',
+                website: 'AI推测：www.' + query.toLowerCase().replace(/\s+/g, '') + '.com',
+                description: 'AI正在收集该公司的详细信息...',
+                productLines: ['待AI补全'],
+                relations: []
+            };
+
+            // 显示AI补全的信息
+            selectedCloudData = aiResult;
+            document.getElementById('cloudInfoDisplay').style.display = 'block';
+            document.getElementById('cloudCompanyName').textContent = aiResult.name + ' (AI建议)';
+            document.getElementById('cloudCompanyType').textContent = aiResult.type;
+            document.getElementById('cloudCompanyWebsite').textContent = aiResult.website;
+            document.getElementById('cloudProductLines').textContent = aiResult.productLines.join(', ');
+            document.getElementById('cloudCompanyDesc').textContent = aiResult.description;
+
+            document.getElementById('suggestionDropdown').classList.remove('active');
+        }
+
+        // 清除云端信息
+        function clearCloudInfo() {
+            selectedCloudData = null;
+            document.getElementById('cloudInfoDisplay').style.display = 'none';
+            document.getElementById('supplierNameInput').value = '';
+            document.getElementById('supplierNameInput').focus();
+        }
+
+        // 打开添加厂商模态框
+        function openSupplierModal() {
+            try {
+                const modal = document.getElementById('supplierModal');
+                if (!modal) {
+                    console.error('找不到supplierModal元素');
+                    return;
+                }
+
+                modal.classList.add('active');
+                selectedCloudData = null;
+                aliasTags = [];
+
+                // 安全地调用renderAliasTags
+                if (typeof renderAliasTags === 'function') {
+                    renderAliasTags();
+                }
+
+                // 重置所有表单字段
+                const elements = {
+                    supplierNameInput: '',
+                    aliasInput: '',
+                    websiteInput: '',
+                    descInput: '',
+                    noteInput: ''
+                };
+
+                for (const [id, value] of Object.entries(elements)) {
+                    const elem = document.getElementById(id);
+                    if (elem) elem.value = value;
+                }
+
+                // 重置复选框
+                ['isManufacturer', 'isDistributor', 'isCustomer'].forEach(id => {
+                    const elem = document.getElementById(id);
+                    if (elem) elem.checked = false;
+                });
+            } catch (error) {
+                console.error('打开厂商模态框时出错:', error);
+                alert('打开表单时出错，请刷新页面重试');
+            }
+        }
+
+        // 关闭添加厂商模态框
+        function closeSupplierModal() {
+            document.getElementById('supplierModal').classList.remove('active');
+            document.getElementById('suggestionDropdown').classList.remove('active');
+        }
+
+        // 提交厂商表单
+        function submitSupplier(event) {
+            event.preventDefault();
+
+            const supplierName = document.getElementById('supplierNameInput').value;
+            const website = document.getElementById('websiteInput').value;
+            const logoUrl = document.getElementById('logoUrlInput').value;
+            const platformUrl = document.getElementById('platformUrlInput').value;
+
+            // 如果没有选择云端数据，检查是否有匹配的云端厂商
+            if (!selectedCloudData && supplierName) {
+                checkCloudMatch(supplierName, website);
+            } else if (selectedCloudData) {
+                let message = '✅ 厂商信息已添加！\n\n已从云端加载：\n• 厂商名称：' + selectedCloudData.name + '\n• 类型：' + selectedCloudData.type + '\n• 网站：' + selectedCloudData.website;
+                if (logoUrl) message += '\n• Logo URL: ' + logoUrl;
+                if (platformUrl) message += '\n• 平台URL: ' + platformUrl;
+                alert(message);
+                closeSupplierModal();
+            } else {
+                let message = '✅ 厂商信息已添加！';
+                if (logoUrl || platformUrl) {
+                    message += '\n\n已保存：';
+                    if (logoUrl) message += '\n• Logo URL: ' + logoUrl;
+                    if (platformUrl) message += '\n• 平台URL: ' + platformUrl;
+                }
+                alert(message);
+                closeSupplierModal();
+            }
+
+            return false;
+        }
+
+        // 检查云端匹配
+        function checkCloudMatch(name, website) {
+            // 根据名称和网站匹配云端数据
+            const matches = cloudDatabase.filter(company => {
+                const nameMatch = company.name.toLowerCase().includes(name.toLowerCase()) ||
+                                 company.aliases.some(alias => alias.toLowerCase().includes(name.toLowerCase()));
+                const websiteMatch = website && company.website.toLowerCase().includes(website.toLowerCase());
+                return nameMatch || websiteMatch;
+            });
+
+            if (matches.length > 0) {
+                const match = matches[0];
+                const useCloud = confirm(
+                    '🔍 在云端数据库中找到匹配的厂商！\n\n' +
+                    '云端信息：\n' +
+                    '• 厂商名称：' + match.name + '\n' +
+                    '• 类型：' + match.type + '\n' +
+                    '• 网站：' + match.website + '\n' +
+                    '• 产品线：' + match.productLines.join(', ') + '\n\n' +
+                    '是否使用云端信息？\n' +
+                    '点击"确定"使用云端信息\n' +
+                    '点击"取消"继续使用手动输入的信息（但会关联到云端厂商）'
+                );
+
+                if (useCloud) {
+                    // 使用云端信息
+                    selectedCloudData = match;
+                    document.getElementById('supplierNameInput').value = match.name;
+                    alert('✅ 已关联云端厂商并使用云端信息！\n\n您可以继续填写联系人等本地信息。');
+                } else {
+                    // 保持手动输入，但关联云端
+                    selectedCloudData = match;
+                    alert('✅ 已关联到云端厂商：' + match.name + '\n\n保留您手动输入的信息，但已建立云端关联，后续可同步更新。');
+                }
+            } else {
+                alert('✅ 厂商信息已添加！\n\n未在云端找到匹配厂商，已保存为本地数据。');
+            }
+
+            closeSupplierModal();
+        }
+
+        // 当前查看的厂商ID（用于云端同步）
+        let currentSupplierId = null;
+
+        // 查看厂商详情
+        function viewSupplierDetail(id) {
+            const supplier = suppliersData.find(s => s.id === id);
+            if (!supplier) return;
+
+            currentSupplierId = id;
+
+            // 填充基本信息
+            document.getElementById('detailModalTitle').textContent = supplier.name;
+
+            if (supplier.cloudData) {
+                // 有云端数据 - 不可编辑，显示云端同步按钮
+                document.getElementById('detailSourceLabel').textContent = '来自云端数据库';
+                document.getElementById('detailSourceLabel').style.color = '#1890ff';
+                document.getElementById('editBasicInfoBtn').style.display = 'none';
+                document.getElementById('syncCloudBtn').style.display = 'inline-block';
+
+                document.getElementById('detailName').textContent = supplier.cloudData.name;
+                document.getElementById('detailAliases').textContent = supplier.cloudData.aliases.join(', ');
+                document.getElementById('detailType').textContent = supplier.cloudData.type;
+                document.getElementById('detailWebsite').innerHTML = `<a href="${supplier.cloudData.website}" target="_blank">${supplier.cloudData.website}</a>`;
+                // Logo URL和平台URL从本地数据获取（云端数据不包含这些字段）
+                if (supplier.logoUrl) {
+                    document.getElementById('detailLogoUrl').innerHTML = `<a href="${supplier.logoUrl}" target="_blank" style="color: #00890b;">${supplier.logoUrl}</a>`;
+                } else {
+                    document.getElementById('detailLogoUrl').textContent = '-';
+                }
+                if (supplier.platformUrl) {
+                    document.getElementById('detailPlatformUrl').innerHTML = `<a href="${supplier.platformUrl}" target="_blank" style="color: #00890b;">${supplier.platformUrl}</a>`;
+                } else {
+                    document.getElementById('detailPlatformUrl').textContent = '-';
+                }
+                document.getElementById('detailProducts').textContent = supplier.cloudData.productLines.join(', ');
+                document.getElementById('detailDesc').textContent = supplier.cloudData.description;
+
+                if (supplier.cloudData.relations.length > 0) {
+                    document.getElementById('detailRelations').innerHTML = supplier.cloudData.relations.map(rel =>
+                        `<div class="relation-item">${rel}</div>`
+                    ).join('');
+                } else {
+                    document.getElementById('detailRelations').textContent = '暂无关联信息';
+                }
+            } else {
+                // 无云端数据 - 可编辑，不显示云端同步按钮
+                document.getElementById('detailSourceLabel').textContent = '本地数据';
+                document.getElementById('detailSourceLabel').style.color = '#00890b';
+                document.getElementById('editBasicInfoBtn').style.display = 'inline-block';
+                document.getElementById('syncCloudBtn').style.display = 'none';
+
+                document.getElementById('detailName').textContent = supplier.name;
+                document.getElementById('detailAliases').textContent = '暂无';
+                document.getElementById('detailType').textContent = '待补充';
+                document.getElementById('detailWebsite').textContent = '暂无';
+                document.getElementById('detailLogoUrl').textContent = supplier.logoUrl || '-';
+                document.getElementById('detailPlatformUrl').textContent = supplier.platformUrl || '-';
+                document.getElementById('detailProducts').textContent = supplier.tags.join(', ');
+                document.getElementById('detailDesc').textContent = supplier.description;
+                document.getElementById('detailRelations').textContent = '暂无关联信息';
+            }
+
+            // 联系信息已经在HTML中静态显示，不需要再填充
+
+            // 显示模态框
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        // 云端同步 - 检查更新
+        function syncSupplierCloud() {
+            if (!currentSupplierId) return;
+
+            const supplier = suppliersData.find(s => s.id === currentSupplierId);
+            if (!supplier || !supplier.cloudData) return;
+
+            // 模拟检查云端更新
+            const cloudData = cloudDatabase.find(c => c.id === supplier.cloudData.id);
+
+            if (!cloudData) {
+                alert('❌ 云端数据不存在或已删除');
+                return;
+            }
+
+            // 模拟版本比较（实际应该有时间戳或版本号）
+            const hasUpdate = Math.random() > 0.5; // 模拟50%概率有更新
+
+            if (hasUpdate) {
+                const shouldUpdate = confirm(
+                    '☁️ 云端数据有更新！\n\n' +
+                    '最新云端信息：\n' +
+                    '• 厂商名称：' + cloudData.name + '\n' +
+                    '• 类型：' + cloudData.type + '\n' +
+                    '• 网站：' + cloudData.website + '\n' +
+                    '• 产品线：' + cloudData.productLines.join(', ') + '\n' +
+                    '• 简介：' + cloudData.description.substring(0, 50) + '...\n\n' +
+                    '是否同步最新的云端数据？\n' +
+                    '注意：这将覆盖当前的基本信息，但不会影响联系人和商务信息。'
+                );
+
+                if (shouldUpdate) {
+                    // 更新本地数据
+                    supplier.cloudData = cloudData;
+
+                    // 刷新显示
+                    document.getElementById('detailName').textContent = cloudData.name;
+                    document.getElementById('detailAliases').textContent = cloudData.aliases.join(', ');
+                    document.getElementById('detailType').textContent = cloudData.type;
+                    document.getElementById('detailWebsite').innerHTML = `<a href="${cloudData.website}" target="_blank">${cloudData.website}</a>`;
+                    document.getElementById('detailProducts').textContent = cloudData.productLines.join(', ');
+                    document.getElementById('detailDesc').textContent = cloudData.description;
+
+                    if (cloudData.relations.length > 0) {
+                        document.getElementById('detailRelations').innerHTML = cloudData.relations.map(rel =>
+                            `<div class="relation-item">${rel}</div>`
+                        ).join('');
+                    } else {
+                        document.getElementById('detailRelations').textContent = '暂无关联信息';
+                    }
+
+                    alert('✅ 已同步最新云端数据！');
+                }
+            } else {
+                alert('✅ 云端数据已是最新版本，无需更新。');
+            }
+        }
+
+        // 关闭详情模态框
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // 联系人数据管理
+        let contactsList = [
+            {
+                id: 1,
+                region: '华东地区',
+                location: '苏州总部',
+                address: '江苏省苏州市工业园区星湖街328号',
+                isPrimary: true,
+                name: '张经理',
+                position: '销售总监',
+                phone: '0512-8888-8888',
+                mobile: '138-0000-0000',
+                email: 'zhang@example.com'
+            },
+            {
+                id: 2,
+                region: '华南地区',
+                location: '深圳分部',
+                address: '广东省深圳市南山区科技园南区',
+                isPrimary: false,
+                name: '李工',
+                position: '技术支持',
+                phone: '0755-1234-5678',
+                mobile: '139-1111-2222',
+                email: 'li@example.com'
+            }
+        ];
+
+        let contactIdCounter = 3;
+
+        // 切换编辑状态
+        function toggleEdit(section) {
+            const displaySection = document.getElementById(section === 'contact' ? 'contactListDisplay' : null);
+            const editSection = document.getElementById(section + 'EditSection');
+
+            if (section === 'contact') {
+                if (editSection.style.display === 'none') {
+                    // 进入编辑模式
+                    renderContactsEdit();
+                    displaySection.style.display = 'none';
+                    editSection.style.display = 'block';
+                } else {
+                    // 退出编辑模式
+                    displaySection.style.display = 'block';
+                    editSection.style.display = 'none';
+                }
+            } else if (section === 'business') {
+                if (editSection.style.display === 'none') {
+                    editSection.style.display = 'block';
+                } else {
+                    editSection.style.display = 'none';
+                }
+            }
+        }
+
+        // 渲染联系人编辑表单
+        function renderContactsEdit() {
+            const container = document.getElementById('contactsContainer');
+            container.innerHTML = contactsList.map((contact, index) => `
+                <div style="background: #fff; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h4 style="font-size: 16px; font-weight: 700; color: #3d4647;">联系人 ${index + 1}</h4>
+                        <div style="display: flex; gap: 8px;">
+                            ${contact.isPrimary ? '<span style="padding: 4px 10px; background: #f0f0f0; border-radius: 4px; font-size: 12px;">主要联系点</span>' : ''}
+                            <button class="btn-cancel" style="padding: 6px 12px; font-size: 12px;" onclick="removeContact(${contact.id})">删除</button>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">地区名称</label>
+                            <input type="text" class="form-input contact-region" data-id="${contact.id}" value="${contact.region}" placeholder="例如：华东地区">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">办公地点</label>
+                            <input type="text" class="form-input contact-location" data-id="${contact.id}" value="${contact.location}" placeholder="例如：苏州总部">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">详细地址</label>
+                            <input type="text" class="form-input contact-address" data-id="${contact.id}" value="${contact.address}" placeholder="请输入详细地址">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">联系人姓名</label>
+                            <input type="text" class="form-input contact-name" data-id="${contact.id}" value="${contact.name}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">职位</label>
+                            <input type="text" class="form-input contact-position" data-id="${contact.id}" value="${contact.position}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">固定电话</label>
+                            <input type="tel" class="form-input contact-phone" data-id="${contact.id}" value="${contact.phone}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">手机号码</label>
+                            <input type="tel" class="form-input contact-mobile" data-id="${contact.id}" value="${contact.mobile}">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">电子邮箱</label>
+                            <input type="email" class="form-input contact-email" data-id="${contact.id}" value="${contact.email}">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" ${contact.isPrimary ? 'checked' : ''} onchange="setPrimaryContact(${contact.id})">
+                            <span style="font-size: 14px; color: #3d4647;">设为主要联系点</span>
+                        </label>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 添加新联系人
+        function addNewContact() {
+            contactsList.push({
+                id: contactIdCounter++,
+                region: '',
+                location: '',
+                address: '',
+                isPrimary: false,
+                name: '',
+                position: '',
+                phone: '',
+                mobile: '',
+                email: ''
+            });
+            renderContactsEdit();
+        }
+
+        // 删除联系人
+        function removeContact(id) {
+            if (contactsList.length === 1) {
+                alert('⚠️ 至少需要保留一个联系人！');
+                return;
+            }
+            if (confirm('确定要删除这个联系人吗？')) {
+                contactsList = contactsList.filter(c => c.id !== id);
+                renderContactsEdit();
+            }
+        }
+
+        // 设置主要联系点
+        function setPrimaryContact(id) {
+            contactsList.forEach(c => {
+                c.isPrimary = (c.id === id);
+            });
+            renderContactsEdit();
+        }
+
+        // 保存联系信息
+        function saveContactInfo() {
+            // 收集表单数据
+            contactsList.forEach(contact => {
+                contact.region = document.querySelector(`.contact-region[data-id="${contact.id}"]`).value;
+                contact.location = document.querySelector(`.contact-location[data-id="${contact.id}"]`).value;
+                contact.address = document.querySelector(`.contact-address[data-id="${contact.id}"]`).value;
+                contact.name = document.querySelector(`.contact-name[data-id="${contact.id}"]`).value;
+                contact.position = document.querySelector(`.contact-position[data-id="${contact.id}"]`).value;
+                contact.phone = document.querySelector(`.contact-phone[data-id="${contact.id}"]`).value;
+                contact.mobile = document.querySelector(`.contact-mobile[data-id="${contact.id}"]`).value;
+                contact.email = document.querySelector(`.contact-email[data-id="${contact.id}"]`).value;
+            });
+
+            // 更新显示
+            const displayContainer = document.getElementById('contactListDisplay');
+            displayContainer.innerHTML = contactsList.map(contact => `
+                <div style="padding: 16px; background: #f8f9fa; border-radius: 8px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                        <div>
+                            <div style="font-weight: 600; color: #3d4647; margin-bottom: 4px;">📍 ${contact.region} - ${contact.location}</div>
+                            <div style="font-size: 13px; color: #8c8c8c; margin-bottom: 8px;">${contact.address}</div>
+                        </div>
+                        ${contact.isPrimary ? '<span style="padding: 4px 10px; background: #f0f0f0; border-radius: 4px; font-size: 12px;">主要联系点</span>' : ''}
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding-left: 20px;">
+                        <div>
+                            <div style="font-size: 12px; color: #8c8c8c;">联系人</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #3d4647;">${contact.name}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #8c8c8c;">职位</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #3d4647;">${contact.position}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #8c8c8c;">电话</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #3d4647;">${contact.phone}</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #8c8c8c;">手机</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #3d4647;">${contact.mobile}</div>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <div style="font-size: 12px; color: #8c8c8c;">邮箱</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #3d4647;">${contact.email}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            alert('✅ 联系信息已保存！');
+            toggleEdit('contact');
+        }
+
+        // 保存商务信息
+        function saveBusinessInfo() {
+            alert('✅ 商务信息已保存！');
+            toggleEdit('business');
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('supplierModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSupplierModal();
+            }
+        });
+
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeDetailModal();
+            }
+        });
+
+        document.getElementById('cloudSearchModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCloudSearchModal();
+            }
+        });
+
+        // 搜索框回车事件
+        function handleSearchEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                performSearch();
+            }
+        }
+
+        // 执行搜索
+        function performSearch() {
+            const query = document.getElementById('mainSearchInput').value;
+            if (query.trim()) {
+                alert('🔍 正在搜索: "' + query + '"\n\n搜索结果将筛选包含该关键词的厂商。\n在实际系统中，这里会过滤显示匹配的厂商列表。');
+                console.log('搜索关键词:', query);
+            }
+        }
+
+        // 云端搜索模态框
+        let cloudSearchTimeout = null;
+
+        function openCloudSearchModal() {
+            document.getElementById('cloudSearchModal').classList.add('active');
+            document.getElementById('cloudSearchInput').value = '';
+            document.getElementById('cloudSearchResults').innerHTML = '<div style="text-align: center; padding: 40px; color: #8c8c8c;">输入关键词开始搜索...</div>';
+        }
+
+        function closeCloudSearchModal() {
+            document.getElementById('cloudSearchModal').classList.remove('active');
+        }
+
+        // 云端搜索回车事件
+        function handleCloudSearchEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                performCloudSearch();
+            }
+        }
+
+        // 执行云端搜索
+        function performCloudSearch() {
+            clearTimeout(cloudSearchTimeout);
+
+            const query = document.getElementById('cloudSearchInput').value;
+            const resultsDiv = document.getElementById('cloudSearchResults');
+
+            if (!query || query.length < 2) {
+                resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #8c8c8c;">输入关键词开始搜索...</div>';
+                return;
+            }
+
+            resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #8c8c8c;">🔍 搜索中...</div>';
+
+            cloudSearchTimeout = setTimeout(() => {
+                const results = cloudDatabase.filter(company =>
+                    company.name.toLowerCase().includes(query.toLowerCase()) ||
+                    company.aliases.some(alias => alias.toLowerCase().includes(query.toLowerCase())) ||
+                    company.website.toLowerCase().includes(query.toLowerCase())
+                );
+
+                if (results.length > 0) {
+                    resultsDiv.innerHTML = results.map(company => `
+                        <div style="padding: 16px; border: 2px solid #e0e0e0; border-radius: 8px; margin-bottom: 12px; cursor: pointer; transition: all 0.3s;"
+                             onmouseover="this.style.borderColor='#00890b'"
+                             onmouseout="this.style.borderColor='#e0e0e0'"
+                             onclick="importFromCloud(${company.id})">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                                <div style="font-size: 16px; font-weight: 700; color: #3d4647;">${company.name}</div>
+                                <div style="padding: 4px 10px; background: #f0f0f0; border-radius: 4px; font-size: 12px;">${company.type}</div>
+                            </div>
+                            <div style="font-size: 13px; color: #8c8c8c; margin-bottom: 8px;">${company.description}</div>
+                            <div style="font-size: 12px; color: #00890b;">🌐 ${company.website}</div>
+                            <div style="font-size: 12px; color: #666; margin-top: 8px;">📦 ${company.productLines.join(', ')}</div>
+                    `).join('');
+                } else {
+                    resultsDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #8c8c8c;">未找到匹配的厂商</div>';
+                }
+            }, 500);
+        }
+
+        // 从云端导入
+        function importFromCloud(companyId) {
+            const company = cloudDatabase.find(c => c.id === companyId);
+            if (company) {
+                if (confirm('确认导入厂商 "' + company.name + '" 吗？\n\n导入后您可以添加联系人等本地信息。')) {
+                    alert('✅ 成功从云端导入！\n\n厂商：' + company.name + '\n类型：' + company.type + '\n网站：' + company.website + '\n\n该厂商已添加到本地库，请补充联系人等信息。');
+                    closeCloudSearchModal();
+                }
+            }
+        }
+
+        // 同步云端数据
+        // ========== 同步云端数据功能 ==========
+
+        function syncCloudData() {
+            document.getElementById('syncCloudModal').classList.add('active');
+            // 重置状态
+            document.getElementById('syncProgress').style.display = 'none';
+            document.getElementById('syncResult').style.display = 'none';
+            document.getElementById('startSyncBtn').disabled = false;
+        }
+
+        function closeSyncCloudModal() {
+            document.getElementById('syncCloudModal').classList.remove('active');
+        }
+
+        function startSync() {
+            const syncBasicInfo = document.getElementById('syncBasicInfo').checked;
+            const syncDescription = document.getElementById('syncDescription').checked;
+            const syncContact = document.getElementById('syncContact').checked;
+            const overwriteLocal = document.getElementById('overwriteLocal').checked;
+
+            // 禁用按钮
+            document.getElementById('startSyncBtn').disabled = true;
+
+            // 显示进度条
+            document.getElementById('syncProgress').style.display = 'block';
+            document.getElementById('syncResult').style.display = 'none';
+
+            // 模拟同步过程
+            let progress = 0;
+            const progressBar = document.getElementById('syncProgressBar');
+            const statusText = document.getElementById('syncStatus');
+
+            const steps = [
+                { progress: 20, text: '正在扫描本地厂商数据...' },
+                { progress: 40, text: '正在匹配云端数据库...' },
+                { progress: 60, text: '正在更新基本信息...' },
+                { progress: 80, text: '正在同步简介和标签...' },
+                { progress: 100, text: '同步完成！' }
+            ];
+
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    progressBar.style.width = steps[currentStep].progress + '%';
+                    statusText.textContent = steps[currentStep].text;
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+
+                    // 显示结果
+                    setTimeout(() => {
+                        document.getElementById('syncProgress').style.display = 'none';
+                        document.getElementById('syncResult').style.display = 'block';
+
+                        // 模拟数据
+                        document.getElementById('matchedCount').textContent = '5';
+                        document.getElementById('updatedCount').textContent = '3';
+                        document.getElementById('linkedCount').textContent = '2';
+                        document.getElementById('skippedCount').textContent = '0';
+                    }, 500);
+                }
+            }, 800);
+        }
+
+        // ========== 批量导入功能 ==========
+
+        let selectedFile = null;
+
+        function batchImport() {
+            document.getElementById('batchImportModal').classList.add('active');
+            // 重置状态
+            clearFile();
+            document.getElementById('importProgress').style.display = 'none';
+            document.getElementById('importResult').style.display = 'none';
+        }
+
+        function closeBatchImportModal() {
+            document.getElementById('batchImportModal').classList.remove('active');
+        }
+
+        function downloadTemplate(type) {
+            if (type === 'excel') {
+                alert('📊 下载 Excel 模板\n\n实际系统中，这里会下载包含以下列的Excel模板：\n• 厂商名称 *\n• 厂商类型 *\n• 官网地址\n• 联系人\n• 联系电话\n• 联系邮箱\n• 公司地址\n• 简介\n\n您可以填写完成后上传导入。');
+            } else {
+                alert('📄 下载 CSV 模板\n\n实际系统中，这里会下载CSV格式的模板文件。');
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function handleFileDrop(event) {
+            event.preventDefault();
+            const uploadArea = document.getElementById('uploadArea');
+            uploadArea.style.borderColor = '#d9d9d9';
+            uploadArea.style.background = '#fafafa';
+
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                processFile(file);
+            }
+        }
+
+        function processFile(file) {
+            // 验证文件类型
+            const validTypes = ['.xlsx', '.xls', '.csv'];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+
+            if (!validTypes.includes(fileExt)) {
+                alert('❌ 不支持的文件格式\n\n请上传 .xlsx、.xls 或 .csv 格式的文件。');
+                return;
+            }
+
+            // 验证文件大小 (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('❌ 文件过大\n\n文件大小不能超过 10MB。');
+                return;
+            }
+
+            selectedFile = file;
+
+            // 显示文件信息
+            document.getElementById('selectedFile').style.display = 'block';
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+
+            // 启用导入按钮
+            const importBtn = document.getElementById('startImportBtn');
+            importBtn.disabled = false;
+            importBtn.style.opacity = '1';
+        }
+
+        function clearFile() {
+            selectedFile = null;
+            document.getElementById('fileInput').value = '';
+            document.getElementById('selectedFile').style.display = 'none';
+
+            const importBtn = document.getElementById('startImportBtn');
+            importBtn.disabled = true;
+            importBtn.style.opacity = '0.5';
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function startImport() {
+            if (!selectedFile) {
+                alert('请先选择文件');
+                return;
+            }
+
+            const skipDuplicate = document.getElementById('skipDuplicate').checked;
+            const autoMatch = document.getElementById('autoMatch').checked;
+            const validateData = document.getElementById('validateData').checked;
+
+            // 禁用按钮
+            const importBtn = document.getElementById('startImportBtn');
+            importBtn.disabled = true;
+            importBtn.style.opacity = '0.5';
+
+            // 显示进度
+            document.getElementById('importProgress').style.display = 'block';
+            document.getElementById('importResult').style.display = 'none';
+
+            // 模拟导入过程
+            const progressBar = document.getElementById('importProgressBar');
+            const statusText = document.getElementById('importStatus');
+
+            const steps = [
+                { progress: 15, text: '正在解析文件...' },
+                { progress: 30, text: '正在验证数据格式...' },
+                { progress: 50, text: '正在导入厂商数据...' },
+                { progress: 70, text: '正在匹配云端数据...' },
+                { progress: 90, text: '正在保存数据...' },
+                { progress: 100, text: '导入完成！' }
+            ];
+
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    progressBar.style.width = steps[currentStep].progress + '%';
+                    statusText.textContent = steps[currentStep].text;
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+
+                    // 显示结果
+                    setTimeout(() => {
+                        document.getElementById('importProgress').style.display = 'none';
+                        document.getElementById('importResult').style.display = 'block';
+
+                        // 模拟数据
+                        const total = Math.floor(Math.random() * 20) + 30;
+                        const success = total - Math.floor(Math.random() * 5);
+                        const failed = total - success;
+
+                        document.getElementById('importTotal').textContent = total;
+                        document.getElementById('importSuccess').textContent = success;
+                        document.getElementById('importFailed').textContent = failed;
+
+                        if (failed > 0) {
+                            document.getElementById('importErrors').style.display = 'block';
+                        }
+                    }, 500);
+                }
+            }, 600);
+        }
+
+        // 开关切换
+        function toggleSwitch(id) {
+            const checkbox = document.getElementById(id);
+            checkbox.checked = !checkbox.checked;
+        }
+
+        // 别名标签管理
+        let aliasTags = [];
+
+        function handleAliasEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = document.getElementById('aliasInput');
+                const value = input.value.trim();
+
+                if (value && !aliasTags.includes(value)) {
+                    aliasTags.push(value);
+                    renderAliasTags();
+                    input.value = '';
+                }
+            }
+        }
+
+        function renderAliasTags() {
+            const container = document.getElementById('aliasTagsContainer');
+            container.innerHTML = aliasTags.map((tag, index) => `
+                <div class="alias-tag">
+                    <span>${tag}</span>
+                    <span class="alias-tag-remove" onclick="removeAliasTag(${index})">×</span>
+            `).join('');
+        }
+
+        function removeAliasTag(index) {
+            aliasTags.splice(index, 1);
+            renderAliasTags();
+        }
+
+        // 切换基本信息编辑
+        function toggleEditBasicInfo() {
+            const displaySection = document.getElementById('basicInfoDisplay');
+            const editSection = document.getElementById('basicInfoEditSection');
+
+            if (editSection.style.display === 'none') {
+                // 进入编辑模式
+                displaySection.style.display = 'none';
+                editSection.style.display = 'block';
+
+                // 填充当前值到编辑表单
+                document.getElementById('editBasicName').value = document.getElementById('detailName').textContent;
+                document.getElementById('editBasicAliases').value = document.getElementById('detailAliases').textContent;
+                document.getElementById('editBasicWebsite').value = document.getElementById('detailWebsite').textContent;
+                document.getElementById('editBasicLogoUrl').value = document.getElementById('detailLogoUrl').textContent === '-' ? '' : document.getElementById('detailLogoUrl').textContent;
+                document.getElementById('editBasicPlatformUrl').value = document.getElementById('detailPlatformUrl').textContent === '-' ? '' : document.getElementById('detailPlatformUrl').textContent;
+                document.getElementById('editBasicProducts').value = document.getElementById('detailProducts').textContent;
+                document.getElementById('editBasicDesc').value = document.getElementById('detailDesc').textContent;
+            } else {
+                // 退出编辑模式
+                displaySection.style.display = 'grid';
+                editSection.style.display = 'none';
+            }
+        }
+
+        // 保存基本信息
+        function saveBasicInfo() {
+            const name = document.getElementById('editBasicName').value;
+            const aliases = document.getElementById('editBasicAliases').value;
+            const website = document.getElementById('editBasicWebsite').value;
+            const logoUrl = document.getElementById('editBasicLogoUrl').value;
+            const platformUrl = document.getElementById('editBasicPlatformUrl').value;
+            const products = document.getElementById('editBasicProducts').value;
+            const desc = document.getElementById('editBasicDesc').value;
+
+            // 更新显示
+            document.getElementById('detailName').textContent = name;
+            document.getElementById('detailAliases').textContent = aliases;
+            document.getElementById('detailWebsite').textContent = website || '-';
+
+            // 显示Logo URL（如果是图片链接则显示为可点击链接）
+            if (logoUrl) {
+                document.getElementById('detailLogoUrl').innerHTML = `<a href="${logoUrl}" target="_blank" style="color: #00890b;">${logoUrl}</a>`;
+            } else {
+                document.getElementById('detailLogoUrl').textContent = '-';
+            }
+
+            // 显示平台URL链接
+            if (platformUrl) {
+                document.getElementById('detailPlatformUrl').innerHTML = `<a href="${platformUrl}" target="_blank" style="color: #00890b;">${platformUrl}</a>`;
+            } else {
+                document.getElementById('detailPlatformUrl').textContent = '-';
+            }
+
+            document.getElementById('detailProducts').textContent = products;
+            document.getElementById('detailDesc').textContent = desc;
+
+            alert('✅ 基本信息已保存！\n\n已更新：\n• Logo URL: ' + (logoUrl || '未设置') + '\n• 平台URL链接: ' + (platformUrl || '未设置'));
+            toggleEditBasicInfo();
+        }
+    </script>
+
+    <!-- ▼ AI 增强：Agent ⑦ 催办规则详情 -->
+    <div class="ai-modal-mask" id="aiSupplierRulesModal">
+        <div class="ai-modal">
+            <div class="ai-modal-head">
+                <h3>自动催办规则与历史 · Agent ⑦</h3>
+                <button class="ai-modal-close" onclick="aiCloseModal('aiSupplierRulesModal')">✕</button>
+            </div>
+            <div class="ai-modal-body">
+                <div style="font-size:13px; color:#555; margin-bottom:14px;">本月共触发 <b>96 次</b>自动催办，覆盖 23 家供应商。</div>
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead style="background:var(--ai-50);">
+                        <tr>
+                            <th style="padding:10px; text-align:left;">时间</th>
+                            <th style="padding:10px; text-align:left;">供应商</th>
+                            <th style="padding:10px;">触发规则</th>
+                            <th style="padding:10px;">通道</th>
+                            <th style="padding:10px;">状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="padding:10px;">05-18 08:24</td><td style="padding:10px;">深圳华强电子</td><td style="padding:10px; text-align:center;"><span class="ai-chip">交期未回复</span></td><td style="padding:10px; text-align:center;">📧 邮件</td><td style="padding:10px; text-align:center; color:var(--brand-500);">已回复</td></tr>
+                        <tr><td style="padding:10px;">05-17 14:02</td><td style="padding:10px;">立创商城</td><td style="padding:10px; text-align:center;"><span class="ai-chip">临近交期未发货</span></td><td style="padding:10px; text-align:center;">📧 + 📱</td><td style="padding:10px; text-align:center; color:var(--brand-500);">已发货</td></tr>
+                        <tr><td style="padding:10px;">05-17 09:30</td><td style="padding:10px;">Mouser 直营</td><td style="padding:10px; text-align:center;"><span class="ai-chip">RoHS 文件过期</span></td><td style="padding:10px; text-align:center;">📧 邮件</td><td style="padding:10px; text-align:center; color:var(--warn-500);">等待续证</td></tr>
+                        <tr><td style="padding:10px;">05-16 11:11</td><td style="padding:10px;">中科芯电子</td><td style="padding:10px; text-align:center;"><span class="ai-chip">交期未回复</span></td><td style="padding:10px; text-align:center;">📧 邮件</td><td style="padding:10px; text-align:center; color:var(--brand-500);">已回复</td></tr>
+                    </tbody>
+                </table>
+                <div style="margin-top:14px; padding:12px; background:var(--ai-50); border-radius:8px; font-size:12px; color:#555;">
+                    ✦ 提示：规则编辑权限位于「系统设置 → 供应商协同」，规则改动会在 1 小时内生效。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ▼ AI 增强：Agent ⑦ 供应商质量评分 -->
+    <div class="ai-modal-mask" id="aiSupplierScoreModal">
+        <div class="ai-modal">
+            <div class="ai-modal-head">
+                <h3>AI 供应商质量评分 · Agent ⑦</h3>
+                <button class="ai-modal-close" onclick="aiCloseModal('aiSupplierScoreModal')">✕</button>
+            </div>
+            <div class="ai-modal-body">
+                <div style="font-size:13px; color:#555; margin-bottom:14px;">基于近 6 个月 <b>交期准确率 / IQC 合格率 / 价格竞争力 / 响应时长 / RoHS 合规</b> 五维度自动评分。</div>
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead style="background:var(--ai-50);">
+                        <tr>
+                            <th style="padding:10px; text-align:left;">供应商</th>
+                            <th style="padding:10px;">交期准</th>
+                            <th style="padding:10px;">IQC 合格</th>
+                            <th style="padding:10px;">价格</th>
+                            <th style="padding:10px;">响应</th>
+                            <th style="padding:10px;">合规</th>
+                            <th style="padding:10px;">综合</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="padding:10px;"><b>立创商城</b></td><td style="padding:10px; text-align:center;">98%</td><td style="padding:10px; text-align:center;">99.6%</td><td style="padding:10px; text-align:center;">A+</td><td style="padding:10px; text-align:center;">2h</td><td style="padding:10px; text-align:center;">✓</td><td style="padding:10px; text-align:center;"><span class="badge-ai">96</span></td></tr>
+                        <tr><td style="padding:10px;"><b>深圳华强电子</b></td><td style="padding:10px; text-align:center;">92%</td><td style="padding:10px; text-align:center;">98.4%</td><td style="padding:10px; text-align:center;">A</td><td style="padding:10px; text-align:center;">6h</td><td style="padding:10px; text-align:center;">✓</td><td style="padding:10px; text-align:center;"><span class="badge-ai">90</span></td></tr>
+                        <tr><td style="padding:10px;"><b>中科芯电子</b></td><td style="padding:10px; text-align:center;">95%</td><td style="padding:10px; text-align:center;">99.2%</td><td style="padding:10px; text-align:center;">A+</td><td style="padding:10px; text-align:center;">4h</td><td style="padding:10px; text-align:center;">✓</td><td style="padding:10px; text-align:center;"><span class="badge-ai">94</span></td></tr>
+                        <tr><td style="padding:10px;"><b>Mouser 直营</b></td><td style="padding:10px; text-align:center;">99%</td><td style="padding:10px; text-align:center;">100%</td><td style="padding:10px; text-align:center;">B</td><td style="padding:10px; text-align:center;">24h</td><td style="padding:10px; text-align:center;">⚠ 即将过期</td><td style="padding:10px; text-align:center;"><span class="badge-ai" style="color:var(--warn-500); border-color:#ffd591; background:var(--warn-50);">82</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ▼ 需求 采-5：供应商对账单 → AP -->
+    <div class="ai-modal-mask" id="aiSupplierApModal">
+        <div class="ai-modal">
+            <div class="ai-modal-head">
+                <h3>供应商对账单 → AP · 需求 采-5</h3>
+                <button class="ai-modal-close" onclick="aiCloseModal('aiSupplierApModal')">✕</button>
+            </div>
+            <div class="ai-modal-body">
+                <div style="font-size:13px; color:#555; margin-bottom:14px;">
+                    上传任意格式（EXCEL / PDF / 图片）的供应商对账单，AI 自动比对系统应付明细（PO + 入库单），输出差异并生成 AP 凭证。
+                </div>
+                <div class="ocr-dropzone" style="padding:24px;" onclick="document.getElementById('aiApDocFile').click();">
+                    <div class="big">📑</div>
+                    <div><b>拖入或点击上传</b> 供应商对账单</div>
+                    <div class="hint">支持 xlsx / csv / pdf / png / jpg</div>
+                    <input type="file" id="aiApDocFile" hidden onchange="alert('已上传 ' + this.files[0].name + '，AI 正在比对应付明细…');" />
+                </div>
+
+                <div style="margin-top:14px; background:var(--ai-50); border:1px solid var(--ai-100); border-radius:8px; padding:12px;">
+                    <div style="font-size:13px; font-weight:700; color:var(--ai-700); margin-bottom:6px;">✦ 最近一次 AP 对账（立创商城 · 2026-04）</div>
+                    <table style="width:100%; font-size:12px; border-collapse:collapse;">
+                        <thead style="background:#fff;"><tr><th style="padding:6px; text-align:left;">PO</th><th style="padding:6px;">入库</th><th style="padding:6px;">对账金额</th><th style="padding:6px;">系统金额</th><th style="padding:6px;">差异</th></tr></thead>
+                        <tbody>
+                            <tr><td style="padding:6px;">PO-2026-3201</td><td style="padding:6px; text-align:center;">2000</td><td style="padding:6px; text-align:center;">¥ 8,360.00</td><td style="padding:6px; text-align:center;">¥ 8,360.00</td><td style="padding:6px; text-align:center; color:var(--brand-500);">¥ 0.00</td></tr>
+                            <tr><td style="padding:6px;">PO-2026-3215</td><td style="padding:6px; text-align:center;">500</td><td style="padding:6px; text-align:center;">¥ 2,090.00</td><td style="padding:6px; text-align:center;">¥ 2,090.00</td><td style="padding:6px; text-align:center; color:var(--brand-500);">¥ 0.00</td></tr>
+                            <tr style="background:#fff7e6;"><td style="padding:6px;">PO-2026-3232</td><td style="padding:6px; text-align:center;">1000</td><td style="padding:6px; text-align:center;">¥ 4,500.00</td><td style="padding:6px; text-align:center;">¥ 4,200.00</td><td style="padding:6px; text-align:center; color:var(--warn-500);">+¥ 300.00</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top:14px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+                    <button class="btn-ai" onclick="alert('已通知立创对账员复核 PO-2026-3232 差异');">通知供应商复核差异</button>
+                    <button class="btn-ai" onclick="alert('已生成 AP-2026-04-立创 凭证');">生成 AP 凭证</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ▼ 需求 采-4：OPO 交期协同（双周自动催 + 行级回复模板） -->
+    <div class="ai-modal-mask" id="aiOpoTemplateModal">
+        <div class="ai-modal">
+            <div class="ai-modal-head">
+                <h3>OPO 交期协同 · 需求 采-4</h3>
+                <button class="ai-modal-close" onclick="aiCloseModal('aiOpoTemplateModal')">✕</button>
+            </div>
+            <div class="ai-modal-body">
+                <div style="font-size:13px; color:#555; margin-bottom:14px;">
+                    供应商在订单明细 <b>行级别</b> 直接填报或导入交期回复，系统自动关联到对应 PO 行；解决了过去用 VLOOKUP 在多个 EXCEL 间匹配的痛点。
+                    <br/>系统每 <b>两周</b> 自动批量发送 OPO 模板给所有有未确认行的供应商，要求回复交期。
+                </div>
+
+                <!-- 模板下载 + 双周自动催状态 -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                    <div style="background:var(--ai-50); border:1px solid var(--ai-100); border-radius:8px; padding:14px;">
+                        <div style="font-weight:700; margin-bottom:6px;">📤 行级 OPO 回复模板</div>
+                        <div style="font-size:12px; color:#666; margin-bottom:8px;">供应商按 PO 行填写"确认交期 / 数量 / 备注"，回填 EXCEL 即可。</div>
+                        <button class="btn-ai" onclick="alert('已下载 OPO-Reply-Template.xlsx');">下载模板</button>
+                        <button class="btn-ai" onclick="document.getElementById('aiOpoReplyFile').click();">上传供应商回填</button>
+                        <input type="file" id="aiOpoReplyFile" hidden onchange="alert('已上传 ' + this.files[0].name + '，AI 自动行级关联，无需 VLOOKUP');" />
+                    </div>
+                    <div style="background:var(--ai-50); border:1px solid var(--ai-100); border-radius:8px; padding:14px;">
+                        <div style="font-weight:700; margin-bottom:6px;">🔁 每两周自动催（已开启）</div>
+                        <div style="font-size:12px; color:#666;">下次触发：<b>2026-06-01 09:00</b>。覆盖 23 家供应商共 86 行待确认 OPO。</div>
+                        <div style="margin-top:8px; display:flex; align-items:center; gap:8px; font-size:12px;">
+                            <input type="checkbox" class="ai-rule-toggle" checked /> 启用自动催办
+                        </div>
+                        <div style="margin-top:6px; font-size:12px;">频率：<select style="padding:3px 6px;"><option>每 14 天</option><option>每 7 天</option><option>每 21 天</option></select></div>
+                    </div>
+                </div>
+
+                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                    <thead style="background:var(--ai-50);">
+                        <tr>
+                            <th style="padding:8px; text-align:left;">PO 行</th>
+                            <th style="padding:8px; text-align:left;">MPN</th>
+                            <th style="padding:8px;">数量</th>
+                            <th style="padding:8px;">供应商</th>
+                            <th style="padding:8px;">确认交期</th>
+                            <th style="padding:8px;">回复时间</th>
+                            <th style="padding:8px;">状态</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td style="padding:8px;">PO-3290-1</td><td style="padding:8px;">STM32F103C8T6</td><td style="padding:8px; text-align:center;">3,000</td><td style="padding:8px;">立创商城</td><td style="padding:8px; text-align:center;">2026-05-19</td><td style="padding:8px; text-align:center;">05-17 14:02</td><td style="padding:8px; text-align:center;"><span class="badge-ai">已回复</span></td></tr>
+                        <tr><td style="padding:8px;">PO-3290-2</td><td style="padding:8px;">0603 RES 10K</td><td style="padding:8px; text-align:center;">50,000</td><td style="padding:8px;">立创商城</td><td style="padding:8px; text-align:center;">2026-05-19</td><td style="padding:8px; text-align:center;">05-17 14:02</td><td style="padding:8px; text-align:center;"><span class="badge-ai">已回复</span></td></tr>
+                        <tr style="background:#fff7e6;"><td style="padding:8px;">PO-3301-1</td><td style="padding:8px;">USB-C 24Pin</td><td style="padding:8px; text-align:center;">2,000</td><td style="padding:8px;">深圳华强</td><td style="padding:8px; text-align:center;">—</td><td style="padding:8px; text-align:center;">—</td><td style="padding:8px; text-align:center;"><span class="badge-ai" style="color:var(--warn-500); border-color:#ffd591; background:var(--warn-50);">待回复 5 天</span></td></tr>
+                        <tr style="background:#fff1f0;"><td style="padding:8px;">PO-3315-1</td><td style="padding:8px;">CH340G</td><td style="padding:8px; text-align:center;">5,000</td><td style="padding:8px;">中科芯</td><td style="padding:8px; text-align:center;">—</td><td style="padding:8px; text-align:center;">—</td><td style="padding:8px; text-align:center;"><span class="badge-ai" style="color:#a8071a; background:#fff1f0; border-color:#ffa39e;">待回复 9 天 · 紧急</span></td></tr>
+                    </tbody>
+                </table>
+                <div style="margin-top:14px; text-align:right; display:flex; gap:8px; justify-content:flex-end;">
+                    <button class="btn-ai" onclick="alert('已手动触发对未回复供应商发送催办（2 家）');">手动催办未回复</button>
+                    <button class="btn-ai" onclick="alert('已同步交期到 procurement.html 缺料分析');">同步到缺料分析</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

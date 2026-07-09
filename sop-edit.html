@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑SOP - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            padding: 32px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            background: white;
+            padding: 24px 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        /* 表单 */
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .form-label.required::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* 步骤列表 */
+        .steps-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .step-item {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #00890b;
+        }
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .step-number {
+            background: #00890b;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        .step-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 按钮 */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .btn-icon {
+            background: transparent;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-icon:hover {
+            background: #f8f9fa;
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 文件上传区域 */
+        .upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #00890b;
+            background: #f8fff9;
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        /* 附件列表 */
+        .attachment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            gap: 12px;
+        }
+        .attachment-icon {
+            font-size: 24px;
+        }
+        .attachment-info {
+            flex: 1;
+        }
+        .attachment-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+        .attachment-size {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 底部操作栏 */
+        .action-bar {
+            position: sticky;
+            bottom: 0;
+            background: white;
+            padding: 20px 32px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='dashboard-pro.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div>
+                <div class="page-title">📋 创建标准作业程序 (SOP)</div>
+                <div class="page-subtitle">Standard Operating Procedure</div>
+            </div>
+            <button class="btn btn-secondary" onclick="goBack()">← 返回</button>
+        </div>
+
+        <!-- 基本信息 -->
+        <div class="content-card">
+            <div class="section-title">📄 基本信息</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label required">SOP名称</label>
+                    <input type="text" class="form-input" id="sopName" placeholder="例如：ESP32游戏手柄组装流程">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">SOP编号</label>
+                    <input type="text" class="form-input" id="sopCode" value="SOP-2025-007" readonly style="background: #f8f9fa;">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label required">适用产品</label>
+                    <select class="form-select" id="sopProduct">
+                        <option value="">请选择产品</option>
+                        <option>ESP32游戏手柄 v2.0</option>
+                        <option>双通道示波器模块</option>
+                        <option>ATT 501 I/O扩展板</option>
+                        <option>智能温控模块</option>
+                        <option>STM32开发板 Pro</option>
+                        <option>通用产品</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">工序类型</label>
+                    <select class="form-select" id="sopType">
+                        <option value="">请选择工序类型</option>
+                        <option>SMT贴片</option>
+                        <option>手工焊接</option>
+                        <option>组装</option>
+                        <option>测试检验</option>
+                        <option>包装</option>
+                        <option>烧录</option>
+                        <option>其他</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label required">版本号</label>
+                    <input type="text" class="form-input" id="sopVersion" placeholder="例如：v1.0" value="v1.0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">制定人</label>
+                    <input type="text" class="form-input" id="sopAuthor" value="张三" placeholder="当前用户">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">SOP简介</label>
+                <textarea class="form-textarea" id="sopDescription" placeholder="简要描述该SOP的目的、适用范围和重要注意事项..."></textarea>
+            </div>
+        </div>
+
+        <!-- 操作步骤 -->
+        <div class="content-card">
+            <div class="section-title">📝 操作步骤</div>
+            <div class="steps-container" id="stepsContainer">
+                <!-- 步骤将动态添加 -->
+                <div class="step-item">
+                    <div class="step-header">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div class="step-number">1</div>
+                            <strong>步骤 1</strong>
+                        </div>
+                        <div class="step-actions">
+                            <button class="btn btn-secondary btn-small" onclick="moveStepUp(0)">↑</button>
+                            <button class="btn btn-secondary btn-small" onclick="moveStepDown(0)">↓</button>
+                            <button class="btn btn-secondary btn-small" onclick="deleteStep(0)">删除</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">步骤标题</label>
+                        <input type="text" class="form-input" placeholder="例如：准备工具和物料">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">详细说明</label>
+                        <textarea class="form-textarea" placeholder="详细描述该步骤的操作方法、注意事项等..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">预计耗时</label>
+                        <input type="text" class="form-input" placeholder="例如：5分钟">
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="addStep()">➕ 添加步骤</button>
+        </div>
+
+        <!-- 质量检查点 -->
+        <div class="content-card">
+            <div class="section-title">🔍 质量检查点</div>
+            <div id="checkpointsContainer">
+                <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 12px;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">检查项</label>
+                            <input type="text" class="form-input" placeholder="例如：焊点质量检查">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">检查标准</label>
+                            <input type="text" class="form-input" placeholder="例如：焊点饱满，无虚焊、冷焊">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="this.parentElement.remove()">删除</button>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="addCheckpoint()">➕ 添加检查点</button>
+        </div>
+
+        <!-- 附件上传 -->
+        <div class="content-card">
+            <div class="section-title">📎 附件与参考资料</div>
+            <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                <div class="upload-icon">📁</div>
+                <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">点击上传文件</div>
+                <div style="font-size: 14px; color: #666;">支持图片、视频、PDF、Word等格式，单个文件最大50MB</div>
+            </div>
+            <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileUpload(event)">
+            <div class="attachment-list" id="attachmentList"></div>
+        </div>
+    </div>
+
+    <!-- 底部操作栏 -->
+    <div class="action-bar">
+        <div>
+            <button class="btn btn-secondary" onclick="saveDraft()">💾 保存草稿</button>
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn btn-secondary" onclick="previewSOP()">👁️ 预览</button>
+            <button class="btn btn-primary" onclick="publishSOP()">✅ 发布SOP</button>
+        </div>
+    </div>
+
+    <script>
+        let stepCount = 1;
+
+        // 添加步骤
+        function addStep() {
+            stepCount++;
+            const container = document.getElementById('stepsContainer');
+            const stepItem = document.createElement('div');
+            stepItem.className = 'step-item';
+            stepItem.innerHTML = `
+                <div class="step-header">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div class="step-number">${stepCount}</div>
+                        <strong>步骤 ${stepCount}</strong>
+                    </div>
+                    <div class="step-actions">
+                        <button class="btn btn-secondary btn-small" onclick="moveStepUp(${stepCount - 1})">↑</button>
+                        <button class="btn btn-secondary btn-small" onclick="moveStepDown(${stepCount - 1})">↓</button>
+                        <button class="btn btn-secondary btn-small" onclick="deleteStep(${stepCount - 1})">删除</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">步骤标题</label>
+                    <input type="text" class="form-input" placeholder="例如：安装PCB到治具">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">详细说明</label>
+                    <textarea class="form-textarea" placeholder="详细描述该步骤的操作方法、注意事项等..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">预计耗时</label>
+                    <input type="text" class="form-input" placeholder="例如：3分钟">
+                </div>
+            `;
+            container.appendChild(stepItem);
+        }
+
+        // 删除步骤
+        function deleteStep(index) {
+            const container = document.getElementById('stepsContainer');
+            if (container.children.length <= 1) {
+                alert('至少保留一个步骤！');
+                return;
+            }
+            container.children[index].remove();
+            updateStepNumbers();
+        }
+
+        // 上移步骤
+        function moveStepUp(index) {
+            const container = document.getElementById('stepsContainer');
+            if (index === 0) return;
+            const steps = Array.from(container.children);
+            container.insertBefore(steps[index], steps[index - 1]);
+            updateStepNumbers();
+        }
+
+        // 下移步骤
+        function moveStepDown(index) {
+            const container = document.getElementById('stepsContainer');
+            const steps = Array.from(container.children);
+            if (index >= steps.length - 1) return;
+            container.insertBefore(steps[index + 1], steps[index]);
+            updateStepNumbers();
+        }
+
+        // 更新步骤编号
+        function updateStepNumbers() {
+            const container = document.getElementById('stepsContainer');
+            Array.from(container.children).forEach((step, index) => {
+                const number = step.querySelector('.step-number');
+                const title = step.querySelector('strong');
+                number.textContent = index + 1;
+                title.textContent = `步骤 ${index + 1}`;
+            });
+            stepCount = container.children.length;
+        }
+
+        // 添加检查点
+        function addCheckpoint() {
+            const container = document.getElementById('checkpointsContainer');
+            const checkpoint = document.createElement('div');
+            checkpoint.style.cssText = 'background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 12px;';
+            checkpoint.innerHTML = `
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">检查项</label>
+                        <input type="text" class="form-input" placeholder="例如：功能测试">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">检查标准</label>
+                        <input type="text" class="form-input" placeholder="例如：所有功能正常，无异常">
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-small" onclick="this.parentElement.remove()">删除</button>
+            `;
+            container.appendChild(checkpoint);
+        }
+
+        // 处理文件上传
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            const container = document.getElementById('attachmentList');
+
+            Array.from(files).forEach(file => {
+                const item = document.createElement('div');
+                item.className = 'attachment-item';
+                const icon = getFileIcon(file.name);
+                const size = formatFileSize(file.size);
+                item.innerHTML = `
+                    <div class="attachment-icon">${icon}</div>
+                    <div class="attachment-info">
+                        <div class="attachment-name">${file.name}</div>
+                        <div class="attachment-size">${size}</div>
+                    </div>
+                    <button class="btn btn-secondary btn-small" onclick="this.parentElement.remove()">删除</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 获取文件图标
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            const icons = {
+                'jpg': '🖼️', 'jpeg': '🖼️', 'png': '🖼️', 'gif': '🖼️',
+                'mp4': '🎬', 'avi': '🎬', 'mov': '🎬',
+                'pdf': '📄', 'doc': '📝', 'docx': '📝',
+                'xls': '📊', 'xlsx': '📊'
+            };
+            return icons[ext] || '📎';
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            const sopName = document.getElementById('sopName').value;
+            if (!sopName) {
+                alert('请填写SOP名称！');
+                return;
+            }
+            alert('✅ 草稿已保存！\n\nSOP名称：' + sopName + '\n\n草稿已保存到系统，您可以随时继续编辑。');
+        }
+
+        // 预览SOP
+        function previewSOP() {
+            const sopName = document.getElementById('sopName').value || '未命名SOP';
+            alert('👁️ 预览SOP\n\nSOP名称：' + sopName + '\n\n将打开预览窗口，显示SOP的完整内容和格式。');
+        }
+
+        // 发布SOP
+        function publishSOP() {
+            const sopName = document.getElementById('sopName').value;
+            const sopProduct = document.getElementById('sopProduct').value;
+            const sopType = document.getElementById('sopType').value;
+
+            if (!sopName || !sopProduct || !sopType) {
+                alert('❌ 请填写必填项！\n\n• SOP名称\n• 适用产品\n• 工序类型');
+                return;
+            }
+
+            if (confirm('确认发布该SOP？\n\n发布后将：\n• 自动分配SOP编号\n• 关联到对应产品\n• 生产人员可查看使用\n• 进入版本管理')) {
+                alert('✅ SOP发布成功！\n\nSOP编号：SOP-2025-007\nSOP名称：' + sopName + '\n适用产品：' + sopProduct + '\n工序类型：' + sopType + '\n\n已通知相关生产人员。');
+                setTimeout(() => goBack(), 1500);
+            }
+        }
+
+        // 返回函数 - 根据来源参数决定返回位置
+        function goBack() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('from') === 'sop-management') {
+                location.href = 'production.html?openSOPModal=true';
+            } else {
+                location.href = 'production.html';
+            }
+        }
+    </script>
+</body>
+</html>

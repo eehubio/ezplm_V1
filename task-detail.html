@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 任务详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .btn-back {
+            padding: 10px 20px;
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-back:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        .main-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .task-header {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .task-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 24px;
+        }
+        .task-title h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2d2d2d;
+            margin-bottom: 16px;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .status-inprogress {
+            background: rgba(255, 165, 2, 0.1);
+            color: #ffa502;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-edit {
+            background: #00890b;
+            color: white;
+        }
+        .btn-edit:hover {
+            background: #007309;
+        }
+
+        .task-info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .info-label {
+            font-size: 13px;
+            color: #999;
+            font-weight: 600;
+        }
+        .info-value {
+            font-size: 15px;
+            color: #3d4647;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='workspace-dashboard.html'">EZPLM</div>
+        <button class="btn-back" onclick="location.href='task-list.html'">
+            <span>←</span>
+            <span>返回任务列表</span>
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="task-header">
+            <div class="task-header-top">
+                <div class="task-title">
+                    <h1>PCB Layout布局设计</h1>
+                    <span class="status-badge status-inprogress">进行中</span>
+                </div>
+                <button class="btn btn-edit" onclick="editTask()">
+                    <span>✏️</span>
+                    <span>编辑任务</span>
+                </button>
+            </div>
+
+            <div class="task-info-grid">
+                <div class="info-item">
+                    <div class="info-label">所属项目</div>
+                    <div class="info-value">智能手环 V2.0 开发</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">负责人</div>
+                    <div class="info-value">张三</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">截止日期</div>
+                    <div class="info-value">2024-11-10</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-card">
+            <div class="section-title">
+                <span>📝</span>
+                <span>任务描述</span>
+            </div>
+            <p style="color: #666; line-height: 1.8;">
+                完成智能手环V2.0的PCB布局设计，包括主板和子板的布局优化。
+                需要特别注意RF部分的走线和EMC设计要求。
+            </p>
+        </div>
+
+        <div class="content-card">
+            <div class="section-title">
+                <span>💬</span>
+                <span>评论讨论</span>
+            </div>
+            <p style="color: #666;">评论功能开发中...</p>
+        </div>
+    </div>
+
+    <script>
+        const taskId = new URLSearchParams(window.location.search).get('id');
+
+        function editTask() {
+            // 填充表单数据
+            document.getElementById('editTaskTitle').value = 'PCB Layout布局设计';
+            document.getElementById('editTaskProject').value = '智能手环 V2.0 开发';
+            document.getElementById('editTaskAssignee').value = '张三';
+            document.getElementById('editTaskStatus').value = 'in-progress';
+            document.getElementById('editTaskPriority').value = 'high';
+            document.getElementById('editTaskDueDate').value = '2024-11-10';
+            document.getElementById('editTaskDescription').value = '完成智能手环V2.0的PCB布局设计...';
+
+            openModal('editTaskModal');
+        }
+
+        function submitEditTask() {
+            const title = document.getElementById('editTaskTitle').value;
+            const assignee = document.getElementById('editTaskAssignee').value;
+            const dueDate = document.getElementById('editTaskDueDate').value;
+
+            // 更新页面显示
+            document.querySelector('.task-title h1').textContent = title;
+            document.querySelector('.info-item:nth-child(2) .info-value').textContent = assignee;
+            document.querySelector('.info-item:nth-child(3) .info-value').textContent = dueDate;
+
+            closeModal('editTaskModal');
+            alert('✅ 任务已更新');
+        }
+
+        function openModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        // 点击背景关闭Modal和ESC键支持
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                        document.body.style.overflow = '';
+                    }
+                });
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal.active').forEach(modal => {
+                        modal.classList.remove('active');
+                        document.body.style.overflow = '';
+                    });
+                }
+            });
+        });
+    </script>
+
+    <!-- 编辑任务Modal -->
+    <div id="editTaskModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header" style="padding: 24px; border-bottom: 2px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="font-size: 20px; font-weight: 700; color: #2d2d2d;">编辑任务</h2>
+                <button onclick="closeModal('editTaskModal')" style="width: 36px; height: 36px; border-radius: 50%; border: none; background: #f0f0f0; color: #666; font-size: 20px; cursor: pointer;">×</button>
+            </div>
+            <div style="padding: 24px;">
+                <form id="editTaskForm">
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #3d4647; margin-bottom: 8px; font-size: 14px;">任务标题</label>
+                        <input type="text" id="editTaskTitle" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;" required>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #3d4647; margin-bottom: 8px; font-size: 14px;">所属项目</label>
+                        <input type="text" id="editTaskProject" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #3d4647; margin-bottom: 8px; font-size: 14px;">负责人</label>
+                        <input type="text" id="editTaskAssignee" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #3d4647; margin-bottom: 8px; font-size: 14px;">状态</label>
+                        <select id="editTaskStatus" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <option value="todo">待处理</option>
+                            <option value="in-progress">进行中</option>
+                            <option value="done">已完成</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #3d4647; margin-bottom: 8px; font-size: 14px;">优先级</label>
+                        <select id="editTaskPriority" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                            <option value="high">高</option>
+                            <option value="medium">中</option>
+                            <option value="low">低</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #3d4647; margin-bottom: 8px; font-size: 14px;">截止日期</label>
+                        <input type="date" id="editTaskDueDate" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px;">
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; font-weight: 600; color: #3d4647; margin-bottom: 8px; font-size: 14px;">任务描述</label>
+                        <textarea id="editTaskDescription" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; min-height: 100px; resize: vertical;"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div style="padding: 20px 24px; border-top: 2px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 12px;">
+                <button onclick="closeModal('editTaskModal')" style="padding: 12px 24px; background: white; color: #666; border: 2px solid #e0e0e0; border-radius: 8px; font-weight: 600; cursor: pointer;">取消</button>
+                <button onclick="submitEditTask()" style="padding: 12px 24px; background: #00890b; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</body>
+</html>

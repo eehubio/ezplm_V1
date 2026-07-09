@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 我的简历</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .btn-secondary {
+            background: white;
+            color: #00890b;
+            border: 2px solid #00890b;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #00890b;
+            color: white;
+        }
+
+        /* 主内容 */
+        .main-content {
+            max-width: 1000px;
+            margin: 32px auto;
+            padding: 0 24px;
+        }
+
+        /* 顶部操作栏 */
+        .header-actions {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .header-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 简历容器 */
+        .resume-container {
+            background: white;
+            border-radius: 12px;
+            padding: 48px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            position: relative;
+        }
+
+        /* AI完善度 */
+        .ai-score-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .ai-score-content h3 {
+            font-size: 18px;
+            margin-bottom: 6px;
+        }
+        .ai-score-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .ai-score-value {
+            font-size: 48px;
+            font-weight: 800;
+        }
+
+        /* 简历版块 */
+        .resume-section {
+            margin-bottom: 40px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .resume-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-edit {
+            background: white;
+            color: #00890b;
+            border: 1px solid #00890b;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-edit:hover {
+            background: #00890b;
+            color: white;
+        }
+
+        /* 基本信息 */
+        .basic-info {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            font-weight: 800;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .info-label {
+            font-size: 13px;
+            color: #999;
+            font-weight: 600;
+        }
+        .info-value {
+            font-size: 16px;
+            color: #3d4647;
+            font-weight: 500;
+        }
+
+        /* 教育经历 */
+        .education-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .education-item:last-child {
+            margin-bottom: 0;
+        }
+        .education-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .education-school {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 6px;
+        }
+        .education-degree {
+            font-size: 15px;
+            color: #666;
+        }
+        .education-date {
+            font-size: 13px;
+            color: #999;
+        }
+        .education-details {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* 项目经验 */
+        .project-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .project-item:last-child {
+            margin-bottom: 0;
+        }
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        .project-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+        .project-role {
+            font-size: 14px;
+            color: #00890b;
+            font-weight: 600;
+        }
+        .project-date {
+            font-size: 13px;
+            color: #999;
+        }
+        .project-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        .project-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .project-tag {
+            padding: 4px 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 技能 */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .skill-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 16px;
+        }
+        .skill-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 10px;
+        }
+        .skill-bar {
+            background: #e0e0e0;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .skill-progress {
+            height: 100%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .empty-text {
+            font-size: 14px;
+        }
+
+        /* 编辑模态框 */
+        .edit-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .edit-modal-overlay.active {
+            display: flex;
+        }
+        .edit-modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .edit-modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .edit-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .edit-modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .edit-modal-close:hover {
+            color: #3d4647;
+        }
+        .edit-modal-body {
+            padding: 32px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        .edit-modal-footer {
+            padding: 20px 32px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-cancel {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-cancel:hover {
+            border-color: #999;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 顶部操作栏 -->
+        <div class="header-actions">
+            <div>
+                <div class="header-title">📄 我的简历</div>
+            </div>
+            <div class="header-buttons">
+                <button class="btn-primary" onclick="exportResume()">导出PDF</button>
+            </div>
+        </div>
+
+        <!-- 简历容器 -->
+        <div class="resume-container">
+            <!-- AI完善度 -->
+            <div class="ai-score-banner">
+                <div class="ai-score-content">
+                    <h3>🤖 AI简历完善度</h3>
+                    <p>您的简历完善度较高，建议继续完善项目经验和技能描述</p>
+                </div>
+                <div class="ai-score-value">85%</div>
+            </div>
+
+            <!-- 基本信息 -->
+            <div class="resume-section">
+                <div class="section-header">
+                    <h2 class="section-title">👤 基本信息</h2>
+                    <button class="btn-edit" onclick="editSection('basic')">编辑</button>
+                </div>
+                <div class="basic-info">
+                    <div class="avatar">张</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">姓名</div>
+                            <div class="info-value">张三</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">性别</div>
+                            <div class="info-value">男</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">年龄</div>
+                            <div class="info-value">23岁</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">学历</div>
+                            <div class="info-value">本科 · 在读</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">手机</div>
+                            <div class="info-value">138****8888</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">邮箱</div>
+                            <div class="info-value">zhangsan@example.com</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">期望职位</div>
+                            <div class="info-value">硬件工程师 / 嵌入式开发</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">期望城市</div>
+                            <div class="info-value">北京 / 深圳</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 教育经历 -->
+            <div class="resume-section">
+                <div class="section-header">
+                    <h2 class="section-title">🎓 教育经历</h2>
+                    <button class="btn-edit" onclick="editSection('education')">编辑</button>
+                </div>
+                <div class="education-item">
+                    <div class="education-header">
+                        <div>
+                            <div class="education-school">清华大学</div>
+                            <div class="education-degree">电子信息工程 · 本科</div>
+                        </div>
+                        <div class="education-date">2021.09 - 2025.06</div>
+                    </div>
+                    <div class="education-details">
+                        • GPA: 3.8/4.0，专业排名前10%<br>
+                        • 主修课程：模拟电子技术、数字电路、信号与系统、通信原理、嵌入式系统设计<br>
+                        • 获得校级一等奖学金2次，国家奖学金1次
+                    </div>
+                </div>
+            </div>
+
+            <!-- 项目经验 -->
+            <div class="resume-section">
+                <div class="section-header">
+                    <h2 class="section-title">💼 项目经验</h2>
+                    <button class="btn-edit" onclick="editSection('projects')">编辑</button>
+                </div>
+                <div class="project-item">
+                    <div class="project-header">
+                        <div>
+                            <div class="project-name">ESP32智能小车竞赛项目</div>
+                            <div class="project-role">硬件负责人 · 队长</div>
+                        </div>
+                        <div class="project-date">2024.03 - 2024.06</div>
+                    </div>
+                    <div class="project-desc">
+                        • 负责智能小车的硬件电路设计，包括电源管理、电机驱动、传感器接口等模块<br>
+                        • 使用Altium Designer完成4层PCB设计，实现高集成度和EMC优化<br>
+                        • 完成ESP32主控程序编写，实现寻迹、避障、远程控制等功能<br>
+                        • 项目获得全国电子设计竞赛一等奖，团队获得最佳设计奖
+                    </div>
+                    <div class="project-tags">
+                        <span class="project-tag">ESP32</span>
+                        <span class="project-tag">Altium Designer</span>
+                        <span class="project-tag">PCB设计</span>
+                        <span class="project-tag">嵌入式C</span>
+                        <span class="project-tag">PID控制</span>
+                    </div>
+                </div>
+
+                <div class="project-item">
+                    <div class="project-header">
+                        <div>
+                            <div class="project-name">基于STM32的智能家居网关</div>
+                            <div class="project-role">硬件与嵌入式开发</div>
+                        </div>
+                        <div class="project-date">2023.09 - 2024.01</div>
+                    </div>
+                    <div class="project-desc">
+                        • 设计并实现基于STM32F4的物联网网关硬件，集成WiFi、Zigbee、蓝牙模块<br>
+                        • 移植FreeRTOS操作系统，实现多协议数据转换和设备管理<br>
+                        • 开发上位机软件，实现远程监控和控制功能<br>
+                        • 项目作为毕业设计选题，目前进展顺利
+                    </div>
+                    <div class="project-tags">
+                        <span class="project-tag">STM32</span>
+                        <span class="project-tag">FreeRTOS</span>
+                        <span class="project-tag">物联网</span>
+                        <span class="project-tag">Zigbee</span>
+                        <span class="project-tag">MQTT</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 专业技能 -->
+            <div class="resume-section">
+                <div class="section-header">
+                    <h2 class="section-title">🔧 专业技能</h2>
+                    <button class="btn-edit" onclick="editSection('skills')">编辑</button>
+                </div>
+                <div class="skills-grid">
+                    <div class="skill-item">
+                        <div class="skill-name">硬件电路设计</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 90%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">PCB设计 (Altium Designer)</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 85%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">嵌入式C/C++</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 88%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">单片机开发 (STM32/ESP32)</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 92%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">RTOS (FreeRTOS)</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 75%"></div>
+                        </div>
+                    </div>
+                    <div class="skill-item">
+                        <div class="skill-name">通信协议 (UART/SPI/I2C)</div>
+                        <div class="skill-bar">
+                            <div class="skill-progress" style="width: 85%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 获奖荣誉 -->
+            <div class="resume-section">
+                <div class="section-header">
+                    <h2 class="section-title">🏆 获奖荣誉</h2>
+                    <button class="btn-edit" onclick="editSection('awards')">编辑</button>
+                </div>
+                <div class="education-details" style="line-height: 2;">
+                    • 2024年全国大学生电子设计竞赛一等奖<br>
+                    • 2023年"挑战杯"全国大学生课外学术科技作品竞赛二等奖<br>
+                    • 2023-2024学年国家奖学金<br>
+                    • 2022-2023学年校级一等奖学金<br>
+                    • 2023年清华大学优秀学生干部
+                </div>
+            </div>
+
+            <!-- 自我评价 -->
+            <div class="resume-section">
+                <div class="section-header">
+                    <h2 class="section-title">✍️ 自我评价</h2>
+                    <button class="btn-edit" onclick="editSection('summary')">编辑</button>
+                </div>
+                <div class="education-details" style="line-height: 1.8;">
+                    热爱电子硬件和嵌入式开发，具有扎实的理论基础和丰富的项目经验。熟练掌握硬件电路设计、PCB Layout及嵌入式软件开发。在校期间积极参与各类竞赛和项目，具有良好的团队协作能力和问题解决能力。对新技术充满好奇，善于学习和钻研。希望能够加入优秀的团队，在实际工作中不断提升自己的专业能力。
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div class="edit-modal-overlay" id="editModal">
+        <div class="edit-modal">
+            <div class="edit-modal-header">
+                <h3 class="edit-modal-title" id="editModalTitle">编辑信息</h3>
+                <button class="edit-modal-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <div class="edit-modal-body" id="editModalBody">
+                <!-- 动态内容将在这里加载 -->
+            </div>
+            <div class="edit-modal-footer">
+                <button class="btn-cancel" onclick="closeEditModal()">取消</button>
+                <button class="btn-primary" onclick="saveEdit()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEditSection = '';
+
+        // 编辑版块
+        function editSection(section) {
+            currentEditSection = section;
+            const modal = document.getElementById('editModal');
+            const title = document.getElementById('editModalTitle');
+            const body = document.getElementById('editModalBody');
+
+            // 根据不同section显示不同的编辑表单
+            const sectionTitles = {
+                'basic': '👤 编辑基本信息',
+                'education': '🎓 编辑教育经历',
+                'projects': '💼 编辑项目经验',
+                'skills': '🔧 编辑专业技能',
+                'awards': '🏆 编辑获奖荣誉',
+                'summary': '✍️ 编辑自我评价'
+            };
+
+            const sectionForms = {
+                'basic': `
+                    <div class="form-group">
+                        <label class="form-label">姓名</label>
+                        <input type="text" class="form-input" value="张三" placeholder="请输入姓名">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">手机</label>
+                        <input type="text" class="form-input" value="138****8888" placeholder="请输入手机号">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-input" value="zhangsan@example.com" placeholder="请输入邮箱">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">期望职位</label>
+                        <input type="text" class="form-input" value="硬件工程师 / 嵌入式开发" placeholder="请输入期望职位">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">期望城市</label>
+                        <input type="text" class="form-input" value="北京 / 深圳" placeholder="请输入期望城市">
+                    </div>
+                `,
+                'education': `
+                    <div class="form-group">
+                        <label class="form-label">学校名称</label>
+                        <input type="text" class="form-input" value="清华大学" placeholder="请输入学校名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">专业</label>
+                        <input type="text" class="form-input" value="电子信息工程" placeholder="请输入专业">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">学历</label>
+                        <input type="text" class="form-input" value="本科" placeholder="请输入学历">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">在读时间</label>
+                        <input type="text" class="form-input" value="2021.09 - 2025.06" placeholder="例如: 2021.09 - 2025.06">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">详细描述</label>
+                        <textarea class="form-textarea" placeholder="请输入教育经历详细描述">• GPA: 3.8/4.0，专业排名前10%
+• 主修课程：模拟电子技术、数字电路、信号与系统、通信原理、嵌入式系统设计
+• 获得校级一等奖学金2次，国家奖学金1次</textarea>
+                    </div>
+                `,
+                'projects': `
+                    <div class="form-group">
+                        <label class="form-label">项目名称</label>
+                        <input type="text" class="form-input" value="ESP32智能小车竞赛项目" placeholder="请输入项目名称">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">项目角色</label>
+                        <input type="text" class="form-input" value="硬件负责人 · 队长" placeholder="请输入项目角色">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">项目时间</label>
+                        <input type="text" class="form-input" value="2024.03 - 2024.06" placeholder="例如: 2024.03 - 2024.06">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">项目描述</label>
+                        <textarea class="form-textarea" placeholder="请输入项目描述，每行一个要点">• 负责智能小车的硬件电路设计，包括电源管理、电机驱动、传感器接口等模块
+• 使用Altium Designer完成4层PCB设计，实现高集成度和EMC优化
+• 完成ESP32主控程序编写，实现寻迹、避障、远程控制等功能
+• 项目获得全国电子设计竞赛一等奖，团队获得最佳设计奖</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">技术标签</label>
+                        <input type="text" class="form-input" value="ESP32, Altium Designer, PCB设计, 嵌入式C, PID控制" placeholder="用逗号分隔多个标签">
+                    </div>
+                `,
+                'skills': `
+                    <div class="form-group">
+                        <label class="form-label">技能名称</label>
+                        <input type="text" class="form-input" placeholder="例如: 硬件电路设计">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">熟练度 (0-100)</label>
+                        <input type="number" class="form-input" min="0" max="100" placeholder="请输入0-100的数字">
+                    </div>
+                    <p style="color: #666; font-size: 13px; margin-top: 12px;">提示：添加新技能后会在简历中显示</p>
+                `,
+                'awards': `
+                    <div class="form-group">
+                        <label class="form-label">获奖荣誉列表</label>
+                        <textarea class="form-textarea" placeholder="每行输入一个获奖荣誉">2024年全国大学生电子设计竞赛一等奖
+2023年"挑战杯"全国大学生课外学术科技作品竞赛二等奖
+2023-2024学年国家奖学金
+2022-2023学年校级一等奖学金
+2023年清华大学优秀学生干部</textarea>
+                    </div>
+                `,
+                'summary': `
+                    <div class="form-group">
+                        <label class="form-label">自我评价</label>
+                        <textarea class="form-textarea" placeholder="请输入自我评价，简要介绍您的优势和特点">热爱电子硬件和嵌入式开发，具有扎实的理论基础和丰富的项目经验。熟练掌握硬件电路设计、PCB Layout及嵌入式软件开发。在校期间积极参与各类竞赛和项目，具有良好的团队协作能力和问题解决能力。对新技术充满好奇，善于学习和钻研。希望能够加入优秀的团队，在实际工作中不断提升自己的专业能力。</textarea>
+                `
+            };
+
+            title.textContent = sectionTitles[section] || '编辑信息';
+            body.innerHTML = sectionForms[section] || '<p>暂无编辑表单</p>';
+            modal.classList.add('active');
+        }
+
+        // 关闭编辑模态框
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        // 保存编辑
+        function saveEdit() {
+            alert('✅ 保存成功！\n\n您的简历已更新。');
+            closeEditModal();
+        }
+
+        // 点击背景关闭模态框
+        document.getElementById('editModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeEditModal();
+            }
+        });
+
+        // 导出简历
+        function exportResume() {
+            alert('📄 导出PDF功能开发中...\n\n简历将以PDF格式导出，方便投递和打印。');
+        }
+    </script>
+</body>
+</html>

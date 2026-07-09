@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 生产计划详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-left: 40px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .notification-bell {
+            font-size: 20px;
+            color: #3d4647;
+            cursor: pointer;
+            position: relative;
+        }
+        .notification-dot {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 8px;
+            height: 8px;
+            background: #ff4d4f;
+            border-radius: 50%;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+            overflow-y: auto;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon { font-size: 18px; }
+
+        /* 主内容 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+            padding: 30px 35px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0, 137, 11, 0.2);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .page-title h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .plan-id-large {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-primary {
+            background: white;
+            color: #00890b;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .info-label {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+        .info-value {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-in-progress {
+            background: white;
+            color: #f57c00;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f5f5f5;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-icon {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-icon:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* BOM表格样式 */
+        .bom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .bom-table thead {
+            background: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .bom-table th {
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+            white-space: nowrap;
+        }
+        .bom-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .bom-table tr:hover {
+            background: #f8f9fa;
+        }
+        .material-code {
+            color: #00890b;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .material-code:hover {
+            text-decoration: underline;
+        }
+        .designator {
+            color: #666;
+            font-size: 12px;
+            max-width: 200px;
+            white-space: normal;
+            line-height: 1.5;
+        }
+        .stock-sufficient {
+            color: #4caf50;
+            font-weight: 600;
+        }
+        .stock-shortage {
+            color: #f44336;
+            font-weight: 600;
+        }
+        .alternative-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .alternative-tag:hover {
+            background: #1976d2;
+            color: white;
+        }
+        .no-alternative {
+            color: #999;
+            font-size: 11px;
+        }
+
+        /* 表格操作按钮 */
+        .table-btn {
+            padding: 4px 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            color: #666;
+            transition: all 0.2s;
+            margin-right: 6px;
+        }
+        .table-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .table-btn.danger:hover {
+            border-color: #f44336;
+            color: #f44336;
+        }
+
+        /* 筛选栏 */
+        .filter-bar {
+            background: white;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+        .filter-select {
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .filter-input {
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            width: 200px;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            padding: 24px 30px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+        .close-btn {
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: #f5f5f5;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .close-btn:hover {
+            background: #e0e0e0;
+        }
+        .modal-body {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .modal-footer {
+            padding: 20px 30px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-cancel {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-cancel:hover {
+            border-color: #999;
+            color: #333;
+        }
+        .btn-submit {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            background: #00890b;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-submit:hover {
+            background: #007009;
+        }
+
+        /* 替代料列表 */
+        .alternative-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .alternative-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .alternative-item.selected {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .alternative-info {
+            flex: 1;
+        }
+        .alternative-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+        .alternative-spec {
+            font-size: 12px;
+            color: #666;
+        }
+        .alternative-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 退料记录表 */
+        .return-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .return-table th {
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .return-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        /* 统计信息 */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .summary-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #00890b;
+        }
+        .summary-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .summary-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+            <div class="user-avatar">用</div>
+        </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item active">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="main-wrapper">
+            <div class="main-content">
+                <!-- 返回按钮 -->
+                <a href="production.html" class="back-btn">
+                    ← 返回生产管理
+                </a>
+
+                <!-- 页面头部 -->
+                <div class="page-header">
+                    <div class="header-top">
+                        <div class="page-title">
+                            <h1>生产计划详情</h1>
+                            <p class="plan-id-large">计划编号: PP-2025-0012</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn-secondary" onclick="editPlan()">✏️ 编辑计划</button>
+                            <button class="btn-primary" onclick="exportBOM()">📥 导出BOM</button>
+                        </div>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">产品名称</div>
+                            <div class="info-value">ESP32游戏手柄 v2.0</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">计划数量</div>
+                            <div class="info-value">200 台</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">开始日期</div>
+                            <div class="info-value">2025-10-01</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">预计完成</div>
+                            <div class="info-value">2025-10-15</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">负责人</div>
+                            <div class="info-value">张工</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">当前状态</div>
+                            <div class="info-value"><span class="status-badge status-in-progress">生产中</span></div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">生产进度</div>
+                            <div class="info-value">75%</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">优先级</div>
+                            <div class="info-value">紧急</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 物料需求统计 -->
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <div class="summary-label">物料总数</div>
+                        <div class="summary-value">32 种</div>
+                    </div>
+                    <div class="summary-card" style="border-left-color: #4caf50;">
+                        <div class="summary-label">库存充足</div>
+                        <div class="summary-value" style="color: #4caf50;">24 种</div>
+                    </div>
+                    <div class="summary-card" style="border-left-color: #f44336;">
+                        <div class="summary-label">需要采购</div>
+                        <div class="summary-value" style="color: #f44336;">8 种</div>
+                    </div>
+                </div>
+
+                <!-- BOM表格 -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 生产BOM清单</h3>
+                        <div class="card-actions">
+                            <button class="btn-icon" onclick="refreshBOM()">🔄 刷新</button>
+                            <button class="btn-icon" onclick="exportFactoryBOM()">📤 导出工厂BOM</button>
+                            <button class="btn-icon" onclick="printBOM()">🖨️ 打印</button>
+                        </div>
+                    </div>
+
+                    <!-- 筛选栏 -->
+                    <div class="filter-bar">
+                        <div class="filter-item">
+                            <span class="filter-label">🔍 搜索:</span>
+                            <input type="text" class="filter-input" placeholder="物料编号、名称、位号..." onkeyup="filterBOM()">
+                        </div>
+                        <div class="filter-item">
+                            <span class="filter-label">库存状态:</span>
+                            <select class="filter-select" onchange="filterByStock()">
+                                <option value="all">全部</option>
+                                <option value="sufficient">库存充足</option>
+                                <option value="shortage">库存不足</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <span class="filter-label">分类:</span>
+                            <select class="filter-select" onchange="filterByCategory()">
+                                <option value="all">全部分类</option>
+                                <option value="ic">集成电路</option>
+                                <option value="resistor">电阻</option>
+                                <option value="capacitor">电容</option>
+                                <option value="connector">连接器</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 表格 -->
+                    <div style="overflow-x: auto;">
+                        <table class="bom-table" id="bomTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 50px;">序号</th>
+                                    <th style="width: 120px;">物料编号</th>
+                                    <th style="width: 150px;">物料名称</th>
+                                    <th style="width: 120px;">规格型号</th>
+                                    <th style="width: 80px;">封装</th>
+                                    <th style="width: 180px;">位号</th>
+                                    <th style="width: 80px;">单板用量</th>
+                                    <th style="width: 80px;">生产数量</th>
+                                    <th style="width: 80px;">总需求</th>
+                                    <th style="width: 80px;">当前库存</th>
+                                    <th style="width: 80px;">需采购</th>
+                                    <th style="width: 120px;">替代料</th>
+                                    <th style="width: 150px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td><span class="material-code">IC-ESP32-001</span></td>
+                                    <td>ESP32-WROOM-32</td>
+                                    <td>ESP32-WROOM-32D</td>
+                                    <td>SMD-38</td>
+                                    <td class="designator">U1</td>
+                                    <td>1</td>
+                                    <td>200</td>
+                                    <td>200</td>
+                                    <td class="stock-shortage">18</td>
+                                    <td class="stock-shortage">182</td>
+                                    <td><span class="alternative-tag" onclick="showAlternatives(1)">2个替代料 ▼</span></td>
+                                    <td>
+                                        <button class="table-btn" onclick="viewMaterialDetail(1)">详情</button>
+                                        <button class="table-btn danger" onclick="returnMaterial(1)">退料</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td><span class="material-code">R-0805-10K</span></td>
+                                    <td>贴片电阻</td>
+                                    <td>10kΩ ±1%</td>
+                                    <td>0805</td>
+                                    <td class="designator">R1, R2, R3, R4, R5, R8, R9, R12, R15, R18</td>
+                                    <td>10</td>
+                                    <td>200</td>
+                                    <td>2000</td>
+                                    <td class="stock-sufficient">3240</td>
+                                    <td class="stock-sufficient">-</td>
+                                    <td><span class="no-alternative">无替代料</span></td>
+                                    <td>
+                                        <button class="table-btn" onclick="viewMaterialDetail(2)">详情</button>
+                                        <button class="table-btn danger" onclick="returnMaterial(2)">退料</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td><span class="material-code">C-0603-100N</span></td>
+                                    <td>陶瓷电容</td>
+                                    <td>100nF 50V</td>
+                                    <td>0603</td>
+                                    <td class="designator">C1, C2, C3, C4, C5, C6, C8, C9, C10, C11, C12</td>
+                                    <td>11</td>
+                                    <td>200</td>
+                                    <td>2200</td>
+                                    <td class="stock-sufficient">4500</td>
+                                    <td class="stock-sufficient">-</td>
+                                    <td><span class="alternative-tag" onclick="showAlternatives(3)">1个替代料 ▼</span></td>
+                                    <td>
+                                        <button class="table-btn" onclick="viewMaterialDetail(3)">详情</button>
+                                        <button class="table-btn danger" onclick="returnMaterial(3)">退料</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td><span class="material-code">IC-LM358</span></td>
+                                    <td>LM358M运放</td>
+                                    <td>LM358M</td>
+                                    <td>SOP-8</td>
+                                    <td class="designator">U2, U3</td>
+                                    <td>2</td>
+                                    <td>200</td>
+                                    <td>400</td>
+                                    <td class="stock-shortage">3</td>
+                                    <td class="stock-shortage">397</td>
+                                    <td><span class="alternative-tag" onclick="showAlternatives(4)">3个替代料 ▼</span></td>
+                                    <td>
+                                        <button class="table-btn" onclick="viewMaterialDetail(4)">详情</button>
+                                        <button class="table-btn danger" onclick="returnMaterial(4)">退料</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td><span class="material-code">IC-AMS1117</span></td>
+                                    <td>AMS1117-3.3稳压</td>
+                                    <td>AMS1117-3.3</td>
+                                    <td>SOT-223</td>
+                                    <td class="designator">U4</td>
+                                    <td>1</td>
+                                    <td>200</td>
+                                    <td>200</td>
+                                    <td class="stock-shortage">15</td>
+                                    <td class="stock-shortage">185</td>
+                                    <td><span class="alternative-tag" onclick="showAlternatives(5)">2个替代料 ▼</span></td>
+                                    <td>
+                                        <button class="table-btn" onclick="viewMaterialDetail(5)">详情</button>
+                                        <button class="table-btn danger" onclick="returnMaterial(5)">退料</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td><span class="material-code">LED-0603-R</span></td>
+                                    <td>红色LED</td>
+                                    <td>RED 620nm</td>
+                                    <td>0603</td>
+                                    <td class="designator">D1, D2, D3</td>
+                                    <td>3</td>
+                                    <td>200</td>
+                                    <td>600</td>
+                                    <td class="stock-sufficient">1200</td>
+                                    <td class="stock-sufficient">-</td>
+                                    <td><span class="no-alternative">无替代料</span></td>
+                                    <td>
+                                        <button class="table-btn" onclick="viewMaterialDetail(6)">详情</button>
+                                        <button class="table-btn danger" onclick="returnMaterial(6)">退料</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td><span class="material-code">CON-USB-C</span></td>
+                                    <td>USB Type-C接口</td>
+                                    <td>16PIN SMD</td>
+                                    <td>USB-C-16P</td>
+                                    <td class="designator">J1</td>
+                                    <td>1</td>
+                                    <td>200</td>
+                                    <td>200</td>
+                                    <td class="stock-sufficient">350</td>
+                                    <td class="stock-sufficient">-</td>
+                                    <td><span class="no-alternative">无替代料</span></td>
+                                    <td>
+                                        <button class="table-btn" onclick="viewMaterialDetail(7)">详情</button>
+                                        <button class="table-btn danger" onclick="returnMaterial(7)">退料</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td><span class="material-code">SW-TACT-6X6</span></td>
+                                    <td>轻触开关</td>
+                                    <td>6x6x5mm</td>
+                                    <td>SMD-4P</td>
+                                    <td class="designator">SW1, SW2, SW3, SW4, SW5, SW6, SW7, SW8</td>
+                                    <td>8</td>
+                                    <td>200</td>
+                                    <td>1600</td>
+                                    <td class="stock-sufficient">2800</td>
+                                    <td class="stock-sufficient">-</td>
+                                    <td><span class="alternative-tag" onclick="showAlternatives(8)">1个替代料 ▼</span></td>
+                                    <td>
+                                        <button class="table-btn" onclick="viewMaterialDetail(8)">详情</button>
+                                        <button class="table-btn danger" onclick="returnMaterial(8)">退料</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 替代料管理模态框 -->
+    <div id="alternativeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="alternativeModalTitle">替代料管理</h3>
+                <button class="close-btn" onclick="closeAlternativeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #1976d2;">
+                    <div style="font-weight: 600; margin-bottom: 6px; color: #1976d2;">原始物料</div>
+                    <div id="originalMaterial" style="font-size: 14px; color: #333;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">可用替代料列表</label>
+                    <div class="alternative-list" id="alternativeList">
+                        <!-- 替代料项将通过JavaScript动态添加 -->
+                    </div>
+                </div>
+
+                <div style="padding: 12px; background: #fff8e1; border-radius: 6px; border-left: 3px solid #f57c00; font-size: 13px; margin-bottom: 15px;">
+                    💡 提示：选择替代料后，系统将自动更新物料需求。请确保替代料的规格参数符合设计要求。
+                </div>
+
+                <button class="btn-icon" onclick="addNewAlternative()" style="width: 100%; justify-content: center; border-style: dashed; padding: 12px;">
+                    ➕ 添加新的替代料
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAlternativeModal()">关闭</button>
+                <button class="btn-submit" onclick="applyAlternative()">应用选择</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 退料模态框 -->
+    <div id="returnModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">物料退料</h3>
+                <button class="close-btn" onclick="closeReturnModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="font-weight: 600; margin-bottom: 10px; color: #333;">物料信息</div>
+                    <div id="returnMaterialInfo" style="font-size: 14px; color: #666; line-height: 1.8;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">退料数量 *</label>
+                    <input type="number" id="returnQuantity" class="form-input" placeholder="请输入退料数量" min="1" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">退料原因 *</label>
+                    <select id="returnReason" class="form-select" required>
+                        <option value="">请选择退料原因</option>
+                        <option value="excess">物料剩余</option>
+                        <option value="quality">质量问题</option>
+                        <option value="wrong">领料错误</option>
+                        <option value="design_change">设计变更</option>
+                        <option value="other">其他原因</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">备注说明</label>
+                    <textarea id="returnNote" class="form-textarea" placeholder="请输入详细说明（可选）"></textarea>
+                </div>
+
+                <!-- 历史退料记录 -->
+                <div id="returnHistory" style="margin-top: 25px;">
+                    <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 12px; color: #333;">历史退料记录</h4>
+                    <table class="return-table">
+                        <thead>
+                            <tr>
+                                <th>退料时间</th>
+                                <th>退料数量</th>
+                                <th>退料原因</th>
+                                <th>操作人</th>
+                            </tr>
+                        </thead>
+                        <tbody id="returnHistoryBody">
+                            <tr>
+                                <td colspan="4" style="text-align: center; color: #999; padding: 20px;">暂无退料记录</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeReturnModal()">取消</button>
+                <button class="btn-submit" onclick="submitReturn()">确认退料</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加替代料模态框 -->
+    <div id="addAlternativeModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h3 class="modal-title">添加替代料</h3>
+                <button class="close-btn" onclick="closeAddAlternativeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">物料编号 *</label>
+                    <input type="text" class="form-input" placeholder="请输入物料编号" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">物料名称 *</label>
+                    <input type="text" class="form-input" placeholder="请输入物料名称" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">规格型号 *</label>
+                    <input type="text" class="form-input" placeholder="请输入规格型号" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">封装</label>
+                    <input type="text" class="form-input" placeholder="请输入封装">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">当前库存</label>
+                    <input type="number" class="form-input" placeholder="请输入库存数量" min="0">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <textarea class="form-textarea" placeholder="请输入备注信息（可选）"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAddAlternativeModal()">取消</button>
+                <button class="btn-submit" onclick="submitAddAlternative()">添加</button>
+            </div>
+        </div>
+
+    <script>
+        // 当前选中的物料ID
+        let currentMaterialId = null;
+        let currentAlternativeId = null;
+
+        // 替代料数据（示例）
+        const alternativesData = {
+            1: [ // ESP32-WROOM-32的替代料
+                { id: 'alt-1-1', code: 'IC-ESP32-002', name: 'ESP32-WROOM-32E', spec: 'ESP32-WROOM-32E', package: 'SMD-38', stock: 45 },
+                { id: 'alt-1-2', code: 'IC-ESP32-003', name: 'ESP32-WROOM-32U', spec: 'ESP32-WROOM-32U', package: 'SMD-38', stock: 28 }
+            ],
+            3: [ // 100nF电容的替代料
+                { id: 'alt-3-1', code: 'C-0603-100N-ALT', name: '陶瓷电容', spec: '100nF 100V X7R', package: '0603', stock: 3200 }
+            ],
+            4: [ // LM358的替代料
+                { id: 'alt-4-1', code: 'IC-LM358-ALT1', name: 'LM358DT', spec: 'LM358DT', package: 'SO-8', stock: 120 },
+                { id: 'alt-4-2', code: 'IC-LM358-ALT2', name: 'LM358DR', spec: 'LM358DR', package: 'SOIC-8', stock: 85 },
+                { id: 'alt-4-3', code: 'IC-TL082', name: 'TL082', spec: 'TL082CDR', package: 'SOIC-8', stock: 200 }
+            ],
+            5: [ // AMS1117的替代料
+                { id: 'alt-5-1', code: 'IC-AMS1117-ALT1', name: 'AMS1117-3.3V', spec: 'AMS1117-3.3V', package: 'SOT-223', stock: 180 },
+                { id: 'alt-5-2', code: 'IC-LM1117', name: 'LM1117-3.3', spec: 'LM1117-3.3', package: 'SOT-223', stock: 95 }
+            ],
+            8: [ // 轻触开关的替代料
+                { id: 'alt-8-1', code: 'SW-TACT-6X6-ALT', name: '轻触开关', spec: '6x6x4.3mm', package: 'SMD-4P', stock: 1500 }
+            ]
+        };
+
+        // 显示替代料
+        function showAlternatives(materialId) {
+            currentMaterialId = materialId;
+            const alternatives = alternativesData[materialId];
+
+            if (!alternatives || alternatives.length === 0) {
+                alert('该物料暂无可用替代料');
+                return;
+            }
+
+            // 设置原始物料信息
+            const materialInfo = getMaterialInfo(materialId);
+            document.getElementById('originalMaterial').innerHTML = `
+                <strong>${materialInfo.code}</strong> - ${materialInfo.name}<br>
+                规格: ${materialInfo.spec} | 封装: ${materialInfo.package}
+            `;
+
+            // 填充替代料列表
+            const listContainer = document.getElementById('alternativeList');
+            listContainer.innerHTML = '';
+
+            alternatives.forEach(alt => {
+                const item = document.createElement('div');
+                item.className = 'alternative-item';
+                item.innerHTML = `
+                    <div class="alternative-info">
+                        <div class="alternative-name">${alt.code} - ${alt.name}</div>
+                        <div class="alternative-spec">规格: ${alt.spec} | 封装: ${alt.package} | 库存: <span style="color: ${alt.stock > 0 ? '#4caf50' : '#f44336'};">${alt.stock}</span></div>
+                    <div class="alternative-actions">
+                        <button class="table-btn" onclick="selectAlternative('${alt.id}', this)">选择</button>
+                        <button class="table-btn" onclick="viewAlternativeDetail('${alt.id}')">详情</button>
+                `;
+                listContainer.appendChild(item);
+            });
+
+            document.getElementById('alternativeModal').classList.add('active');
+        }
+
+        // 获取物料信息（示例）
+        function getMaterialInfo(materialId) {
+            const materials = {
+                1: { code: 'IC-ESP32-001', name: 'ESP32-WROOM-32', spec: 'ESP32-WROOM-32D', package: 'SMD-38' },
+                3: { code: 'C-0603-100N', name: '陶瓷电容', spec: '100nF 50V', package: '0603' },
+                4: { code: 'IC-LM358', name: 'LM358M运放', spec: 'LM358M', package: 'SOP-8' },
+                5: { code: 'IC-AMS1117', name: 'AMS1117-3.3稳压', spec: 'AMS1117-3.3', package: 'SOT-223' },
+                8: { code: 'SW-TACT-6X6', name: '轻触开关', spec: '6x6x5mm', package: 'SMD-4P' }
+            };
+            return materials[materialId] || {};
+        }
+
+        // 选择替代料
+        function selectAlternative(altId, button) {
+            // 移除之前的选中状态
+            document.querySelectorAll('.alternative-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+
+            // 添加选中状态
+            const item = button.closest('.alternative-item');
+            item.classList.add('selected');
+            currentAlternativeId = altId;
+        }
+
+        // 应用替代料选择
+        function applyAlternative() {
+            if (!currentAlternativeId) {
+                alert('请先选择一个替代料');
+                return;
+            }
+
+            alert(`✅ 替代料已应用！\n\n系统将使用选中的替代料更新物料需求计划。`);
+            closeAlternativeModal();
+        }
+
+        // 关闭替代料模态框
+        function closeAlternativeModal() {
+            document.getElementById('alternativeModal').classList.remove('active');
+            currentMaterialId = null;
+            currentAlternativeId = null;
+        }
+
+        // 查看替代料详情
+        function viewAlternativeDetail(altId) {
+            alert('查看替代料详情: ' + altId);
+        }
+
+        // 添加新替代料
+        function addNewAlternative() {
+            document.getElementById('addAlternativeModal').classList.add('active');
+        }
+
+        // 关闭添加替代料模态框
+        function closeAddAlternativeModal() {
+            document.getElementById('addAlternativeModal').classList.remove('active');
+        }
+
+        // 提交添加替代料
+        function submitAddAlternative() {
+            alert('✅ 替代料添加成功！');
+            closeAddAlternativeModal();
+        }
+
+        // 退料
+        function returnMaterial(materialId) {
+            currentMaterialId = materialId;
+            const materialInfo = getMaterialInfo(materialId);
+
+            document.getElementById('returnMaterialInfo').innerHTML = `
+                物料编号: <strong>${materialInfo.code}</strong><br>
+                物料名称: ${materialInfo.name}<br>
+                规格型号: ${materialInfo.spec}<br>
+                封装: ${materialInfo.package}
+            `;
+
+            document.getElementById('returnModal').classList.add('active');
+        }
+
+        // 关闭退料模态框
+        function closeReturnModal() {
+            document.getElementById('returnModal').classList.remove('active');
+            document.getElementById('returnQuantity').value = '';
+            document.getElementById('returnReason').value = '';
+            document.getElementById('returnNote').value = '';
+            currentMaterialId = null;
+        }
+
+        // 提交退料
+        function submitReturn() {
+            const quantity = document.getElementById('returnQuantity').value;
+            const reason = document.getElementById('returnReason').value;
+            const note = document.getElementById('returnNote').value;
+
+            if (!quantity || !reason) {
+                alert('❌ 请填写必填项');
+                return;
+            }
+
+            alert(`✅ 退料成功！\n\n退料数量: ${quantity}\n退料原因: ${document.getElementById('returnReason').selectedOptions[0].text}\n\n物料将退回仓库。`);
+            closeReturnModal();
+        }
+
+        // 导出BOM
+        function exportBOM() {
+            alert('📥 BOM导出成功！\n\n文件包含完整信息：\n- 物料编号\n- 物料名称\n- 规格型号\n- 封装\n- 位号\n- 用量信息\n\n文件已保存到下载目录。');
+        }
+
+        // 导出工厂BOM（包含位号、封装、标准值）
+        function exportFactoryBOM() {
+            alert('📤 工厂BOM导出成功！\n\n导出内容包含：\n✓ 位号（Designator）\n✓ 封装（Package）\n✓ 标准值（规格型号）\n✓ 物料编号\n✓ 数量信息\n\n文件格式：Excel (.xlsx)\n文件已保存到下载目录，可直接发送给SMT工厂使用。');
+        }
+
+        // 打印BOM
+        function printBOM() {
+            window.print();
+        }
+
+        // 刷新BOM
+        function refreshBOM() {
+            alert('🔄 BOM数据已刷新');
+        }
+
+        // 查看物料详情
+        function viewMaterialDetail(materialId) {
+            alert('查看物料详情: ' + materialId);
+        }
+
+        // 编辑计划
+        function editPlan() {
+            alert('编辑生产计划');
+        }
+
+        // BOM筛选功能
+        function filterBOM() {
+            const input = event.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#bomTable tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(input) ? '' : 'none';
+            });
+        }
+
+        function filterByStock() {
+            const value = event.target.value;
+            const rows = document.querySelectorAll('#bomTable tbody tr');
+
+            rows.forEach(row => {
+                if (value === 'all') {
+                    row.style.display = '';
+                } else if (value === 'sufficient') {
+                    const stockCell = row.querySelectorAll('td')[9];
+                    row.style.display = stockCell.classList.contains('stock-sufficient') ? '' : 'none';
+                } else if (value === 'shortage') {
+                    const stockCell = row.querySelectorAll('td')[9];
+                    row.style.display = stockCell.classList.contains('stock-shortage') ? '' : 'none';
+                }
+            });
+        }
+
+        function filterByCategory() {
+            // 实现分类筛选逻辑
+            alert('分类筛选功能');
+        }
+
+        // 点击模态框背景关闭
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

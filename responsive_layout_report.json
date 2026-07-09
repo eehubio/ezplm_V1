@@ -1,0 +1,1183 @@
+{
+  "summary": {
+    "total_files": 130,
+    "files_updated": 130,
+    "viewport_added": 1,
+    "max_width_fixed": 85,
+    "media_queries_added": 0,
+    "files_skipped": 0,
+    "errors": []
+  },
+  "changes": [
+    {
+      "file": "404.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "activities-all-projects.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "activities-enhanced.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "activities.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "activity-project-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "ai_coding_embedded.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "analytics-enhanced.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "analytics.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "approval-center.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "approval-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "auth.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "board-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "board-marketplace.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "bom-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "bom.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "campus-recruitment.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "candidate-evaluation.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "category-management.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "cloud-search.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "collaboration.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-compare.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": false,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-comparison.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-compare.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-inquiry-batch.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-inquiry-create.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-inquiry-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-inquiry-list.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-inquiry-reply.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-product-edit.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-product-publish.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply-sales-analytics.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "component-supply.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "course-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "course-learning.html",
+      "viewport_added": false,
+      "max_width_changes": 2,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "customer-supplied-materials.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "dashboard-free.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "dashboard-pro.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "education-enhanced.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "education-student.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "education.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "experiment-submit.html",
+      "viewport_added": false,
+      "max_width_changes": 2,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "experiment-templates.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "graduation-apply.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "graduation-evaluation.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "graduation-guidance.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "graduation-hub.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "graduation-project-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "graduation-publish.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "graduation-topics.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "help.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "hr-campus-recruitment.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "hr-dashboard.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "hr-interview-schedule.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "hr-job-post.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "hr-resume-review.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "hr-send-offer.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "index.html",
+      "viewport_added": false,
+      "max_width_changes": 6,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "inventory-inbound.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": false,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "inventory.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "job-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "library-resources-backup.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "library-resources.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "materials.html",
+      "viewport_added": false,
+      "max_width_changes": 3,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "messages.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": false,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "module-version-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "notification-center.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "organization-create-backup.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "organization-create.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "outsourcing-apply.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "outsourcing-hub.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "outsourcing-publish.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "outsourcing-topics.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "pcb-editor-styled.html",
+      "viewport_added": false,
+      "max_width_changes": 3,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-add-material.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": false,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-contact-supplier.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-contract.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-edit.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-inquiry.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-orders.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": false,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-payment.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-receipt.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-supplier-eval.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-supplier-match.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement-tracking.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "procurement.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "production-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "production-test-create.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "production-test-export.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "production-test-report.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "production-test-standards.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "production.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "profile.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "project-center.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "project-create.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "project-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "project-list-enhanced.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "project-list.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "project-templates.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "project-views.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "projects-enhanced.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "projects-new-features.html",
+      "viewport_added": true,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "projects.html",
+      "viewport_added": false,
+      "max_width_changes": 3,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "projects_backup.html",
+      "viewport_added": false,
+      "max_width_changes": 5,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "projects_before_cleanup.html",
+      "viewport_added": false,
+      "max_width_changes": 5,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "quality-inspection.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "reference-design-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 2,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "reference-designs.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "requirement-initiation.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "role-permissions-documentation.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "settings.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "student-applications-interview.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "student-applications-offer.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "student-applications-sent.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": false,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "student-applications.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "student-resume.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "supplier-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "supplier-management.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "supplier-product-listing.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "task-create.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "task-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "task-list-enhanced.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": false,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "task-list.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": false,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "tasks-enhanced.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "tasks.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "team-discussion.html",
+      "viewport_added": false,
+      "max_width_changes": 1,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "timeline-dashboard.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "work-order-detail.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    },
+    {
+      "file": "workspace-dashboard.html",
+      "viewport_added": false,
+      "max_width_changes": 0,
+      "mobile_menu_added": false,
+      "responsive_grid_added": true,
+      "responsive_typography_added": true,
+      "updated": true
+    }
+  ]
+}
