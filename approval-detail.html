@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 审批详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .approval-id {
+            font-size: 14px;
+            color: #999;
+            font-family: 'Courier New', monospace;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-approve {
+            background: #00890b;
+            color: white;
+        }
+        .btn-approve:hover {
+            background: #007309;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+        .btn-reject {
+            background: #ff4757;
+            color: white;
+        }
+        .btn-reject:hover {
+            background: #ee2f3f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3);
+        }
+        .btn-back {
+            background: #f5f5f5;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+        .btn-back:hover {
+            background: #e0e0e0;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .status-pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #f39c12;
+        }
+        .status-approved {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .status-rejected {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .info-label {
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .info-value {
+            font-size: 15px;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        /* Content Sections */
+        .content-section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        /* Detail Table */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .detail-table th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .detail-table td {
+            padding: 16px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 16px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+        }
+        .timeline-item {
+            position: relative;
+            padding-bottom: 32px;
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -28px;
+            top: 4px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00890b;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #00890b;
+        }
+        .timeline-item.pending::before {
+            background: #f39c12;
+            box-shadow: 0 0 0 2px #f39c12;
+        }
+        .timeline-item.future::before {
+            background: #e0e0e0;
+            box-shadow: 0 0 0 2px #e0e0e0;
+        }
+        .timeline-time {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        .timeline-role {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        .timeline-action {
+            font-size: 13px;
+            color: #666;
+        }
+        .timeline-comment {
+            margin-top: 8px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Attachments */
+        .attachments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+        .attachment-card {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .attachment-card:hover {
+            border-color: #00890b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.1);
+        }
+        .attachment-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .attachment-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .attachment-size {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .modal-body textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 24px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="layout">
+        <!-- Sidebar -->
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item active">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="header-top">
+                    <div>
+                        <div class="status-badge status-pending">⏳ 待审批</div>
+                        <div class="page-title">大额采购申请 - MCU芯片采购订单</div>
+                        <div class="approval-id">审批编号：APR-2025-001-0127</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-back" onclick="location.href='approval-center.html'">← 返回列表</button>
+                        <button class="btn btn-reject" onclick="showRejectModal()">驳回申请</button>
+                        <button class="btn btn-approve" onclick="approveRequest()">✓ 通过审批</button>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">申请人</div>
+                        <div class="info-value">李明 (采购员)</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">申请时间</div>
+                        <div class="info-value">2025-01-27 14:30</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">审批类型</div>
+                        <div class="info-value">采购审批</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">优先级</div>
+                        <div class="info-value">🔴 高</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">所属项目</div>
+                        <div class="info-value">智能家居控制器 v2.0</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">预计交付</div>
+                        <div class="info-value">2025-02-15</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 采购详情 -->
+            <div class="content-section">
+                <div class="section-title">📦 采购清单</div>
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>物料编号</th>
+                            <th>物料名称</th>
+                            <th>规格型号</th>
+                            <th>数量</th>
+                            <th>单价(元)</th>
+                            <th>小计(元)</th>
+                            <th>供应商</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>MAT-2025-001</td>
+                            <td>MCU芯片</td>
+                            <td>STM32F407VGT6</td>
+                            <td>2,000片</td>
+                            <td>32.50</td>
+                            <td>65,000</td>
+                            <td>深圳市XX电子有限公司</td>
+                        </tr>
+                        <tr>
+                            <td colspan="5" style="text-align: right; font-weight: 600;">总计：</td>
+                            <td style="font-weight: 700; color: #00890b; font-size: 16px;">¥65,000</td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 申请说明 -->
+            <div class="content-section">
+                <div class="section-title">📝 申请说明</div>
+                <div style="line-height: 1.8; color: #666;">
+                    <p style="margin-bottom: 12px;"><strong>采购原因：</strong></p>
+                    <p style="margin-bottom: 16px;">智能家居控制器 v2.0 项目需要大批量采购STM32F407VGT6芯片作为主控芯片。根据项目计划，预计需要生产5,000台设备，每台设备需要1片MCU，加上20%的备货余量，因此本次采购2,000片。</p>
+
+                    <p style="margin-bottom: 12px;"><strong>供应商选择理由：</strong></p>
+                    <p style="margin-bottom: 16px;">深圳市XX电子有限公司是ST官方授权代理商，产品质量有保证，价格相比其他供应商优惠8%，且承诺7天内发货，能够满足项目时间要求。</p>
+
+                    <p style="margin-bottom: 12px;"><strong>风险评估：</strong></p>
+                    <p>已确认供应商库存充足，付款方式为货到付款，降低资金风险。</p>
+                </div>
+            </div>
+
+            <!-- 附件 -->
+            <div class="content-section">
+                <div class="section-title">📎 相关附件 (3)</div>
+                <div class="attachments-grid">
+                    <div class="attachment-card">
+                        <div class="attachment-icon">📄</div>
+                        <div class="attachment-name">供应商报价单.pdf</div>
+                        <div class="attachment-size">1.2 MB</div>
+                    </div>
+                    <div class="attachment-card">
+                        <div class="attachment-icon">📊</div>
+                        <div class="attachment-name">需求分析表.xlsx</div>
+                        <div class="attachment-size">245 KB</div>
+                    </div>
+                    <div class="attachment-card">
+                        <div class="attachment-icon">🏢</div>
+                        <div class="attachment-name">供应商资质证明.pdf</div>
+                        <div class="attachment-size">3.5 MB</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 审批流程 -->
+            <div class="content-section">
+                <div class="section-title">🔄 审批流程</div>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-time">2025-01-27 14:30</div>
+                        <div class="timeline-role">李明 (采购员)</div>
+                        <div class="timeline-action">发起采购申请</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-time">2025-01-27 15:15</div>
+                        <div class="timeline-role">张伟 (项目经理)</div>
+                        <div class="timeline-action">✓ 审批通过</div>
+                        <div class="timeline-comment">💬 采购需求合理，同意采购。注意跟进交付时间。</div>
+                    </div>
+                    <div class="timeline-item pending">
+                        <div class="timeline-time">待处理</div>
+                        <div class="timeline-role">王芳 (组织管理员) - 当前审批人</div>
+                        <div class="timeline-action">⏳ 等待审批</div>
+                    </div>
+                    <div class="timeline-item future">
+                        <div class="timeline-time">-</div>
+                        <div class="timeline-role">财务部门</div>
+                        <div class="timeline-action">待审批（大额采购需要财务审批）</div>
+                    </div>
+                    <div class="timeline-item future">
+                        <div class="timeline-time">-</div>
+                        <div class="timeline-role">采购执行</div>
+                        <div class="timeline-action">待执行</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 驳回模态框 -->
+    <div class="modal" id="rejectModal">
+        <div class="modal-content">
+            <div class="modal-header">驳回申请</div>
+            <div class="modal-body">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">驳回理由：</label>
+                <textarea id="rejectReason" placeholder="请输入驳回理由..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-back" onclick="closeRejectModal()">取消</button>
+                <button class="btn btn-reject" onclick="confirmReject()">确认驳回</button>
+            </div>
+        </div>
+
+    <script>
+        function approveRequest() {
+            if (confirm('确认通过此采购申请吗？')) {
+                alert('✅ 审批已通过！申请将流转至下一审批节点。');
+                setTimeout(() => {
+                    location.href = 'approval-center.html';
+                }, 1500);
+            }
+        }
+
+        function showRejectModal() {
+            document.getElementById('rejectModal').classList.add('active');
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').classList.remove('active');
+        }
+
+        function confirmReject() {
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (!reason) {
+                alert('请输入驳回理由');
+                return;
+            }
+            alert('❌ 申请已驳回！申请人将收到驳回通知。');
+            closeRejectModal();
+            setTimeout(() => {
+                location.href = 'approval-center.html';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>简历筛选 - EZPLM HR平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .role-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 - 使用固定宽度简化结构 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容 */
+        .main-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            margin-bottom: 24px;
+        }
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .breadcrumb a {
+            color: #666;
+            text-decoration: none;
+        }
+        .breadcrumb a:hover {
+            color: #00890b;
+        }
+        .page-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: #3d4647;
+        }
+
+        /* 过滤栏 */
+        .filter-bar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .filter-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+        .filter-select {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        .filter-chip {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .filter-chip:hover {
+            background: rgba(102,126,234,0.1);
+            color: #667eea;
+        }
+        .filter-chip.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        /* 批量操作栏 */
+        .bulk-actions {
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .bulk-actions.show {
+            display: flex;
+        }
+        .bulk-info {
+            font-size: 14px;
+            color: #1e40af;
+            font-weight: 600;
+        }
+        .bulk-btns {
+            display: flex;
+            gap: 12px;
+        }
+        .btn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 简历列表 */
+        .resume-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .resume-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 24px;
+            align-items: start;
+        }
+        .resume-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .resume-checkbox {
+            margin-top: 4px;
+        }
+        .resume-checkbox input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .resume-main {
+            flex: 1;
+        }
+        .resume-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .candidate-info {
+            flex: 1;
+        }
+        .candidate-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .candidate-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: #666;
+            flex-wrap: wrap;
+        }
+        .ai-score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            color: white;
+        }
+        .ai-score-value {
+            font-size: 32px;
+            font-weight: 800;
+            line-height: 1;
+        }
+        .ai-score-label {
+            font-size: 12px;
+            margin-top: 4px;
+            opacity: 0.9;
+        }
+        .resume-highlights {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .highlight-row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .highlight-row:last-child {
+            margin-bottom: 0;
+        }
+        .highlight-label {
+            font-size: 13px;
+            color: #999;
+            font-weight: 600;
+        }
+        .highlight-value {
+            font-size: 13px;
+            color: #3d4647;
+        }
+        .tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            padding: 4px 10px;
+            background: #dcfce7;
+            color: #00890b;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .resume-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .action-btn-primary {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+        }
+        .action-btn-outline {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* 详情侧边栏 */
+        .detail-sidebar {
+            position: fixed;
+            right: -600px;
+            top: 0;
+            width: 600px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+            z-index: 2000;
+            transition: right 0.3s;
+            overflow-y: auto;
+        }
+        .detail-sidebar.show {
+            right: 0;
+        }
+        .detail-header {
+            padding: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+        .detail-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .close-btn:hover {
+            background: #f0f0f0;
+            color: #3d4647;
+        }
+        .detail-content {
+            padding: 24px;
+        }
+        .detail-section {
+            margin-bottom: 32px;
+        }
+        .detail-section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item active">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-wrapper">
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <div class="breadcrumb">
+                    <a href="hr-campus-recruitment.html">校园招聘</a>
+                    <span>›</span>
+                    <a href="hr-dashboard.html">硬件工程师</a>
+                    <span>›</span>
+                    <span>简历筛选</span>
+                </div>
+                <div class="page-title-row">
+                    <div class="page-title">📧 简历筛选（45份）</div>
+                </div>
+            </div>
+
+            <!-- 过滤栏 -->
+            <div class="filter-bar">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <span class="filter-label">状态：</span>
+                        <div class="filter-chip active">全部 (45)</div>
+                        <div class="filter-chip">待筛选 (23)</div>
+                        <div class="filter-chip">已通过 (12)</div>
+                        <div class="filter-chip">已拒绝 (10)</div>
+                    </div>
+                    <div class="filter-group" style="margin-left: auto;">
+                        <span class="filter-label">排序：</span>
+                        <select class="filter-select">
+                            <option>AI匹配度（高到低）</option>
+                            <option>投递时间（最新）</option>
+                            <option>学历（高到低）</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 批量操作栏 -->
+            <div class="bulk-actions" id="bulkActions">
+                <div class="bulk-info">已选择 <span id="selectedCount">0</span> 份简历</div>
+                <div class="bulk-btns">
+                    <button class="btn btn-primary" onclick="bulkApprove()">✓ 批量通过</button>
+                    <button class="btn btn-secondary" onclick="bulkReject()">✗ 批量拒绝</button>
+                    <button class="btn btn-secondary" onclick="cancelSelection()">取消选择</button>
+                </div>
+            </div>
+
+            <!-- 简历列表 -->
+            <div class="resume-list">
+                <!-- 简历卡片1 -->
+                <div class="resume-card">
+                    <div class="resume-checkbox">
+                        <input type="checkbox" onchange="updateSelection()">
+                    </div>
+                    <div class="resume-main">
+                        <div class="resume-header">
+                            <div class="candidate-info">
+                                <div class="candidate-name">张三</div>
+                                <div class="candidate-meta">
+                                    <span>👨 男 · 25岁</span>
+                                    <span>🎓 清华大学 · 电子信息工程 · 硕士</span>
+                                    <span>📅 投递时间：2025-10-20</span>
+                                </div>
+                            </div>
+                            <div class="ai-score">
+                                <div class="ai-score-value">95</div>
+                                <div class="ai-score-label">AI匹配</div>
+                            </div>
+                        </div>
+
+                        <div class="resume-highlights">
+                            <div class="highlight-row">
+                                <div class="highlight-label">工作经验：</div>
+                                <div class="highlight-value">应届生 · 有2段实习经历</div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">核心技能：</div>
+                                <div class="highlight-value">
+                                    <div class="tags">
+                                        <span class="tag">Altium Designer</span>
+                                        <span class="tag">硬件电路设计</span>
+                                        <span class="tag">PCB Layout</span>
+                                        <span class="tag">嵌入式开发</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">项目经验：</div>
+                                <div class="highlight-value">完成4个硬件项目，包括ESP32智能设备、电源管理系统等</div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">匹配理由：</div>
+                                <div class="highlight-value" style="color: #667eea; font-weight: 600;">
+                                    🎯 专业对口 · 技能匹配度高 · 项目经验丰富 · 学历符合要求
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="resume-actions">
+                            <button class="action-btn action-btn-primary" onclick="approveResume(this)">✓ 通过筛选</button>
+                            <button class="action-btn action-btn-outline" onclick="showDetail()">👁️ 查看详情</button>
+                            <button class="action-btn action-btn-outline" onclick="rejectResume(this)">✗ 不合适</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 简历卡片2 -->
+                <div class="resume-card">
+                    <div class="resume-checkbox">
+                        <input type="checkbox" onchange="updateSelection()">
+                    </div>
+                    <div class="resume-main">
+                        <div class="resume-header">
+                            <div class="candidate-info">
+                                <div class="candidate-name">李四</div>
+                                <div class="candidate-meta">
+                                    <span>👨 男 · 24岁</span>
+                                    <span>🎓 北京大学 · 微电子 · 本科</span>
+                                    <span>📅 投递时间：2025-10-19</span>
+                                </div>
+                            </div>
+                            <div class="ai-score">
+                                <div class="ai-score-value">88</div>
+                                <div class="ai-score-label">AI匹配</div>
+                            </div>
+                        </div>
+
+                        <div class="resume-highlights">
+                            <div class="highlight-row">
+                                <div class="highlight-label">工作经验：</div>
+                                <div class="highlight-value">应届生 · 有1段实习经历</div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">核心技能：</div>
+                                <div class="highlight-value">
+                                    <div class="tags">
+                                        <span class="tag">模拟电路</span>
+                                        <span class="tag">数字电路</span>
+                                        <span class="tag">FPGA</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">项目经验：</div>
+                                <div class="highlight-value">完成2个课程项目，1个企业实习项目</div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">匹配理由：</div>
+                                <div class="highlight-value" style="color: #667eea; font-weight: 600;">
+                                    🎯 专业对口 · 基础扎实 · 学历符合
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="resume-actions">
+                            <button class="action-btn action-btn-primary" onclick="approveResume(this)">✓ 通过筛选</button>
+                            <button class="action-btn action-btn-outline" onclick="showDetail()">👁️ 查看详情</button>
+                            <button class="action-btn action-btn-outline" onclick="rejectResume(this)">✗ 不合适</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 简历卡片3 -->
+                <div class="resume-card">
+                    <div class="resume-checkbox">
+                        <input type="checkbox" onchange="updateSelection()">
+                    </div>
+                    <div class="resume-main">
+                        <div class="resume-header">
+                            <div class="candidate-info">
+                                <div class="candidate-name">王五</div>
+                                <div class="candidate-meta">
+                                    <span>👩 女 · 23岁</span>
+                                    <span>🎓 浙江大学 · 电气工程 · 本科</span>
+                                    <span>📅 投递时间：2025-10-18</span>
+                                </div>
+                            </div>
+                            <div class="ai-score">
+                                <div class="ai-score-value">82</div>
+                                <div class="ai-score-label">AI匹配</div>
+                            </div>
+                        </div>
+
+                        <div class="resume-highlights">
+                            <div class="highlight-row">
+                                <div class="highlight-label">工作经验：</div>
+                                <div class="highlight-value">应届生 · 无实习经历</div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">核心技能：</div>
+                                <div class="highlight-value">
+                                    <div class="tags">
+                                        <span class="tag">电路分析</span>
+                                        <span class="tag">C语言</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">项目经验：</div>
+                                <div class="highlight-value">完成3个课程设计项目</div>
+                            </div>
+                            <div class="highlight-row">
+                                <div class="highlight-label">匹配理由：</div>
+                                <div class="highlight-value" style="color: #667eea; font-weight: 600;">
+                                    🎯 专业相关 · 学习能力强
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="resume-actions">
+                            <button class="action-btn action-btn-primary" onclick="approveResume(this)">✓ 通过筛选</button>
+                            <button class="action-btn action-btn-outline" onclick="showDetail()">👁️ 查看详情</button>
+                            <button class="action-btn action-btn-outline" onclick="rejectResume(this)">✗ 不合适</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 简历详情侧边栏 -->
+    <div class="detail-sidebar" id="detailSidebar">
+        <div class="detail-header">
+            <div class="detail-title">简历详情</div>
+            <button class="close-btn" onclick="closeDetail()">&times;</button>
+        </div>
+        <div class="detail-content">
+            <div class="detail-section">
+                <div class="detail-section-title">基本信息</div>
+                <p>详细简历内容...</p>
+            </div>
+
+    <script>
+        // 更新选择状态
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('.resume-checkbox input:checked');
+            const count = checkboxes.length;
+            document.getElementById('selectedCount').textContent = count;
+            document.getElementById('bulkActions').classList.toggle('show', count > 0);
+        }
+
+        // 取消选择
+        function cancelSelection() {
+            document.querySelectorAll('.resume-checkbox input').forEach(cb => cb.checked = false);
+            updateSelection();
+        }
+
+        // 批量通过
+        function bulkApprove() {
+            const count = document.querySelectorAll('.resume-checkbox input:checked').length;
+            if (confirm(`确认通过选中的 ${count} 份简历吗？`)) {
+                alert(`✅ 已通过 ${count} 份简历！\n\n这些候选人将进入下一轮筛选流程。`);
+                cancelSelection();
+            }
+        }
+
+        // 批量拒绝
+        function bulkReject() {
+            const count = document.querySelectorAll('.resume-checkbox input:checked').length;
+            if (confirm(`确认拒绝选中的 ${count} 份简历吗？`)) {
+                alert(`已拒绝 ${count} 份简历。系统将自动发送感谢信。`);
+                cancelSelection();
+            }
+        }
+
+        // 通过简历
+        function approveResume(btn) {
+            const card = btn.closest('.resume-card');
+            const name = card.querySelector('.candidate-name').textContent;
+            if (confirm(`确认通过"${name}"的简历吗？`)) {
+                alert(`✅ 已通过"${name}"的简历！\n\n下一步您可以安排面试。`);
+                card.style.opacity = '0.5';
+            }
+        }
+
+        // 拒绝简历
+        function rejectResume(btn) {
+            const card = btn.closest('.resume-card');
+            const name = card.querySelector('.candidate-name').textContent;
+            if (confirm(`确认拒绝"${name}"的简历吗？\n\n系统将自动发送感谢信。`)) {
+                alert(`已拒绝"${name}"的简历。`);
+                card.style.opacity = '0.3';
+            }
+        }
+
+        // 显示详情
+        function showDetail() {
+            document.getElementById('detailSidebar').classList.add('show');
+        }
+
+        // 关闭详情
+        function closeDetail() {
+            document.getElementById('detailSidebar').classList.remove('show');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>指导中心 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .status-online {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            height: calc(100vh - 64px);
+            gap: 0;
+        }
+
+        /* 左侧导航 */
+        .sidebar {
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            padding: 20px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: #f8f9ff;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-badge {
+            margin-left: auto;
+            background: #ff5252;
+            color: white;
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* 中间主内容 */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .content-view {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .content-view.active {
+            display: flex;
+        }
+
+        /* 聊天视图 */
+        .chat-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .chat-user-details h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .chat-user-details p {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: #f8f9ff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .icon-btn:hover {
+            background: #e8eaf6;
+        }
+
+        .message-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message-group {
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-group.sent {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 60%;
+        }
+
+        .message-header {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            font-size: 12px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .message-time {
+            color: #999;
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: #f8f9ff;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .message-group.sent .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-file {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .message-file:hover {
+            background: #f8f9ff;
+        }
+
+        .file-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .file-size {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .message-input-area {
+            padding: 16px 24px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+        }
+
+        .input-toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .toolbar-btn {
+            padding: 8px 12px;
+            border: none;
+            background: #f8f9ff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .toolbar-btn:hover {
+            background: #e8eaf6;
+        }
+
+        .message-input-box {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            max-height: 120px;
+            transition: all 0.3s;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        /* 任务视图 */
+        .task-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-header h2 {
+            font-size: 20px;
+        }
+
+        .add-task-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .add-task-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .task-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .task-card {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 4px solid #667eea;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .task-card.completed {
+            opacity: 0.6;
+            border-left-color: #4caf50;
+        }
+
+        .task-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .task-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .task-priority {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background: #ffebee;
+            color: #f44336;
+        }
+
+        .priority-medium {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .priority-low {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .task-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .task-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* 知识库视图 */
+        .knowledge-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-btn {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .knowledge-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .knowledge-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .knowledge-card {
+            background: white;
+            border: 2px solid #e8eaf6;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .knowledge-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+
+        .knowledge-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .knowledge-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .knowledge-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        /* 右侧信息栏 */
+        .info-panel {
+            background: white;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .panel-section {
+            margin-bottom: 32px;
+        }
+
+        .panel-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .schedule-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .schedule-time {
+            font-size: 12px;
+            color: #667eea;
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        .schedule-content {
+            flex: 1;
+        }
+
+        .schedule-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .schedule-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .quick-action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .quick-action-btn {
+            padding: 16px;
+            border: 2px solid #e8eaf6;
+            background: white;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .quick-action-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .action-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .action-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        @media (max-width: 1440px) {
+            .main-container {
+                grid-template-columns: 280px 1fr;
+            }
+
+            .info-panel {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                display: none;
+            }
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+        <!-- 中间主内容区 -->
+        <div class="main-content">
+            <!-- 聊天视图 -->
+            <div class="content-view active" id="chat">
+                <div class="chat-header">
+                    <div class="chat-user-info">
+                        <div class="chat-avatar">李</div>
+                        <div class="chat-user-details">
+                            <h3>李明导师</h3>
+                            <p>大疆创新 · 高级硬件工程师</p>
+                        </div>
+                    </div>
+                    <div class="chat-actions">
+                        <button class="icon-btn" title="语音通话">📞</button>
+                        <button class="icon-btn" title="视频通话">📹</button>
+                        <button class="icon-btn" title="更多">⋮</button>
+                    </div>
+                </div>
+
+                <div class="message-list" id="messageList">
+                    <div class="message-group">
+                        <div class="message-avatar">李</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-sender">李明导师</span>
+                                <span class="message-time">今天 09:30</span>
+                            </div>
+                            <div class="message-bubble">
+                                早上好！看到你昨晚提交的代码了，整体质量不错。今天下午3点我们开个会，讨论一下下一阶段的实物测试方案，你看可以吗？
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-group sent">
+                        <div class="message-avatar">张</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-time">今天 10:15</span>
+                                <span class="message-sender">我</span>
+                            </div>
+                            <div class="message-bubble">
+                                好的李老师，下午3点没问题！我会准备一下测试方案的初步想法。
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-group">
+                        <div class="message-avatar">李</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-sender">李明导师</span>
+                                <span class="message-time">今天 10:20</span>
+                            </div>
+                            <div class="message-bubble">
+                                很好！另外，我给你准备了一些参考资料，你可以先看看。
+                            </div>
+                            <div class="message-file">
+                                <div class="file-icon">📄</div>
+                                <div class="file-info">
+                                    <div class="file-name">无人机避障测试规范.pdf</div>
+                                    <div class="file-size">2.3 MB</div>
+                                </div>
+                                <span>⬇️</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-group sent">
+                        <div class="message-avatar">张</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-time">今天 10:25</span>
+                                <span class="message-sender">我</span>
+                            </div>
+                            <div class="message-bubble">
+                                收到，谢谢李老师！我马上学习。对了，关于算法优化，我有个技术问题想请教...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-group">
+                        <div class="message-avatar">李</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="message-sender">李明导师</span>
+                                <span class="message-time">今天 10:30</span>
+                            </div>
+                            <div class="message-bubble">
+                                你说，什么问题？
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="message-input-area">
+                    <div class="input-toolbar">
+                        <button class="toolbar-btn" title="表情">😊</button>
+                        <button class="toolbar-btn" title="上传文件">📎</button>
+                        <button class="toolbar-btn" title="截图">📷</button>
+                        <button class="toolbar-btn" title="代码片段">💻</button>
+                    </div>
+                    <div class="message-input-box">
+                        <textarea class="message-input" placeholder="输入消息... (Ctrl+Enter 发送)" rows="3"></textarea>
+                        <button class="send-btn" onclick="sendMessage()">发送</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 任务视图 -->
+            <div class="content-view" id="tasks">
+                <div class="task-header">
+                    <h2>✅ 任务管理</h2>
+                    <button class="add-task-btn" onclick="addNewTask()">➕ 新建任务</button>
+                </div>
+
+                <div class="task-content">
+                    <div class="task-card">
+                        <div class="task-card-header">
+                            <div>
+                                <div class="task-title">完成避障算法性能优化</div>
+                            </div>
+                            <div class="task-priority priority-high">高优先级</div>
+                        </div>
+                        <div class="task-desc">
+                            需要将算法响应时间优化到100ms以内，并完成至少50个测试用例的验证。
+                        </div>
+                        <div class="task-meta">
+                            <span>📅 截止：2025-01-28</span>
+                            <span>👤 分配者：李明导师</span>
+                            <span>📊 进度：60%</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-card-header">
+                            <div>
+                                <div class="task-title">准备周报和进度汇报材料</div>
+                            </div>
+                            <div class="task-priority priority-medium">中优先级</div>
+                        </div>
+                        <div class="task-desc">
+                            总结本周工作进展，准备周五的进度汇报PPT。
+                        </div>
+                        <div class="task-meta">
+                            <span>📅 截止：2025-01-27</span>
+                            <span>👤 分配者：李明导师</span>
+                            <span>📊 进度：30%</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card completed">
+                        <div class="task-card-header">
+                            <div>
+                                <div class="task-title">提交避障算法V2.0代码</div>
+                            </div>
+                            <div class="task-priority priority-high">高优先级</div>
+                        </div>
+                        <div class="task-desc">
+                            完成算法核心模块开发并提交代码仓库。
+                        </div>
+                        <div class="task-meta">
+                            <span>✅ 已完成</span>
+                            <span>📅 完成时间：2025-01-20</span>
+                        </div>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-card-header">
+                            <div>
+                                <div class="task-title">学习ROS导航框架</div>
+                            </div>
+                            <div class="task-priority priority-low">低优先级</div>
+                        </div>
+                        <div class="task-desc">
+                            为下一阶段实物测试做准备，学习ROS导航相关知识。
+                        </div>
+                        <div class="task-meta">
+                            <span>📅 截止：2025-02-01</span>
+                            <span>👤 自建任务</span>
+                            <span>📊 进度：10%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 知识库视图 -->
+            <div class="content-view" id="knowledge">
+                <div class="task-header">
+                    <h2>📚 知识库</h2>
+                </div>
+
+                <div class="knowledge-content">
+                    <div class="search-bar">
+                        <input type="text" class="search-input" placeholder="搜索技术文档、教程、案例...">
+                        <button class="search-btn">🔍 搜索</button>
+                    </div>
+
+                    <div class="knowledge-section">
+                        <div class="section-title">
+                            📖 推荐文档
+                        </div>
+                        <div class="knowledge-grid">
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">📄</div>
+                                <div class="knowledge-title">避障算法开发指南</div>
+                                <div class="knowledge-desc">详细介绍各类避障算法的原理、实现和优化方法</div>
+                            </div>
+
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">💻</div>
+                                <div class="knowledge-title">ROS开发最佳实践</div>
+                                <div class="knowledge-desc">ROS框架使用技巧和常见问题解决方案</div>
+                            </div>
+
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">🔧</div>
+                                <div class="knowledge-title">硬件调试技巧</div>
+                                <div class="knowledge-desc">传感器调试、参数标定等实用技巧</div>
+                            </div>
+
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">📊</div>
+                                <div class="knowledge-title">测试用例设计规范</div>
+                                <div class="knowledge-desc">如何设计全面的测试用例覆盖各种场景</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="knowledge-section">
+                        <div class="section-title">
+                            🎬 视频教程
+                        </div>
+                        <div class="knowledge-grid">
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">🎥</div>
+                                <div class="knowledge-title">无人机避障系统解析</div>
+                                <div class="knowledge-desc">45分钟 · 李明导师主讲</div>
+                            </div>
+
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">🎥</div>
+                                <div class="knowledge-title">SLAM算法实战</div>
+                                <div class="knowledge-desc">60分钟 · 技术专家系列</div>
+                            </div>
+
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">🎥</div>
+                                <div class="knowledge-title">项目答辩技巧</div>
+                                <div class="knowledge-desc">30分钟 · 如何做好毕设答辩</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="knowledge-section">
+                        <div class="section-title">
+                            📦 代码示例
+                        </div>
+                        <div class="knowledge-grid">
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">💾</div>
+                                <div class="knowledge-title">避障算法示例代码</div>
+                                <div class="knowledge-desc">完整的算法实现和注释</div>
+                            </div>
+
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">💾</div>
+                                <div class="knowledge-title">传感器数据处理</div>
+                                <div class="knowledge-desc">多传感器融合的代码示例</div>
+                            </div>
+
+                            <div class="knowledge-card">
+                                <div class="knowledge-icon">💾</div>
+                                <div class="knowledge-title">可视化工具集</div>
+                                <div class="knowledge-desc">数据可视化和调试工具</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他视图占位 -->
+            <div class="content-view" id="meeting">
+                <div class="task-header">
+                    <h2>📹 视频会议</h2>
+                </div>
+                <div style="padding: 60px; text-align: center; color: #999;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📹</div>
+                    <div>视频会议功能开发中...</div>
+                </div>
+            </div>
+
+            <div class="content-view" id="files">
+                <div class="task-header">
+                    <h2>📁 文件共享</h2>
+                </div>
+                <div style="padding: 60px; text-align: center; color: #999;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+                    <div>文件共享功能开发中...</div>
+                </div>
+            </div>
+
+            <div class="content-view" id="faq">
+                <div class="task-header">
+                    <h2>❓ 常见问题</h2>
+                </div>
+                <div style="padding: 60px; text-align: center; color: #999;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">❓</div>
+                    <div>FAQ功能开发中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧信息栏 -->
+        <div class="info-panel">
+            <div class="panel-section">
+                <div class="panel-title">📅 今日日程</div>
+                <div class="schedule-item">
+                    <div class="schedule-time">15:00</div>
+                    <div class="schedule-content">
+                        <div class="schedule-title">项目进度会议</div>
+                        <div class="schedule-desc">与李明导师讨论测试方案</div>
+                    </div>
+                </div>
+                <div class="schedule-item">
+                    <div class="schedule-time">19:00</div>
+                    <div class="schedule-content">
+                        <div class="schedule-title">技术分享会</div>
+                        <div class="schedule-desc">SLAM算法专题讲座</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">⚡ 快捷操作</div>
+                <div class="quick-action-grid">
+                    <div class="quick-action-btn" onclick="quickScheduleMeeting()">
+                        <div class="action-icon">📅</div>
+                        <div class="action-label">预约会议</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="quickUploadFile()">
+                        <div class="action-icon">📤</div>
+                        <div class="action-label">上传文件</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="addNewTask()">
+                        <div class="action-icon">✅</div>
+                        <div class="action-label">创建任务</div>
+                    </div>
+                    <div class="quick-action-btn" onclick="quickAskQuestion()">
+                        <div class="action-icon">❓</div>
+                        <div class="action-label">提问</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <div class="panel-title">📊 本周统计</div>
+                <div style="background: #f8f9ff; padding: 16px; border-radius: 8px; font-size: 13px; line-height: 2;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>消息数</span>
+                        <strong>127</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>完成任务</span>
+                        <strong>5/8</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>会议时长</span>
+                        <strong>3.5h</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>文档阅读</span>
+                        <strong>12篇</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换视图
+        function switchView(viewName) {
+            // 更新导航
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+
+            // 切换内容
+            document.querySelectorAll('.content-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            document.getElementById(viewName).classList.add('active');
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.querySelector('.message-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            const messageList = document.getElementById('messageList');
+            const newMessage = document.createElement('div');
+            newMessage.className = 'message-group sent';
+            newMessage.innerHTML = `
+                <div class="message-avatar">张</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-time">刚刚</span>
+                        <span class="message-sender">我</span>
+                    </div>
+                    <div class="message-bubble">${message}</div>
+                </div>
+            `;
+
+            messageList.appendChild(newMessage);
+            messageList.scrollTop = messageList.scrollHeight;
+            input.value = '';
+
+            // 模拟导师回复
+            setTimeout(() => {
+                const reply = document.createElement('div');
+                reply.className = 'message-group';
+                reply.innerHTML = `
+                    <div class="message-avatar">李</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">李明导师</span>
+                            <span class="message-time">刚刚</span>
+                        </div>
+                        <div class="message-bubble">
+                            收到，我来回答你的问题...
+                        </div>
+                    </div>
+                `;
+                messageList.appendChild(reply);
+                messageList.scrollTop = messageList.scrollHeight;
+            }, 1500);
+        }
+
+        // 监听回车发送
+        document.querySelector('.message-input')?.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // 添加新任务
+        function addNewTask() {
+            // 切换到任务视图
+            switchView('tasks');
+
+            // 显示创建任务提示
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position: fixed; top: 80px; right: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;';
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="font-size: 24px;">✅</div>
+                    <div>任务已添加到列表</div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+
+            // 添加新任务到任务列表
+            const taskContent = document.querySelector('#tasks .task-content');
+            const newTask = document.createElement('div');
+            newTask.className = 'task-card';
+            newTask.innerHTML = `
+                <div class="task-card-header">
+                    <div>
+                        <div class="task-title">新任务</div>
+                    </div>
+                    <div class="task-priority priority-medium">中优先级</div>
+                </div>
+                <div class="task-desc">
+                    请编辑任务详情...
+                </div>
+                <div class="task-meta">
+                    <span>📅 截止：待定</span>
+                    <span>👤 自建任务</span>
+                    <span>📊 进度：0%</span>
+                </div>
+            `;
+            taskContent.insertBefore(newTask, taskContent.firstChild);
+        }
+
+        // 快捷预约会议
+        function quickScheduleMeeting() {
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position: fixed; top: 80px; right: 24px; background: #2196f3; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;';
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="font-size: 24px;">📅</div>
+                    <div>会议预约请求已发送给导师</div>
+                </div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // 快捷上传文件
+        function quickUploadFile() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                    const toast = document.createElement('div');
+                    toast.style.cssText = 'position: fixed; top: 80px; right: 24px; background: #4caf50; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;';
+                    toast.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 24px;">📤</div>
+                            <div>已上传 ${files.length} 个文件</div>
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 2000);
+                }
+            };
+            input.click();
+        }
+
+        // 快捷提问
+        function quickAskQuestion() {
+            switchView('chat');
+
+            // 聚焦到输入框
+            setTimeout(() => {
+                const input = document.querySelector('.message-input');
+                if (input) {
+                    input.focus();
+                    input.placeholder = '在此输入您的问题...';
+                }
+            }, 300);
+
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position: fixed; top: 80px; right: 24px; background: #ff9800; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;';
+            toast.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="font-size: 24px;">❓</div>
+                    <div>请在聊天框中输入问题</div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+    </script>
+</body>
+</html>

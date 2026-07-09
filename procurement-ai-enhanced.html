@@ -1,0 +1,1561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>采购管理（AI 增强版）- EZPLM</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        background: #f4f4f4;
+        color: #3d4647;
+    }
+
+    /* ============ SHARED STYLES (same as BOM page) ============ */
+    .top-bar {
+        background: white; height: 80px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 0 40px; position: sticky; top: 0; z-index: 1000;
+    }
+    .top-bar-left { display: flex; align-items: center; gap: 40px; }
+    .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+    .ai-badge-inline {
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; font-size: 11px; font-weight: 700;
+        padding: 3px 8px; border-radius: 10px; letter-spacing: 0.5px;
+    }
+    .top-nav-links { display: flex; align-items: center; gap: 24px; }
+    .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+    .top-nav-links a:hover { color: #00890b; }
+    .top-nav-links a.ai-link { color: #7B61FF; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .top-bar-right { display: flex; align-items: center; gap: 16px; }
+    .notif-bell { position: relative; font-size: 20px; cursor: pointer; color: #3d4647; }
+    .notif-count {
+        position: absolute; top: -6px; right: -6px;
+        background: #ff4d4f; color: white; font-size: 10px; font-weight: 700;
+        min-width: 18px; height: 18px; border-radius: 9px;
+        display: flex; align-items: center; justify-content: center; padding: 0 4px;
+    }
+    .user-avatar {
+        width: 36px; height: 36px; border-radius: 50%;
+        background: #00890b; color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 600; cursor: pointer;
+    }
+    .layout { display: flex; min-height: calc(100vh - 80px); }
+    .sidebar {
+        width: 260px; background: white;
+        box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+        padding: 24px 0; flex-shrink: 0;
+    }
+    .nav-section { margin-bottom: 24px; }
+    .nav-section-title {
+        padding: 8px 24px; font-size: 12px; font-weight: 700;
+        color: #999; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .nav-item {
+        padding: 12px 24px; display: flex; align-items: center; gap: 12px;
+        color: #3d4647; cursor: pointer; transition: all 0.2s;
+        text-decoration: none; position: relative;
+    }
+    .nav-item:hover { background: rgba(0, 137, 11, 0.05); color: #00890b; }
+    .nav-item.active {
+        background: rgba(0, 137, 11, 0.1); color: #00890b; font-weight: 600;
+        border-right: 3px solid #00890b;
+    }
+    .nav-icon { font-size: 18px; }
+    .nav-badge-ai {
+        margin-left: auto;
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; font-size: 9px; font-weight: 700;
+        padding: 2px 6px; border-radius: 8px;
+    }
+    .main-content { flex: 1; padding: 32px; overflow-y: auto; }
+    .page-header {
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 24px;
+    }
+    .page-title-group { display: flex; align-items: center; gap: 12px; }
+    .page-title { font-size: 28px; font-weight: 700; color: #1a1a1a; }
+    .ai-enhanced-badge {
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; font-size: 12px; font-weight: 700;
+        padding: 5px 12px; border-radius: 14px;
+        display: inline-flex; align-items: center; gap: 4px;
+        box-shadow: 0 2px 6px rgba(123, 97, 255, 0.3);
+    }
+    .page-actions { display: flex; gap: 12px; }
+
+    /* Buttons */
+    .btn {
+        padding: 10px 20px; border-radius: 8px;
+        font-weight: 600; font-size: 14px;
+        cursor: pointer; transition: all 0.2s; border: none;
+        display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-primary { background: #00890b; color: white; }
+    .btn-primary:hover { background: #007309; }
+    .btn-secondary { background: white; color: #3d4647; border: 2px solid #e0e0e0; }
+    .btn-secondary:hover { border-color: #00890b; color: #00890b; }
+    .btn-ai {
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; box-shadow: 0 2px 6px rgba(123, 97, 255, 0.25);
+    }
+    .btn-ai:hover { box-shadow: 0 4px 12px rgba(123, 97, 255, 0.4); transform: translateY(-1px); }
+
+    /* ============ ✨ AI SAVINGS BANNER (NEW - replaces supplier push) ============ */
+    .ai-savings-banner {
+        background: linear-gradient(135deg, #F5F1FF 0%, #EEF4FF 100%);
+        border: 1px solid #D4C7FF;
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 24px;
+        display: flex; align-items: center; gap: 20px;
+        position: relative; overflow: hidden;
+    }
+    .ai-savings-banner::before {
+        content: ''; position: absolute;
+        top: 0; left: 0; bottom: 0; width: 5px;
+        background: linear-gradient(180deg, #7B61FF, #9B7FFF);
+    }
+    .ai-savings-icon {
+        width: 56px; height: 56px; border-radius: 14px;
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 28px; color: white; flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(123, 97, 255, 0.3);
+    }
+    .ai-savings-content { flex: 1; }
+    .ai-savings-title {
+        font-size: 15px; font-weight: 700; color: #1a1a1a;
+        margin-bottom: 10px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .ai-tag {
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; font-size: 10px; font-weight: 700;
+        padding: 2px 8px; border-radius: 10px;
+    }
+    .ai-savings-stats {
+        display: flex; gap: 24px; flex-wrap: wrap;
+        font-size: 13px; color: #5d4c8c;
+    }
+    .ai-savings-stats > div { display: flex; align-items: center; gap: 6px; }
+    .ai-savings-stats strong { font-size: 18px; color: #7B61FF; font-weight: 700; margin: 0 2px; }
+
+    /* ============ STAT CARDS ============ */
+    .stat-grid {
+        display: grid; grid-template-columns: repeat(5, 1fr);
+        gap: 16px; margin-bottom: 24px;
+    }
+    .stat-card {
+        background: white; border-radius: 12px; padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        display: flex; align-items: center; gap: 14px;
+        transition: transform 0.2s;
+    }
+    .stat-card:hover { transform: translateY(-2px); }
+    .stat-icon {
+        width: 44px; height: 44px; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+    }
+    .stat-icon.orange { background: rgba(250, 173, 20, 0.1); }
+    .stat-icon.blue { background: rgba(24, 144, 255, 0.1); }
+    .stat-icon.green { background: rgba(0, 137, 11, 0.1); }
+    .stat-icon.cyan { background: rgba(77, 171, 247, 0.1); }
+    .stat-icon.ai {
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white;
+    }
+    .stat-content .stat-value { font-size: 22px; font-weight: 700; color: #1a1a1a; line-height: 1.2; }
+    .stat-content .stat-label { font-size: 12px; color: #8c8c8c; margin-top: 2px; }
+    .stat-card.ai-card {
+        background: linear-gradient(135deg, #FAF8FF 0%, #F0F4FF 100%);
+        border: 1px solid #E0D4FF;
+    }
+    .stat-card.ai-card .stat-value { color: #7B61FF; }
+
+    /* ============ CORE MODULES GRID ============ */
+    .section-title {
+        font-size: 16px; font-weight: 700; color: #1a1a1a;
+        margin: 8px 0 16px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .module-grid {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 16px; margin-bottom: 24px;
+    }
+    .module-card {
+        background: white; border-radius: 12px; padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        cursor: pointer; transition: all 0.2s;
+        position: relative; overflow: hidden;
+    }
+    .module-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+    .module-card.ai-module {
+        background: linear-gradient(135deg, #FAF8FF 0%, #F0F4FF 100%);
+        border: 1px solid #E0D4FF;
+    }
+    .module-ai-tag {
+        position: absolute; top: 12px; right: 12px;
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; font-size: 9px; font-weight: 700;
+        padding: 2px 6px; border-radius: 6px;
+    }
+    .module-icon { font-size: 32px; margin-bottom: 10px; }
+    .module-title { font-size: 15px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+    .module-desc { font-size: 12px; color: #8c8c8c; line-height: 1.5; margin-bottom: 10px; }
+    .module-meta { font-size: 12px; color: #00890b; font-weight: 600; }
+    .module-card.ai-module .module-meta { color: #7B61FF; }
+
+    /* ============ QUICK TOOLS ============ */
+    .quick-tools {
+        background: white; border-radius: 12px; padding: 16px 20px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .quick-tools-title {
+        font-size: 14px; font-weight: 700; color: #1a1a1a;
+        margin-bottom: 14px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .tools-row {
+        display: grid; grid-template-columns: repeat(8, 1fr);
+        gap: 10px;
+    }
+    .tool-btn {
+        padding: 14px 10px; text-align: center;
+        background: #fafafa; border-radius: 10px;
+        cursor: pointer; transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+    .tool-btn:hover { background: #f0f9f0; border-color: #b7eb8f; }
+    .tool-btn.ai-tool {
+        background: linear-gradient(135deg, #FAF8FF, #F0F4FF);
+        border: 1px solid #D4C7FF;
+        position: relative;
+    }
+    .tool-btn.ai-tool:hover { background: #F5F1FF; border-color: #7B61FF; }
+    .tool-btn .icon { font-size: 22px; margin-bottom: 6px; }
+    .tool-btn .label { font-size: 12px; color: #3d4647; font-weight: 500; line-height: 1.3; }
+    .tool-btn.ai-tool .label { color: #5d4c8c; }
+    .tool-btn .ai-micro-tag {
+        position: absolute; top: 4px; right: 4px;
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; font-size: 8px; font-weight: 700;
+        padding: 1px 4px; border-radius: 4px;
+    }
+
+    /* ============ FILTER PANEL & TABLE ============ */
+    .filter-panel {
+        background: white; border-radius: 12px; padding: 20px 24px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    }
+    .filter-label { font-size: 13px; color: #8c8c8c; margin-right: 4px; }
+    .filter-input, .filter-select {
+        padding: 8px 14px; border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        font-size: 14px; color: #3d4647;
+        background: #fafafa; min-width: 140px;
+    }
+    .filter-input:focus, .filter-select:focus {
+        outline: none; border-color: #00890b; background: white;
+    }
+
+    .data-table-wrapper {
+        background: white; border-radius: 12px; overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: #fafafa; }
+    thead th {
+        padding: 14px 14px; text-align: left; font-size: 13px; font-weight: 600;
+        color: #3d4647; border-bottom: 1px solid #e0e0e0;
+    }
+    thead th.ai-col {
+        color: #7B61FF;
+        background: linear-gradient(180deg, #FAF8FF, #fafafa);
+    }
+    tbody td {
+        padding: 14px 14px; font-size: 13px; color: #3d4647;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    tbody tr:hover { background: #fafafa; }
+    .po-id { font-family: 'Monaco', 'Courier New', monospace; color: #00890b; font-weight: 600; }
+
+    .status-badge {
+        display: inline-block; padding: 3px 10px; border-radius: 10px;
+        font-size: 11px; font-weight: 600;
+    }
+    .status-approved { background: #f6ffed; color: #52c41a; border: 1px solid #b7eb8f; }
+    .status-pending { background: #fffbe6; color: #faad14; border: 1px solid #ffe58f; }
+    .status-progressing { background: #e6f7ff; color: #1890ff; border: 1px solid #91d5ff; }
+    .status-received { background: #f0f9ff; color: #4dabf7; border: 1px solid #91d5ff; }
+    .status-draft { background: #f5f5f5; color: #8c8c8c; border: 1px solid #d9d9d9; }
+
+    /* Delivery coordination status */
+    .delivery-status {
+        display: inline-flex; align-items: center; gap: 6px;
+        font-size: 12px; font-weight: 600;
+    }
+    .del-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+    }
+    .delivery-status.confirmed { color: #52c41a; }
+    .delivery-status.confirmed .del-dot { background: #52c41a; box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2); }
+    .delivery-status.waiting { color: #faad14; }
+    .delivery-status.waiting .del-dot { background: #faad14; box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.2); }
+    .delivery-status.urged { color: #ff4d4f; }
+    .delivery-status.urged .del-dot { background: #ff4d4f; box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2); }
+    .delivery-status.none { color: #8c8c8c; }
+    .delivery-status.none .del-dot { background: #d9d9d9; }
+
+    .table-action {
+        background: transparent; border: none; cursor: pointer;
+        color: #00890b; font-size: 13px; padding: 4px 6px;
+        border-radius: 6px; transition: all 0.2s;
+    }
+    .table-action:hover { background: rgba(0, 137, 11, 0.1); }
+
+    /* ============ MODAL ============ */
+    .modal-overlay {
+        position: fixed; inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none; align-items: center; justify-content: center;
+        z-index: 2000; padding: 40px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal {
+        background: white; border-radius: 16px;
+        width: 100%; max-width: 1000px; max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+        padding: 20px 28px; border-bottom: 1px solid #f0f0f0;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-title { font-size: 18px; font-weight: 700; color: #1a1a1a; }
+    .modal-close {
+        background: transparent; border: none; cursor: pointer;
+        font-size: 24px; color: #8c8c8c;
+    }
+    .modal-body { padding: 24px 28px; }
+    .modal-footer {
+        padding: 16px 28px; border-top: 1px solid #f0f0f0;
+        display: flex; justify-content: flex-end; gap: 12px;
+    }
+
+    /* ============ NEW PO FORM WITH AI ASSIST ============ */
+    .po-form {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 20px;
+    }
+    .po-form-left { }
+    .form-row { margin-bottom: 16px; }
+    .form-label {
+        display: block; font-size: 13px; color: #3d4647;
+        margin-bottom: 6px; font-weight: 500;
+    }
+    .form-input, .form-select {
+        width: 100%; padding: 10px 14px; border-radius: 8px;
+        border: 1px solid #e0e0e0;
+        font-size: 14px; color: #3d4647; background: #fafafa;
+    }
+    .form-input:focus, .form-select:focus {
+        outline: none; border-color: #00890b; background: white;
+    }
+
+    /* Material row in PO */
+    .po-material-table {
+        background: #fafafa; border-radius: 10px;
+        padding: 12px; margin-top: 8px;
+    }
+    .po-material-row {
+        display: grid;
+        grid-template-columns: 2fr 80px 100px 80px 40px;
+        gap: 8px; align-items: center;
+        padding: 8px; background: white;
+        border-radius: 6px; margin-bottom: 6px;
+        font-size: 13px;
+    }
+    .po-material-row .mpn { font-family: monospace; color: #00890b; font-weight: 600; }
+
+    /* AI Assistant Panel (right side) */
+    .ai-assist-panel {
+        background: linear-gradient(180deg, #FAF8FF 0%, #F0F4FF 100%);
+        border: 1px solid #D4C7FF;
+        border-radius: 12px;
+        padding: 16px;
+        position: sticky; top: 0;
+        max-height: calc(90vh - 200px);
+        overflow-y: auto;
+    }
+    .ai-assist-header {
+        display: flex; align-items: center; gap: 8px;
+        font-size: 13px; font-weight: 700; color: #7B61FF;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #E0D4FF;
+        margin-bottom: 14px;
+    }
+    .ai-alert {
+        background: white;
+        border-left: 3px solid;
+        border-radius: 8px;
+        padding: 12px 14px;
+        margin-bottom: 10px;
+        font-size: 12px;
+    }
+    .ai-alert.danger { border-left-color: #ff4d4f; background: #fff2f2; }
+    .ai-alert.warn { border-left-color: #faad14; background: #fffbe6; }
+    .ai-alert.info { border-left-color: #7B61FF; background: white; }
+    .ai-alert-title {
+        font-weight: 700; color: #1a1a1a;
+        margin-bottom: 4px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .ai-alert-body { color: #5d4c8c; line-height: 1.6; }
+    .ai-alert-actions {
+        margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .mini-btn {
+        padding: 4px 10px; font-size: 11px; border-radius: 6px;
+        border: 1px solid #D4C7FF; background: white;
+        color: #7B61FF; cursor: pointer; font-weight: 600;
+    }
+    .mini-btn:hover { background: #F5F1FF; }
+    .mini-btn.primary { background: #7B61FF; color: white; border-color: #7B61FF; }
+    .mini-btn.primary:hover { background: #6A52EE; }
+
+    /* ============ PRICE COMPARISON (AI Agent ⑤) ============ */
+    .price-tabs {
+        display: flex; gap: 4px; margin-bottom: 16px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .price-tab {
+        padding: 10px 16px; font-size: 13px; font-weight: 600;
+        color: #8c8c8c; cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s;
+    }
+    .price-tab:hover { color: #3d4647; }
+    .price-tab.active { color: #00890b; border-bottom-color: #00890b; }
+    .price-tab.ai-tab {
+        color: #7B61FF;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .price-tab.ai-tab.active { border-bottom-color: #7B61FF; }
+
+    .supplier-comparison-table {
+        border-radius: 10px; overflow: hidden;
+        border: 1px solid #e0e0e0;
+    }
+    .supplier-row {
+        display: grid;
+        grid-template-columns: 200px 100px 80px 100px 80px 120px;
+        padding: 14px 16px; align-items: center;
+        background: white; font-size: 13px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .supplier-row.header {
+        background: #fafafa; font-weight: 700; color: #3d4647;
+        font-size: 12px;
+    }
+    .supplier-row.best { background: #f6ffed; }
+    .supplier-row.external { background: #F0F4FF; }
+    .supplier-name { font-weight: 600; }
+    .supplier-tag {
+        display: inline-block; padding: 2px 6px; border-radius: 6px;
+        font-size: 10px; font-weight: 700; margin-left: 6px;
+    }
+    .supplier-tag.best-tag { background: #52c41a; color: white; }
+    .supplier-tag.ai-ext-tag { background: linear-gradient(135deg, #7B61FF, #9B7FFF); color: white; }
+
+    .eol-alert {
+        background: linear-gradient(135deg, #fff2f2 0%, #fff7e6 100%);
+        border: 1px solid #ffccc7;
+        border-radius: 10px; padding: 14px 18px;
+        margin-top: 16px;
+        display: flex; align-items: center; gap: 12px;
+    }
+    .eol-alert .icon { font-size: 28px; }
+    .eol-alert-text { flex: 1; }
+    .eol-alert-title { font-size: 13px; font-weight: 700; color: #ff4d4f; margin-bottom: 4px; }
+    .eol-alert-desc { font-size: 12px; color: #5d4c8c; }
+
+    .alternative-section {
+        margin-top: 16px;
+    }
+    .alternative-title {
+        font-size: 13px; font-weight: 700; color: #7B61FF;
+        margin-bottom: 10px;
+        display: flex; align-items: center; gap: 6px;
+    }
+    .alt-row {
+        display: grid;
+        grid-template-columns: 1fr 80px 100px 120px 100px 80px;
+        padding: 12px 14px; background: white;
+        border: 1px solid #E0D4FF; border-radius: 8px;
+        margin-bottom: 6px; font-size: 12px;
+        align-items: center;
+    }
+    .alt-row.header {
+        background: #FAF8FF; font-weight: 700; color: #5d4c8c; font-size: 11px;
+    }
+    .compat-bar {
+        display: inline-block; width: 50px; height: 6px;
+        background: #e0e0e0; border-radius: 3px; overflow: hidden;
+        vertical-align: middle; margin-right: 6px;
+    }
+    .compat-fill {
+        height: 100%; background: linear-gradient(90deg, #7B61FF, #9B7FFF);
+    }
+    .domestic-tag {
+        display: inline-block; padding: 1px 6px; border-radius: 4px;
+        font-size: 10px; font-weight: 700;
+        background: #fff2e8; color: #d4380d;
+    }
+
+    /* ============ DELIVERY COORDINATION MODAL ============ */
+    .po-select-list { max-height: 320px; overflow-y: auto; }
+    .po-select-item {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 16px; background: #fafafa;
+        border-radius: 8px; margin-bottom: 8px;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .po-select-item:hover { background: #F5F1FF; }
+    .po-select-item input[type=checkbox] { accent-color: #7B61FF; }
+    .po-select-info { flex: 1; font-size: 13px; }
+    .po-select-info .po-id-small { font-family: monospace; color: #00890b; font-weight: 600; }
+    .po-select-info .supplier-small { color: #8c8c8c; font-size: 12px; margin-top: 2px; }
+
+    .channel-row {
+        display: flex; gap: 10px; margin-top: 14px;
+    }
+    .channel-option {
+        flex: 1; padding: 14px; text-align: center;
+        border: 2px solid #e0e0e0; border-radius: 10px;
+        cursor: pointer; transition: all 0.2s;
+        font-size: 12px;
+    }
+    .channel-option:hover { border-color: #7B61FF; }
+    .channel-option.selected {
+        border-color: #7B61FF; background: #FAF8FF;
+    }
+    .channel-option .icon { font-size: 24px; margin-bottom: 6px; }
+
+    .preview-box {
+        margin-top: 16px; padding: 14px 16px;
+        background: #fafafa; border-radius: 10px;
+        font-size: 12px; color: #5d4c8c; font-family: monospace;
+        line-height: 1.6;
+    }
+    .preview-box strong { color: #7B61FF; }
+
+    /* ============ FLOATING AI FAB (shared) ============ */
+    .ai-fab {
+        position: fixed;
+        bottom: 32px; right: 32px;
+        width: 60px; height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; font-size: 26px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(123, 97, 255, 0.4);
+        z-index: 999; transition: transform 0.2s; border: none;
+    }
+    .ai-fab:hover { transform: scale(1.08); }
+    .ai-fab-badge {
+        position: absolute; top: -2px; right: -2px;
+        background: #ff4d4f; color: white;
+        font-size: 11px; font-weight: 700;
+        min-width: 22px; height: 22px; border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        border: 2px solid white;
+    }
+
+    .ai-drawer {
+        position: fixed; right: -440px; top: 0; bottom: 0;
+        width: 420px; background: white;
+        box-shadow: -8px 0 32px rgba(0,0,0,0.15);
+        z-index: 1001; transition: right 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        display: flex; flex-direction: column;
+    }
+    .ai-drawer.active { right: 0; }
+    .ai-drawer-header {
+        padding: 24px;
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .ai-drawer-title { font-size: 17px; font-weight: 700; }
+    .ai-drawer-close {
+        background: rgba(255,255,255,0.2); border: none; color: white;
+        width: 28px; height: 28px; border-radius: 50%; cursor: pointer; font-size: 14px;
+    }
+    .ai-drawer-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .ai-section { margin-bottom: 24px; }
+    .ai-section-title {
+        font-size: 12px; font-weight: 700; color: #7B61FF;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 12px;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .ai-task-card {
+        background: #FAF8FF; border: 1px solid #E0D4FF;
+        border-radius: 10px; padding: 14px 16px; margin-bottom: 10px;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .ai-task-card:hover {
+        border-color: #7B61FF;
+        box-shadow: 0 4px 12px rgba(123, 97, 255, 0.15);
+    }
+    .ai-task-header {
+        display: flex; justify-content: space-between;
+        font-size: 13px; font-weight: 600; color: #1a1a1a;
+        margin-bottom: 6px;
+    }
+    .ai-task-meta { font-size: 12px; color: #8c8c8c; }
+    .ai-task-priority {
+        display: inline-block; padding: 2px 8px; border-radius: 8px;
+        font-size: 10px; font-weight: 700;
+    }
+    .priority-high { background: #fff0f0; color: #ff4d4f; }
+    .priority-med { background: #fff7e6; color: #faad14; }
+    .priority-low { background: #f0f9f0; color: #52c41a; }
+    .ai-quick-action {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 14px; background: #fafafa;
+        border-radius: 10px; margin-bottom: 8px;
+        cursor: pointer; transition: all 0.2s;
+    }
+    .ai-quick-action:hover { background: #F5F1FF; }
+    .ai-quick-action .icon {
+        width: 36px; height: 36px; border-radius: 8px;
+        background: linear-gradient(135deg, #7B61FF, #9B7FFF);
+        color: white; font-size: 16px;
+        display: flex; align-items: center; justify-content: center;
+    }
+    .ai-quick-action .text { font-size: 13px; color: #3d4647; }
+    .ai-quick-action .text .sub { font-size: 11px; color: #8c8c8c; margin-top: 2px; }
+
+    /* Responsive */
+    @media (max-width: 1400px) {
+        .tools-row { grid-template-columns: repeat(4, 1fr); }
+        .stat-grid { grid-template-columns: repeat(3, 1fr); }
+        .module-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 900px) {
+        .po-form { grid-template-columns: 1fr; }
+        .sidebar { display: none; }
+    }
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="top-bar">
+    <div class="top-bar-left">
+        <div class="logo">EZPLM <span class="ai-badge-inline">AI</span></div>
+        <div class="top-nav-links">
+            <a href="#">🌐 云端元器件库</a>
+            <a href="#">📚 参考设计库</a>
+            <a href="#">🤖 编程助手</a>
+            <a href="#">📐 PCB预布局</a>
+            <a href="#" class="ai-link">✨ AI 能力中心</a>
+        </div>
+    </div>
+    <div class="top-bar-right">
+        <div class="notif-bell">🔔<span class="notif-count">15</span></div>
+        <div class="user-avatar">用</div>
+    </div>
+</div>
+
+<div class="layout">
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+        <div class="nav-section">
+            <div class="nav-section-title">工作台</div>
+            <a class="nav-item"><span class="nav-icon">📊</span>看板</a>
+            <a class="nav-item"><span class="nav-icon">✅</span>审批<span style="margin-left:auto;background:#ff4d4f;color:white;font-size:10px;padding:2px 6px;border-radius:8px">8</span></a>
+            <a class="nav-item"><span class="nav-icon">💼</span>代采购工作台<span class="nav-badge-ai">NEW</span></a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">项目</div>
+            <a class="nav-item"><span class="nav-icon">📋</span>项目管理</a>
+            <a class="nav-item"><span class="nav-icon">✅</span>任务中心</a>
+            <a class="nav-item"><span class="nav-icon">👥</span>团队协作</a>
+            <a class="nav-item"><span class="nav-icon">📝</span>BOM管理<span class="nav-badge-ai">AI</span></a>
+            <a class="nav-item"><span class="nav-icon">💼</span>客户报价<span class="nav-badge-ai">AI</span></a>
+            <a class="nav-item"><span class="nav-icon">🔄</span>工程变更</a>
+            <a class="nav-item"><span class="nav-icon">📚</span>文档管理</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">物料</div>
+            <a class="nav-item"><span class="nav-icon">📦</span>物料管理</a>
+            <a class="nav-item"><span class="nav-icon">📊</span>库存管理</a>
+            <a class="nav-item active"><span class="nav-icon">🛒</span>采购管理<span class="nav-badge-ai">AI</span></a>
+            <a class="nav-item"><span class="nav-icon">🏭</span>生产管理</a>
+            <a class="nav-item"><span class="nav-icon">💰</span>销售管理</a>
+        </div>
+        <div class="nav-section">
+            <div class="nav-section-title">业务</div>
+            <a class="nav-item"><span class="nav-icon">🎯</span>竞赛/活动</a>
+            <a class="nav-item"><span class="nav-icon">🎓</span>教学/实验</a>
+            <a class="nav-item"><span class="nav-icon">🏪</span>器件供货</a>
+            <a class="nav-item"><span class="nav-icon">🛍️</span>板卡商城</a>
+        </div>
+    </aside>
+
+    <!-- ============ MAIN CONTENT ============ -->
+    <main class="main-content">
+        <div class="page-header">
+            <div class="page-title-group">
+                <h1 class="page-title">采购管理</h1>
+                <span class="ai-enhanced-badge">✨ AI Enhanced</span>
+            </div>
+            <div class="page-actions">
+                <button class="btn btn-secondary">📥 导出</button>
+                <button class="btn btn-ai" onclick="openModal('deliveryModal')">📞 批量询交期</button>
+                <button class="btn btn-primary" onclick="openModal('newPoModal')">+ 新建采购单</button>
+            </div>
+        </div>
+
+        <!-- ✨ AI SAVINGS BANNER -->
+        <div class="ai-savings-banner">
+            <div class="ai-savings-icon">💰</div>
+            <div class="ai-savings-content">
+                <div class="ai-savings-title">
+                    AI 采购助手本月成绩单
+                    <span class="ai-tag">2026-04</span>
+                </div>
+                <div class="ai-savings-stats">
+                    <div>💸 累计节省 <strong>¥18,400</strong></div>
+                    <div>🛡️ 拦截重复采购 <strong>5</strong> 次</div>
+                    <div>🔄 推荐替代料 <strong>12</strong> 个</div>
+                    <div>📞 供应商交期回复率 <strong>87%</strong></div>
+                </div>
+            </div>
+            <button class="btn btn-ai" onclick="openDrawer()">AI 工作台 →</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon orange">⏳</div>
+                <div class="stat-content">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">待审批采购单</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue">🔄</div>
+                <div class="stat-content">
+                    <div class="stat-value">12</div>
+                    <div class="stat-label">进行中订单</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">💰</div>
+                <div class="stat-content">
+                    <div class="stat-value">¥8.5万</div>
+                    <div class="stat-label">本月采购额</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon cyan">📦</div>
+                <div class="stat-content">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">待收货订单</div>
+                </div>
+            </div>
+            <div class="stat-card ai-card">
+                <div class="stat-icon ai">📞</div>
+                <div class="stat-content">
+                    <div class="stat-value">15</div>
+                    <div class="stat-label">交期待回复</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core business modules -->
+        <div class="section-title">📦 核心业务模块</div>
+        <div class="module-grid">
+            <div class="module-card">
+                <div class="module-icon">💰</div>
+                <div class="module-title">采购询价</div>
+                <div class="module-desc">单个/批量询价管理，跟踪供应商报价</div>
+                <div class="module-meta">15 条询价中</div>
+            </div>
+            <div class="module-card ai-module" onclick="openModal('priceCompareModal')">
+                <div class="module-ai-tag">✨ AI</div>
+                <div class="module-icon">🎯</div>
+                <div class="module-title">供应商智能匹配</div>
+                <div class="module-desc">AI 多源比价 · 平台供应商 + 外部 API · EOL 替代料推荐</div>
+                <div class="module-meta">128 平台 + 4 外部</div>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">📄</div>
+                <div class="module-title">合同管理</div>
+                <div class="module-desc">管理采购合同，跟踪执行和到期提醒</div>
+                <div class="module-meta">12 份有效</div>
+            </div>
+            <div class="module-card">
+                <div class="module-icon">💳</div>
+                <div class="module-title">付款管理</div>
+                <div class="module-desc">管理付款申请、审批流程和付款记录</div>
+                <div class="module-meta">5 个待付</div>
+            </div>
+        </div>
+
+        <!-- Quick tools -->
+        <div class="quick-tools">
+            <div class="quick-tools-title">⚡ 快捷工具</div>
+            <div class="tools-row">
+                <div class="tool-btn">
+                    <div class="icon">📈</div>
+                    <div class="label">成本分析</div>
+                </div>
+                <div class="tool-btn">
+                    <div class="icon">📥</div>
+                    <div class="label">批量操作</div>
+                </div>
+                <div class="tool-btn ai-tool">
+                    <div class="ai-micro-tag">AI</div>
+                    <div class="icon">🔮</div>
+                    <div class="label">需求预测</div>
+                </div>
+                <div class="tool-btn">
+                    <div class="icon">⚠️</div>
+                    <div class="label">库存预警</div>
+                </div>
+                <div class="tool-btn ai-tool">
+                    <div class="ai-micro-tag">NEW</div>
+                    <div class="icon">🛡️</div>
+                    <div class="label">OPO 在途查</div>
+                </div>
+                <div class="tool-btn ai-tool">
+                    <div class="ai-micro-tag">NEW</div>
+                    <div class="icon">🏚️</div>
+                    <div class="label">呆滞消耗</div>
+                </div>
+                <div class="tool-btn ai-tool" onclick="openModal('deliveryModal')">
+                    <div class="ai-micro-tag">NEW</div>
+                    <div class="icon">📞</div>
+                    <div class="label">批量询交期</div>
+                </div>
+                <div class="tool-btn">
+                    <div class="icon">📑</div>
+                    <div class="label">生成报表</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter -->
+        <div class="filter-panel">
+            <span class="filter-label">状态</span>
+            <select class="filter-select">
+                <option>全部状态</option>
+                <option>草稿</option>
+                <option>待审批</option>
+                <option>已审批</option>
+                <option>进行中</option>
+                <option>已收货</option>
+            </select>
+            <span class="filter-label">供应商</span>
+            <select class="filter-select">
+                <option>全部供应商</option>
+            </select>
+            <span class="filter-label">✨ 交期状态</span>
+            <select class="filter-select" style="border-color:#D4C7FF;color:#7B61FF;background:#FAF8FF">
+                <option>全部</option>
+                <option>已确认</option>
+                <option>待回复</option>
+                <option>已催促</option>
+                <option>未发起</option>
+            </select>
+            <button class="btn btn-secondary" style="padding:8px 16px">重置</button>
+            <button class="btn btn-primary" style="padding:8px 16px">筛选</button>
+        </div>
+
+        <!-- PO Table -->
+        <div class="data-table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>采购单号</th>
+                        <th>项目</th>
+                        <th>供应商</th>
+                        <th>物料</th>
+                        <th>金额</th>
+                        <th>交货日期</th>
+                        <th>状态</th>
+                        <th class="ai-col">✨ 交期协同</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="po-id">PO-2026-0045</span></td>
+                        <td>智能手环 V2.0</td>
+                        <td>深圳立创商城</td>
+                        <td>15 种 / 1,200 个</td>
+                        <td>¥12,580</td>
+                        <td>2026-04-22</td>
+                        <td><span class="status-badge status-approved">已审批</span></td>
+                        <td><div class="delivery-status confirmed"><span class="del-dot"></span>已确认 04-22</div></td>
+                        <td><button class="table-action">查看</button></td>
+                    </tr>
+                    <tr>
+                        <td><span class="po-id">PO-2026-0046</span></td>
+                        <td>无线充电器</td>
+                        <td>Digi-Key</td>
+                        <td>8 种 / 500 个</td>
+                        <td>¥8,920</td>
+                        <td>2026-04-30</td>
+                        <td><span class="status-badge status-progressing">进行中</span></td>
+                        <td><div class="delivery-status waiting"><span class="del-dot"></span>待回复（2 天）</div></td>
+                        <td><button class="table-action">🔔 催</button></td>
+                    </tr>
+                    <tr>
+                        <td><span class="po-id">PO-2026-0047</span></td>
+                        <td>智能音箱 Mini</td>
+                        <td>Mouser</td>
+                        <td>12 种 / 800 个</td>
+                        <td>¥15,600</td>
+                        <td>2026-05-05</td>
+                        <td><span class="status-badge status-progressing">进行中</span></td>
+                        <td><div class="delivery-status urged"><span class="del-dot"></span>已催 3 次</div></td>
+                        <td><button class="table-action">⚠️ 升级</button></td>
+                    </tr>
+                    <tr>
+                        <td><span class="po-id">PO-2026-0048</span></td>
+                        <td>智能门锁</td>
+                        <td>Arrow</td>
+                        <td>20 种 / 2,000 个</td>
+                        <td>¥28,400</td>
+                        <td>2026-05-10</td>
+                        <td><span class="status-badge status-progressing">进行中</span></td>
+                        <td><div class="delivery-status confirmed"><span class="del-dot"></span>已确认 05-08</div></td>
+                        <td><button class="table-action">查看</button></td>
+                    </tr>
+                    <tr>
+                        <td><span class="po-id">PO-2026-0049</span></td>
+                        <td>工业传感器</td>
+                        <td>深圳华强北</td>
+                        <td>6 种 / 300 个</td>
+                        <td>¥5,680</td>
+                        <td>2026-04-28</td>
+                        <td><span class="status-badge status-draft">草稿</span></td>
+                        <td><div class="delivery-status none"><span class="del-dot"></span>未发起</div></td>
+                        <td><button class="table-action">编辑</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</div>
+
+<!-- ============ MODAL: NEW PO WITH AI ASSIST (Agent ④) ============ -->
+<div class="modal-overlay" id="newPoModal">
+    <div class="modal" style="max-width:1100px">
+        <div class="modal-header">
+            <div class="modal-title">🛒 新建采购单 <span class="ai-tag" style="margin-left:8px">AI 智能辅助</span></div>
+            <button class="modal-close" onclick="closeModal('newPoModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="po-form">
+                <div class="po-form-left">
+                    <div class="form-row">
+                        <label class="form-label">采购单名称</label>
+                        <input class="form-input" placeholder="请输入采购单名称">
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">关联项目</label>
+                        <select class="form-select">
+                            <option>客户 A · SMT 贴片项目</option>
+                            <option>智能手环 V2.0</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-label">供应商</label>
+                        <select class="form-select">
+                            <option>深圳立创商城</option>
+                            <option>Digi-Key</option>
+                            <option>Mouser</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <label class="form-label">物料明细</label>
+                        <div class="po-material-table">
+                            <div class="po-material-row" style="font-weight:700;color:#8c8c8c;background:transparent">
+                                <div>MPN / 描述</div>
+                                <div style="text-align:center">数量</div>
+                                <div style="text-align:center">单价</div>
+                                <div style="text-align:center">小计</div>
+                                <div></div>
+                            </div>
+                            <div class="po-material-row">
+                                <div>
+                                    <div class="mpn">STM32F103C8T6</div>
+                                    <div style="font-size:11px;color:#8c8c8c;margin-top:2px">MCU 32BIT 64KB Flash</div>
+                                </div>
+                                <div style="text-align:center">500</div>
+                                <div style="text-align:center">¥ 8.50</div>
+                                <div style="text-align:center;font-weight:600">¥ 4,250</div>
+                                <div><button style="background:none;border:none;color:#ff4d4f;cursor:pointer">🗑</button></div>
+                            </div>
+                            <div class="po-material-row">
+                                <div>
+                                    <div class="mpn">AMS1117-3.3</div>
+                                    <div style="font-size:11px;color:#8c8c8c;margin-top:2px">LDO 3.3V 稳压芯片</div>
+                                </div>
+                                <div style="text-align:center">200</div>
+                                <div style="text-align:center">¥ 1.50</div>
+                                <div style="text-align:center;font-weight:600">¥ 300</div>
+                                <div><button style="background:none;border:none;color:#ff4d4f;cursor:pointer">🗑</button></div>
+                            </div>
+                            <div class="po-material-row">
+                                <div>
+                                    <div class="mpn">CL10B104KB8NNNC</div>
+                                    <div style="font-size:11px;color:#8c8c8c;margin-top:2px">贴片电容 100nF 0603</div>
+                                </div>
+                                <div style="text-align:center">5,000</div>
+                                <div style="text-align:center">¥ 0.03</div>
+                                <div style="text-align:center;font-weight:600">¥ 150</div>
+                                <div><button style="background:none;border:none;color:#ff4d4f;cursor:pointer">🗑</button></div>
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top:8px;width:100%;padding:10px">+ 添加物料</button>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                        <div class="form-row">
+                            <label class="form-label">期望交期</label>
+                            <input class="form-input" type="date" value="2026-04-28">
+                        </div>
+                        <div class="form-row">
+                            <label class="form-label">预估总金额</label>
+                            <input class="form-input" value="¥ 4,700" disabled style="font-weight:700;color:#00890b">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Smart Assistant Panel -->
+                <div class="ai-assist-panel">
+                    <div class="ai-assist-header">
+                        <span>🧠</span>
+                        <span>AI 智能助手 · 实时建议</span>
+                    </div>
+
+                    <!-- OPO 拦截 -->
+                    <div class="ai-alert danger">
+                        <div class="ai-alert-title">
+                            🛡️ OPO 在途拦截
+                            <span style="margin-left:auto;font-size:10px;background:#ff4d4f;color:white;padding:1px 6px;border-radius:4px">高</span>
+                        </div>
+                        <div class="ai-alert-body">
+                            <strong style="color:#ff4d4f">STM32F103C8T6</strong> 已有 <strong>2 张在途订单</strong>：
+                            <div style="margin-top:6px;padding:8px;background:rgba(255,255,255,0.8);border-radius:6px;font-size:11px;color:#5d4c8c">
+                                PO-2026-0042 · 300 pcs · 预计 04-25 到货<br>
+                                PO-2026-0044 · 500 pcs · 预计 05-02 到货
+                            </div>
+                            <div style="margin-top:6px">💡 建议将本次数量从 500 减至 <strong>200</strong></div>
+                        </div>
+                        <div class="ai-alert-actions">
+                            <button class="mini-btn primary">接受建议</button>
+                            <button class="mini-btn">查看详情</button>
+                            <button class="mini-btn">忽略</button>
+                        </div>
+                    </div>
+
+                    <!-- 呆滞物料 -->
+                    <div class="ai-alert warn">
+                        <div class="ai-alert-title">
+                            🏚️ 呆滞物料提醒
+                            <span style="margin-left:auto;font-size:10px;background:#faad14;color:white;padding:1px 6px;border-radius:4px">中</span>
+                        </div>
+                        <div class="ai-alert-body">
+                            <strong>CL10B104KB8NNNC</strong> 库存 <strong style="color:#faad14">8,500 pcs</strong>
+                            <div style="margin-top:4px;font-size:11px">最近出库：2025-12-01（距今 <strong>128 天</strong>）</div>
+                            <div style="margin-top:6px">💡 建议优先消耗库存，本次可跳过</div>
+                        </div>
+                        <div class="ai-alert-actions">
+                            <button class="mini-btn primary">从单中移除</button>
+                            <button class="mini-btn">标记已考虑</button>
+                        </div>
+                    </div>
+
+                    <!-- EOL 预警 -->
+                    <div class="ai-alert info">
+                        <div class="ai-alert-title">
+                            🔄 替代料推荐
+                        </div>
+                        <div class="ai-alert-body">
+                            <strong>AMS1117-3.3</strong> 发现更优替代方案：
+                            <div style="margin-top:6px;padding:8px;background:#FAF8FF;border-radius:6px;font-size:11px;color:#5d4c8c">
+                                <strong style="color:#7B61FF">LM1117-3.3（国产兼容）</strong><br>
+                                兼容度 98% · ¥ 1.20（省 20%）· 国产替代
+                            </div>
+                        </div>
+                        <div class="ai-alert-actions">
+                            <button class="mini-btn primary">切换替代料</button>
+                            <button class="mini-btn">对比参数</button>
+                        </div>
+                    </div>
+
+                    <!-- 最优供应商 -->
+                    <div class="ai-alert info">
+                        <div class="ai-alert-title">
+                            🎯 最优供应商建议
+                        </div>
+                        <div class="ai-alert-body">
+                            当前选择 <strong>立创商城</strong>，AI 比价后推荐：
+                            <div style="margin-top:6px;padding:8px;background:#FAF8FF;border-radius:6px;font-size:11px;color:#5d4c8c">
+                                <strong style="color:#7B61FF">深圳华强电子</strong> · ¥ 4,425<br>
+                                省 <strong>¥ 275（5.8%）</strong>· 交期相同
+                            </div>
+                        </div>
+                        <div class="ai-alert-actions">
+                            <button class="mini-btn primary">切换供应商</button>
+                            <button class="mini-btn" onclick="closeModal('newPoModal');openModal('priceCompareModal')">查看全量比价</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('newPoModal')">取消</button>
+            <button class="btn btn-secondary">保存草稿</button>
+            <button class="btn btn-primary">✅ 提交审批</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: PRICE COMPARISON (Agent ⑤) ============ -->
+<div class="modal-overlay" id="priceCompareModal">
+    <div class="modal" style="max-width:1100px">
+        <div class="modal-header">
+            <div class="modal-title">🎯 供应商智能匹配 · 多源比价 <span class="ai-tag" style="margin-left:8px">AI Agent ⑤</span></div>
+            <button class="modal-close" onclick="closeModal('priceCompareModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex;align-items:center;gap:16px;padding:14px 18px;background:#FAF8FF;border-radius:10px;margin-bottom:20px;border:1px solid #E0D4FF">
+                <div style="font-size:32px">🔌</div>
+                <div style="flex:1">
+                    <div style="font-family:monospace;font-size:15px;font-weight:700;color:#1a1a1a">STM32F103C8T6</div>
+                    <div style="font-size:12px;color:#8c8c8c;margin-top:2px">ARM Cortex-M3 MCU · 64KB Flash · LQFP-48 · 数量：500 pcs</div>
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:11px;color:#8c8c8c">当前采购价</div>
+                    <div style="font-size:18px;font-weight:700;color:#3d4647">¥ 8.50</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="price-tabs">
+                <div class="price-tab active">🏪 平台供应商 <span style="font-size:11px;color:#8c8c8c">(128)</span></div>
+                <div class="price-tab ai-tab">🌐 外部参考价 <span class="ai-tag" style="margin-left:4px">NEW</span></div>
+                <div class="price-tab">📈 历史价格趋势</div>
+            </div>
+
+            <!-- Unified comparison table -->
+            <div class="supplier-comparison-table">
+                <div class="supplier-row header">
+                    <div>供应商</div>
+                    <div style="text-align:center">单价</div>
+                    <div style="text-align:center">MOQ</div>
+                    <div style="text-align:center">库存</div>
+                    <div style="text-align:center">交期</div>
+                    <div style="text-align:center">操作</div>
+                </div>
+
+                <div class="supplier-row best">
+                    <div>
+                        <div class="supplier-name">深圳华强电子 <span class="supplier-tag best-tag">最优</span></div>
+                        <div style="font-size:11px;color:#8c8c8c">⭐ 4.9 · 认证供应商</div>
+                    </div>
+                    <div style="text-align:center;font-weight:700;color:#52c41a">¥ 8.05</div>
+                    <div style="text-align:center">100</div>
+                    <div style="text-align:center">8,500+</div>
+                    <div style="text-align:center">3~5 天</div>
+                    <div style="text-align:center"><button class="mini-btn primary">选择</button></div>
+                </div>
+
+                <div class="supplier-row">
+                    <div>
+                        <div class="supplier-name">深圳立创商城</div>
+                        <div style="font-size:11px;color:#8c8c8c">⭐ 4.8 · 认证</div>
+                    </div>
+                    <div style="text-align:center;font-weight:700">¥ 8.50</div>
+                    <div style="text-align:center">1</div>
+                    <div style="text-align:center">5,000+</div>
+                    <div style="text-align:center">2~3 天</div>
+                    <div style="text-align:center"><button class="mini-btn">选择</button></div>
+                </div>
+
+                <div class="supplier-row">
+                    <div>
+                        <div class="supplier-name">上海电子商城</div>
+                        <div style="font-size:11px;color:#8c8c8c">⭐ 4.7 · 认证</div>
+                    </div>
+                    <div style="text-align:center;font-weight:700">¥ 8.80</div>
+                    <div style="text-align:center">50</div>
+                    <div style="text-align:center">3,200+</div>
+                    <div style="text-align:center">5 天</div>
+                    <div style="text-align:center"><button class="mini-btn">选择</button></div>
+                </div>
+
+                <!-- External reference prices -->
+                <div class="supplier-row external">
+                    <div>
+                        <div class="supplier-name">Digi-Key <span class="supplier-tag ai-ext-tag">外部</span></div>
+                        <div style="font-size:11px;color:#8c8c8c">外部参考 · 需客户自行询价</div>
+                    </div>
+                    <div style="text-align:center;font-weight:700;color:#7B61FF">¥ 9.80</div>
+                    <div style="text-align:center">10</div>
+                    <div style="text-align:center">2,000+</div>
+                    <div style="text-align:center">5~7 天</div>
+                    <div style="text-align:center"><button class="mini-btn">🔗 访问</button></div>
+                </div>
+
+                <div class="supplier-row external">
+                    <div>
+                        <div class="supplier-name">LCSC <span class="supplier-tag ai-ext-tag">外部</span></div>
+                        <div style="font-size:11px;color:#8c8c8c">外部参考 · 需客户自行询价</div>
+                    </div>
+                    <div style="text-align:center;font-weight:700;color:#7B61FF">¥ 7.90</div>
+                    <div style="text-align:center">1</div>
+                    <div style="text-align:center">充足</div>
+                    <div style="text-align:center">1~2 天</div>
+                    <div style="text-align:center"><button class="mini-btn">🔗 访问</button></div>
+                </div>
+
+                <div class="supplier-row external">
+                    <div>
+                        <div class="supplier-name">Mouser <span class="supplier-tag ai-ext-tag">外部</span></div>
+                        <div style="font-size:11px;color:#8c8c8c">外部参考 · 需客户自行询价</div>
+                    </div>
+                    <div style="text-align:center;font-weight:700;color:#7B61FF">¥ 9.20</div>
+                    <div style="text-align:center">5</div>
+                    <div style="text-align:center">3,500+</div>
+                    <div style="text-align:center">7~10 天</div>
+                    <div style="text-align:center"><button class="mini-btn">🔗 访问</button></div>
+                </div>
+            </div>
+
+            <!-- EOL Alert -->
+            <div class="eol-alert">
+                <div class="icon">⚠️</div>
+                <div class="eol-alert-text">
+                    <div class="eol-alert-title">EOL 预警 · STM32F103C8T6 即将停产</div>
+                    <div class="eol-alert-desc">ST 官方已将该型号标记为 NRND（不推荐用于新设计），建议关注下方 AI 推荐的替代料</div>
+                </div>
+                <button class="btn btn-ai" style="padding:8px 14px;font-size:12px">查看替代方案</button>
+            </div>
+
+            <!-- Alternative materials -->
+            <div class="alternative-section">
+                <div class="alternative-title">
+                    🔄 AI 智能推荐替代料
+                    <span style="margin-left:auto;font-size:11px;color:#8c8c8c;font-weight:400">基于参数匹配 + 封装兼容 + 电气特性</span>
+                </div>
+                <div class="alt-row header">
+                    <div>替代型号</div>
+                    <div style="text-align:center">兼容度</div>
+                    <div style="text-align:center">封装</div>
+                    <div style="text-align:center">价格</div>
+                    <div style="text-align:center">产地</div>
+                    <div style="text-align:center">操作</div>
+                </div>
+                <div class="alt-row">
+                    <div>
+                        <div style="font-family:monospace;font-weight:700;color:#3d4647">STM32F103CBT6</div>
+                        <div style="font-size:11px;color:#8c8c8c;margin-top:2px">ST 原厂扩容版本 · 128KB Flash</div>
+                    </div>
+                    <div style="text-align:center"><span class="compat-bar"><span class="compat-fill" style="width:98%"></span></span><strong>98%</strong></div>
+                    <div style="text-align:center">LQFP-48 ✓</div>
+                    <div style="text-align:center;font-weight:700">¥ 14.50</div>
+                    <div style="text-align:center">ST 原厂</div>
+                    <div style="text-align:center"><button class="mini-btn primary">切换</button></div>
+                </div>
+                <div class="alt-row">
+                    <div>
+                        <div style="font-family:monospace;font-weight:700;color:#3d4647">GD32F103C8T6</div>
+                        <div style="font-size:11px;color:#8c8c8c;margin-top:2px">兆易创新 · Pin-to-Pin 兼容</div>
+                    </div>
+                    <div style="text-align:center"><span class="compat-bar"><span class="compat-fill" style="width:95%"></span></span><strong>95%</strong></div>
+                    <div style="text-align:center">LQFP-48 ✓</div>
+                    <div style="text-align:center;font-weight:700;color:#52c41a">¥ 8.20 ↓</div>
+                    <div style="text-align:center"><span class="domestic-tag">国产</span></div>
+                    <div style="text-align:center"><button class="mini-btn primary">切换</button></div>
+                </div>
+                <div class="alt-row">
+                    <div>
+                        <div style="font-family:monospace;font-weight:700;color:#3d4647">HK32F103C8T6</div>
+                        <div style="font-size:11px;color:#8c8c8c;margin-top:2px">航顺芯片 · 完全兼容</div>
+                    </div>
+                    <div style="text-align:center"><span class="compat-bar"><span class="compat-fill" style="width:92%"></span></span><strong>92%</strong></div>
+                    <div style="text-align:center">LQFP-48 ✓</div>
+                    <div style="text-align:center;font-weight:700;color:#52c41a">¥ 7.50 ↓</div>
+                    <div style="text-align:center"><span class="domestic-tag">国产</span></div>
+                    <div style="text-align:center"><button class="mini-btn primary">切换</button></div>
+                </div>
+                <div class="alt-row">
+                    <div>
+                        <div style="font-family:monospace;font-weight:700;color:#3d4647">CH32F103C8T6</div>
+                        <div style="font-size:11px;color:#8c8c8c;margin-top:2px">沁恒 · Pin-to-Pin 兼容</div>
+                    </div>
+                    <div style="text-align:center"><span class="compat-bar"><span class="compat-fill" style="width:90%"></span></span><strong>90%</strong></div>
+                    <div style="text-align:center">LQFP-48 ✓</div>
+                    <div style="text-align:center;font-weight:700;color:#52c41a">¥ 6.80 ↓</div>
+                    <div style="text-align:center"><span class="domestic-tag">国产</span></div>
+                    <div style="text-align:center"><button class="mini-btn primary">切换</button></div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('priceCompareModal')">关闭</button>
+            <button class="btn btn-primary">创建采购单（已选择）</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ MODAL: DELIVERY COORDINATION (Agent ⑦) ============ -->
+<div class="modal-overlay" id="deliveryModal">
+    <div class="modal">
+        <div class="modal-header">
+            <div class="modal-title">📞 批量发起交期询问 <span class="ai-tag" style="margin-left:8px">AI Agent ⑦</span></div>
+            <button class="modal-close" onclick="closeModal('deliveryModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div style="background:linear-gradient(135deg,#FAF8FF,#F0F4FF);padding:14px 18px;border-radius:10px;margin-bottom:20px;font-size:13px;color:#5d4c8c;border:1px solid #E0D4FF">
+                💡 <strong>工作机制：</strong>系统会给每个 PO 的供应商生成带 Token 的专属链接，通过所选渠道发送。供应商<strong style="color:#7B61FF">免注册</strong>点击即可填报交期，填报后自动回写到 ERP。
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">选择要询问的采购单（已选 3 个）</label>
+                <div class="po-select-list">
+                    <div class="po-select-item">
+                        <input type="checkbox" checked>
+                        <div class="po-select-info">
+                            <div><span class="po-id-small">PO-2026-0046</span> · 无线充电器 · ¥ 8,920</div>
+                            <div class="supplier-small">供应商：Digi-Key · 交期：2026-04-30</div>
+                        </div>
+                        <div class="delivery-status waiting"><span class="del-dot"></span>待回复</div>
+                    </div>
+                    <div class="po-select-item">
+                        <input type="checkbox" checked>
+                        <div class="po-select-info">
+                            <div><span class="po-id-small">PO-2026-0047</span> · 智能音箱 Mini · ¥ 15,600</div>
+                            <div class="supplier-small">供应商：Mouser · 交期：2026-05-05</div>
+                        </div>
+                        <div class="delivery-status urged"><span class="del-dot"></span>已催 3 次</div>
+                    </div>
+                    <div class="po-select-item">
+                        <input type="checkbox" checked>
+                        <div class="po-select-info">
+                            <div><span class="po-id-small">PO-2026-0049</span> · 工业传感器 · ¥ 5,680</div>
+                            <div class="supplier-small">供应商：深圳华强北 · 交期：2026-04-28</div>
+                        </div>
+                        <div class="delivery-status none"><span class="del-dot"></span>未发起</div>
+                    </div>
+                    <div class="po-select-item">
+                        <input type="checkbox">
+                        <div class="po-select-info">
+                            <div><span class="po-id-small">PO-2026-0050</span> · 智能手环 V3 · ¥ 32,450</div>
+                            <div class="supplier-small">供应商：深圳立创商城 · 交期：2026-05-12</div>
+                        </div>
+                        <div class="delivery-status confirmed"><span class="del-dot"></span>已确认</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">发送渠道</label>
+                <div class="channel-row">
+                    <div class="channel-option selected">
+                        <div class="icon">📧</div>
+                        <div style="font-weight:600">邮件</div>
+                        <div style="color:#8c8c8c;font-size:11px">标准，有邮箱的供应商</div>
+                    </div>
+                    <div class="channel-option selected">
+                        <div class="icon">💬</div>
+                        <div style="font-weight:600">短信</div>
+                        <div style="color:#8c8c8c;font-size:11px">到达率最高</div>
+                    </div>
+                    <div class="channel-option">
+                        <div class="icon">🏢</div>
+                        <div style="font-weight:600">企业微信</div>
+                        <div style="color:#8c8c8c;font-size:11px">已对接的企微</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                    <label class="form-label">链接有效期</label>
+                    <select class="form-select">
+                        <option>7 天（推荐）</option>
+                        <option>3 天（紧急 PO）</option>
+                        <option>14 天</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="form-label">自动催促</label>
+                    <select class="form-select">
+                        <option>24 小时未回复后催促（推荐）</option>
+                        <option>48 小时后催促</option>
+                        <option>不自动催促</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <label class="form-label">消息预览</label>
+                <div class="preview-box">
+                    [<strong>您的公司名</strong>] 您好！我司有 <strong>1</strong> 张采购订单需要确认交期：<br>
+                    PO-2026-0046 · 8 种物料 · ¥8,920<br>
+                    请点击专属链接（<strong>7 天内有效</strong>）填报：<br>
+                    https://supplier.ezplm.cn/confirm?token=<strong>xxxxx</strong><br>
+                    <br>
+                    <span style="color:#00890b">✨ 无需注册登录，手机可填，1 分钟完成</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal('deliveryModal')">取消</button>
+            <button class="btn btn-secondary">预览全部</button>
+            <button class="btn btn-ai">🚀 发送给 3 家供应商</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============ FLOATING AI FAB ============ -->
+<button class="ai-fab" onclick="openDrawer()">
+    ✨
+    <span class="ai-fab-badge">9</span>
+</button>
+
+<!-- ============ AI DRAWER ============ -->
+<aside class="ai-drawer" id="aiDrawer">
+    <div class="ai-drawer-header">
+        <div>
+            <div class="ai-drawer-title">✨ AI 工作台</div>
+            <div style="font-size:12px;opacity:0.85;margin-top:2px">采购模块 · 9 项待处理</div>
+        </div>
+        <button class="ai-drawer-close" onclick="closeDrawer()">×</button>
+    </div>
+    <div class="ai-drawer-body">
+        <!-- 高优先级任务 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>🚨 需要您立即处理</span>
+                <span style="color:#8c8c8c;font-size:11px">3 项</span>
+            </div>
+            <div class="ai-task-card" style="border-color:#ffccc7;background:#fff2f2">
+                <div class="ai-task-header">
+                    <span style="color:#ff4d4f">🛡️ OPO 在途拦截</span>
+                    <span class="ai-task-priority priority-high">高</span>
+                </div>
+                <div class="ai-task-meta">3 张新建采购单包含重复下单物料，预计可省 ¥4,250</div>
+            </div>
+            <div class="ai-task-card" style="border-color:#ffccc7;background:#fff2f2">
+                <div class="ai-task-header">
+                    <span style="color:#ff4d4f">⏰ PO-2026-0047 已催 3 次</span>
+                    <span class="ai-task-priority priority-high">高</span>
+                </div>
+                <div class="ai-task-meta">Mouser 3 次催促无响应，建议升级联系渠道</div>
+            </div>
+            <div class="ai-task-card" style="border-color:#ffccc7;background:#fff2f2">
+                <div class="ai-task-header">
+                    <span style="color:#ff4d4f">⚠️ EOL 批量预警</span>
+                    <span class="ai-task-priority priority-high">高</span>
+                </div>
+                <div class="ai-task-meta">5 种常用物料被标记 NRND，涉及 12 个活跃 BOM</div>
+            </div>
+        </div>
+
+        <!-- 智能建议 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>💡 AI 省钱建议</span>
+                <span style="color:#8c8c8c;font-size:11px">预计省 ¥8,940</span>
+            </div>
+            <div class="ai-task-card" style="border-left:3px solid #52c41a">
+                <div class="ai-task-header">
+                    <span style="color:#52c41a">🏚️ 呆滞物料消耗</span>
+                </div>
+                <div class="ai-task-meta">12 种物料可优先消耗库存 · 本月可降低采购 ¥3,200</div>
+            </div>
+            <div class="ai-task-card" style="border-left:3px solid #52c41a">
+                <div class="ai-task-header">
+                    <span style="color:#52c41a">🎯 供应商切换建议</span>
+                </div>
+                <div class="ai-task-meta">3 张待发 PO 改换供应商可省 ¥2,840</div>
+            </div>
+            <div class="ai-task-card" style="border-left:3px solid #52c41a">
+                <div class="ai-task-header">
+                    <span style="color:#52c41a">🔄 国产替代料</span>
+                </div>
+                <div class="ai-task-meta">5 种进口料有国产兼容方案 · 年节省 ¥2,900</div>
+            </div>
+        </div>
+
+        <!-- 快捷操作 -->
+        <div class="ai-section">
+            <div class="ai-section-title">
+                <span>⚡ 快捷操作</span>
+            </div>
+            <div class="ai-quick-action" onclick="closeDrawer();openModal('deliveryModal')">
+                <div class="icon">📞</div>
+                <div class="text">
+                    <div>批量询交期</div>
+                    <div class="sub">AI Agent ⑦ · 当前 15 个 PO 待回复</div>
+                </div>
+            </div>
+            <div class="ai-quick-action" onclick="closeDrawer();openModal('priceCompareModal')">
+                <div class="icon">🎯</div>
+                <div class="text">
+                    <div>多源比价查询</div>
+                    <div class="sub">AI Agent ⑤ · 平台内 + 4 个外部 API</div>
+                </div>
+            </div>
+            <div class="ai-quick-action">
+                <div class="icon">🛡️</div>
+                <div class="text">
+                    <div>OPO 在途检查</div>
+                    <div class="sub">AI Agent ④ · 避免重复采购</div>
+                </div>
+            </div>
+            <div class="ai-quick-action">
+                <div class="icon">🏚️</div>
+                <div class="text">
+                    <div>呆滞物料盘点</div>
+                    <div class="sub">AI Agent ④ · 本月库中 12 项呆滞</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<script>
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function openDrawer() { document.getElementById('aiDrawer').classList.add('active'); }
+function closeDrawer() { document.getElementById('aiDrawer').classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+    o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>安排面试 - EZPLM HR平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .role-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-right: 3px solid #667eea;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容区域 */
+        .main-wrapper {
+            flex: 1;
+            overflow-y: auto;
+        }
+        .main-content {
+            padding: 32px 40px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        /* 角色切换栏 */
+        .role-switch-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+        .role-switch-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        .current-role-badge-hr {
+            background: white;
+            color: #667eea;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .role-switch-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .role-switch-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            margin-bottom: 32px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* 进度指示器 */
+        .progress-steps {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            gap: 16px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 16px;
+        }
+        .step.active .step-circle {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .step.completed .step-circle {
+            background: #10b981;
+            color: white;
+        }
+        .step-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+        }
+        .step.active .step-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+        .step.completed .step-label {
+            color: #10b981;
+        }
+        .step-arrow {
+            font-size: 20px;
+            color: #cbd5e1;
+            margin: 0 8px;
+        }
+
+        /* 主表单容器 */
+        .schedule-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 32px;
+        }
+
+        /* 表单卡片 */
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 32px;
+        }
+        .form-section {
+            margin-bottom: 32px;
+        }
+        .form-section:last-child {
+            margin-bottom: 0;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title-icon {
+            font-size: 20px;
+        }
+
+        /* 候选人选择 */
+        .candidate-selector {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .candidate-selector:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
+        }
+        .candidate-selector.selected {
+            border-style: solid;
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        .candidate-empty {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .candidate-empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .candidate-empty-text {
+            color: #64748b;
+            font-size: 14px;
+        }
+        .candidate-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .candidate-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+        }
+        .candidate-details {
+            flex: 1;
+        }
+        .candidate-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        .candidate-meta {
+            font-size: 13px;
+            color: #64748b;
+        }
+        .change-candidate-btn {
+            background: none;
+            border: 1px solid #cbd5e1;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .change-candidate-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* 表单输入 */
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+        .form-label-required {
+            color: #ef4444;
+            margin-left: 4px;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #1e293b;
+            transition: all 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+            font-family: inherit;
+        }
+        .form-hint {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+
+        /* 面试类型选择 */
+        .interview-types {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+        .interview-type-card {
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .interview-type-card:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
+        }
+        .interview-type-card.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        .interview-type-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        .interview-type-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        /* 时间选择 */
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .time-slot {
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 13px;
+            color: #475569;
+            transition: all 0.2s;
+        }
+        .time-slot:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
+        }
+        .time-slot.selected {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+        .time-slot.disabled {
+            background: #f1f5f9;
+            color: #cbd5e1;
+            cursor: not-allowed;
+        }
+        .time-slot.disabled:hover {
+            border-color: #cbd5e1;
+            background: #f1f5f9;
+        }
+
+        /* 面试官选择 */
+        .interviewer-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .interviewer-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .interviewer-item:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.02);
+        }
+        .interviewer-item.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        .interviewer-checkbox {
+            width: 20px;
+            height: 20px;
+            accent-color: #667eea;
+        }
+        .interviewer-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .interviewer-info {
+            flex: 1;
+        }
+        .interviewer-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .interviewer-role {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        /* 预览卡片 */
+        .preview-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 32px;
+            position: sticky;
+            top: 112px;
+        }
+        .preview-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .preview-content {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            font-size: 13px;
+            line-height: 1.8;
+            color: #475569;
+        }
+        .preview-row {
+            display: flex;
+            margin-bottom: 12px;
+        }
+        .preview-row:last-child {
+            margin-bottom: 0;
+        }
+        .preview-label {
+            font-weight: 600;
+            color: #334155;
+            min-width: 80px;
+        }
+        .preview-value {
+            flex: 1;
+            color: #64748b;
+        }
+
+        /* 按钮组 */
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: white;
+            color: #64748b;
+            border: 1px solid #cbd5e1;
+        }
+        .btn-secondary:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* 成功提示 */
+        .success-icon {
+            font-size: 64px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- 角色切换栏 -->
+    <div class="role-switch-bar">
+        <div class="role-switch-left">
+            <span>当前角色：</span>
+            <span class="current-role-badge-hr">👔 HR管理员</span>
+        </div>
+        <button class="role-switch-btn" onclick="location.href='campus-recruitment.html'">
+            <span>🎓</span>
+            <span>切换到学生求职视图</span>
+        </button>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item active">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-wrapper">
+            <div class="main-content">
+                <!-- 页面标题 -->
+                <div class="page-header">
+                    <div class="page-title">📅 安排面试</div>
+                    <div class="page-subtitle">为通过筛选的候选人安排面试时间</div>
+                </div>
+
+                <!-- 进度步骤 -->
+                <div class="progress-steps">
+                    <div class="step completed">
+                        <div class="step-circle">✓</div>
+                        <div class="step-label">简历筛选</div>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step active">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">安排面试</div>
+                    </div>
+                    <div class="step-arrow">→</div>
+                    <div class="step">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">发送Offer</div>
+                    </div>
+                </div>
+
+                <!-- 主表单 -->
+                <div class="schedule-container">
+                    <div class="form-card">
+                        <!-- 选择候选人 -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span class="section-title-icon">👤</span>
+                                <span>选择候选人</span>
+                            </div>
+                            <div class="candidate-selector selected" id="candidateSelector" onclick="selectCandidate()">
+                                <div class="candidate-info" id="candidateInfo">
+                                    <div class="candidate-avatar">张</div>
+                                    <div class="candidate-details">
+                                        <div class="candidate-name">张三</div>
+                                        <div class="candidate-meta">清华大学 · 电子信息工程 · 硕士 · 应聘职位：硬件工程师</div>
+                                    </div>
+                                    <button class="change-candidate-btn" onclick="event.stopPropagation(); selectCandidate()">更换候选人</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 面试类型 -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span class="section-title-icon">📝</span>
+                                <span>面试类型</span>
+                            </div>
+                            <div class="interview-types">
+                                <div class="interview-type-card" onclick="selectInterviewType(this, 'phone')">
+                                    <div class="interview-type-icon">📞</div>
+                                    <div class="interview-type-label">电话面试</div>
+                                </div>
+                                <div class="interview-type-card selected" onclick="selectInterviewType(this, 'video')">
+                                    <div class="interview-type-icon">💻</div>
+                                    <div class="interview-type-label">视频面试</div>
+                                </div>
+                                <div class="interview-type-card" onclick="selectInterviewType(this, 'onsite')">
+                                    <div class="interview-type-icon">🏢</div>
+                                    <div class="interview-type-label">现场面试</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 面试时间 -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span class="section-title-icon">⏰</span>
+                                <span>面试时间</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">面试日期<span class="form-label-required">*</span></label>
+                                <input type="date" class="form-input" id="interviewDate" value="2025-10-30" onchange="updatePreview()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">时间段<span class="form-label-required">*</span></label>
+                                <div class="time-grid">
+                                    <div class="time-slot" onclick="selectTimeSlot(this, '09:00')">09:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(this, '10:00')">10:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(this, '11:00')">11:00</div>
+                                    <div class="time-slot disabled">12:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(this, '13:00')">13:00</div>
+                                    <div class="time-slot selected" onclick="selectTimeSlot(this, '14:00')">14:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(this, '15:00')">15:00</div>
+                                    <div class="time-slot" onclick="selectTimeSlot(this, '16:00')">16:00</div>
+                                </div>
+                                <div class="form-hint">已选中的时间段会同步到面试官日历中</div>
+                            </div>
+                        </div>
+
+                        <!-- 面试官 -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span class="section-title-icon">👥</span>
+                                <span>面试官</span>
+                            </div>
+                            <div class="interviewer-list">
+                                <label class="interviewer-item selected">
+                                    <input type="checkbox" class="interviewer-checkbox" checked onchange="updatePreview()">
+                                    <div class="interviewer-avatar">李</div>
+                                    <div class="interviewer-info">
+                                        <div class="interviewer-name">李明</div>
+                                        <div class="interviewer-role">硬件部门经理</div>
+                                    </div>
+                                </label>
+                                <label class="interviewer-item">
+                                    <input type="checkbox" class="interviewer-checkbox" onchange="updatePreview()">
+                                    <div class="interviewer-avatar">王</div>
+                                    <div class="interviewer-info">
+                                        <div class="interviewer-name">王芳</div>
+                                        <div class="interviewer-role">技术主管</div>
+                                    </div>
+                                </label>
+                                <label class="interviewer-item">
+                                    <input type="checkbox" class="interviewer-checkbox" onchange="updatePreview()">
+                                    <div class="interviewer-avatar">陈</div>
+                                    <div class="interviewer-info">
+                                        <div class="interviewer-name">陈浩</div>
+                                        <div class="interviewer-role">高级硬件工程师</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 面试详情 -->
+                        <div class="form-section">
+                            <div class="section-title">
+                                <span class="section-title-icon">📍</span>
+                                <span>面试详情</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">会议链接/地点<span class="form-label-required">*</span></label>
+                                <input type="text" class="form-input" placeholder="请输入视频会议链接或现场面试地点" value="https://meet.ezplm.com/interview/abc123" onchange="updatePreview()">
+                                <div class="form-hint">视频面试请填写会议链接，现场面试请填写详细地址</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">备注说明</label>
+                                <textarea class="form-textarea" placeholder="面试注意事项、需要准备的材料等..." onchange="updatePreview()">请提前5分钟登录会议室，准备好您的作品集和项目demo。</textarea>
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮 -->
+                        <div class="form-actions">
+                            <button class="btn btn-secondary" onclick="history.back()">
+                                <span>←</span>
+                                <span>返回</span>
+                            </button>
+                            <button class="btn btn-primary" onclick="sendInterview()">
+                                <span>📧</span>
+                                <span>发送面试邀请</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 预览卡片 -->
+                    <div class="preview-card">
+                        <div class="preview-title">
+                            <span>👁️</span>
+                            <span>邮件预览</span>
+                        </div>
+                        <div class="preview-content" id="emailPreview">
+                            <div style="font-weight: 600; margin-bottom: 16px; color: #1e293b;">面试邀请</div>
+                            <div style="margin-bottom: 12px;">尊敬的 <strong>张三</strong>，您好！</div>
+                            <div style="margin-bottom: 16px;">感谢您应聘我司 <strong>硬件工程师</strong> 职位，经过初步筛选，我们诚挚邀请您参加面试。</div>
+                            <div style="background: white; padding: 16px; border-radius: 6px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
+                                <div class="preview-row">
+                                    <div class="preview-label">面试类型：</div>
+                                    <div class="preview-value">💻 视频面试</div>
+                                </div>
+                                <div class="preview-row">
+                                    <div class="preview-label">面试时间：</div>
+                                    <div class="preview-value">2025年10月30日 14:00</div>
+                                </div>
+                                <div class="preview-row">
+                                    <div class="preview-label">面试官：</div>
+                                    <div class="preview-value">李明</div>
+                                </div>
+                                <div class="preview-row">
+                                    <div class="preview-label">会议链接：</div>
+                                    <div class="preview-value" style="color: #667eea;">https://meet.ezplm.com/interview/abc123</div>
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 16px; color: #64748b; font-size: 12px; line-height: 1.6;">
+                                <strong>备注：</strong>请提前5分钟登录会议室，准备好您的作品集和项目demo。
+                            </div>
+                            <div style="color: #64748b; font-size: 12px;">
+                                期待与您的见面！<br>
+                                EZPLM HR团队
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <script>
+        let selectedInterviewType = 'video';
+        let selectedTime = '14:00';
+
+        function selectCandidate() {
+            alert('候选人选择功能：这里可以打开候选人列表弹窗，选择其他候选人');
+        }
+
+        function selectInterviewType(element, type) {
+            document.querySelectorAll('.interview-type-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedInterviewType = type;
+            updatePreview();
+        }
+
+        function selectTimeSlot(element, time) {
+            if (element.classList.contains('disabled')) return;
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                slot.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedTime = time;
+            updatePreview();
+        }
+
+        function updatePreview() {
+            // 更新预览内容
+            const date = document.getElementById('interviewDate').value;
+            const interviewers = Array.from(document.querySelectorAll('.interviewer-checkbox:checked'))
+                .map(cb => cb.parentElement.querySelector('.interviewer-name').textContent)
+                .join('、');
+
+            // 这里可以动态更新预览内容
+            console.log('Preview updated:', { date, interviewers, selectedTime, selectedInterviewType });
+        }
+
+        function sendInterview() {
+            if (confirm('确认发送面试邀请吗？\n\n系统将向候选人发送邮件和站内消息，同时在面试官日历中创建日程。')) {
+                alert('✅ 面试邀请已发送！\n\n已成功发送给候选人，并同步到面试官日历。');
+                setTimeout(() => {
+                    location.href = 'hr-campus-recruitment.html';
+                }, 1000);
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生评价系统 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+        }
+
+        .student-list {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 24px;
+            height: fit-content;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .list-header {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            color: #333;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+        }
+
+        .student-item:hover {
+            background: #f8f9ff;
+        }
+
+        .student-item.active {
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+            border-left: 3px solid #667eea;
+        }
+
+        .student-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .student-school {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .student-score {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .evaluation-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 32px;
+        }
+
+        .student-profile {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .profile-info h2 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .profile-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .profile-meta span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .overall-score {
+            text-align: center;
+        }
+
+        .score-number {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: #667eea;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dimension-card {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .dimension-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .dimension-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dimension-weight {
+            font-size: 13px;
+            color: #999;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .dimension-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        .rating-group {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .rating-option {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .rating-option:hover {
+            border-color: #667eea;
+        }
+
+        .rating-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+        }
+
+        .rating-score {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .rating-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .comment-area {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 80px;
+            transition: all 0.3s;
+        }
+
+        .comment-area:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .submit-section {
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .auto-save-info {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .submit-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9ff;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102,126,234,0.5);
+        }
+
+        .progress-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 32px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -29px;
+            top: 8px;
+            bottom: -24px;
+            width: 2px;
+            background: #e0e0e0;
+        }
+
+        .timeline-item:last-child::before {
+            display: none;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -36px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #e0e0e0;
+        }
+
+        .timeline-item.completed .timeline-dot {
+            background: #4caf50;
+            box-shadow: 0 0 0 2px #4caf50;
+        }
+
+        .timeline-item.current .timeline-dot {
+            background: #667eea;
+            box-shadow: 0 0 0 2px #667eea;
+        }
+
+        .timeline-content {
+            background: #f8f9ff;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .timeline-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .timeline-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9ff;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .history-table td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .score-excellent {
+            background: #e8f5e9;
+            color: #4caf50;
+        }
+
+        .score-good {
+            background: #e3f2fd;
+            color: #2196f3;
+        }
+
+        .score-average {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .student-list {
+                position: static;
+                max-height: none;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+            <!-- 评价面板 -->
+            <div class="evaluation-panel">
+                <div class="student-header">
+                    <div class="student-profile">
+                        <div class="profile-avatar">张</div>
+                        <div class="profile-info">
+                            <h2>张三</h2>
+                            <div class="profile-meta">
+                                <span>🏫 清华大学</span>
+                                <span>📚 电子工程</span>
+                                <span>🎓 本科</span>
+                                <span>📅 预计2025年6月毕业</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="overall-score">
+                        <div class="score-number" id="overallScore">85</div>
+                        <div class="score-label">综合评分</div>
+                    </div>
+                </div>
+
+                <!-- 标签页 -->
+                <div class="tabs">
+                    <button class="tab active" onclick="switchTab('scoring')">打分评价</button>
+                    <button class="tab" onclick="switchTab('progress')">进度跟踪</button>
+                    <button class="tab" onclick="switchTab('history')">历史记录</button>
+                </div>
+
+                <!-- 打分评价 -->
+                <div class="tab-content active" id="scoring">
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-title">
+                                💻 技术能力
+                            </div>
+                            <div class="dimension-weight">权重 40%</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评价标准：代码质量、技术方案合理性、技术创新性、问题分析能力
+                        </div>
+                        <div class="rating-group">
+                            <label class="rating-option">
+                                <input type="radio" name="tech" value="60" style="display: none;">
+                                <div class="rating-score">60</div>
+                                <div class="rating-label">及格</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="tech" value="70" style="display: none;">
+                                <div class="rating-score">70</div>
+                                <div class="rating-label">中等</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="tech" value="80" style="display: none;">
+                                <div class="rating-score">80</div>
+                                <div class="rating-label">良好</div>
+                            </label>
+                            <label class="rating-option selected">
+                                <input type="radio" name="tech" value="90" checked style="display: none;">
+                                <div class="rating-score">90</div>
+                                <div class="rating-label">优秀</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="tech" value="100" style="display: none;">
+                                <div class="rating-score">100</div>
+                                <div class="rating-label">卓越</div>
+                            </label>
+                        </div>
+                        <textarea class="comment-area" placeholder="请输入具体评价...">代码规范性好，算法实现思路清晰，有一定创新性。建议进一步优化边缘情况处理。</textarea>
+                    </div>
+
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-title">
+                                📈 项目进度
+                            </div>
+                            <div class="dimension-weight">权重 20%</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评价标准：按时完成度、里程碑达成情况、时间管理能力
+                        </div>
+                        <div class="rating-group">
+                            <label class="rating-option">
+                                <input type="radio" name="progress" value="60" style="display: none;">
+                                <div class="rating-score">60</div>
+                                <div class="rating-label">及格</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="progress" value="70" style="display: none;">
+                                <div class="rating-score">70</div>
+                                <div class="rating-label">中等</div>
+                            </label>
+                            <label class="rating-option selected">
+                                <input type="radio" name="progress" value="80" checked style="display: none;">
+                                <div class="rating-score">80</div>
+                                <div class="rating-label">良好</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="progress" value="90" style="display: none;">
+                                <div class="rating-score">90</div>
+                                <div class="rating-label">优秀</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="progress" value="100" style="display: none;">
+                                <div class="rating-score">100</div>
+                                <div class="rating-label">卓越</div>
+                            </label>
+                        </div>
+                        <textarea class="comment-area" placeholder="请输入具体评价...">整体进度符合预期，个别环节稍有延迟但都能及时调整。</textarea>
+                    </div>
+
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-title">
+                                💬 沟通协作
+                            </div>
+                            <div class="dimension-weight">权重 20%</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评价标准：响应速度、沟通效率、团队配合、主动性
+                        </div>
+                        <div class="rating-group">
+                            <label class="rating-option">
+                                <input type="radio" name="communication" value="60" style="display: none;">
+                                <div class="rating-score">60</div>
+                                <div class="rating-label">及格</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="communication" value="70" style="display: none;">
+                                <div class="rating-score">70</div>
+                                <div class="rating-label">中等</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="communication" value="80" style="display: none;">
+                                <div class="rating-score">80</div>
+                                <div class="rating-label">良好</div>
+                            </label>
+                            <label class="rating-option selected">
+                                <input type="radio" name="communication" value="90" checked style="display: none;">
+                                <div class="rating-score">90</div>
+                                <div class="rating-label">优秀</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="communication" value="100" style="display: none;">
+                                <div class="rating-score">100</div>
+                                <div class="rating-label">卓越</div>
+                            </label>
+                        </div>
+                        <textarea class="comment-area" placeholder="请输入具体评价...">沟通积极主动，响应及时，能够清晰表达想法和问题。</textarea>
+                    </div>
+
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-title">
+                                📄 文档规范
+                            </div>
+                            <div class="dimension-weight">权重 10%</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评价标准：文档完整性、注释清晰度、规范性
+                        </div>
+                        <div class="rating-group">
+                            <label class="rating-option">
+                                <input type="radio" name="documentation" value="60" style="display: none;">
+                                <div class="rating-score">60</div>
+                                <div class="rating-label">及格</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="documentation" value="70" style="display: none;">
+                                <div class="rating-score">70</div>
+                                <div class="rating-label">中等</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="documentation" value="80" style="display: none;">
+                                <div class="rating-score">80</div>
+                                <div class="rating-label">良好</div>
+                            </label>
+                            <label class="rating-option selected">
+                                <input type="radio" name="documentation" value="85" checked style="display: none;">
+                                <div class="rating-score">85</div>
+                                <div class="rating-label">优秀</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="documentation" value="95" style="display: none;">
+                                <div class="rating-score">95</div>
+                                <div class="rating-label">卓越</div>
+                            </label>
+                        </div>
+                        <textarea class="comment-area" placeholder="请输入具体评价...">文档较完整，建议增加更多技术细节说明。</textarea>
+                    </div>
+
+                    <div class="dimension-card">
+                        <div class="dimension-header">
+                            <div class="dimension-title">
+                                🔧 问题解决
+                            </div>
+                            <div class="dimension-weight">权重 10%</div>
+                        </div>
+                        <div class="dimension-desc">
+                            评价标准：应对突发问题能力、独立思考能力、优化改进意识
+                        </div>
+                        <div class="rating-group">
+                            <label class="rating-option">
+                                <input type="radio" name="problem" value="60" style="display: none;">
+                                <div class="rating-score">60</div>
+                                <div class="rating-label">及格</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="problem" value="70" style="display: none;">
+                                <div class="rating-score">70</div>
+                                <div class="rating-label">中等</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="problem" value="80" style="display: none;">
+                                <div class="rating-score">80</div>
+                                <div class="rating-label">良好</div>
+                            </label>
+                            <label class="rating-option selected">
+                                <input type="radio" name="problem" value="88" checked style="display: none;">
+                                <div class="rating-score">88</div>
+                                <div class="rating-label">优秀</div>
+                            </label>
+                            <label class="rating-option">
+                                <input type="radio" name="problem" value="95" style="display: none;">
+                                <div class="rating-score">95</div>
+                                <div class="rating-label">卓越</div>
+                            </label>
+                        </div>
+                        <textarea class="comment-area" placeholder="请输入具体评价...">遇到问题能够独立思考并找到解决方案，具有一定的优化改进意识。</textarea>
+                    </div>
+
+                    <div class="submit-section">
+                        <div class="auto-save-info">💾 自动保存于 2分钟前</div>
+                        <div class="submit-buttons">
+                            <button class="btn btn-secondary" onclick="saveDraft()">保存草稿</button>
+                            <button class="btn btn-primary" onclick="submitEvaluation()">提交评价</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 进度跟踪 -->
+                <div class="tab-content" id="progress">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">62%</div>
+                            <div class="stat-label">整体进度</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">3/5</div>
+                            <div class="stat-label">完成里程碑</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">31天</div>
+                            <div class="stat-label">剩余时间</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-timeline">
+                        <div class="timeline-item completed">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">✅ 需求分析与方案设计</div>
+                                    <div class="timeline-date">2024-11-30 完成</div>
+                                </div>
+                                <div class="timeline-desc">
+                                    完成项目需求调研和技术方案设计，导师评分：90分<br>
+                                    交付物：需求文档、技术方案PPT
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item completed">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">✅ 数据采集与预处理</div>
+                                    <div class="timeline-date">2024-12-31 完成</div>
+                                </div>
+                                <div class="timeline-desc">
+                                    完成数据采集平台搭建和数据标注工作，导师评分：85分<br>
+                                    交付物：数据集、预处理脚本、数据分析报告
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item current">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">⏳ 算法开发与优化</div>
+                                    <div class="timeline-date">进行中（62%）</div>
+                                </div>
+                                <div class="timeline-desc">
+                                    正在进行算法核心代码开发和性能优化，已完成V2.0版本<br>
+                                    下一步：单元测试、性能优化、仿真测试
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">实物测试与验证</div>
+                                    <div class="timeline-date">计划 2025-02-16 开始</div>
+                                </div>
+                                <div class="timeline-desc">
+                                    将算法部署到硬件平台进行实际测试
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <div class="timeline-title">论文撰写与答辩准备</div>
+                                    <div class="timeline-date">计划 2025-03-11 开始</div>
+                                </div>
+                                <div class="timeline-desc">
+                                    撰写毕业论文并准备答辩材料
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史记录 -->
+                <div class="tab-content" id="history">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th>评价时间</th>
+                                <th>评价阶段</th>
+                                <th>技术能力</th>
+                                <th>项目进度</th>
+                                <th>沟通协作</th>
+                                <th>综合评分</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2025-01-20</td>
+                                <td>阶段三中期</td>
+                                <td><span class="score-badge score-excellent">90</span></td>
+                                <td><span class="score-badge score-good">80</span></td>
+                                <td><span class="score-badge score-excellent">90</span></td>
+                                <td><strong style="color: #667eea;">85</strong></td>
+                            </tr>
+                            <tr>
+                                <td>2024-12-31</td>
+                                <td>阶段二评审</td>
+                                <td><span class="score-badge score-good">85</span></td>
+                                <td><span class="score-badge score-good">80</span></td>
+                                <td><span class="score-badge score-excellent">92</span></td>
+                                <td><strong style="color: #667eea;">84</strong></td>
+                            </tr>
+                            <tr>
+                                <td>2024-11-30</td>
+                                <td>阶段一评审</td>
+                                <td><span class="score-badge score-excellent">90</span></td>
+                                <td><span class="score-badge score-excellent">95</span></td>
+                                <td><span class="score-badge score-excellent">88</span></td>
+                                <td><strong style="color: #667eea;">90</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 32px; padding: 24px; background: #f8f9ff; border-radius: 12px;">
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #333;">📊 评分趋势分析</div>
+                        <div style="font-size: 14px; color: #666; line-height: 1.8;">
+                            • 整体表现稳定，综合评分保持在85分左右<br>
+                            • 技术能力持续优秀，保持在85-90分区间<br>
+                            • 沟通协作表现突出，始终在88分以上<br>
+                            • 项目进度在阶段二、三有所放缓，建议加强时间管理<br>
+                            • 建议：继续保持技术钻研，注意把控项目节奏
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 选择学生
+        function selectStudent(element, name) {
+            document.querySelectorAll('.student-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            // 更新标题
+            document.querySelector('.profile-info h2').textContent = name;
+            document.querySelector('.profile-avatar').textContent = name.charAt(0);
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // 评分选项点击
+        document.querySelectorAll('.rating-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const name = this.querySelector('input').name;
+                document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+                    input.parentElement.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+
+                // 重新计算总分
+                calculateOverallScore();
+            });
+        });
+
+        // 计算综合评分
+        function calculateOverallScore() {
+            const weights = {
+                tech: 0.4,
+                progress: 0.2,
+                communication: 0.2,
+                documentation: 0.1,
+                problem: 0.1
+            };
+
+            let totalScore = 0;
+            let hasAllScores = true;
+
+            for (let dimension in weights) {
+                const selected = document.querySelector(`input[name="${dimension}"]:checked`);
+                if (selected) {
+                    totalScore += parseInt(selected.value) * weights[dimension];
+                } else {
+                    hasAllScores = false;
+                }
+            }
+
+            if (hasAllScores) {
+                document.getElementById('overallScore').textContent = Math.round(totalScore);
+            }
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            // 显示保存成功提示
+            const toast = document.createElement('div');
+            toast.style.cssText = 'position: fixed; top: 80px; right: 24px; background: #4caf50; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; display: flex; align-items: center; gap: 12px;';
+            toast.innerHTML = `
+                <div style="font-size: 24px;">💾</div>
+                <div>评价已保存为草稿</div>
+            `;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // 提交评价
+        function submitEvaluation() {
+            // 创建确认对话框
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 32px; max-width: 400px; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">⭐</div>
+                    <div style="font-size: 20px; font-weight: 700; margin-bottom: 12px;">确认提交评价？</div>
+                    <div style="font-size: 14px; color: #666; margin-bottom: 24px; line-height: 1.6;">
+                        提交后学生将收到评分和反馈<br>
+                        评价结果将影响学生的最终成绩
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="flex: 1; padding: 12px; background: white; color: #667eea; border: 2px solid #667eea; border-radius: 8px; font-weight: 600; cursor: pointer;">取消</button>
+                        <button onclick="confirmSubmit()" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">确认提交</button>
+                    </div>
+            `;
+            document.body.appendChild(modal);
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+
+            window.confirmSubmit = function() {
+                modal.remove();
+
+                // 显示成功提示
+                const successModal = document.createElement('div');
+                successModal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+                successModal.innerHTML = `
+                    <div style="background: white; border-radius: 16px; padding: 40px; text-align: center; max-width: 400px;">
+                        <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
+                        <div style="font-size: 24px; font-weight: 700; color: #333; margin-bottom: 12px;">评价提交成功！</div>
+                        <div style="font-size: 14px; color: #666; line-height: 1.6;">
+                            学生已收到您的评价反馈<br>
+                            系统将自动更新评分记录
+                `;
+                document.body.appendChild(successModal);
+
+                setTimeout(() => {
+                    successModal.remove();
+                }, 2000);
+            };
+        }
+
+        // 初始化
+        calculateOverallScore();
+    </script>
+</body>
+</html>

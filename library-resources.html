@@ -1,0 +1,1854 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档管理 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .page-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 统计卡片 */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .stat-icon.blue { background: rgba(77, 171, 247, 0.1); }
+        .stat-icon.green { background: rgba(0, 137, 11, 0.1); }
+        .stat-icon.orange { background: rgba(255, 152, 0, 0.1); }
+        .stat-icon.purple { background: rgba(156, 39, 176, 0.1); }
+        .stat-content h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        .stat-content p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 筛选面板 */
+        .filter-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+        }
+        .filter-group input,
+        .filter-group select {
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* 视图切换 */
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            background: white;
+            padding: 4px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+        }
+        .view-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+        .view-btn.active {
+            background: #00890b;
+            color: white;
+        }
+
+        /* 文档卡片视图 */
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .doc-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .doc-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .doc-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+        .doc-icon.pdf { background: rgba(244, 67, 54, 0.1); }
+        .doc-icon.word { background: rgba(33, 150, 243, 0.1); }
+        .doc-icon.excel { background: rgba(76, 175, 80, 0.1); }
+        .doc-icon.image { background: rgba(255, 152, 0, 0.1); }
+        .doc-icon.zip { background: rgba(156, 39, 176, 0.1); }
+        .doc-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .doc-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+        }
+        .doc-project {
+            color: #00890b;
+            font-weight: 600;
+        }
+        .doc-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .doc-action-btn {
+            flex: 1;
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .doc-action-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 文档列表视图 */
+        .documents-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+            margin-top: 24px;
+        }
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .doc-table thead {
+            background: #f8f9fa;
+        }
+        .doc-table th {
+            padding: 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .doc-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #3d4647;
+        }
+        .doc-table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .doc-table tbody tr:hover {
+            background: rgba(0, 137, 11, 0.02);
+        }
+        .file-type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .file-type-pdf { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+        .file-type-doc { background: rgba(33, 150, 243, 0.1); color: #2196f3; }
+        .file-type-xls { background: rgba(76, 175, 80, 0.1); color: #4caf50; }
+        .file-type-img { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
+        .file-type-zip { background: rgba(156, 39, 176, 0.1); color: #9c27b0; }
+
+        /* 分类标签 */
+        .category-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+
+        /* 操作按钮 */
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            color: #00890b;
+        }
+        .action-btn:hover {
+            background: rgba(0, 137, 11, 0.1);
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 24px;
+        }
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .page-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .page-btn.active {
+            background: #00890b;
+            color: white;
+            border-color: #00890b;
+        }
+
+        /* Modal样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        .modal-header {
+            padding: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .modal-close:hover {
+            background: #f0f0f0;
+            color: #3d4647;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #3d4647;
+            font-size: 14px;
+        }
+        .form-label.required::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .btn-cancel {
+            padding: 10px 24px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancel:hover {
+            border-color: #999;
+            background: #f5f5f5;
+        }
+
+        /* 分享弹窗样式 */
+        .share-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .share-modal-overlay.active {
+            display: flex;
+        }
+
+        .share-modal-box {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .share-modal-header {
+            padding: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .share-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .share-modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .share-modal-close-btn:hover {
+            background: #f0f0f0;
+            color: #3d4647;
+        }
+
+        .share-modal-body {
+            padding: 24px;
+        }
+
+        .share-doc-info {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .share-doc-icon {
+            font-size: 32px;
+        }
+
+        .share-doc-details {
+            flex: 1;
+        }
+
+        .share-doc-name {
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            font-size: 15px;
+        }
+
+        .share-doc-meta {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .share-section {
+            margin-bottom: 24px;
+        }
+
+        .share-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .share-section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 12px;
+        }
+
+        .share-options-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .share-option-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 8px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f8f9fa;
+        }
+
+        .share-option-card:hover {
+            background: #e8f5e9;
+            transform: translateY(-2px);
+        }
+
+        .share-option-icon {
+            font-size: 28px;
+        }
+
+        .share-option-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+
+        .share-link-container {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .share-link-field {
+            flex: 1;
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 13px;
+            background: #f8f9fa;
+            color: #3d4647;
+        }
+
+        .share-link-field:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+
+        .share-copy-button {
+            padding: 10px 20px;
+            background: #00890b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .share-copy-button:hover {
+            background: #007309;
+        }
+
+        .share-copy-button.copied {
+            background: #4caf50;
+        }
+
+        .permission-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .permission-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .permission-card:hover {
+            border-color: #00890b;
+            background: #f8fff9;
+        }
+
+        .permission-card.active {
+            border-color: #00890b;
+            background: rgba(0, 137, 11, 0.05);
+        }
+
+        .permission-card input[type="radio"] {
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .permission-content {
+            flex: 1;
+        }
+
+        .permission-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 3px;
+            font-size: 13px;
+        }
+
+        .permission-description {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .expiry-options {
+            display: flex;
+            gap: 8px;
+        }
+
+        .expiry-option-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .expiry-option-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        .expiry-option-btn.active {
+            border-color: #00890b;
+            background: #00890b;
+            color: white;
+        }
+
+        .share-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .share-stat-box {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .share-stat-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00890b;
+            margin-bottom: 3px;
+        }
+
+        .share-stat-text {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 布局 -->
+    <div class="layout">
+                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item active">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <h1 class="page-title">文档管理</h1>
+                <div class="page-actions">
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="switchView('grid')">🔲 卡片</button>
+                        <button class="view-btn" onclick="switchView('list')">☰ 列表</button>
+                    </div>
+                    <button class="btn btn-secondary" onclick="exportDocs()">
+                        <span>📥</span>
+                        <span>批量下载</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="uploadDoc()">
+                        <span>⬆️</span>
+                        <span>上传文档</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📄</div>
+                    <div class="stat-content">
+                        <h3>248</h3>
+                        <p>文档总数</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">📁</div>
+                    <div class="stat-content">
+                        <h3>15</h3>
+                        <p>关联项目</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">📊</div>
+                    <div class="stat-content">
+                        <h3>2.8 GB</h3>
+                        <p>存储空间</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">👤</div>
+                    <div class="stat-content">
+                        <h3>28</h3>
+                        <p>共享人数</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选面板 -->
+            <div class="filter-panel">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>项目</label>
+                        <select id="filterProject">
+                            <option value="">全部项目</option>
+                            <option value="智能手环开发">智能手环开发</option>
+                            <option value="无人机飞控">无人机飞控</option>
+                            <option value="物联网传感器">物联网传感器</option>
+                            <option value="智能门锁">智能门锁</option>
+                            <option value="机器人底盘">机器人底盘</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>文档分类</label>
+                        <select id="filterCategory">
+                            <option value="">全部分类</option>
+                            <option value="设计文档">设计文档</option>
+                            <option value="技术规范">技术规范</option>
+                            <option value="测试报告">测试报告</option>
+                            <option value="原理图">原理图</option>
+                            <option value="PCB文件">PCB文件</option>
+                            <option value="BOM清单">BOM清单</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>文件类型</label>
+                        <select id="filterType">
+                            <option value="">全部类型</option>
+                            <option value="pdf">PDF</option>
+                            <option value="doc">Word</option>
+                            <option value="xls">Excel</option>
+                            <option value="img">图片</option>
+                            <option value="zip">压缩包</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>搜索文档</label>
+                        <input type="text" placeholder="搜索文档名称..." id="filterKeyword">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+                    <button class="btn btn-primary" onclick="applyFilters()">应用筛选</button>
+                </div>
+            </div>
+
+            <!-- 文档卡片视图 -->
+            <div class="documents-grid" id="gridView">
+                <!-- JavaScript动态填充 -->
+            </div>
+
+            <!-- 文档列表视图 -->
+            <div class="documents-table" id="listView" style="display: none;">
+                <table class="doc-table">
+                    <thead>
+                        <tr>
+                            <th>文档名称</th>
+                            <th>项目</th>
+                            <th>分类</th>
+                            <th>类型</th>
+                            <th>大小</th>
+                            <th>上传人</th>
+                            <th>上传时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="docTableBody">
+                        <!-- JavaScript动态填充 -->
+                    </tbody>
+                </table>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <button class="page-btn" onclick="prevPage()">‹ 上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn" onclick="nextPage()">下一页 ›</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加文档Modal -->
+    <div class="modal-overlay" id="addDocumentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📄 添加文档</h3>
+                <button class="modal-close" onclick="closeAddDocumentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addDocumentForm">
+                    <div class="form-group">
+                        <label class="form-label required">文档名称</label>
+                        <input type="text" class="form-input" id="docName" placeholder="例如: 项目需求规格说明书" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">文档类型</label>
+                        <select class="form-select" id="docType" required>
+                            <option value="">-- 请选择 --</option>
+                            <option value="word">📄 Word文档 (.docx, .doc)</option>
+                            <option value="excel">📊 Excel表格 (.xlsx, .xls)</option>
+                            <option value="ppt">📊 PowerPoint (.pptx, .ppt)</option>
+                            <option value="pdf">📝 PDF文档 (.pdf)</option>
+                            <option value="zip">📦 压缩包 (.zip, .rar)</option>
+                            <option value="image">🖼️ 图片 (.jpg, .png)</option>
+                            <option value="cad">📐 CAD文件 (.dwg, .dxf)</option>
+                            <option value="other">📋 其他文件</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">上传文件</label>
+                        <input type="file" class="form-input" id="docFile" required style="padding: 10px;">
+                        <div style="font-size: 12px; color: #666; margin-top: 6px;">
+                            支持的文件大小：最大 50MB
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">文档版本</label>
+                        <input type="text" class="form-input" id="docVersion" placeholder="例如: V1.0, V2.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">文档分类</label>
+                        <select class="form-select" id="docCategory">
+                            <option value="">-- 请选择 --</option>
+                            <option value="requirement">需求文档</option>
+                            <option value="design">设计文档</option>
+                            <option value="test">测试文档</option>
+                            <option value="manual">使用手册</option>
+                            <option value="report">报告文档</option>
+                            <option value="contract">合同协议</option>
+                            <option value="other">其他</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">文档描述</label>
+                        <textarea class="form-textarea" id="docDescription" placeholder="简要描述文档内容和用途"></textarea>
+                    </div>
+
+                    <!-- 访问权限设置 -->
+                    <div class="form-group">
+                        <label class="form-label required">访问权限</label>
+                        <select class="form-select" id="docAccessLevel" required onchange="toggleCustomPermissions()">
+                            <option value="">-- 请选择访问权限 --</option>
+                            <option value="public" selected>🌐 公开 - 所有项目成员可查看和下载</option>
+                            <option value="internal">🔒 内部 - 仅团队核心成员可访问</option>
+                            <option value="private">🔐 私密 - 仅项目管理员可访问</option>
+                            <option value="custom">⚙️ 自定义 - 指定特定成员可访问</option>
+                        </select>
+                    </div>
+
+                    <!-- 自定义权限设置（当选择"自定义"时显示） -->
+                    <div class="form-group" id="customPermissionsGroup" style="display: none;">
+                        <label class="form-label">指定访问成员</label>
+                        <div style="border: 2px solid #e0e0e0; border-radius: 6px; padding: 12px; background: #f9f9f9;">
+                            <div style="margin-bottom: 12px; color: #666; font-size: 13px;">选择可以访问此文档的成员：</div>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; max-height: 200px; overflow-y: auto;">
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 4px; cursor: pointer;">
+                                    <input type="checkbox" class="doc-member-check" value="member-1" checked>
+                                    <span style="font-size: 14px;">李明 (项目经理)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 4px; cursor: pointer;">
+                                    <input type="checkbox" class="doc-member-check" value="member-2">
+                                    <span style="font-size: 14px;">张三 (硬件工程师)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 4px; cursor: pointer;">
+                                    <input type="checkbox" class="doc-member-check" value="member-3">
+                                    <span style="font-size: 14px;">李四 (软件工程师)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 4px; cursor: pointer;">
+                                    <input type="checkbox" class="doc-member-check" value="member-4">
+                                    <span style="font-size: 14px;">王五 (测试工程师)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 4px; cursor: pointer;">
+                                    <input type="checkbox" class="doc-member-check" value="member-5">
+                                    <span style="font-size: 14px;">赵六 (UI设计师)</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; padding: 8px; background: white; border-radius: 4px; cursor: pointer;">
+                                    <input type="checkbox" class="doc-member-check" value="member-6">
+                                    <span style="font-size: 14px;">钱七 (采购专员)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 下载权限设置 -->
+                    <div class="form-group">
+                        <label class="form-label">下载权限</label>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="downloadPermission" value="allow" checked>
+                                <span style="font-size: 14px;">✅ 允许下载 - 有访问权限的成员可下载</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="radio" name="downloadPermission" value="view-only">
+                                <span style="font-size: 14px;">👁️ 仅查看 - 只能在线预览，不可下载</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="background: #f0f8ff; border-left: 4px solid #00890b; padding: 16px; border-radius: 6px; margin-top: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #00890b;">💡 提示</div>
+                        <ul style="margin-left: 20px; color: #666; font-size: 13px; line-height: 1.6;">
+                            <li>文档将自动记录上传时间和上传人</li>
+                            <li>支持版本管理，可上传同一文档的不同版本</li>
+                            <li>访问权限可以在上传后随时修改</li>
+                            <li>系统会记录所有文档的访问和下载日志</li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAddDocumentModal()">取消</button>
+                <button class="btn-primary" onclick="submitAddDocument()">上传文档</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享弹窗 -->
+    <div class="share-modal-overlay" id="shareModal">
+        <div class="share-modal-box">
+            <div class="share-modal-header">
+                <h3 class="share-modal-title">🔗 分享文档</h3>
+                <button class="share-modal-close-btn" onclick="closeShareModal()">&times;</button>
+            </div>
+            <div class="share-modal-body">
+                <!-- 文档信息 -->
+                <div class="share-doc-info">
+                    <div class="share-doc-icon" id="shareDocIcon">📄</div>
+                    <div class="share-doc-details">
+                        <div class="share-doc-name" id="shareDocName">文档名称</div>
+                        <div class="share-doc-meta" id="shareDocMeta">项目 · 分类</div>
+                    </div>
+                </div>
+
+                <!-- 快速分享 -->
+                <div class="share-section">
+                    <div class="share-section-title">⚡ 快速分享</div>
+                    <div class="share-options-grid">
+                        <div class="share-option-card" onclick="shareToWechat()">
+                            <div class="share-option-icon">💬</div>
+                            <div class="share-option-label">微信</div>
+                        </div>
+                        <div class="share-option-card" onclick="shareToEmail()">
+                            <div class="share-option-icon">📧</div>
+                            <div class="share-option-label">邮件</div>
+                        </div>
+                        <div class="share-option-card" onclick="shareToDingTalk()">
+                            <div class="share-option-icon">💼</div>
+                            <div class="share-option-label">钉钉</div>
+                        </div>
+                        <div class="share-option-card" onclick="shareToFeishu()">
+                            <div class="share-option-icon">🚀</div>
+                            <div class="share-option-label">飞书</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 复制链接 -->
+                <div class="share-section">
+                    <div class="share-section-title">🔗 复制分享链接</div>
+                    <div class="share-link-container">
+                        <input type="text"
+                               class="share-link-field"
+                               id="shareLink"
+                               readonly
+                               value="">
+                        <button class="share-copy-button" id="shareCopyBtn" onclick="copyShareLink()">复制</button>
+                    </div>
+
+                    <!-- 链接有效期 -->
+                    <div style="margin-top: 12px;">
+                        <div style="font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px;">链接有效期</div>
+                        <div class="expiry-options">
+                            <button class="expiry-option-btn" onclick="setExpiry(1, this)">1天</button>
+                            <button class="expiry-option-btn active" onclick="setExpiry(7, this)">7天</button>
+                            <button class="expiry-option-btn" onclick="setExpiry(30, this)">30天</button>
+                            <button class="expiry-option-btn" onclick="setExpiry(0, this)">永久</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 访问权限 -->
+                <div class="share-section">
+                    <div class="share-section-title">🔒 访问权限</div>
+                    <div class="permission-options">
+                        <label class="permission-card active" onclick="setPermission('view', this)">
+                            <input type="radio" name="permission" value="view" checked>
+                            <div class="permission-content">
+                                <div class="permission-name">👁️ 仅查看</div>
+                                <div class="permission-description">可查看但不能下载或编辑</div>
+                            </div>
+                        </label>
+                        <label class="permission-card" onclick="setPermission('download', this)">
+                            <input type="radio" name="permission" value="download">
+                            <div class="permission-content">
+                                <div class="permission-name">📥 查看和下载</div>
+                                <div class="permission-description">可查看和下载，不能编辑</div>
+                            </div>
+                        </label>
+                        <label class="permission-card" onclick="setPermission('edit', this)">
+                            <input type="radio" name="permission" value="edit">
+                            <div class="permission-content">
+                                <div class="permission-name">✏️ 完全访问</div>
+                                <div class="permission-description">可查看、下载和编辑(需登录)</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 分享统计 -->
+                <div class="share-section">
+                    <div class="share-section-title">📊 分享统计</div>
+                    <div class="share-stats-grid">
+                        <div class="share-stat-box">
+                            <div class="share-stat-number">12</div>
+                            <div class="share-stat-text">总分享次数</div>
+                        </div>
+                        <div class="share-stat-box">
+                            <div class="share-stat-number">68</div>
+                            <div class="share-stat-text">总查看次数</div>
+                        </div>
+                        <div class="share-stat-box">
+                            <div class="share-stat-number">24</div>
+                            <div class="share-stat-text">总下载次数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 文档数据模拟
+        const documentsData = [
+            { id: 1, name: '智能手环-硬件设计方案V2.0.pdf', project: '智能手环开发', category: '设计文档', type: 'pdf', size: '2.4 MB', uploader: '张三', uploadTime: '2024-01-15 10:30' },
+            { id: 2, name: '主控板原理图.sch', project: '智能手环开发', category: '原理图', type: 'img', size: '856 KB', uploader: '李四', uploadTime: '2024-01-16 14:20' },
+            { id: 3, name: 'BOM清单-主控板.xlsx', project: '智能手环开发', category: 'BOM清单', type: 'xls', size: '124 KB', uploader: '张三', uploadTime: '2024-01-17 09:15' },
+            { id: 4, name: '飞控算法技术规范.docx', project: '无人机飞控', category: '技术规范', type: 'doc', size: '1.8 MB', uploader: '王五', uploadTime: '2024-01-18 11:45' },
+            { id: 5, name: '飞控主板PCB文件.zip', project: '无人机飞控', category: 'PCB文件', type: 'zip', size: '15.2 MB', uploader: '赵六', uploadTime: '2024-01-19 16:30' },
+            { id: 6, name: '测试报告-功能测试.pdf', project: '无人机飞控', category: '测试报告', type: 'pdf', size: '3.6 MB', uploader: '赵六', uploadTime: '2024-01-20 10:00' },
+            { id: 7, name: '传感器选型方案.pdf', project: '物联网传感器', category: '设计文档', type: 'pdf', size: '1.2 MB', uploader: '孙七', uploadTime: '2024-01-21 13:25' },
+            { id: 8, name: '数据采集板原理图.png', project: '物联网传感器', category: '原理图', type: 'img', size: '2.8 MB', uploader: '周八', uploadTime: '2024-01-22 15:40' },
+            { id: 9, name: '门锁控制协议V1.0.docx', project: '智能门锁', category: '技术规范', type: 'doc', size: '890 KB', uploader: '吴九', uploadTime: '2024-01-23 09:50' },
+            { id: 10, name: '控制板BOM清单.xlsx', project: '智能门锁', category: 'BOM清单', type: 'xls', size: '156 KB', uploader: '郑十', uploadTime: '2024-01-24 14:15' },
+            { id: 11, name: '机器人底盘设计图.pdf', project: '机器人底盘', category: '设计文档', type: 'pdf', size: '4.2 MB', uploader: '陈十一', uploadTime: '2024-01-25 11:20' },
+            { id: 12, name: '驱动板PCB设计文件.zip', project: '机器人底盘', category: 'PCB文件', type: 'zip', size: '18.5 MB', uploader: '陈十一', uploadTime: '2024-01-26 16:45' }
+        ];
+
+        // 文件类型图标映射
+        const fileIconMap = {
+            'pdf': '📕',
+            'doc': '📘',
+            'xls': '📗',
+            'img': '🖼️',
+            'zip': '📦'
+        };
+
+        // 渲染卡片视图
+        function renderGridView(data = documentsData) {
+            const gridView = document.getElementById('gridView');
+            gridView.innerHTML = '';
+
+            data.forEach(doc => {
+                const card = document.createElement('div');
+                card.className = 'doc-card';
+                card.onclick = () => viewDocument(doc.id);
+
+                card.innerHTML = `
+                    <div class="doc-icon ${doc.type}">${fileIconMap[doc.type]}</div>
+                    <div class="doc-title" title="${doc.name}">${doc.name}</div>
+                    <div class="doc-meta">
+                        <div class="doc-project">📁 ${doc.project}</div>
+                        <div>📂 ${doc.category}</div>
+                        <div>📊 ${doc.size} · ${doc.uploadTime}</div>
+                        <div>👤 ${doc.uploader}</div>
+                    </div>
+                    <div class="doc-actions" onclick="event.stopPropagation()">
+                        <button class="doc-action-btn" onclick="downloadDoc(${doc.id})">下载</button>
+                        <button class="doc-action-btn" onclick="shareDoc(${doc.id})">分享</button>
+                    </div>
+                `;
+                gridView.appendChild(card);
+            });
+        }
+
+        // 渲染列表视图
+        function renderListView(data = documentsData) {
+            const tbody = document.getElementById('docTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(doc => {
+                const row = document.createElement('tr');
+                row.onclick = () => viewDocument(doc.id);
+
+                row.innerHTML = `
+                    <td><strong>${doc.name}</strong></td>
+                    <td>${doc.project}</td>
+                    <td><span class="category-badge">${doc.category}</span></td>
+                    <td><span class="file-type-badge file-type-${doc.type}">${doc.type.toUpperCase()}</span></td>
+                    <td>${doc.size}</td>
+                    <td>${doc.uploader}</td>
+                    <td>${doc.uploadTime}</td>
+                    <td onclick="event.stopPropagation()">
+                        <button class="action-btn" onclick="downloadDoc(${doc.id})">下载</button>
+                        <button class="action-btn" onclick="shareDoc(${doc.id})">分享</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 切换视图
+        function switchView(view) {
+            const gridView = document.getElementById('gridView');
+            const listView = document.getElementById('listView');
+            const buttons = document.querySelectorAll('.view-btn');
+
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            if (view === 'grid') {
+                gridView.style.display = 'grid';
+                listView.style.display = 'none';
+                buttons[0].classList.add('active');
+            } else {
+                gridView.style.display = 'none';
+                listView.style.display = 'block';
+                buttons[1].classList.add('active');
+            }
+        }
+
+        // 查看文档
+        function viewDocument(docId) {
+            window.location.href = `document-preview.html?id=${docId}`;
+        }
+
+        // 下载文档
+        function downloadDoc(docId) {
+            const doc = documentsData.find(d => d.id === docId);
+            alert(`下载文档: ${doc.name}`);
+        }
+
+        // 分享文档
+        let currentShareDoc = null;
+        let shareExpiry = 7; // 默认7天
+        let sharePermission = 'view'; // 默认仅查看
+
+        function shareDoc(docId) {
+            const doc = documentsData.find(d => d.id === docId);
+            if (!doc) return;
+
+            currentShareDoc = doc;
+
+            // 更新弹窗中的文档信息
+            document.getElementById('shareDocIcon').textContent = fileIconMap[doc.type];
+            document.getElementById('shareDocName').textContent = doc.name;
+            document.getElementById('shareDocMeta').textContent = `${doc.project} · ${doc.category}`;
+
+            // 生成分享链接
+            const shareUrl = `${window.location.origin}${window.location.pathname.replace('library-resources.html', 'document-preview.html')}?id=${doc.id}`;
+            document.getElementById('shareLink').value = shareUrl;
+
+            // 打开分享弹窗
+            document.getElementById('shareModal').classList.add('active');
+        }
+
+        // 关闭分享弹窗
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('active');
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('shareModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeShareModal();
+            }
+        });
+
+        // 复制分享链接
+        function copyShareLink() {
+            const linkInput = document.getElementById('shareLink');
+            const copyBtn = document.getElementById('shareCopyBtn');
+
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+
+            try {
+                document.execCommand('copy');
+                copyBtn.textContent = '✓ 已复制';
+                copyBtn.classList.add('copied');
+
+                setTimeout(() => {
+                    copyBtn.textContent = '复制';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+
+                const permissionText = {
+                    'view': '仅查看',
+                    'download': '查看和下载',
+                    'edit': '完全访问'
+                };
+                const expiryText = shareExpiry === 0 ? '永久有效' : `${shareExpiry}天后过期`;
+
+                setTimeout(() => {
+                    alert(`✓ 分享链接已复制！\n\n文档：${currentShareDoc.name}\n权限：${permissionText[sharePermission]}\n有效期：${expiryText}`);
+                }, 100);
+            } catch (err) {
+                alert('复制失败，请手动复制链接');
+            }
+        }
+
+        // 设置有效期
+        function setExpiry(days, element) {
+            shareExpiry = days;
+            document.querySelectorAll('.expiry-option-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        // 设置权限
+        function setPermission(permission, element) {
+            sharePermission = permission;
+            document.querySelectorAll('.permission-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            element.classList.add('active');
+        }
+
+        // 分享到微信
+        function shareToWechat() {
+            alert('📱 打开微信扫一扫\n\n扫描二维码分享文档到微信好友或群聊');
+        }
+
+        // 分享到邮件
+        function shareToEmail() {
+            if (!currentShareDoc) return;
+
+            const subject = encodeURIComponent(`分享文档：${currentShareDoc.name}`);
+            const shareUrl = document.getElementById('shareLink').value;
+            const body = encodeURIComponent(`您好，\n\n我想与您分享以下文档：\n\n文档名称：${currentShareDoc.name}\n所属项目：${currentShareDoc.project}\n文档分类：${currentShareDoc.category}\n访问链接：${shareUrl}\n\n此链接${shareExpiry === 0 ? '永久有效' : shareExpiry + '天内有效'}。\n\n---\n由 EZPLM 系统发送`);
+
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        // 分享到钉钉
+        function shareToDingTalk() {
+            alert('💼 钉钉分享\n\n功能开发中，即将支持直接分享到钉钉群聊和单聊');
+        }
+
+        // 分享到飞书
+        function shareToFeishu() {
+            alert('🚀 飞书分享\n\n功能开发中，即将支持直接分享到飞书群聊和单聊');
+        }
+
+        // 上传文档
+        function uploadDoc() {
+            document.getElementById('addDocumentModal').classList.add('active');
+        }
+
+        function closeAddDocumentModal() {
+            document.getElementById('addDocumentModal').classList.remove('active');
+            document.getElementById('addDocumentForm').reset();
+            // 重置自定义权限显示
+            document.getElementById('customPermissionsGroup').style.display = 'none';
+        }
+
+        // 切换自定义权限设置的显示
+        function toggleCustomPermissions() {
+            const accessLevel = document.getElementById('docAccessLevel').value;
+            const customGroup = document.getElementById('customPermissionsGroup');
+
+            if (accessLevel === 'custom') {
+                customGroup.style.display = 'block';
+            } else {
+                customGroup.style.display = 'none';
+            }
+        }
+
+        function submitAddDocument() {
+            const name = document.getElementById('docName').value;
+            const type = document.getElementById('docType').value;
+            const file = document.getElementById('docFile').files[0];
+            const version = document.getElementById('docVersion').value;
+            const category = document.getElementById('docCategory').value;
+            const description = document.getElementById('docDescription').value;
+            const accessLevel = document.getElementById('docAccessLevel').value;
+            const downloadPermission = document.querySelector('input[name="downloadPermission"]:checked').value;
+
+            if (!name || !type || !file) {
+                alert('请填写所有必填项并选择要上传的文件！');
+                return;
+            }
+
+            // File size validation (50MB)
+            if (file.size > 50 * 1024 * 1024) {
+                alert('文件大小超过限制！请选择小于50MB的文件。');
+                return;
+            }
+
+            if (!accessLevel) {
+                alert('请选择访问权限！');
+                return;
+            }
+
+            // Get custom members if custom access level selected
+            let customMembers = [];
+            if (accessLevel === 'custom') {
+                const checkboxes = document.querySelectorAll('.doc-member-check:checked');
+                customMembers = Array.from(checkboxes).map(cb => cb.value);
+
+                if (customMembers.length === 0) {
+                    alert('请至少选择一个可访问成员！');
+                    return;
+                }
+            }
+
+            // Format file size
+            const fileSize = file.size < 1024 * 1024
+                ? (file.size / 1024).toFixed(2) + ' KB'
+                : (file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+            const accessLevelText = {
+                'public': '公开',
+                'internal': '内部',
+                'private': '私密',
+                'custom': '自定义'
+            };
+
+            const downloadText = downloadPermission === 'allow' ? '允许下载' : '仅查看';
+
+            let successMessage = `✅ 文档上传成功！\n\n`;
+            successMessage += `📄 文档名称：${name}\n`;
+            successMessage += `📁 文件类型：${type}\n`;
+            successMessage += `📦 文件大小：${fileSize}\n`;
+            if (version) successMessage += `🔢 版本号：${version}\n`;
+            if (category) successMessage += `🏷️ 分类：${category}\n`;
+            successMessage += `🔒 访问权限：${accessLevelText[accessLevel]}\n`;
+            successMessage += `👁️ 下载权限：${downloadText}\n`;
+            if (accessLevel === 'custom') {
+                successMessage += `👥 授权成员：${customMembers.length}人\n`;
+            }
+            if (description) successMessage += `\n📝 描述：${description}`;
+
+            alert(successMessage);
+
+            closeAddDocumentModal();
+
+            // 实际项目中这里应该调用API上传文件
+            // const formData = new FormData();
+            // formData.append('file', file);
+            // formData.append('name', name);
+            // formData.append('type', type);
+            // formData.append('accessLevel', accessLevel);
+            // formData.append('downloadPermission', downloadPermission);
+            // if (accessLevel === 'custom') {
+            //     formData.append('authorizedMembers', JSON.stringify(customMembers));
+            // }
+            // ... 其他字段
+            // fetch('/api/documents', { method: 'POST', body: formData })
+        }
+
+        // Click outside to close modal
+        document.getElementById('addDocumentModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddDocumentModal();
+            }
+        });
+
+        // 批量下载
+        function exportDocs() {
+            alert('批量下载选中的文档...');
+        }
+
+        // 应用筛选
+        function applyFilters() {
+            const project = document.getElementById('filterProject').value;
+            const category = document.getElementById('filterCategory').value;
+            const type = document.getElementById('filterType').value;
+            const keyword = document.getElementById('filterKeyword').value.toLowerCase();
+
+            const filtered = documentsData.filter(doc => {
+                const matchProject = !project || doc.project === project;
+                const matchCategory = !category || doc.category === category;
+                const matchType = !type || doc.type === type;
+                const matchKeyword = !keyword || doc.name.toLowerCase().includes(keyword);
+
+                return matchProject && matchCategory && matchType && matchKeyword;
+            });
+
+            renderGridView(filtered);
+            renderListView(filtered);
+        }
+
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('filterProject').value = '';
+            document.getElementById('filterCategory').value = '';
+            document.getElementById('filterType').value = '';
+            document.getElementById('filterKeyword').value = '';
+            renderGridView();
+            renderListView();
+        }
+
+        // 分页
+        function prevPage() {
+            alert('上一页');
+        }
+
+        function nextPage() {
+            alert('下一页');
+        }
+
+        // 初始化
+        renderGridView();
+        renderListView();
+    </script>
+</body>
+</html>

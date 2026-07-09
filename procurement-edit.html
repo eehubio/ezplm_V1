@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 编辑采购单</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 主布局 */
+        .main-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0, 137, 11, 0.2);
+        }
+        .header-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 表单卡片 */
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group-full {
+            grid-column: 1 / -1;
+        }
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .form-label.required::after {
+            content: ' *';
+            color: #ff4444;
+        }
+        .form-input, .form-select, .form-textarea {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .form-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 6px;
+        }
+
+        /* 物料表格 */
+        .material-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .material-table th {
+            background: #f9f9f9;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+            font-weight: 700;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .material-table td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .material-table tr:hover {
+            background: #f9f9f9;
+        }
+        .qty-input {
+            width: 80px;
+            padding: 6px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .qty-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .price-input {
+            width: 100px;
+            padding: 6px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .price-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px 8px;
+            transition: transform 0.2s;
+        }
+        .btn-icon:hover {
+            transform: scale(1.2);
+        }
+
+        /* 按钮 */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .btn-add {
+            background: white;
+            color: #00890b;
+            border: 2px dashed #00890b;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .btn-add:hover {
+            background: rgba(0, 137, 11, 0.05);
+        }
+
+        /* 总计栏 */
+        .total-bar {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            border: 2px solid #e0e0e0;
+        }
+        .total-label {
+            font-size: 16px;
+            color: #666;
+        }
+        .total-amount {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="main-content">
+        <!-- 返回按钮 -->
+        <a href="procurement.html" class="back-btn">
+            ← 返回采购列表
+        </a>
+
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="header-title">✏️ 编辑采购单</div>
+            <div class="header-subtitle">修改采购单信息和物料清单</div>
+        </div>
+
+        <!-- 基本信息 -->
+        <div class="form-card">
+            <div class="card-title">📋 基本信息</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">采购单号</label>
+                    <input type="text" class="form-input" value="PO-2024-0049" disabled style="background: #f5f5f5; color: #999;">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">创建日期</label>
+                    <input type="date" class="form-input" value="2024-10-21" disabled style="background: #f5f5f5;">
+                </div>
+                <div class="form-group form-group-full">
+                    <label class="form-label required">采购单名称</label>
+                    <input type="text" class="form-input" id="poName" value="工业传感器节点物料采购" placeholder="请输入采购单名称">
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">关联项目</label>
+                    <select class="form-select" id="poProject">
+                        <option value="">请选择关联项目</option>
+                        <option value="proj1">智能手环 V2.0</option>
+                        <option value="proj2">无线充电器设计优化</option>
+                        <option value="proj3">智能音箱 Mini版</option>
+                        <option value="proj4" selected>工业传感器节点</option>
+                        <option value="proj5">智能门锁项目</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">供应商</label>
+                    <select class="form-select" id="supplier">
+                        <option value="">请选择供应商</option>
+                        <option value="lcsc">深圳立创商城</option>
+                        <option value="digikey">得捷电子 Digi-Key</option>
+                        <option value="mouser">贸泽电子 Mouser</option>
+                        <option value="arrow">艾睿电子 Arrow</option>
+                        <option value="szlcsc" selected>深圳华强北</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">采购负责人</label>
+                    <select class="form-select" id="poOwner">
+                        <option value="">请选择采购负责人</option>
+                        <option value="user1">钱七 (采购专员)</option>
+                        <option value="user2" selected>李明 (项目经理)</option>
+                        <option value="user3">张三 (硬件工程师)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label required">交货日期</label>
+                    <input type="date" class="form-input" id="deliveryDate" value="2024-10-28">
+                </div>
+                <div class="form-group form-group-full">
+                    <label class="form-label">采购说明</label>
+                    <textarea class="form-textarea" id="poNotes" placeholder="请输入采购说明和特殊要求（可选）">用于工业传感器节点项目的核心元器件采购，需要注意静电防护。</textarea>
+                    <div class="form-hint">可以备注交货要求、包装要求、质量要求等</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 物料清单 -->
+        <div class="form-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div class="card-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">📦 物料清单</div>
+                <button class="btn-secondary" onclick="addMaterial()">➕ 添加物料</button>
+            </div>
+            <table class="material-table" id="materialTable">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">#</th>
+                        <th>物料编号</th>
+                        <th>物料名称</th>
+                        <th>规格型号</th>
+                        <th>数量</th>
+                        <th>单价 (¥)</th>
+                        <th>小计 (¥)</th>
+                        <th style="width: 100px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-014</td>
+                        <td>LoRa模块</td>
+                        <td>SX1276 433MHz</td>
+                        <td><input type="number" class="qty-input" value="100" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><input type="number" class="price-input" value="28.50" min="0" step="0.01" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥2,850</strong></td>
+                        <td>
+                            <button class="btn-icon" onclick="editMaterial(1)" title="编辑">✏️</button>
+                            <button class="btn-icon" onclick="deleteMaterial(this)" title="删除" style="color: #ff4444;">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-015</td>
+                        <td>温湿度传感器</td>
+                        <td>SHT30 I2C</td>
+                        <td><input type="number" class="qty-input" value="100" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><input type="number" class="price-input" value="8.80" min="0" step="0.01" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥880</strong></td>
+                        <td>
+                            <button class="btn-icon" onclick="editMaterial(2)" title="编辑">✏️</button>
+                            <button class="btn-icon" onclick="deleteMaterial(this)" title="删除" style="color: #ff4444;">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-016</td>
+                        <td>工业电源模块</td>
+                        <td>DC 9-36V to 5V 3A</td>
+                        <td><input type="number" class="qty-input" value="100" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><input type="number" class="price-input" value="12.50" min="0" step="0.01" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥1,250</strong></td>
+                        <td>
+                            <button class="btn-icon" onclick="editMaterial(3)" title="编辑">✏️</button>
+                            <button class="btn-icon" onclick="deleteMaterial(this)" title="删除" style="color: #ff4444;">🗑️</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn-add" onclick="addMaterial()">➕ 添加更多物料</button>
+
+            <!-- 总计 -->
+            <div class="total-bar">
+                <div class="total-label">物料总计 (3 种 / 300 个)</div>
+                <div class="total-amount" id="totalAmount">¥4,980</div>
+            </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="form-card">
+            <div class="btn-group">
+                <button class="btn-primary" onclick="saveChanges()">💾 保存修改</button>
+                <button class="btn-secondary" onclick="saveDraft()">📝 保存为草稿</button>
+                <button class="btn-secondary" onclick="previewPO()">👁️ 预览</button>
+                <button class="btn-secondary" onclick="cancelEdit()">取消</button>
+            </div>
+
+    <script>
+        // 计算小计
+        function calculateSubtotal(input) {
+            const row = input.closest('tr');
+            const qtyInput = row.querySelector('.qty-input');
+            const priceInput = row.querySelector('.price-input');
+            const subtotalCell = row.querySelector('.subtotal');
+
+            const qty = parseInt(qtyInput.value) || 0;
+            const price = parseFloat(priceInput.value) || 0;
+            const subtotal = qty * price;
+
+            subtotalCell.textContent = '¥' + subtotal.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+            calculateTotal();
+        }
+
+        // 计算总计
+        function calculateTotal() {
+            const rows = document.querySelectorAll('#materialTable tbody tr');
+            let totalQty = 0;
+            let totalAmount = 0;
+            let totalTypes = rows.length;
+
+            rows.forEach(row => {
+                const qty = parseInt(row.querySelector('.qty-input').value) || 0;
+                const subtotalText = row.querySelector('.subtotal').textContent.replace('¥', '').replace(',', '');
+                const subtotal = parseFloat(subtotalText) || 0;
+
+                totalQty += qty;
+                totalAmount += subtotal;
+            });
+
+            document.querySelector('.total-label').textContent = `物料总计 (${totalTypes} 种 / ${totalQty} 个)`;
+            document.getElementById('totalAmount').textContent = '¥' + totalAmount.toLocaleString('zh-CN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        }
+
+        // 添加物料
+        function addMaterial() {
+            location.href = 'procurement-add-material.html?id=PO-2024-0049&mode=edit';
+        }
+
+        // 编辑物料
+        function editMaterial(id) {
+            alert('编辑物料 #' + id + '\n\n此功能可以修改物料的详细信息');
+        }
+
+        // 删除物料
+        function deleteMaterial(button) {
+            if (confirm('确认删除这个物料项目吗？')) {
+                const row = button.closest('tr');
+                row.remove();
+                calculateTotal();
+                alert('✅ 物料已删除');
+            }
+        }
+
+        // 保存修改
+        function saveChanges() {
+            const poName = document.getElementById('poName').value;
+            const poProject = document.getElementById('poProject').value;
+            const supplier = document.getElementById('supplier').value;
+            const poOwner = document.getElementById('poOwner').value;
+            const deliveryDate = document.getElementById('deliveryDate').value;
+
+            if (!poName || !poProject || !supplier || !poOwner || !deliveryDate) {
+                alert('❌ 请填写所有必填项！');
+                return;
+            }
+
+            if (confirm('确认保存修改吗？\n\n保存后采购单将更新为最新内容。')) {
+                alert('✅ 采购单修改成功！\n\n采购单号: PO-2024-0049\n已更新的信息已保存。');
+                setTimeout(() => {
+                    location.href = 'procurement-detail.html?id=PO-2024-0049';
+                }, 1500);
+            }
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            alert('💾 草稿已保存\n\n您可以稍后继续编辑此采购单。');
+        }
+
+        // 预览
+        function previewPO() {
+            alert('👁️ 预览采购单\n\n将在新窗口中打开采购单预览');
+        }
+
+        // 取消编辑
+        function cancelEdit() {
+            if (confirm('确认取消编辑吗？\n\n未保存的修改将丢失。')) {
+                location.href = 'procurement.html';
+            }
+        }
+
+        // 初始化计算总计
+        calculateTotal();
+    </script>
+</body>
+</html>

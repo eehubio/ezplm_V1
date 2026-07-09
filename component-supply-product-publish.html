@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布产品 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.4);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .btn-back:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: rgba(255,255,255,0.6);
+        }
+
+        /* 表单容器 */
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            max-width: 1440px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-icon {
+            font-size: 24px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .required {
+            color: #dc2626;
+            font-size: 14px;
+        }
+        .form-input {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        .form-textarea {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        .form-select {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        /* 阶梯价格 */
+        .price-tier-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .price-tier-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+        .btn-remove {
+            padding: 12px 16px;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-remove:hover {
+            background: #fecaca;
+        }
+        .btn-add-tier {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #3d4647;
+            border: 2px dashed #c0c0c0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .btn-add-tier:hover {
+            background: #e0e0e0;
+            border-color: #a0a0a0;
+        }
+
+        /* 图片上传 */
+        .image-upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .image-upload-area:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .upload-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .upload-hint {
+            font-size: 12px;
+            color: #999;
+        }
+        .image-preview-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .image-preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .image-remove-btn:hover {
+            background: #dc2626;
+        }
+
+        /* 按钮组 */
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #3d4647;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* 提示框 */
+        .info-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+        .info-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .info-content {
+            font-size: 14px;
+            color: #3d4647;
+            line-height: 1.6;
+        }
+
+        /* 产品来源选择 */
+        .source-selection {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .source-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .source-option {
+            padding: 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .source-option:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+            transform: translateY(-2px);
+        }
+        .source-option.active {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .source-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+        .source-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 6px;
+        }
+        .source-desc {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Modal样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1000px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+        .modal-close:hover {
+            color: #3d4647;
+        }
+        .modal-body {
+            padding: 24px 32px;
+        }
+        .modal-footer {
+            padding: 20px 32px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 搜索栏 */
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+        }
+        .btn-search {
+            padding: 12px 24px;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 物料列表 */
+        .material-list {
+            display: grid;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .material-item {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .material-item:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+        .material-item.selected {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        .material-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .material-item.hidden {
+            display: none;
+        }
+        .material-info {
+            flex: 1;
+        }
+        .material-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+        .material-specs {
+            font-size: 13px;
+            color: #666;
+        }
+        .material-stock {
+            font-size: 14px;
+            color: #00890b;
+            font-weight: 600;
+        }
+
+        /* 选中的物料列表 */
+        .selected-materials {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        .selected-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        .btn-remove-small {
+            padding: 6px 12px;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* 每个物料的价格编辑卡片 */
+        .material-price-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        .material-price-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .material-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .material-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .material-card-specs {
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+        }
+        .btn-collapse {
+            background: #f0f0f0;
+            color: #3d4647;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-collapse:hover {
+            background: #e0e0e0;
+        }
+        .price-form-content {
+            display: grid;
+            gap: 16px;
+        }
+        .price-form-content.collapsed {
+            display: none;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item active">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">📦 发布新产品</div>
+                    <div class="page-subtitle">填写产品信息，系统将自动匹配推送给需要的采购方</div>
+                </div>
+                <a href="component-supply.html?view=supplier" class="btn-back">
+                    <span>←</span>
+                    <span>返回</span>
+                </a>
+            </div>
+
+            <!-- 提示框 -->
+            <div class="info-box">
+                <div class="info-icon">💡</div>
+                <div class="info-content">
+                    <strong>智能匹配提示：</strong>发布产品后，系统将自动匹配平台上的采购方需求。当采购方的物料清单或BOM中包含您的产品型号时，会自动推送给他们，提高成交机会！
+                </div>
+            </div>
+
+            <!-- 产品来源选择 -->
+            <div class="source-selection">
+                <div class="section-title">
+                    <span class="section-icon">📁</span>
+                    <span>选择产品来源</span>
+                </div>
+                <div class="source-options">
+                    <div class="source-option active" onclick="selectSource('materials')">
+                        <div class="source-icon">📦</div>
+                        <div class="source-title">从物料库选择</div>
+                        <div class="source-desc">从已有物料中选择，只需补充价格</div>
+                    </div>
+                    <div class="source-option" onclick="selectSource('cloud')">
+                        <div class="source-icon">🌐</div>
+                        <div class="source-title">云端元器件库</div>
+                        <div class="source-desc">搜索云端库，快速导入产品信息</div>
+                    </div>
+                    <div class="source-option" onclick="selectSource('manual')">
+                        <div class="source-icon">✏️</div>
+                        <div class="source-title">手动创建</div>
+                        <div class="source-desc">手工填写完整的产品信息</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 从物料库选择的界面 -->
+            <div id="materialsSourceView" class="form-container">
+                <div class="section-title" style="margin-bottom: 20px;">
+                    <span class="section-icon">📦</span>
+                    <span>已选择的物料 (<span id="materialCountDisplay">0</span>)</span>
+                </div>
+
+                <div id="selectedMaterialsList">
+                    <p style="text-align: center; color: #999; padding: 40px; background: #f9f9f9; border-radius: 8px;">
+                        还未选择物料，点击下方按钮从物料库中选择
+                    </p>
+                </div>
+
+                <button type="button" class="btn-primary" onclick="openMaterialSelector()" style="margin-bottom: 32px;">
+                    📦 从物料库选择产品
+                </button>
+
+                <!-- 每个物料的价格信息表单 -->
+                <div id="priceFormSection" style="display: none;">
+                    <div class="section-title" style="margin-bottom: 24px;">
+                        <span class="section-icon">💰</span>
+                        <span>为每个物料补充价格信息</span>
+                    </div>
+
+                    <!-- 这里将动态生成每个物料的价格表单卡片 -->
+                    <div id="materialPriceCardsContainer"></div>
+
+                    <!-- 按钮组 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="location.href='component-supply.html?view=supplier'">取消</button>
+                        <button type="button" class="btn-secondary" onclick="saveDraft()">保存草稿</button>
+                        <button type="button" class="btn-primary" onclick="publishProducts()">批量发布</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 云端元器件库和手动创建的界面（保持原有表单） -->
+            <div id="manualSourceView" class="form-container" style="display: none;">
+            <!-- 表单容器 -->
+            <div class="form-container">
+                <form id="productForm">
+                    <!-- 基本信息 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">📋</span>
+                            <span>基本信息</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    物料型号 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" placeholder="例如: STM32F407VGT6" required>
+                                <div class="form-hint">请输入准确的物料型号，便于系统匹配</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    品牌 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" placeholder="例如: STMicroelectronics" required>
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    规格参数 <span class="required">*</span>
+                                </label>
+                                <textarea class="form-textarea" placeholder="例如: ARM Cortex-M4, 168MHz, 1MB Flash, 192KB RAM, LQFP-100封装" required></textarea>
+                                <div class="form-hint">详细的规格参数有助于采购方快速确认产品</div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    产品分类 <span class="required">*</span>
+                                </label>
+                                <select class="form-select" required>
+                                    <option value="">请选择分类</option>
+                                    <option value="mcu">微控制器(MCU)</option>
+                                    <option value="sensor">传感器</option>
+                                    <option value="power">电源管理</option>
+                                    <option value="rf">射频通信</option>
+                                    <option value="analog">模拟器件</option>
+                                    <option value="passive">被动元件</option>
+                                    <option value="connector">连接器</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    封装类型 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" placeholder="例如: LQFP-100" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 价格设置 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">💰</span>
+                            <span>价格设置</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    基础单价 (元) <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-input" placeholder="例如: 28.50" step="0.01" required>
+                                <div class="form-hint">适用于小批量采购的基础价格</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    货币单位
+                                </label>
+                                <select class="form-select">
+                                    <option value="CNY">人民币 (CNY)</option>
+                                    <option value="USD">美元 (USD)</option>
+                                    <option value="EUR">欧元 (EUR)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    阶梯价格设置
+                                </label>
+                                <div class="price-tier-list" id="priceTierList">
+                                    <div class="price-tier-item">
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" placeholder="起始数量 (例如: 100)" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" placeholder="单价 (例如: 26.50)" step="0.01" min="0">
+                                        </div>
+                                        <button type="button" class="btn-remove" onclick="removePriceTier(this)">删除</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-add-tier" onclick="addPriceTier()">+ 添加阶梯价格</button>
+                                <div class="form-hint">数量越多，价格越优惠，提高大批量订单的竞争力</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 库存信息 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">📦</span>
+                            <span>库存信息</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    库存数量 <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-input" placeholder="例如: 5000" min="0" required>
+                                <div class="form-hint">当前可供货的实际库存</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    最小起订量
+                                </label>
+                                <input type="number" class="form-input" placeholder="例如: 10" min="1" value="1">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    产品状态 <span class="required">*</span>
+                                </label>
+                                <select class="form-select" required>
+                                    <option value="new">全新原装</option>
+                                    <option value="original">原装现货</option>
+                                    <option value="alternative">替代料</option>
+                                    <option value="refurbished">翻新件</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    交期承诺 (天) <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-input" placeholder="例如: 3" min="1" required>
+                                <div class="form-hint">承诺发货时间，增强采购方信任</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 产品图片 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">📷</span>
+                            <span>产品图片</span>
+                        </div>
+                        <div class="form-group">
+                            <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">点击上传产品图片</div>
+                                <div class="upload-hint">支持 JPG、PNG 格式，建议尺寸 800x800px，最多上传5张</div>
+                            </div>
+                            <input type="file" id="imageInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
+                            <div class="image-preview-list" id="imagePreviewList"></div>
+                        </div>
+                    </div>
+
+                    <!-- 产品描述 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">📝</span>
+                            <span>产品描述</span>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    详细描述
+                                </label>
+                                <textarea class="form-textarea" style="min-height: 150px;" placeholder="产品特点、应用场景、质量保证等详细信息..."></textarea>
+                                <div class="form-hint">详细的产品描述有助于提高转化率</div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    质保期限
+                                </label>
+                                <select class="form-select">
+                                    <option value="">无质保</option>
+                                    <option value="30">30天</option>
+                                    <option value="90">90天</option>
+                                    <option value="180">180天</option>
+                                    <option value="365">1年</option>
+                                    <option value="730">2年</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    退换货政策
+                                </label>
+                                <select class="form-select">
+                                    <option value="no">不支持退换货</option>
+                                    <option value="7">7天无理由退换</option>
+                                    <option value="15">15天无理由退换</option>
+                                    <option value="quality">质量问题退换</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 按钮组 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" onclick="location.href='component-supply.html?view=supplier'">取消</button>
+                        <button type="button" class="btn-secondary" onclick="saveDraft()">保存草稿</button>
+                        <button type="submit" class="btn-primary">立即发布</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 物料选择Modal -->
+    <div class="modal-overlay" id="materialSelectorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📦 从物料库选择产品</h3>
+                <button class="modal-close" onclick="closeMaterialSelector()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="materialSearchInput" placeholder="🔍 搜索物料型号、品牌或规格参数...">
+                    <button class="btn-search" onclick="searchMaterials()">搜索</button>
+                </div>
+
+                <div class="material-list" id="materialListContainer">
+                    <!-- 示例物料数据 -->
+                    <div class="material-item" data-id="STM32F407VGT6" data-brand="STMicroelectronics" data-specs="ARM Cortex-M4, 168MHz, LQFP-100" data-stock="2500">
+                        <input type="checkbox" class="material-checkbox">
+                        <div class="material-info">
+                            <div class="material-name">STM32F407VGT6</div>
+                            <div class="material-specs">STMicroelectronics · ARM Cortex-M4, 168MHz, LQFP-100</div>
+                        </div>
+                        <div class="material-stock">库存: 2500</div>
+                    </div>
+
+                    <div class="material-item" data-id="ESP32-WROOM-32" data-brand="Espressif" data-specs="Wi-Fi & Bluetooth, Dual Core, 240MHz" data-stock="1800">
+                        <input type="checkbox" class="material-checkbox">
+                        <div class="material-info">
+                            <div class="material-name">ESP32-WROOM-32</div>
+                            <div class="material-specs">Espressif · Wi-Fi & Bluetooth, Dual Core, 240MHz</div>
+                        </div>
+                        <div class="material-stock">库存: 1800</div>
+                    </div>
+
+                    <div class="material-item" data-id="LM358DR" data-brand="Texas Instruments" data-specs="双运放, SOIC-8" data-stock="5000">
+                        <input type="checkbox" class="material-checkbox">
+                        <div class="material-info">
+                            <div class="material-name">LM358DR</div>
+                            <div class="material-specs">Texas Instruments · 双运放, SOIC-8</div>
+                        </div>
+                        <div class="material-stock">库存: 5000</div>
+                    </div>
+
+                    <div class="material-item" data-id="AMS1117-3.3" data-brand="稳压器" data-specs="3.3V 1A LDO, SOT-223" data-stock="3200">
+                        <input type="checkbox" class="material-checkbox">
+                        <div class="material-info">
+                            <div class="material-name">AMS1117-3.3</div>
+                            <div class="material-specs">稳压器 · 3.3V 1A LDO, SOT-223</div>
+                        </div>
+                        <div class="material-stock">库存: 3200</div>
+                    </div>
+
+                    <div class="material-item" data-id="SS8050" data-brand="NPN三极管" data-specs="25V 1.5A, SOT-23" data-stock="8000">
+                        <input type="checkbox" class="material-checkbox">
+                        <div class="material-info">
+                            <div class="material-name">SS8050</div>
+                            <div class="material-specs">NPN三极管 · 25V 1.5A, SOT-23</div>
+                        </div>
+                        <div class="material-stock">库存: 8000</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; padding: 12px; background: #fef3c7; border-radius: 8px;">
+                    <strong>💡 提示：</strong>没有找到需要的物料？可以切换到"云端元器件库"搜索或"手动创建"。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeMaterialSelector()">取消</button>
+                <button class="btn-primary" onclick="confirmMaterialSelection()">确认选择 (<span id="selectedCount">0</span>)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 云端元器件库搜索Modal -->
+    <div class="modal-overlay" id="cloudSearchModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🌐 云端元器件库搜索</h3>
+                <button class="modal-close" onclick="closeCloudSearch()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="cloudSearchInput" placeholder="🔍 搜索元器件型号...">
+                    <button class="btn-search" onclick="searchCloud()">搜索</button>
+                </div>
+
+                <div id="cloudSearchResults" style="text-align: center; padding: 40px; color: #999;">
+                    输入型号开始搜索...
+                </div>
+
+                <div style="margin-top: 16px; padding: 12px; background: #e3f2fd; border-radius: 8px;">
+                    <strong>💡 提示：</strong>搜索到的元器件将自动添加到您的物料库，并可直接发布到供货平台。
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeCloudSearch()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量
+        let selectedMaterials = []; // 存储完整的物料对象
+        let currentSource = 'materials';
+
+        // 页面加载时设置事件监听
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为所有物料项添加点击事件
+            setupMaterialItemListeners();
+        });
+
+        // 设置物料项的事件监听
+        function setupMaterialItemListeners() {
+            const materialItems = document.querySelectorAll('.material-item');
+            materialItems.forEach(item => {
+                // 整个item可点击
+                item.addEventListener('click', function(e) {
+                    // 如果点击的是checkbox本身，不需要再次切换
+                    if (e.target.classList.contains('material-checkbox')) {
+                        return;
+                    }
+                    toggleMaterialSelection(this);
+                });
+
+                // checkbox也可以独立点击
+                const checkbox = item.querySelector('.material-checkbox');
+                checkbox.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleMaterialSelection(item);
+                });
+            });
+        }
+
+        // 切换产品来源
+        function selectSource(source) {
+            currentSource = source;
+
+            // 更新选项样式
+            document.querySelectorAll('.source-option').forEach(option => {
+                option.classList.remove('active');
+            });
+            event.target.closest('.source-option').classList.add('active');
+
+            // 切换显示的界面
+            document.getElementById('materialsSourceView').style.display = 'none';
+            document.getElementById('manualSourceView').style.display = 'none';
+
+            if (source === 'materials') {
+                document.getElementById('materialsSourceView').style.display = 'block';
+            } else if (source === 'cloud') {
+                // 直接打开云端搜索modal
+                openCloudSearch();
+            } else if (source === 'manual') {
+                document.getElementById('manualSourceView').style.display = 'block';
+            }
+        }
+
+        // 打开物料选择器
+        function openMaterialSelector() {
+            document.getElementById('materialSelectorModal').classList.add('active');
+        }
+
+        // 关闭物料选择器
+        function closeMaterialSelector() {
+            document.getElementById('materialSelectorModal').classList.remove('active');
+        }
+
+        // 切换物料选择
+        function toggleMaterialSelection(element) {
+            const checkbox = element.querySelector('.material-checkbox');
+            const materialId = element.dataset.id;
+            const materialBrand = element.dataset.brand;
+            const materialSpecs = element.dataset.specs;
+            const materialStock = element.dataset.stock;
+
+            // 切换checkbox状态
+            checkbox.checked = !checkbox.checked;
+
+            // 更新样式
+            if (checkbox.checked) {
+                element.classList.add('selected');
+                // 添加到选中列表
+                if (!selectedMaterials.find(m => m.id === materialId)) {
+                    selectedMaterials.push({
+                        id: materialId,
+                        brand: materialBrand,
+                        specs: materialSpecs,
+                        stock: materialStock
+                    });
+                }
+            } else {
+                element.classList.remove('selected');
+                // 从选中列表移除
+                selectedMaterials = selectedMaterials.filter(m => m.id !== materialId);
+            }
+
+            // 更新选中数量显示
+            document.getElementById('selectedCount').textContent = selectedMaterials.length;
+        }
+
+        // 确认物料选择
+        function confirmMaterialSelection() {
+            if (selectedMaterials.length === 0) {
+                alert('请至少选择一个物料');
+                return;
+            }
+
+            // 更新已选择物料列表显示
+            updateSelectedMaterialsDisplay();
+
+            // 生成每个物料的价格表单
+            generatePriceForms();
+
+            // 显示价格表单区域
+            document.getElementById('priceFormSection').style.display = 'block';
+
+            // 关闭modal
+            closeMaterialSelector();
+        }
+
+        // 更新已选择物料的显示
+        function updateSelectedMaterialsDisplay() {
+            const container = document.getElementById('selectedMaterialsList');
+            const countDisplay = document.getElementById('materialCountDisplay');
+
+            countDisplay.textContent = selectedMaterials.length;
+
+            if (selectedMaterials.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 40px; background: #f9f9f9; border-radius: 8px;">还未选择物料，点击下方按钮从物料库中选择</p>';
+                return;
+            }
+
+            let html = '<div style="background: #f9f9f9; border-radius: 8px; padding: 16px;">';
+            selectedMaterials.forEach((material, index) => {
+                html += `
+                    <div class="selected-item">
+                        <div>
+                            <strong>${material.id}</strong>
+                            <span style="color: #666; margin-left: 12px; font-size: 13px;">${material.brand} · ${material.specs}</span>
+                        </div>
+                        <button class="btn-remove-small" onclick="removeMaterial(${index})">移除</button>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // 生成每个物料的价格表单
+        function generatePriceForms() {
+            const container = document.getElementById('materialPriceCardsContainer');
+            let html = '';
+
+            selectedMaterials.forEach((material, index) => {
+                html += `
+                    <div class="material-price-card" id="priceCard-${index}">
+                        <div class="material-card-header">
+                            <div>
+                                <div class="material-card-title">${material.id}</div>
+                                <div class="material-card-specs">${material.brand} · ${material.specs} · 库存: ${material.stock}</div>
+                            </div>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <button class="btn-collapse" onclick="togglePriceForm(${index})">
+                                    <span id="collapseIcon-${index}">收起 ▲</span>
+                                </button>
+                                <button class="btn-remove-small" onclick="removeMaterialFromForm(${index})">移除</button>
+                            </div>
+                        </div>
+                        <div class="price-form-content" id="priceFormContent-${index}">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        基础单价 (元) <span class="required">*</span>
+                                    </label>
+                                    <input type="number" class="form-input" id="basePrice-${index}" placeholder="例如: 28.50" step="0.01" required>
+                                    <div class="form-hint">适用于小批量采购的基础价格</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        最小起订量
+                                    </label>
+                                    <input type="number" class="form-input" id="minOrder-${index}" placeholder="例如: 10" min="1" value="1">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        交期承诺 (天) <span class="required">*</span>
+                                    </label>
+                                    <input type="number" class="form-input" id="deliveryDays-${index}" placeholder="例如: 3" min="1" required>
+                                    <div class="form-hint">承诺发货时间，增强采购方信任</div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        质保期限
+                                    </label>
+                                    <select class="form-select" id="warranty-${index}">
+                                        <option value="">无质保</option>
+                                        <option value="30">30天</option>
+                                        <option value="90">90天</option>
+                                        <option value="180">180天</option>
+                                        <option value="365">1年</option>
+                                        <option value="730">2年</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    产品状态 <span class="required">*</span>
+                                </label>
+                                <select class="form-select" id="productStatus-${index}" required>
+                                    <option value="new">全新原装</option>
+                                    <option value="original">原装现货</option>
+                                    <option value="alternative">替代料</option>
+                                    <option value="refurbished">翻新件</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    阶梯价格设置（可选）
+                                </label>
+                                <div class="price-tier-list" id="priceTierList-${index}">
+                                    <div class="price-tier-item">
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" placeholder="起始数量 (例如: 100)" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" placeholder="单价 (例如: 26.50)" step="0.01" min="0">
+                                        </div>
+                                        <button type="button" class="btn-remove" onclick="removePriceTierFromMaterial(this, ${index})">删除</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-add-tier" onclick="addPriceTierToMaterial(${index})">+ 添加阶梯价格</button>
+                                <div class="form-hint">数量越多，价格越优惠，提高大批量订单的竞争力</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 收起/展开价格表单
+        function togglePriceForm(index) {
+            const content = document.getElementById(`priceFormContent-${index}`);
+            const icon = document.getElementById(`collapseIcon-${index}`);
+
+            if (content.classList.contains('collapsed')) {
+                content.classList.remove('collapsed');
+                icon.textContent = '收起 ▲';
+            } else {
+                content.classList.add('collapsed');
+                icon.textContent = '展开 ▼';
+            }
+        }
+
+        // 从价格表单中移除物料
+        function removeMaterialFromForm(index) {
+            removeMaterial(index);
+        }
+
+        // 移除物料
+        function removeMaterial(index) {
+            // 从modal中取消选中
+            const materialId = selectedMaterials[index].id;
+            const materialItems = document.querySelectorAll('.material-item');
+            materialItems.forEach(item => {
+                if (item.dataset.id === materialId) {
+                    const checkbox = item.querySelector('.material-checkbox');
+                    checkbox.checked = false;
+                    item.classList.remove('selected');
+                }
+            });
+
+            // 从数组中移除
+            selectedMaterials.splice(index, 1);
+
+            // 更新显示
+            updateSelectedMaterialsDisplay();
+            generatePriceForms();
+
+            // 如果没有物料了，隐藏价格表单
+            if (selectedMaterials.length === 0) {
+                document.getElementById('priceFormSection').style.display = 'none';
+            }
+        }
+
+        // 为特定物料添加阶梯价格
+        function addPriceTierToMaterial(index) {
+            const tierList = document.getElementById(`priceTierList-${index}`);
+            const tierItem = document.createElement('div');
+            tierItem.className = 'price-tier-item';
+            tierItem.innerHTML = `
+                <div class="form-group">
+                    <input type="number" class="form-input" placeholder="起始数量 (例如: 100)" min="1">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-input" placeholder="单价 (例如: 26.50)" step="0.01" min="0">
+                </div>
+                <button type="button" class="btn-remove" onclick="removePriceTierFromMaterial(this, ${index})">删除</button>
+            `;
+            tierList.appendChild(tierItem);
+        }
+
+        // 从特定物料移除阶梯价格
+        function removePriceTierFromMaterial(btn, index) {
+            btn.parentElement.remove();
+        }
+
+        // 搜索物料
+        function searchMaterials() {
+            const searchTerm = document.getElementById('materialSearchInput').value.toLowerCase().trim();
+            const materialItems = document.querySelectorAll('.material-item');
+
+            if (!searchTerm) {
+                // 如果搜索为空，显示所有物料
+                materialItems.forEach(item => {
+                    item.classList.remove('hidden');
+                });
+                return;
+            }
+
+            // 过滤物料
+            materialItems.forEach(item => {
+                const id = item.dataset.id.toLowerCase();
+                const brand = item.dataset.brand.toLowerCase();
+                const specs = item.dataset.specs.toLowerCase();
+
+                // 在型号、品牌或规格中搜索
+                if (id.includes(searchTerm) || brand.includes(searchTerm) || specs.includes(searchTerm)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        }
+
+        // 支持回车键搜索
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('materialSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        searchMaterials();
+                    }
+                });
+            }
+        });
+
+        // 打开云端搜索
+        function openCloudSearch() {
+            document.getElementById('cloudSearchModal').classList.add('active');
+        }
+
+        // 关闭云端搜索
+        function closeCloudSearch() {
+            document.getElementById('cloudSearchModal').classList.remove('active');
+            // 如果从云端搜索来的，切换回物料库
+            selectSourceByName('materials');
+        }
+
+        // 通过名称切换来源
+        function selectSourceByName(source) {
+            document.querySelectorAll('.source-option').forEach(option => {
+                option.classList.remove('active');
+                const title = option.querySelector('.source-title').textContent;
+                if ((source === 'materials' && title.includes('物料库')) ||
+                    (source === 'cloud' && title.includes('云端')) ||
+                    (source === 'manual' && title.includes('手动'))) {
+                    option.classList.add('active');
+                }
+            });
+
+            document.getElementById('materialsSourceView').style.display = source === 'materials' ? 'block' : 'none';
+            document.getElementById('manualSourceView').style.display = source === 'manual' ? 'block' : 'none';
+        }
+
+        // 云端搜索
+        function searchCloud() {
+            const searchTerm = document.getElementById('cloudSearchInput').value;
+            if (!searchTerm) {
+                alert('请输入搜索关键词');
+                return;
+            }
+
+            // 模拟搜索
+            const results = document.getElementById('cloudSearchResults');
+            results.innerHTML = `
+                <div style="text-align: left;">
+                    <p style="margin-bottom: 16px; color: #666;">搜索到 <strong>${searchTerm}</strong> 的相关结果：</p>
+                    <div class="material-item" onclick="selectCloudComponent('${searchTerm}')">
+                        <div class="material-info">
+                            <div class="material-name">${searchTerm}</div>
+                            <div class="material-specs">来自云端元器件库 · 点击导入到物料库并发布</div>
+                        </div>
+                        <button class="btn-primary" style="width: auto; padding: 10px 20px;">导入</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 选择云端元器件
+        function selectCloudComponent(partNumber) {
+            alert(`正在导入 ${partNumber} 到物料库...`);
+            // 这里应该调用API导入元器件到物料库
+            // 然后切换到物料库视图
+            closeCloudSearch();
+            alert('导入成功！请在物料库中选择该元器件并补充价格信息。');
+        }
+
+        // 批量发布产品
+        function publishProducts() {
+            if (selectedMaterials.length === 0) {
+                alert('请先选择要发布的产品');
+                return;
+            }
+
+            // 验证每个物料的必填信息
+            let allValid = true;
+            let missingFields = [];
+
+            selectedMaterials.forEach((material, index) => {
+                const basePrice = document.getElementById(`basePrice-${index}`).value;
+                const deliveryDays = document.getElementById(`deliveryDays-${index}`).value;
+
+                if (!basePrice || !deliveryDays) {
+                    allValid = false;
+                    missingFields.push(`${material.id}`);
+                }
+            });
+
+            if (!allValid) {
+                alert(`以下物料还未填写完整的价格信息：\n\n${missingFields.join('\n')}\n\n请补充必填字段后再发布。`);
+                return;
+            }
+
+            // 收集所有数据（实际应用中应该提交到后端）
+            const productsData = selectedMaterials.map((material, index) => {
+                return {
+                    materialId: material.id,
+                    brand: material.brand,
+                    specs: material.specs,
+                    stock: material.stock,
+                    basePrice: document.getElementById(`basePrice-${index}`).value,
+                    minOrder: document.getElementById(`minOrder-${index}`).value,
+                    deliveryDays: document.getElementById(`deliveryDays-${index}`).value,
+                    warranty: document.getElementById(`warranty-${index}`).value,
+                    productStatus: document.getElementById(`productStatus-${index}`).value
+                };
+            });
+
+            console.log('发布的产品数据：', productsData);
+
+            alert(`成功发布 ${selectedMaterials.length} 个产品到供货平台！\n\n✓ 产品已添加到物料管理清单\n✓ 系统将自动匹配推送给潜在采购方`);
+
+            setTimeout(() => {
+                location.href = 'component-supply.html?view=supplier';
+            }, 1000);
+        }
+
+        // 添加阶梯价格
+        function addPriceTier() {
+            const tierList = document.getElementById('priceTierList');
+            const tierItem = document.createElement('div');
+            tierItem.className = 'price-tier-item';
+            tierItem.innerHTML = `
+                <div class="form-group">
+                    <input type="number" class="form-input" placeholder="起始数量 (例如: 100)" min="1">
+                </div>
+                <div class="form-group">
+                    <input type="number" class="form-input" placeholder="单价 (例如: 26.50)" step="0.01" min="0">
+                <button type="button" class="btn-remove" onclick="removePriceTier(this)">删除</button>
+            `;
+            tierList.appendChild(tierItem);
+        }
+
+        // 删除阶梯价格
+        function removePriceTier(btn) {
+            btn.parentElement.remove();
+        }
+
+        // 处理图片上传
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            const previewList = document.getElementById('imagePreviewList');
+
+            // 限制最多5张
+            const currentImages = previewList.children.length;
+            const maxImages = 5;
+            const canAdd = maxImages - currentImages;
+
+            if (canAdd <= 0) {
+                alert('最多只能上传5张图片');
+                return;
+            }
+
+            for (let i = 0; i < Math.min(files.length, canAdd); i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'image-preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="产品图片">
+                        <button type="button" class="image-remove-btn" onclick="removeImage(this)">×</button>
+                    `;
+                    previewList.appendChild(previewItem);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 删除图片
+        function removeImage(btn) {
+            btn.parentElement.remove();
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            alert('产品已保存为草稿！');
+        }
+
+        // 表单提交
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 这里应该收集表单数据并提交到后端
+            const formData = {
+                model: this.querySelector('input[placeholder*="物料型号"]').value,
+                brand: this.querySelector('input[placeholder*="品牌"]').value,
+                // ... 其他字段
+            };
+
+            // 模拟提交
+            alert('产品发布成功！系统将自动匹配推送给潜在采购方。');
+
+            // 跳转回列表页面
+            setTimeout(() => {
+                location.href = 'component-supply.html';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>发布外包项目 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 36px;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-4px);
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #00d2ff;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: #f44336;
+            margin-left: 4px;
+        }
+
+        .form-label .hint {
+            font-weight: 400;
+            color: #999;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 3px rgba(0,210,255,0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            min-height: 48px;
+            cursor: text;
+            transition: all 0.3s;
+        }
+
+        .tag-input-container:focus-within {
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 3px rgba(0,210,255,0.1);
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .tag-remove {
+            cursor: pointer;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        .tag-remove:hover {
+            opacity: 1;
+        }
+
+        .tag-input {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 120px;
+            font-size: 14px;
+        }
+
+        .type-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .type-option {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .type-option:hover {
+            border-color: #00d2ff;
+        }
+
+        .type-option.selected {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, rgba(0,210,255,0.1) 0%, rgba(58,71,213,0.1) 100%);
+        }
+
+        .type-option input {
+            display: none;
+        }
+
+        .type-label {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .type-text {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,210,255,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,210,255,0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #00d2ff;
+            border: 2px solid #00d2ff;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f9ff;
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .preview-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #fff 100%);
+            border: 2px dashed #00d2ff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 12px;
+        }
+
+        .preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00d2ff;
+            margin-bottom: 12px;
+        }
+
+        .preview-content {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .budget-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .budget-option {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .budget-option:hover {
+            border-color: #00d2ff;
+        }
+
+        .budget-option.selected {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, rgba(0,210,255,0.1) 0%, rgba(58,71,213,0.1) 100%);
+        }
+
+        .budget-option input {
+            display: none;
+        }
+
+        .budget-label {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #00d2ff;
+        }
+
+        .budget-text {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .platform-selector {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .platform-option {
+            padding: 12px 24px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .platform-option:hover {
+            border-color: #00d2ff;
+        }
+
+        .platform-option.selected {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, rgba(0,210,255,0.1) 0%, rgba(58,71,213,0.1) 100%);
+            color: #00d2ff;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-card {
+            animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="outsourcing-hub.html" class="back-btn">
+            ← 返回服务外包中心
+        </a>
+
+        <div class="header">
+            <h1>💼 发布外包项目</h1>
+            <p>发布专业外包需求，对接优秀工程师，实现项目快速交付</p>
+        </div>
+
+        <div class="form-card">
+            <form id="publishForm">
+                <!-- 基本信息 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        🏢 企业信息
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                企业名称<span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" placeholder="请输入企业全称" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                所在城市<span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" placeholder="如：深圳 或 远程" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                行业领域<span class="required">*</span>
+                            </label>
+                            <select class="form-select" required>
+                                <option value="">请选择</option>
+                                <option value="consumer">消费电子</option>
+                                <option value="industrial">工业控制</option>
+                                <option value="automotive">汽车电子</option>
+                                <option value="medical">医疗设备</option>
+                                <option value="iot">物联网</option>
+                                <option value="semiconductor">半导体</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                联系人<span class="required">*</span>
+                            </label>
+                            <input type="text" class="form-input" placeholder="项目负责人" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目信息 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        📋 项目信息
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">
+                            项目标题<span class="required">*</span>
+                            <span class="hint">建议15-30字，简洁明了</span>
+                        </label>
+                        <input type="text" class="form-input" placeholder="如：智能传感器模块硬件设计" maxlength="50" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            项目类型<span class="required">*</span>
+                        </label>
+                        <div class="type-selector">
+                            <label class="type-option">
+                                <input type="radio" name="projectType" value="hardware" required>
+                                <div class="type-label">🔌</div>
+                                <div class="type-text">硬件设计</div>
+                            </label>
+                            <label class="type-option">
+                                <input type="radio" name="projectType" value="firmware" required>
+                                <div class="type-label">⚙️</div>
+                                <div class="type-text">固件开发</div>
+                            </label>
+                            <label class="type-option">
+                                <input type="radio" name="projectType" value="system" required>
+                                <div class="type-label">🖥️</div>
+                                <div class="type-text">系统集成</div>
+                            </label>
+                            <label class="type-option">
+                                <input type="radio" name="projectType" value="test" required>
+                                <div class="type-label">🧪</div>
+                                <div class="type-text">测试验证</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            项目背景<span class="required">*</span>
+                        </label>
+                        <textarea class="form-textarea" placeholder="请描述项目的背景、目标、应用场景等（建议200-500字）" required></textarea>
+                        <div class="help-text">💡 提示：详细的项目描述有助于吸引合适的工程师</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            核心任务<span class="required">*</span>
+                        </label>
+                        <textarea class="form-textarea" placeholder="请列出3-5个核心任务，每行一个。如：&#10;1. 完成原理图设计和PCB Layout&#10;2. 关键器件选型和BOM清单&#10;3. 生产文件输出（Gerber + 贴片坐标）&#10;4. 提供技术文档和测试报告" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            技术标签<span class="required">*</span>
+                            <span class="hint">按Enter添加，最多5个</span>
+                        </label>
+                        <div class="tag-input-container" id="tagContainer" onclick="focusTagInput()">
+                            <input type="text" class="tag-input" id="tagInput" placeholder="输入技术方向，如：STM32、传感器..." onkeydown="handleTagInput(event)">
+                        </div>
+                        <div class="help-text">常用标签：STM32、FPGA、PCB设计、传感器、Linux、Modbus、LoRa、Zigbee、蓝牙</div>
+                    </div>
+                </div>
+
+                <!-- 预算与周期 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        💰 预算与周期
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            项目预算<span class="required">*</span>
+                        </label>
+                        <div class="budget-selector">
+                            <label class="budget-option">
+                                <input type="radio" name="budget" value="low" required>
+                                <div class="budget-label">< 1万</div>
+                                <div class="budget-text">小型项目</div>
+                            </label>
+                            <label class="budget-option">
+                                <input type="radio" name="budget" value="medium" required>
+                                <div class="budget-label">1-5万</div>
+                                <div class="budget-text">中型项目</div>
+                            </label>
+                            <label class="budget-option">
+                                <input type="radio" name="budget" value="high" required>
+                                <div class="budget-label">5-10万</div>
+                                <div class="budget-text">大型项目</div>
+                            </label>
+                            <label class="budget-option">
+                                <input type="radio" name="budget" value="ultra" required>
+                                <div class="budget-label">10万+</div>
+                                <div class="budget-text">超大项目</div>
+                            </label>
+                        </div>
+                        <div class="help-text">💡 提示：合理的预算区间有助于吸引匹配的工程师</div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">
+                                项目周期<span class="required">*</span>
+                            </label>
+                            <select class="form-select" required>
+                                <option value="">请选择</option>
+                                <option value="1">1个月</option>
+                                <option value="2">2个月</option>
+                                <option value="3">3个月</option>
+                                <option value="4">4个月</option>
+                                <option value="6">6个月</option>
+                                <option value="12">12个月</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                工作方式<span class="required">*</span>
+                            </label>
+                            <select class="form-select" required>
+                                <option value="">请选择</option>
+                                <option value="remote">远程</option>
+                                <option value="hybrid">混合（远程+到岗）</option>
+                                <option value="onsite">现场</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            里程碑设置<span class="hint">建议设置2-4个付款节点</span>
+                        </label>
+                        <div class="preview-card">
+                            <div class="preview-title">示例里程碑</div>
+                            <div class="preview-content">
+                                • 里程碑1（30%）：完成方案设计和关键器件选型<br>
+                                • 里程碑2（30%）：完成PCB设计和样品制作<br>
+                                • 里程碑3（30%）：通过测试验证<br>
+                                • 最终交付（10%）：提交完整技术文档和生产文件
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 技能要求 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        🎯 技能要求
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            必备技能<span class="required">*</span>
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="skills" value="pcb">
+                                <span>PCB设计</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="skills" value="embedded">
+                                <span>嵌入式开发</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="skills" value="c">
+                                <span>C/C++</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="skills" value="fpga">
+                                <span>FPGA</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="skills" value="circuit">
+                                <span>电路分析</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="skills" value="signal">
+                                <span>信号完整性</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="skills" value="rtos">
+                                <span>RTOS</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="skills" value="communication">
+                                <span>通信协议</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            工具要求<span class="hint">选填</span>
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tools" value="altium">
+                                <span>Altium Designer</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tools" value="kicad">
+                                <span>KiCad</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tools" value="pads">
+                                <span>PADS</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tools" value="cadence">
+                                <span>Cadence</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tools" value="iar">
+                                <span>IAR/Keil</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="tools" value="git">
+                                <span>Git版本管理</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            经验要求<span class="required">*</span>
+                        </label>
+                        <select class="form-select" required>
+                            <option value="">请选择</option>
+                            <option value="1-3">1-3年</option>
+                            <option value="3-5">3-5年</option>
+                            <option value="5+">5年以上</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- 交付要求 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        📦 交付要求
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            交付物清单<span class="required">*</span>
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="deliverables" value="schematic">
+                                <span>原理图</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="deliverables" value="pcb">
+                                <span>PCB文件</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="deliverables" value="gerber">
+                                <span>Gerber文件</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="deliverables" value="bom">
+                                <span>BOM清单</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="deliverables" value="code">
+                                <span>源代码</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="deliverables" value="docs">
+                                <span>技术文档</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="deliverables" value="test">
+                                <span>测试报告</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="deliverables" value="prototype">
+                                <span>样品/原型</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            质量标准<span class="hint">选填</span>
+                        </label>
+                        <textarea class="form-textarea" placeholder="请描述对项目质量的具体要求，如：符合DFM规范、通过EMC测试、满足工业级温度范围等" style="min-height: 80px;"></textarea>
+                    </div>
+                </div>
+
+                <!-- 平台选择 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        🌐 发布平台
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            选择合作平台<span class="required">*</span>
+                            <span class="hint">可多选</span>
+                        </label>
+                        <div class="platform-selector">
+                            <label class="platform-option">
+                                <input type="checkbox" name="platform" value="ezplm">
+                                <span>🎯 EZPLM平台</span>
+                            </label>
+                            <label class="platform-option">
+                                <input type="checkbox" name="platform" value="seeed">
+                                <span>🌱 Seeed Studio</span>
+                            </label>
+                            <label class="platform-option">
+                                <input type="checkbox" name="platform" value="dianzisenlin">
+                                <span>🌲 电子森林</span>
+                            </label>
+                            <label class="platform-option">
+                                <input type="checkbox" name="platform" value="moore">
+                                <span>📱 摩尔精英</span>
+                            </label>
+                        </div>
+                        <div class="help-text">💡 多平台发布可获得更多优质工程师响应</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            平台监管选项
+                        </label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="supervision" value="milestone">
+                                <span>里程碑审核</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="supervision" value="escrow">
+                                <span>资金托管</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="supervision" value="quality">
+                                <span>质量检验</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="supervision" value="arbitration">
+                                <span>争议仲裁</span>
+                            </label>
+                        </div>
+                        <div class="help-text">💡 平台监管服务确保项目顺利交付和资金安全</div>
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="saveDraft()">💾 保存草稿</button>
+                    <button type="submit" class="btn btn-primary">🚀 发布项目</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 标签输入处理
+        const tags = [];
+
+        function handleTagInput(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                const input = event.target;
+                const value = input.value.trim();
+
+                if (value && tags.length < 5 && !tags.includes(value)) {
+                    tags.push(value);
+                    renderTags();
+                    input.value = '';
+                }
+            }
+        }
+
+        function renderTags() {
+            const container = document.getElementById('tagContainer');
+            const input = document.getElementById('tagInput');
+
+            container.innerHTML = '';
+            tags.forEach((tag, index) => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag';
+                tagElement.innerHTML = `
+                    ${tag}
+                    <span class="tag-remove" onclick="removeTag(${index})">×</span>
+                `;
+                container.appendChild(tagElement);
+            });
+            container.appendChild(input);
+        }
+
+        function removeTag(index) {
+            tags.splice(index, 1);
+            renderTags();
+        }
+
+        function focusTagInput() {
+            document.getElementById('tagInput').focus();
+        }
+
+        // 项目类型选择
+        document.querySelectorAll('.type-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.type-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+
+        // 预算选择
+        document.querySelectorAll('.budget-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.budget-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+
+        // 平台选择
+        document.querySelectorAll('.platform-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const checkbox = this.querySelector('input[type="checkbox"]');
+                checkbox.checked = !checkbox.checked;
+                this.classList.toggle('selected', checkbox.checked);
+            });
+        });
+
+        // 保存草稿
+        function saveDraft() {
+            const formData = new FormData(document.getElementById('publishForm'));
+            const data = Object.fromEntries(formData);
+            data.tags = tags;
+            localStorage.setItem('outsourcing_publish_draft', JSON.stringify(data));
+
+            const btn = event.currentTarget;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ 已保存';
+            btn.style.background = '#4caf50';
+            btn.style.color = 'white';
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 2000);
+        }
+
+        // 表单提交
+        document.getElementById('publishForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (tags.length === 0) {
+                const tagContainer = document.getElementById('tagContainer');
+                tagContainer.style.borderColor = '#f44336';
+                tagContainer.style.boxShadow = '0 0 0 3px rgba(244, 67, 54, 0.1)';
+
+                setTimeout(() => {
+                    tagContainer.style.borderColor = '';
+                    tagContainer.style.boxShadow = '';
+                }, 2000);
+
+                return;
+            }
+
+            // 检查至少选择一个平台
+            const platforms = document.querySelectorAll('input[name="platform"]:checked');
+            if (platforms.length === 0) {
+                alert('请至少选择一个发布平台');
+                return;
+            }
+
+            const formData = new FormData(this);
+            console.log('提交数据:', Object.fromEntries(formData));
+            console.log('标签:', tags);
+
+            // 创建成功提示
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+            overlay.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 40px; text-align: center; max-width: 400px; animation: bounceIn 0.5s;">
+                    <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #333; margin-bottom: 12px;">项目发布成功！</div>
+                    <div style="font-size: 14px; color: #666; line-height: 1.6;">
+                        系统将对项目进行审核（约4小时）<br>
+                        审核通过后将在所选平台上线<br>
+                        您将收到工程师的报价方案<br><br>
+                        正在返回主页...
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            // 清除草稿
+            localStorage.removeItem('outsourcing_publish_draft');
+
+            // 返回主页
+            setTimeout(() => {
+                window.location.href = 'outsourcing-hub.html';
+            }, 2500);
+        });
+    </script>
+</body>
+</html>

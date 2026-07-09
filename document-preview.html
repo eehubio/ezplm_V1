@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档预览 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+            overflow: hidden;
+        }
+
+        /* 顶部工具栏 */
+        .toolbar {
+            background: white;
+            height: 70px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        .back-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        .doc-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .doc-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .doc-meta-text {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toolbar-btn {
+            padding: 10px 18px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toolbar-btn.primary {
+            background: #00890b;
+            color: white;
+        }
+        .toolbar-btn.primary:hover {
+            background: #007309;
+        }
+        .toolbar-btn.secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+        .toolbar-btn.secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 预览区域 */
+        .preview-container {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            background: #2c2c2c;
+        }
+
+        /* 主预览区 */
+        .preview-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .preview-content {
+            width: 100%;
+            max-width: 1200px;
+            height: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            overflow: auto;
+        }
+
+        /* PDF预览 */
+        .pdf-viewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* 图片预览 */
+        .image-viewer {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            background: #2c2c2c;
+        }
+        .image-viewer img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        /* 文档预览（Word/Excel） */
+        .document-viewer {
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            overflow: auto;
+        }
+
+        .document-content {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 60px;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .document-content h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
+            border-bottom: 3px solid #00890b;
+            padding-bottom: 12px;
+        }
+
+        .document-content h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 32px 0 16px;
+            color: #3d4647;
+        }
+
+        .document-content h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 24px 0 12px;
+            color: #3d4647;
+        }
+
+        .document-content p {
+            margin-bottom: 16px;
+            color: #3d4647;
+        }
+
+        .document-content ul,
+        .document-content ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        .document-content li {
+            margin-bottom: 8px;
+        }
+
+        .document-content table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        .document-content table th,
+        .document-content table td {
+            border: 1px solid #e0e0e0;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .document-content table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+
+        /* Excel预览 */
+        .excel-viewer {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            overflow: auto;
+            background: white;
+        }
+
+        .excel-sheet-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 16px 16px 0 16px;
+            border-bottom: 2px solid #e0e0e0;
+            background: #f8f9fa;
+        }
+
+        .sheet-tab {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-bottom: none;
+            border-radius: 8px 8px 0 0;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .sheet-tab.active {
+            background: white;
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        .excel-content {
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .excel-table {
+            border-collapse: collapse;
+            font-size: 13px;
+            background: white;
+        }
+
+        .excel-table th {
+            background: #f0f0f0;
+            font-weight: 600;
+            padding: 10px 16px;
+            border: 1px solid #d0d0d0;
+            text-align: center;
+            min-width: 80px;
+        }
+
+        .excel-table td {
+            padding: 10px 16px;
+            border: 1px solid #d0d0d0;
+            min-width: 120px;
+        }
+
+        /* 压缩包预览 */
+        .archive-viewer {
+            width: 100%;
+            height: 100%;
+            padding: 40px;
+            overflow: auto;
+        }
+
+        .archive-list {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .archive-header {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .archive-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s;
+        }
+
+        .archive-item:hover {
+            background: #f8f9fa;
+        }
+
+        .archive-icon {
+            font-size: 32px;
+        }
+
+        .archive-item-info {
+            flex: 1;
+        }
+
+        .archive-item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .archive-item-meta {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 侧边栏 */
+        .sidebar-right {
+            width: 320px;
+            background: white;
+            border-left: 1px solid #e0e0e0;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .sidebar-section {
+            padding: 24px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sidebar-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #3d4647;
+            font-weight: 600;
+        }
+
+        .version-item {
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .version-item:hover {
+            background: #e8f5e9;
+        }
+
+        .version-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            border: 2px solid #00890b;
+        }
+
+        .version-number {
+            font-weight: 700;
+            color: #00890b;
+            margin-bottom: 4px;
+        }
+
+        .version-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 控制按钮 */
+        .zoom-controls {
+            display: flex;
+            gap: 8px;
+            padding: 16px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 8px;
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .zoom-btn:hover {
+            background: #00890b;
+            color: white;
+        }
+
+        .zoom-level {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 16px;
+            color: white;
+            font-weight: 600;
+            min-width: 60px;
+        }
+
+        /* 不支持预览 */
+        .no-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            gap: 24px;
+        }
+
+        .no-preview-icon {
+            font-size: 80px;
+        }
+
+        .no-preview-text {
+            font-size: 18px;
+            color: #666;
+        }
+
+        .no-preview-btn {
+            padding: 12px 32px;
+            background: #00890b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .no-preview-btn:hover {
+            background: #007309;
+        }
+
+        /* 分享弹窗 */
+        .share-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .share-modal.active {
+            display: flex;
+        }
+
+        .share-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .share-modal-header {
+            padding: 24px 24px 16px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .share-modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .share-modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+
+        .share-modal-close:hover {
+            background: #f0f0f0;
+            color: #3d4647;
+        }
+
+        .share-modal-body {
+            padding: 24px;
+        }
+
+        .share-section {
+            margin-bottom: 32px;
+        }
+
+        .share-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .share-section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .share-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #f8f9fa;
+        }
+
+        .share-option:hover {
+            background: #e8f5e9;
+            transform: translateY(-2px);
+        }
+
+        .share-option-icon {
+            font-size: 32px;
+        }
+
+        .share-option-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+
+        .share-link-box {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .share-link-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #f8f9fa;
+            color: #3d4647;
+        }
+
+        .share-link-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+
+        .share-copy-btn {
+            padding: 12px 24px;
+            background: #00890b;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .share-copy-btn:hover {
+            background: #007309;
+        }
+
+        .share-copy-btn.copied {
+            background: #4caf50;
+        }
+
+        .permission-selector {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .permission-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .permission-option:hover {
+            border-color: #00890b;
+            background: #f8fff9;
+        }
+
+        .permission-option.selected {
+            border-color: #00890b;
+            background: rgba(0, 137, 11, 0.05);
+        }
+
+        .permission-option input[type="radio"] {
+            margin-top: 2px;
+            cursor: pointer;
+        }
+
+        .permission-info {
+            flex: 1;
+        }
+
+        .permission-title {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+
+        .permission-desc {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .share-team-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .team-member-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .team-member-item:hover {
+            background: #f8f9fa;
+        }
+
+        .team-member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .team-member-info {
+            flex: 1;
+        }
+
+        .team-member-name {
+            font-weight: 600;
+            color: #1a1a1a;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .team-member-role {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .team-member-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .qr-code-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-top: 12px;
+        }
+
+        .qr-code-box {
+            width: 200px;
+            height: 200px;
+            background: white;
+            border: 4px solid #e0e0e0;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+        }
+
+        .qr-code-hint {
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+
+        .share-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .share-stat-item {
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .share-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00890b;
+            margin-bottom: 4px;
+        }
+
+        .share-stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .expiry-selector {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .expiry-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .expiry-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        .expiry-btn.active {
+            border-color: #00890b;
+            background: #00890b;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部工具栏 -->
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <button class="back-btn" onclick="goBack()">
+                <span>←</span>
+                <span>返回</span>
+            </button>
+            <div class="doc-info">
+                <div class="doc-name" id="docName">加载中...</div>
+                <div class="doc-meta-text" id="docMeta">加载中...</div>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="toolbar-btn secondary" onclick="shareDocument()">
+                <span>🔗</span>
+                <span>分享</span>
+            </button>
+            <button class="toolbar-btn secondary" onclick="printDocument()">
+                <span>🖨️</span>
+                <span>打印</span>
+            </button>
+            <button class="toolbar-btn primary" onclick="downloadDocument()">
+                <span>📥</span>
+                <span>下载</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 预览区域 -->
+    <div class="preview-container">
+        <!-- 主预览区 -->
+        <div class="preview-main">
+            <div class="preview-content" id="previewContent">
+                <!-- 动态加载预览内容 -->
+            </div>
+
+            <!-- 缩放控制（仅图片和PDF显示） -->
+            <div class="zoom-controls" id="zoomControls" style="display: none;">
+                <button class="zoom-btn" onclick="zoomOut()">−</button>
+                <div class="zoom-level" id="zoomLevel">100%</div>
+                <button class="zoom-btn" onclick="zoomIn()">+</button>
+                <button class="zoom-btn" onclick="resetZoom()" title="重置">⟲</button>
+            </div>
+        </div>
+
+        <!-- 右侧边栏 -->
+        <div class="sidebar-right">
+            <!-- 文档信息 -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">📋 文档信息</div>
+                <div class="info-item">
+                    <span class="info-label">文件类型</span>
+                    <span class="info-value" id="fileType">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">文件大小</span>
+                    <span class="info-value" id="fileSize">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">所属项目</span>
+                    <span class="info-value" id="projectName">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">文档分类</span>
+                    <span class="info-value" id="categoryName">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">上传人</span>
+                    <span class="info-value" id="uploader">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">上传时间</span>
+                    <span class="info-value" id="uploadTime">-</span>
+                </div>
+            </div>
+
+            <!-- 版本历史 -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">📚 版本历史</div>
+                <div class="version-item active">
+                    <div class="version-number">V2.0（当前）</div>
+                    <div class="version-time">2024-01-20 14:30</div>
+                </div>
+                <div class="version-item" onclick="viewVersion('v1.5')">
+                    <div class="version-number">V1.5</div>
+                    <div class="version-time">2024-01-15 10:20</div>
+                </div>
+                <div class="version-item" onclick="viewVersion('v1.0')">
+                    <div class="version-number">V1.0</div>
+                    <div class="version-time">2024-01-10 09:00</div>
+                </div>
+            </div>
+
+            <!-- 访问记录 -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">👁️ 最近访问</div>
+                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                    <div style="margin-bottom: 8px;">
+                        <strong>张三</strong> 查看了文档<br>
+                        <span style="color: #999;">2小时前</span>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <strong>李四</strong> 下载了文档<br>
+                        <span style="color: #999;">5小时前</span>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <strong>王五</strong> 分享了文档<br>
+                        <span style="color: #999;">昨天 16:30</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 相关文档 -->
+            <div class="sidebar-section">
+                <div class="sidebar-title">🔗 相关文档</div>
+                <div style="font-size: 13px;">
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px; cursor: pointer;" onclick="openRelatedDoc(1)">
+                        📄 产品需求文档V2.0
+                    </div>
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; margin-bottom: 8px; cursor: pointer;" onclick="openRelatedDoc(2)">
+                        📊 测试报告V1.5
+                    </div>
+                    <div style="padding: 8px; background: #f8f9fa; border-radius: 6px; cursor: pointer;" onclick="openRelatedDoc(3)">
+                        🖼️ UI设计稿终稿
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 分享弹窗 -->
+    <div class="share-modal" id="shareModal">
+        <div class="share-modal-content">
+            <div class="share-modal-header">
+                <h3 class="share-modal-title">🔗 分享文档</h3>
+                <button class="share-modal-close" onclick="closeShareModal()">&times;</button>
+            </div>
+            <div class="share-modal-body">
+                <!-- 快速分享 -->
+                <div class="share-section">
+                    <div class="share-section-title">
+                        <span>⚡</span>
+                        <span>快速分享</span>
+                    </div>
+                    <div class="share-options">
+                        <div class="share-option" onclick="shareToWechat()">
+                            <div class="share-option-icon">💬</div>
+                            <div class="share-option-name">微信</div>
+                        </div>
+                        <div class="share-option" onclick="shareToEmail()">
+                            <div class="share-option-icon">📧</div>
+                            <div class="share-option-name">邮件</div>
+                        </div>
+                        <div class="share-option" onclick="shareToDingTalk()">
+                            <div class="share-option-icon">💼</div>
+                            <div class="share-option-name">钉钉</div>
+                        </div>
+                        <div class="share-option" onclick="shareToFeishu()">
+                            <div class="share-option-icon">🚀</div>
+                            <div class="share-option-name">飞书</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 复制链接 -->
+                <div class="share-section">
+                    <div class="share-section-title">
+                        <span>🔗</span>
+                        <span>复制分享链接</span>
+                    </div>
+                    <div class="share-link-box">
+                        <input type="text"
+                               class="share-link-input"
+                               id="shareLink"
+                               readonly
+                               value="">
+                        <button class="share-copy-btn" id="copyBtn" onclick="copyShareLink()">复制链接</button>
+                    </div>
+
+                    <!-- 链接有效期 -->
+                    <div style="margin-top: 16px;">
+                        <div style="font-size: 13px; font-weight: 600; color: #666; margin-bottom: 8px;">链接有效期</div>
+                        <div class="expiry-selector">
+                            <button class="expiry-btn" onclick="selectExpiry(1, this)">1天</button>
+                            <button class="expiry-btn active" onclick="selectExpiry(7, this)">7天</button>
+                            <button class="expiry-btn" onclick="selectExpiry(30, this)">30天</button>
+                            <button class="expiry-btn" onclick="selectExpiry(0, this)">永久</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 访问权限 -->
+                <div class="share-section">
+                    <div class="share-section-title">
+                        <span>🔒</span>
+                        <span>访问权限设置</span>
+                    </div>
+                    <div class="permission-selector">
+                        <label class="permission-option selected" onclick="selectPermission('view', this)">
+                            <input type="radio" name="sharePermission" value="view" checked>
+                            <div class="permission-info">
+                                <div class="permission-title">👁️ 仅查看</div>
+                                <div class="permission-desc">可以查看文档内容，但不能下载或编辑</div>
+                            </div>
+                        </label>
+                        <label class="permission-option" onclick="selectPermission('download', this)">
+                            <input type="radio" name="sharePermission" value="download">
+                            <div class="permission-info">
+                                <div class="permission-title">📥 查看和下载</div>
+                                <div class="permission-desc">可以查看和下载文档，但不能编辑</div>
+                            </div>
+                        </label>
+                        <label class="permission-option" onclick="selectPermission('edit', this)">
+                            <input type="radio" name="sharePermission" value="edit">
+                            <div class="permission-info">
+                                <div class="permission-title">✏️ 完全访问</div>
+                                <div class="permission-desc">可以查看、下载和编辑文档（需要登录）</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 分享给团队成员 -->
+                <div class="share-section">
+                    <div class="share-section-title">
+                        <span>👥</span>
+                        <span>分享给团队成员</span>
+                    </div>
+                    <div class="share-team-list">
+                        <div class="team-member-item">
+                            <div class="team-member-avatar">张</div>
+                            <div class="team-member-info">
+                                <div class="team-member-name">张三</div>
+                                <div class="team-member-role">硬件工程师</div>
+                            </div>
+                            <input type="checkbox" class="team-member-checkbox" onchange="toggleTeamMember(this, '张三')">
+                        </div>
+                        <div class="team-member-item">
+                            <div class="team-member-avatar" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">李</div>
+                            <div class="team-member-info">
+                                <div class="team-member-name">李四</div>
+                                <div class="team-member-role">软件工程师</div>
+                            </div>
+                            <input type="checkbox" class="team-member-checkbox" onchange="toggleTeamMember(this, '李四')">
+                        </div>
+                        <div class="team-member-item">
+                            <div class="team-member-avatar" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">王</div>
+                            <div class="team-member-info">
+                                <div class="team-member-name">王五</div>
+                                <div class="team-member-role">项目经理</div>
+                            </div>
+                            <input type="checkbox" class="team-member-checkbox" onchange="toggleTeamMember(this, '王五')">
+                        </div>
+                        <div class="team-member-item">
+                            <div class="team-member-avatar" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">赵</div>
+                            <div class="team-member-info">
+                                <div class="team-member-name">赵六</div>
+                                <div class="team-member-role">测试工程师</div>
+                            </div>
+                            <input type="checkbox" class="team-member-checkbox" onchange="toggleTeamMember(this, '赵六')">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 二维码分享 -->
+                <div class="share-section">
+                    <div class="share-section-title">
+                        <span>📱</span>
+                        <span>扫码分享</span>
+                    </div>
+                    <div class="qr-code-container">
+                        <div class="qr-code-box">📱</div>
+                        <div class="qr-code-hint">
+                            使用手机扫描二维码快速访问<br>
+                            <span style="color: #00890b; font-weight: 600;">支持微信、钉钉、企业微信</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 分享统计 -->
+                <div class="share-section">
+                    <div class="share-section-title">
+                        <span>📊</span>
+                        <span>分享统计</span>
+                    </div>
+                    <div class="share-stats">
+                        <div class="share-stat-item">
+                            <div class="share-stat-value">28</div>
+                            <div class="share-stat-label">总分享次数</div>
+                        </div>
+                        <div class="share-stat-item">
+                            <div class="share-stat-value">156</div>
+                            <div class="share-stat-label">总查看次数</div>
+                        </div>
+                        <div class="share-stat-item">
+                            <div class="share-stat-value">42</div>
+                            <div class="share-stat-label">总下载次数</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模拟文档数据
+        const documentsData = {
+            1: { name: '智能手环-硬件设计方案V2.0.pdf', project: '智能手环开发', category: '设计文档', type: 'pdf', size: '2.4 MB', uploader: '张三', uploadTime: '2024-01-15 10:30' },
+            2: { name: '主控板原理图.png', project: '智能手环开发', category: '原理图', type: 'image', size: '856 KB', uploader: '李四', uploadTime: '2024-01-16 14:20' },
+            3: { name: 'BOM清单-主控板.xlsx', project: '智能手环开发', category: 'BOM清单', type: 'excel', size: '124 KB', uploader: '张三', uploadTime: '2024-01-17 09:15' },
+            4: { name: '飞控算法技术规范.docx', project: '无人机飞控', category: '技术规范', type: 'word', size: '1.8 MB', uploader: '王五', uploadTime: '2024-01-18 11:45' },
+            5: { name: '飞控主板PCB文件.zip', project: '无人机飞控', category: 'PCB文件', type: 'zip', size: '15.2 MB', uploader: '赵六', uploadTime: '2024-01-19 16:30' },
+            6: { name: '测试报告-功能测试.pdf', project: '无人机飞控', category: '测试报告', type: 'pdf', size: '3.6 MB', uploader: '赵六', uploadTime: '2024-01-20 10:00' },
+            7: { name: '传感器选型方案.pdf', project: '物联网传感器', category: '设计文档', type: 'pdf', size: '1.2 MB', uploader: '孙七', uploadTime: '2024-01-21 13:25' },
+            8: { name: '数据采集板原理图.png', project: '物联网传感器', category: '原理图', type: 'image', size: '2.8 MB', uploader: '周八', uploadTime: '2024-01-22 15:40' },
+            9: { name: '门锁控制协议V1.0.docx', project: '智能门锁', category: '技术规范', type: 'word', size: '890 KB', uploader: '吴九', uploadTime: '2024-01-23 09:50' },
+            10: { name: '控制板BOM清单.xlsx', project: '智能门锁', category: 'BOM清单', type: 'excel', size: '156 KB', uploader: '郑十', uploadTime: '2024-01-24 14:15' },
+            11: { name: '机器人底盘设计图.pdf', project: '机器人底盘', category: '设计文档', type: 'pdf', size: '4.2 MB', uploader: '陈十一', uploadTime: '2024-01-25 11:20' },
+            12: { name: '驱动板PCB设计文件.zip', project: '机器人底盘', category: 'PCB文件', type: 'zip', size: '18.5 MB', uploader: '陈十一', uploadTime: '2024-01-26 16:45' }
+        };
+
+        let currentZoom = 100;
+        let currentDoc = null;
+
+        // 获取URL参数
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // 初始化页面
+        function initPage() {
+            const docId = getQueryParam('id');
+            if (!docId || !documentsData[docId]) {
+                alert('文档不存在！');
+                goBack();
+                return;
+            }
+
+            currentDoc = documentsData[docId];
+            loadDocumentInfo();
+            renderPreview();
+        }
+
+        // 加载文档信息
+        function loadDocumentInfo() {
+            document.getElementById('docName').textContent = currentDoc.name;
+            document.getElementById('docMeta').textContent = `${currentDoc.project} · ${currentDoc.category}`;
+
+            document.getElementById('fileType').textContent = currentDoc.type.toUpperCase();
+            document.getElementById('fileSize').textContent = currentDoc.size;
+            document.getElementById('projectName').textContent = currentDoc.project;
+            document.getElementById('categoryName').textContent = currentDoc.category;
+            document.getElementById('uploader').textContent = currentDoc.uploader;
+            document.getElementById('uploadTime').textContent = currentDoc.uploadTime;
+        }
+
+        // 渲染预览内容
+        function renderPreview() {
+            const container = document.getElementById('previewContent');
+            const zoomControls = document.getElementById('zoomControls');
+
+            switch (currentDoc.type) {
+                case 'pdf':
+                    renderPDF(container);
+                    zoomControls.style.display = 'flex';
+                    break;
+                case 'image':
+                    renderImage(container);
+                    zoomControls.style.display = 'flex';
+                    break;
+                case 'word':
+                    renderWord(container);
+                    zoomControls.style.display = 'none';
+                    break;
+                case 'excel':
+                    renderExcel(container);
+                    zoomControls.style.display = 'none';
+                    break;
+                case 'zip':
+                    renderArchive(container);
+                    zoomControls.style.display = 'none';
+                    break;
+                default:
+                    renderNoPreview(container);
+                    zoomControls.style.display = 'none';
+            }
+        }
+
+        // PDF预览
+        function renderPDF(container) {
+            container.innerHTML = `
+                <iframe class="pdf-viewer"
+                        src="https://mozilla.github.io/pdf.js/web/viewer.html"
+                        frameborder="0">
+                </iframe>
+                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #666;">
+                    <div style="font-size: 60px; margin-bottom: 16px;">📕</div>
+                    <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">PDF文档预览</div>
+                    <div style="font-size: 14px;">${currentDoc.name}</div>
+                    <div style="margin-top: 20px; font-size: 13px; color: #999;">
+                        实际项目中将加载真实PDF内容
+                    </div>
+                </div>
+            `;
+        }
+
+        // 图片预览
+        function renderImage(container) {
+            container.innerHTML = `
+                <div class="image-viewer">
+                    <img src="https://via.placeholder.com/1200x800/667eea/ffffff?text=Circuit+Board+Schematic"
+                         alt="${currentDoc.name}"
+                         id="previewImage">
+                </div>
+            `;
+        }
+
+        // Word文档预览
+        function renderWord(container) {
+            container.innerHTML = `
+                <div class="document-viewer">
+                    <div class="document-content">
+                        <h1>${currentDoc.name.replace('.docx', '')}</h1>
+
+                        <h2>1. 项目概述</h2>
+                        <p>本文档详细说明了项目的技术规范、设计方案和实施计划。项目旨在开发一款高性能、低功耗的智能硬件产品。</p>
+
+                        <h2>2. 技术架构</h2>
+                        <p>系统采用分层架构设计，主要包含以下几个层次：</p>
+                        <ul>
+                            <li><strong>硬件层</strong>：包括主控芯片、传感器模块、通信模块等</li>
+                            <li><strong>驱动层</strong>：提供底层硬件驱动和接口封装</li>
+                            <li><strong>应用层</strong>：实现业务逻辑和用户交互</li>
+                            <li><strong>云端服务</strong>：数据存储、分析和远程管理</li>
+                        </ul>
+
+                        <h2>3. 核心模块</h2>
+
+                        <h3>3.1 主控模块</h3>
+                        <p>主控芯片采用ARM Cortex-M4内核，主频168MHz，具备以下特性：</p>
+                        <ul>
+                            <li>512KB Flash存储</li>
+                            <li>128KB SRAM内存</li>
+                            <li>支持多种通信接口（SPI、I2C、UART）</li>
+                            <li>低功耗模式支持</li>
+                        </ul>
+
+                        <h3>3.2 传感器模块</h3>
+                        <p>集成多种传感器实现数据采集：</p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>传感器类型</th>
+                                    <th>型号</th>
+                                    <th>测量范围</th>
+                                    <th>精度</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>温度传感器</td>
+                                    <td>DHT22</td>
+                                    <td>-40°C ~ 80°C</td>
+                                    <td>±0.5°C</td>
+                                </tr>
+                                <tr>
+                                    <td>湿度传感器</td>
+                                    <td>DHT22</td>
+                                    <td>0 ~ 100% RH</td>
+                                    <td>±2% RH</td>
+                                </tr>
+                                <tr>
+                                    <td>加速度计</td>
+                                    <td>MPU6050</td>
+                                    <td>±2g ~ ±16g</td>
+                                    <td>0.01g</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <h2>4. 通信协议</h2>
+                        <p>系统支持多种通信方式：</p>
+                        <ol>
+                            <li><strong>WiFi通信</strong>：采用ESP8266模块，支持802.11 b/g/n协议</li>
+                            <li><strong>蓝牙通信</strong>：使用BLE 4.2，低功耗设计</li>
+                            <li><strong>LoRa通信</strong>：远距离传输，适用于物联网应用</li>
+                        </ol>
+
+                        <h2>5. 电源管理</h2>
+                        <p>采用高效的电源管理方案，确保系统稳定运行：</p>
+                        <ul>
+                            <li>输入电压：DC 5V或锂电池供电</li>
+                            <li>工作电流：正常模式≤200mA，低功耗模式≤50μA</li>
+                            <li>支持电池电量监测和充电管理</li>
+                        </ul>
+
+                        <h2>6. 开发计划</h2>
+                        <p>项目分为四个阶段实施：</p>
+                        <ol>
+                            <li><strong>需求分析阶段</strong>（1-2周）：明确功能需求和技术指标</li>
+                            <li><strong>硬件设计阶段</strong>（3-4周）：完成原理图和PCB设计</li>
+                            <li><strong>软件开发阶段</strong>（4-6周）：实现固件和应用程序</li>
+                            <li><strong>测试验证阶段</strong>（2-3周）：功能测试、性能测试和可靠性测试</li>
+                        </ol>
+
+                        <h2>7. 总结</h2>
+                        <p>本技术规范文档为项目实施提供了详细的指导。通过合理的架构设计和模块化开发，能够确保项目按时、高质量地完成。</p>
+
+                        <div style="margin-top: 60px; padding-top: 20px; border-top: 2px solid #e0e0e0; color: #999; font-size: 13px;">
+                            <p>文档版本：V2.0</p>
+                            <p>编写人：${currentDoc.uploader}</p>
+                            <p>日期：${currentDoc.uploadTime}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Excel预览
+        function renderExcel(container) {
+            container.innerHTML = `
+                <div class="excel-viewer">
+                    <div class="excel-sheet-tabs">
+                        <div class="sheet-tab active" onclick="switchSheet(1)">Sheet1 - BOM清单</div>
+                        <div class="sheet-tab" onclick="switchSheet(2)">Sheet2 - 成本分析</div>
+                        <div class="sheet-tab" onclick="switchSheet(3)">Sheet3 - 供应商信息</div>
+                    </div>
+                    <div class="excel-content">
+                        <table class="excel-table">
+                            <thead>
+                                <tr>
+                                    <th>序号</th>
+                                    <th>物料编码</th>
+                                    <th>物料名称</th>
+                                    <th>规格型号</th>
+                                    <th>封装</th>
+                                    <th>数量</th>
+                                    <th>单位</th>
+                                    <th>单价(元)</th>
+                                    <th>总价(元)</th>
+                                    <th>供应商</th>
+                                    <th>备注</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>1</td>
+                                    <td>IC-001</td>
+                                    <td>主控芯片</td>
+                                    <td>STM32F407VGT6</td>
+                                    <td>LQFP-100</td>
+                                    <td>1</td>
+                                    <td>PCS</td>
+                                    <td>45.80</td>
+                                    <td>45.80</td>
+                                    <td>ST</td>
+                                    <td>核心器件</td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>IC-002</td>
+                                    <td>电源管理芯片</td>
+                                    <td>AMS1117-3.3</td>
+                                    <td>SOT-223</td>
+                                    <td>2</td>
+                                    <td>PCS</td>
+                                    <td>1.20</td>
+                                    <td>2.40</td>
+                                    <td>AMS</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>C-001</td>
+                                    <td>电解电容</td>
+                                    <td>100uF/16V</td>
+                                    <td>0805</td>
+                                    <td>10</td>
+                                    <td>PCS</td>
+                                    <td>0.15</td>
+                                    <td>1.50</td>
+                                    <td>村田</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>C-002</td>
+                                    <td>陶瓷电容</td>
+                                    <td>10uF/25V</td>
+                                    <td>0603</td>
+                                    <td>20</td>
+                                    <td>PCS</td>
+                                    <td>0.08</td>
+                                    <td>1.60</td>
+                                    <td>三星</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>R-001</td>
+                                    <td>贴片电阻</td>
+                                    <td>10KΩ ±1%</td>
+                                    <td>0402</td>
+                                    <td>50</td>
+                                    <td>PCS</td>
+                                    <td>0.02</td>
+                                    <td>1.00</td>
+                                    <td>国巨</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>L-001</td>
+                                    <td>电感</td>
+                                    <td>10uH ±20%</td>
+                                    <td>0805</td>
+                                    <td>5</td>
+                                    <td>PCS</td>
+                                    <td>0.35</td>
+                                    <td>1.75</td>
+                                    <td>TDK</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>D-001</td>
+                                    <td>肖特基二极管</td>
+                                    <td>1N5819</td>
+                                    <td>SOD-123</td>
+                                    <td>4</td>
+                                    <td>PCS</td>
+                                    <td>0.25</td>
+                                    <td>1.00</td>
+                                    <td>ON</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>LED-001</td>
+                                    <td>发光二极管</td>
+                                    <td>红色 2mA</td>
+                                    <td>0603</td>
+                                    <td>6</td>
+                                    <td>PCS</td>
+                                    <td>0.08</td>
+                                    <td>0.48</td>
+                                    <td>亿光</td>
+                                    <td>状态指示</td>
+                                </tr>
+                                <tr>
+                                    <td>9</td>
+                                    <td>CONN-001</td>
+                                    <td>USB接口</td>
+                                    <td>Micro-USB</td>
+                                    <td>DIP</td>
+                                    <td>1</td>
+                                    <td>PCS</td>
+                                    <td>0.80</td>
+                                    <td>0.80</td>
+                                    <td>Molex</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr>
+                                    <td>10</td>
+                                    <td>SW-001</td>
+                                    <td>轻触开关</td>
+                                    <td>6x6x5mm</td>
+                                    <td>DIP</td>
+                                    <td>3</td>
+                                    <td>PCS</td>
+                                    <td>0.15</td>
+                                    <td>0.45</td>
+                                    <td>ALPS</td>
+                                    <td>-</td>
+                                </tr>
+                                <tr style="background: #fff3cd; font-weight: 700;">
+                                    <td colspan="8" style="text-align: right; padding-right: 20px;">合计：</td>
+                                    <td>56.78</td>
+                                    <td colspan="2">-</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 压缩包预览
+        function renderArchive(container) {
+            container.innerHTML = `
+                <div class="archive-viewer">
+                    <div class="archive-list">
+                        <div class="archive-header">📦 压缩包内容预览</div>
+                        <div class="archive-item">
+                            <div class="archive-icon">📄</div>
+                            <div class="archive-item-info">
+                                <div class="archive-item-name">PCB_Layout_V2.0.pcb</div>
+                                <div class="archive-item-meta">PCB设计文件 · 4.8 MB</div>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <div class="archive-icon">📄</div>
+                            <div class="archive-item-info">
+                                <div class="archive-item-name">Schematic_V2.0.sch</div>
+                                <div class="archive-item-meta">原理图文件 · 1.2 MB</div>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <div class="archive-icon">📁</div>
+                            <div class="archive-item-info">
+                                <div class="archive-item-name">Gerber/</div>
+                                <div class="archive-item-meta">文件夹 · 15个文件</div>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <div class="archive-icon">📄</div>
+                            <div class="archive-item-info">
+                                <div class="archive-item-name">BOM_List.xlsx</div>
+                                <div class="archive-item-meta">Excel表格 · 156 KB</div>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <div class="archive-icon">📄</div>
+                            <div class="archive-item-info">
+                                <div class="archive-item-name">Assembly_Drawing.pdf</div>
+                                <div class="archive-item-meta">装配图 · 2.3 MB</div>
+                            </div>
+                        </div>
+                        <div class="archive-item">
+                            <div class="archive-icon">📄</div>
+                            <div class="archive-item-info">
+                                <div class="archive-item-name">README.txt</div>
+                                <div class="archive-item-meta">说明文档 · 3 KB</div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 24px; padding: 16px; background: #f8f9fa; border-radius: 8px; text-align: center; color: #666;">
+                            <div style="margin-bottom: 12px;">压缩包包含 6 个文件，总大小 ${currentDoc.size}</div>
+                            <button class="no-preview-btn" onclick="downloadDocument()">下载查看完整内容</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 不支持预览
+        function renderNoPreview(container) {
+            container.innerHTML = `
+                <div class="no-preview">
+                    <div class="no-preview-icon">📄</div>
+                    <div class="no-preview-text">此文件类型暂不支持在线预览</div>
+                    <div style="color: #999; font-size: 14px;">${currentDoc.name}</div>
+                    <button class="no-preview-btn" onclick="downloadDocument()">下载文件</button>
+                </div>
+            `;
+        }
+
+        // 切换Excel工作表
+        function switchSheet(sheetNum) {
+            const tabs = document.querySelectorAll('.sheet-tab');
+            tabs.forEach((tab, index) => {
+                if (index + 1 === sheetNum) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+            alert(`切换到 Sheet${sheetNum}`);
+        }
+
+        // 缩放控制
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom + 10, 200);
+            applyZoom();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom - 10, 50);
+            applyZoom();
+        }
+
+        function resetZoom() {
+            currentZoom = 100;
+            applyZoom();
+        }
+
+        function applyZoom() {
+            document.getElementById('zoomLevel').textContent = currentZoom + '%';
+            const img = document.getElementById('previewImage');
+            if (img) {
+                img.style.transform = `scale(${currentZoom / 100})`;
+                img.style.transition = 'transform 0.2s';
+            }
+        }
+
+        // 返回
+        function goBack() {
+            window.location.href = 'library-resources.html';
+        }
+
+        // 分享文档
+        let selectedMembers = [];
+        let currentExpiry = 7; // 默认7天
+        let currentPermission = 'view'; // 默认仅查看
+
+        function shareDocument() {
+            // 打开分享弹窗
+            document.getElementById('shareModal').classList.add('active');
+
+            // 生成分享链接
+            const shareUrl = window.location.href;
+            document.getElementById('shareLink').value = shareUrl;
+        }
+
+        // 关闭分享弹窗
+        function closeShareModal() {
+            document.getElementById('shareModal').classList.remove('active');
+        }
+
+        // 点击弹窗外部关闭
+        document.getElementById('shareModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeShareModal();
+            }
+        });
+
+        // 复制分享链接
+        function copyShareLink() {
+            const linkInput = document.getElementById('shareLink');
+            const copyBtn = document.getElementById('copyBtn');
+
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999); // For mobile devices
+
+            try {
+                document.execCommand('copy');
+                copyBtn.textContent = '✓ 已复制';
+                copyBtn.classList.add('copied');
+
+                setTimeout(() => {
+                    copyBtn.textContent = '复制链接';
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+
+                // 显示分享配置摘要
+                const permissionText = {
+                    'view': '仅查看',
+                    'download': '查看和下载',
+                    'edit': '完全访问'
+                };
+                const expiryText = currentExpiry === 0 ? '永久有效' : `${currentExpiry}天后过期`;
+
+                console.log(`分享链接已复制！\n权限：${permissionText[currentPermission]}\n有效期：${expiryText}`);
+            } catch (err) {
+                alert('复制失败，请手动复制链接');
+            }
+        }
+
+        // 选择有效期
+        function selectExpiry(days, element) {
+            currentExpiry = days;
+
+            // 更新按钮状态
+            document.querySelectorAll('.expiry-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            const expiryText = days === 0 ? '永久' : `${days}天`;
+            console.log(`链接有效期已设置为：${expiryText}`);
+        }
+
+        // 选择权限
+        function selectPermission(permission, element) {
+            currentPermission = permission;
+
+            // 更新选项状态
+            document.querySelectorAll('.permission-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+
+            const permissionText = {
+                'view': '仅查看',
+                'download': '查看和下载',
+                'edit': '完全访问'
+            };
+            console.log(`访问权限已设置为：${permissionText[permission]}`);
+        }
+
+        // 切换团队成员选择
+        function toggleTeamMember(checkbox, memberName) {
+            if (checkbox.checked) {
+                selectedMembers.push(memberName);
+                console.log(`已选择：${memberName}`);
+            } else {
+                const index = selectedMembers.indexOf(memberName);
+                if (index > -1) {
+                    selectedMembers.splice(index, 1);
+                }
+                console.log(`已取消：${memberName}`);
+            }
+
+            if (selectedMembers.length > 0) {
+                console.log(`当前已选择 ${selectedMembers.length} 位成员：${selectedMembers.join('、')}`);
+
+                // 显示确认提示
+                setTimeout(() => {
+                    if (selectedMembers.length > 0) {
+                        const confirmShare = confirm(`确认分享给以下成员吗？\n\n${selectedMembers.join('、')}\n\n权限：${currentPermission === 'view' ? '仅查看' : currentPermission === 'download' ? '查看和下载' : '完全访问'}`);
+
+                        if (confirmShare) {
+                            alert(`✓ 已成功分享给 ${selectedMembers.length} 位团队成员！\n\n系统将发送通知邮件给相关成员。`);
+
+                            // 重置选择
+                            selectedMembers = [];
+                            document.querySelectorAll('.team-member-checkbox').forEach(cb => {
+                                cb.checked = false;
+                            });
+
+                            closeShareModal();
+                        }
+                    }
+                }, 500);
+            }
+        }
+
+        // 快速分享到微信
+        function shareToWechat() {
+            alert('📱 打开微信扫一扫\n\n扫描二维码分享文档到微信好友或群聊');
+        }
+
+        // 分享到邮件
+        function shareToEmail() {
+            const subject = encodeURIComponent(`分享文档：${currentDoc.name}`);
+            const body = encodeURIComponent(`您好，\n\n我想与您分享以下文档：\n\n文档名称：${currentDoc.name}\n所属项目：${currentDoc.project}\n访问链接：${window.location.href}\n\n此链接${currentExpiry === 0 ? '永久有效' : currentExpiry + '天内有效'}。\n\n---\n由 EZPLM 系统发送`);
+
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+
+        // 分享到钉钉
+        function shareToDingTalk() {
+            alert('💼 钉钉分享\n\n功能开发中，即将支持直接分享到钉钉群聊和单聊');
+        }
+
+        // 分享到飞书
+        function shareToFeishu() {
+            alert('🚀 飞书分享\n\n功能开发中，即将支持直接分享到飞书群聊和单聊');
+        }
+
+        // 打印文档
+        function printDocument() {
+            window.print();
+        }
+
+        // 下载文档
+        function downloadDocument() {
+            alert(`开始下载：${currentDoc.name}`);
+        }
+
+        // 查看历史版本
+        function viewVersion(version) {
+            alert(`查看版本：${version}`);
+        }
+
+        // 打开相关文档
+        function openRelatedDoc(docId) {
+            window.location.href = `document-preview.html?id=${docId}`;
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', initPage);
+    </script>
+</body>
+</html>

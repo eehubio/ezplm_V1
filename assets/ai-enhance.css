@@ -1,0 +1,670 @@
+/* ============================================================
+   ai-enhance.css — 注入到 ez.eetree.cn 既有页面的 AI 增强样式层
+   设计自 ezplm-package SMT 智能体原型（V2.0 精简版）
+   主色保持硬禾绿 #00890b；AI 强调色 紫 #7B61FF
+   ------------------------------------------------------------ */
+
+:root {
+  --ai-50:  #F4F1FF;
+  --ai-100: #E6E0FF;
+  --ai-200: #C9BBFF;
+  --ai-300: #A593FF;
+  --ai-500: #7B61FF;
+  --ai-600: #6849F2;
+  --ai-700: #4F32CC;
+  --brand-500: #00890b;
+  --brand-600: #007309;
+  --warn-50: #FFF7E6;
+  --warn-500: #FA8C16;
+  --danger-500: #E11D48;
+}
+
+/* ---------- 通用 AI 徽章/胶囊 ---------- */
+.ai-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ai-700);
+  background: var(--ai-50);
+  border: 1px solid var(--ai-100);
+  border-radius: 999px;
+  font-family: 'SF Mono', Menlo, monospace;
+  letter-spacing: 0.2px;
+}
+.ai-chip::before {
+  content: '✦';
+  font-size: 10px;
+  color: var(--ai-500);
+}
+
+.badge-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ai-700);
+  background: var(--ai-50);
+  border: 1px solid var(--ai-100);
+  border-radius: 4px;
+}
+.badge-ai::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: var(--ai-500);
+  border-radius: 50%;
+}
+
+/* ---------- AI 面板（用于 BOM 概要 / ECN 影响等） ---------- */
+.ai-panel {
+  position: relative;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(123, 97, 255, 0.10), transparent 60%),
+    linear-gradient(135deg, var(--ai-50), #fff);
+  border: 1px solid var(--ai-100);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.ai-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ai-700);
+  margin-bottom: 4px;
+}
+.ai-panel-title::before {
+  content: '✦';
+  display: inline-block;
+  color: var(--ai-500);
+  font-size: 18px;
+  animation: ai-sparkle 3s ease-in-out infinite;
+}
+@keyframes ai-sparkle {
+  0%, 100% { transform: rotate(0deg) scale(1); opacity: 1; }
+  50%      { transform: rotate(15deg) scale(1.15); opacity: 0.85; }
+}
+.ai-panel-sub {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 16px;
+}
+.ai-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+.ai-panel-stat {
+  background: #fff;
+  border: 1px solid var(--ai-100);
+  border-radius: 8px;
+  padding: 14px 16px;
+  transition: all 0.2s;
+}
+.ai-panel-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(123, 97, 255, 0.12);
+}
+.ai-panel-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.ai-panel-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ai-700);
+  line-height: 1.1;
+}
+.ai-panel-stat-desc {
+  font-size: 12px;
+  color: #666;
+  margin-top: 6px;
+}
+
+/* 风险徽章 */
+.ai-risk {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 999px;
+  margin-left: auto;
+}
+.ai-risk-low    { color: #237804; background: #f6ffed; border: 1px solid #b7eb8f; }
+.ai-risk-medium { color: #b45309; background: var(--warn-50); border: 1px solid #ffd591; }
+.ai-risk-high   { color: #a8071a; background: #fff1f0; border: 1px solid #ffa39e; }
+
+/* ---------- AI 强调卡（采购侧栏） ---------- */
+.card-ai {
+  background: linear-gradient(135deg, var(--ai-50), #fff);
+  border: 1px solid var(--ai-100);
+  border-left: 4px solid var(--ai-500);
+  border-radius: 10px;
+  padding: 16px 18px;
+}
+.card-ai-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ai-700);
+  margin-bottom: 6px;
+}
+.card-ai-title::before {
+  content: '✦';
+  color: var(--ai-500);
+}
+.card-ai-body { font-size: 13px; color: #444; line-height: 1.6; }
+.card-ai-cta {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--ai-500);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.card-ai-cta:hover { background: var(--ai-600); }
+
+/* ---------- 表格内 AI 行 / 替代料胶囊 ---------- */
+tr.ai-row-low { background: var(--ai-50) !important; }
+tr.ai-row-low td { border-top: 1px dashed var(--ai-200); }
+
+.alt-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.alt-pill {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid var(--ai-200);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  min-width: 110px;
+  transition: all 0.15s;
+}
+.alt-pill:hover { border-color: var(--ai-500); box-shadow: 0 2px 6px rgba(123,97,255,0.18); }
+.alt-pill.recommend { border-color: var(--ai-500); background: var(--ai-50); }
+.alt-pill-mpn { font-family: 'SF Mono', Menlo, monospace; font-weight: 600; color: #222; }
+.alt-pill-meta { font-size: 11px; color: #777; }
+.alt-pill .rank {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 10px;
+  color: #fff;
+  background: var(--ai-500);
+  border-radius: 3px;
+  margin-bottom: 2px;
+  width: max-content;
+}
+
+/* ---------- AI 自动规则卡（供应商页面） ---------- */
+.ai-rule-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.ai-rule {
+  background: #fff;
+  border: 1px solid var(--ai-100);
+  border-radius: 8px;
+  padding: 14px;
+}
+.ai-rule-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.ai-rule-name { font-weight: 700; color: #1a1a1a; font-size: 14px; }
+.ai-rule-meta { font-size: 11px; color: var(--ai-700); }
+.ai-rule-desc { font-size: 12px; color: #666; line-height: 1.6; }
+.ai-rule-toggle {
+  appearance: none;
+  width: 32px; height: 18px;
+  background: #d9d9d9;
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ai-rule-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 14px; height: 14px;
+  background: #fff;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+.ai-rule-toggle:checked { background: var(--ai-500); }
+.ai-rule-toggle:checked::after { left: 16px; }
+
+/* ---------- AI 浮动助手按钮 ---------- */
+.ai-fab {
+  position: fixed;
+  right: 28px;
+  bottom: 28px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ai-500), var(--ai-700));
+  color: #fff;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(123, 97, 255, 0.35);
+  z-index: 9990;
+  border: none;
+  transition: all 0.2s;
+}
+.ai-fab:hover { transform: scale(1.08); box-shadow: 0 8px 28px rgba(123, 97, 255, 0.5); }
+.ai-fab::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid var(--ai-300);
+  opacity: 0.6;
+  animation: ai-fab-ring 2.4s ease-out infinite;
+}
+@keyframes ai-fab-ring {
+  0%   { transform: scale(0.85); opacity: 0.6; }
+  100% { transform: scale(1.4);  opacity: 0; }
+}
+
+/* ---------- AI 助手抽屉 ---------- */
+.ai-drawer-mask {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.32);
+  display: none;
+  z-index: 9991;
+  animation: ai-fade 0.18s ease;
+}
+.ai-drawer-mask.show { display: block; }
+.ai-drawer {
+  position: fixed;
+  top: 0; right: 0;
+  width: 420px;
+  max-width: 95vw;
+  height: 100vh;
+  background: #fff;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.16);
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+  z-index: 9992;
+  display: flex;
+  flex-direction: column;
+}
+.ai-drawer.show { transform: translateX(0); }
+.ai-drawer-head {
+  position: relative;
+  padding: 18px 56px 18px 20px;     /* 右留出 close 空间 */
+  background: linear-gradient(135deg, var(--ai-500), var(--ai-700));
+  color: #fff;
+  display: flex;
+  align-items: center;
+}
+.ai-drawer-head h3 { font-size: 16px; margin: 0; font-weight: 700; flex: 1; }
+.ai-drawer-head h3::before { content: '✦ '; }
+.ai-drawer-close {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.15s;
+}
+.ai-drawer-close:hover {
+  background: #fff;
+  color: var(--ai-700);
+  transform: translateY(-50%) scale(1.08) rotate(90deg);
+}
+.ai-drawer-close:focus-visible {
+  outline: 3px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+.ai-drawer-body { flex: 1; overflow-y: auto; padding: 18px 20px; background: #fafaff; }
+.ai-msg {
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.ai-msg-bot {
+  background: #fff;
+  border: 1px solid var(--ai-100);
+  color: #333;
+}
+.ai-msg-bot::before {
+  content: '✦ AI 助手';
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ai-700);
+  margin-bottom: 4px;
+}
+.ai-msg-user {
+  background: var(--ai-500);
+  color: #fff;
+  margin-left: 36px;
+}
+.ai-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.ai-suggestion {
+  padding: 6px 10px;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid var(--ai-200);
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--ai-700);
+}
+.ai-suggestion:hover { background: var(--ai-50); }
+.ai-drawer-input {
+  border-top: 1px solid #eee;
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  background: #fff;
+}
+.ai-drawer-input input {
+  flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+.ai-drawer-input input:focus { border-color: var(--ai-500); }
+.ai-drawer-input button {
+  height: 36px;
+  padding: 0 16px;
+  background: var(--ai-500);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@keyframes ai-fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- 通用模态 (用于替代图谱、影响分析、OCR 等)
+   注意：所有内部类都用 .ai-modal-mask 父级前缀以提高特异性，
+   防止与 materials.html / procurement.html 自带的 legacy
+   .ai-modal-close / .ai-modal-body / .ai-modal-overlay 冲突   ---------- */
+.ai-modal-mask {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);     /* 略加深，避免页面右上角穿透感 */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9993;
+  padding: 16px;                    /* 给 close 按钮一些安全空间 */
+}
+.ai-modal-mask.show { display: flex; }
+.ai-modal-mask .ai-modal {
+  position: relative;               /* 容纳绝对定位的关闭按钮 */
+  background: #fff;
+  border-radius: 12px;
+  width: min(880px, 92vw);
+  max-height: 88vh;
+  /* legacy 重置：procurement.html 的 .ai-modal-content 不会影响这里 */
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;                /* 让 close 按钮可以略微"露头"更显眼 */
+  box-shadow: 0 12px 40px rgba(0,0,0,0.25);
+}
+.ai-modal-mask .ai-modal-head {
+  /* 给右侧留出 close 按钮的物理空间，避免标题被覆盖 */
+  padding: 18px 64px 18px 24px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, var(--ai-50), #fff);
+  border-radius: 12px 12px 0 0;
+}
+.ai-modal-mask .ai-modal-head h3 {
+  font-size: 18px;
+  margin: 0;
+  color: var(--ai-700);
+  flex: 1;
+  min-width: 0;
+}
+.ai-modal-mask .ai-modal-head h3::before { content: '✦ '; color: var(--ai-500); }
+.ai-modal-mask .ai-modal-body {
+  /* legacy 重置：procurement.html 的 .ai-modal-body { width:100%; height:100% } */
+  width: auto;
+  height: auto;
+  padding: 20px 24px;
+  overflow-y: auto;
+  border-radius: 0 0 12px 12px;
+  background: #fff;
+}
+
+/* 关闭按钮：固定到模态的右上角，圆形、白底、明显的边框 + 阴影
+   注意：用 .ai-modal .ai-modal-close 提高特异性，避免与
+   materials.html / procurement.html 自带的 legacy .ai-modal-close
+   (编程助手 / PCB 预布局的固定式绿色按钮) 冲突 */
+.ai-modal-mask .ai-modal-close,
+.ai-modal .ai-modal-close {
+  position: absolute;
+  top: -14px;                       /* 略微"露头"在模态边缘外 */
+  right: -14px;
+  width: 36px;
+  height: 36px;
+  background: #fff;
+  border: 2px solid var(--ai-500);
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--ai-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  transition: all 0.15s;
+  z-index: 2;
+  padding: 0;
+  /* legacy 重置：以防被 .ai-modal-close { position: fixed; top: 20px; ... } 干扰 */
+  left: auto;
+  bottom: auto;
+}
+.ai-modal-mask .ai-modal-close:hover,
+.ai-modal .ai-modal-close:hover {
+  background: var(--ai-500);
+  color: #fff;
+  transform: scale(1.08) rotate(90deg);
+  box-shadow: 0 6px 16px rgba(123, 97, 255, 0.4);
+  border-color: var(--ai-500);
+}
+.ai-modal-mask .ai-modal-close:focus-visible,
+.ai-modal .ai-modal-close:focus-visible {
+  outline: 3px solid var(--ai-300);
+  outline-offset: 2px;
+}
+
+/* 极窄屏（< 480px）下，关闭按钮收回模态内部，避免被截断 */
+@media (max-width: 480px) {
+  .ai-modal-mask .ai-modal-close,
+  .ai-modal .ai-modal-close { top: 8px; right: 8px; }
+}
+
+/* 替代关系图谱（简版 grid 表示） */
+.alt-graph {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 16px;
+  align-items: center;
+}
+.alt-graph-center {
+  background: linear-gradient(135deg, var(--ai-50), #fff);
+  border: 2px solid var(--ai-300);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+.alt-graph-center .mpn {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ai-700);
+}
+.alt-graph-center .sub { font-size: 12px; color: #666; margin-top: 4px; }
+.alt-list { display: flex; flex-direction: column; gap: 10px; }
+.alt-node {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid var(--ai-100);
+  border-left: 4px solid var(--ai-300);
+  border-radius: 8px;
+}
+.alt-node .left .mpn {
+  font-family: 'SF Mono', Menlo, monospace;
+  font-weight: 700;
+  color: #222;
+}
+.alt-node .left .sub { font-size: 12px; color: #666; }
+.alt-node .right { text-align: right; }
+.alt-node .right .price { font-weight: 700; color: var(--brand-500); }
+.alt-node .right .tag {
+  font-size: 11px; color: var(--ai-700);
+  background: var(--ai-50); padding: 2px 6px; border-radius: 4px;
+  margin-top: 4px; display: inline-block;
+}
+
+/* 影响分析象限 */
+.impact-quadrants {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.impact-cell {
+  background: #fff;
+  border: 1px solid var(--ai-100);
+  border-radius: 10px;
+  padding: 16px;
+}
+.impact-cell-head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; color: #333;
+  margin-bottom: 8px;
+}
+.impact-cell-num {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ai-700);
+  margin-bottom: 4px;
+}
+.impact-cell ul {
+  margin: 8px 0 0 0;
+  padding-left: 18px;
+  font-size: 12px;
+  color: #555;
+  line-height: 1.7;
+}
+
+/* OCR 上传区 */
+.ocr-dropzone {
+  border: 2px dashed var(--ai-300);
+  border-radius: 12px;
+  padding: 36px 24px;
+  text-align: center;
+  background: var(--ai-50);
+  color: var(--ai-700);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ocr-dropzone:hover { background: #ece6ff; }
+.ocr-dropzone .big { font-size: 36px; margin-bottom: 8px; }
+.ocr-dropzone .hint { font-size: 12px; color: #666; margin-top: 6px; }
+
+/* 比价 / 拦截统计 KPI */
+.ai-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin: 12px 0 20px;
+}
+.ai-kpi {
+  background: linear-gradient(135deg, var(--ai-50), #fff);
+  border: 1px solid var(--ai-100);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.ai-kpi-label { font-size: 12px; color: #777; }
+.ai-kpi-value {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ai-700);
+  margin-top: 4px;
+}
+.ai-kpi-delta { font-size: 11px; color: var(--brand-500); margin-top: 2px; }
+
+/* 按钮 - AI 强调 */
+.btn-ai {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, var(--ai-500), var(--ai-700));
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-ai:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(123,97,255,0.3); }
+.btn-ai::before { content: '✦'; }

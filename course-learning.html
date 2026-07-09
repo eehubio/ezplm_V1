@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>模拟电路设计与实验 - 课程学习</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f4; color: #3d4647; }
+
+        /* 顶部导航 */
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #666; }
+        .breadcrumb a { color: #00890b; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .top-bar-right { display: flex; align-items: center; gap: 24px; }
+
+        /* 课程头部 */
+        .course-header { background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; padding: 40px; }
+        .header-content { max-width: 1440px; margin: 0 auto; }
+        .course-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+        .course-meta { display: flex; gap: 32px; font-size: 14px; opacity: 0.9; margin-bottom: 24px; }
+        .progress-section { display: flex; gap: 40px; align-items: center; }
+        .progress-item { flex: 1; max-width: 400px; }
+        .progress-label { font-size: 13px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+        .progress-bar { height: 8px; background: rgba(255,255,255,0.2); border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: white; border-radius: 4px; transition: width 0.3s; }
+        .stats-row { display: flex; gap: 24px; }
+        .stat-box { text-align: center; padding: 16px 24px; background: rgba(255,255,255,0.15); border-radius: 8px; }
+        .stat-value { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+        .stat-label { font-size: 12px; opacity: 0.9; }
+
+        /* 主内容 */
+        .main-content { max-width: 1440px; margin: 32px auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 320px; gap: 32px; }
+
+        /* 左侧内容 */
+        .content-left { display: flex; flex-direction: column; gap: 24px; }
+
+        /* 标签页 */
+        .tabs { display: flex; gap: 8px; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tab { padding: 12px 24px; background: transparent; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; color: #666; }
+        .tab.active { background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; }
+
+        /* 章节列表 */
+        .chapter-list { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .chapter-item { margin-bottom: 16px; }
+        .chapter-header { display: flex; align-items: center; padding: 16px; background: #f9f9f9; border-radius: 8px; cursor: pointer; transition: all 0.3s; }
+        .chapter-header:hover { background: #e0f7fa; }
+        .chapter-number { width: 40px; height: 40px; background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-right: 16px; }
+        .chapter-info { flex: 1; }
+        .chapter-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+        .chapter-meta { font-size: 13px; color: #666; }
+        .chapter-status { display: flex; align-items: center; gap: 8px; }
+        .status-icon { font-size: 24px; }
+        .lessons-list { margin-top: 12px; margin-left: 56px; display: none; }
+        .lessons-list.active { display: block; }
+        .lesson-item { display: flex; align-items: center; padding: 12px 16px; background: white; border-left: 3px solid #e0e0e0; margin-bottom: 8px; cursor: pointer; transition: all 0.3s; border-radius: 4px; }
+        .lesson-item:hover { background: #f0f0f0; border-left-color: #00bcd4; }
+        .lesson-item.completed { border-left-color: #4caf50; }
+        .lesson-number { font-size: 13px; color: #999; margin-right: 12px; min-width: 30px; }
+        .lesson-title { flex: 1; font-size: 14px; }
+        .lesson-duration { font-size: 13px; color: #666; margin-right: 12px; }
+        .lesson-check { font-size: 16px; }
+
+        /* 实验列表 */
+        .experiment-grid { display: grid; gap: 16px; }
+        .experiment-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; }
+        .experiment-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        .experiment-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .experiment-title { font-size: 18px; font-weight: 700; }
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-completed { background: rgba(76,175,80,0.1); color: #4caf50; }
+        .status-submitted { background: rgba(33,150,243,0.1); color: #2196f3; }
+        .status-todo { background: rgba(255,193,7,0.1); color: #ffc107; }
+        .status-overdue { background: rgba(244,67,54,0.1); color: #f44336; }
+        .experiment-meta { display: flex; gap: 20px; font-size: 13px; color: #666; margin-bottom: 12px; }
+        .experiment-desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 16px; }
+        .experiment-footer { display: flex; justify-content: space-between; align-items: center; }
+        .score-display { font-size: 20px; font-weight: 700; color: #4caf50; }
+        .btn-action { padding: 10px 20px; background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,188,212,0.3); }
+
+        /* 资料列表 */
+        .resource-list { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .resource-item { display: flex; align-items: center; padding: 16px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px; transition: all 0.3s; }
+        .resource-item:hover { background: #e0f7fa; }
+        .resource-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; margin-right: 16px; }
+        .resource-info { flex: 1; }
+        .resource-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .resource-meta { font-size: 13px; color: #666; }
+        .btn-download { padding: 8px 16px; background: white; color: #00bcd4; border: 2px solid #00bcd4; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-download:hover { background: #00bcd4; color: white; }
+
+        /* 右侧边栏 */
+        .sidebar-right { display: flex; flex-direction: column; gap: 20px; }
+        .sidebar-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .sidebar-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #3d4647; }
+        .teacher-info { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .teacher-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; }
+        .teacher-details { flex: 1; }
+        .teacher-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+        .teacher-title { font-size: 13px; color: #666; }
+        .btn-contact { width: 100%; padding: 10px; background: #f0f0f0; color: #666; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-contact:hover { background: #e0e0e0; }
+
+        /* 公告列表 */
+        .announcement-item { padding: 12px; background: #f9f9f9; border-radius: 6px; margin-bottom: 8px; cursor: pointer; transition: all 0.3s; }
+        .announcement-item:hover { background: #e0f7fa; }
+        .announcement-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .announcement-date { font-size: 12px; color: #666; }
+
+        /* 进度统计 */
+        .progress-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .progress-stat { text-align: center; padding: 16px; background: #f9f9f9; border-radius: 8px; }
+        .progress-stat-value { font-size: 24px; font-weight: 800; color: #00bcd4; margin-bottom: 4px; }
+        .progress-stat-label { font-size: 12px; color: #666; }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 课程头部 -->
+    <div class="course-header">
+        <div class="header-content">
+            <div class="course-title">⚡ 模拟电路设计与实验</div>
+            <div class="course-meta">
+                <div>👨‍🏫 王教授 · 电子工程学院</div>
+                <div>📅 2024秋季学期</div>
+                <div>🎓 学分：4.0</div>
+                <div>👥 68名同学</div>
+            </div>
+            <div class="progress-section">
+                <div class="progress-item">
+                    <div class="progress-label">
+                        <span>课程进度</span>
+                        <span>16/18 (89%)</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 89%;"></div>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <div class="stat-value">16</div>
+                        <div class="stat-label">已完成</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">待学习</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">91</div>
+                        <div class="stat-label">平均分</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 左侧内容 -->
+        <div class="content-left">
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('chapters', this)">📚 课程章节</button>
+                <button class="tab" onclick="switchTab('experiments', this)">🧪 实验任务</button>
+                <button class="tab" onclick="switchTab('resources', this)">📎 学习资料</button>
+            </div>
+
+            <!-- 章节视图 -->
+            <div id="chapters-view" class="chapter-list">
+                <div class="chapter-item">
+                    <div class="chapter-header" onclick="toggleChapter(1)">
+                        <div class="chapter-number">1</div>
+                        <div class="chapter-info">
+                            <div class="chapter-title">第一章：半导体二极管及其应用</div>
+                            <div class="chapter-meta">6个知识点 · 已完成 6/6</div>
+                        </div>
+                        <div class="chapter-status">
+                            <span class="status-icon">✅</span>
+                        </div>
+                    </div>
+                    <div class="lessons-list" id="lessons-1">
+                        <div class="lesson-item completed" onclick="openLesson(1, 1)">
+                            <div class="lesson-number">1.1</div>
+                            <div class="lesson-title">半导体基础知识</div>
+                            <div class="lesson-duration">⏱ 45分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(1, 2)">
+                            <div class="lesson-number">1.2</div>
+                            <div class="lesson-title">PN结的形成及特性</div>
+                            <div class="lesson-duration">⏱ 50分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(1, 3)">
+                            <div class="lesson-number">1.3</div>
+                            <div class="lesson-title">二极管的伏安特性</div>
+                            <div class="lesson-duration">⏱ 40分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(1, 4)">
+                            <div class="lesson-number">1.4</div>
+                            <div class="lesson-title">二极管的主要参数</div>
+                            <div class="lesson-duration">⏱ 35分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(1, 5)">
+                            <div class="lesson-number">1.5</div>
+                            <div class="lesson-title">整流电路</div>
+                            <div class="lesson-duration">⏱ 60分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(1, 6)">
+                            <div class="lesson-number">1.6</div>
+                            <div class="lesson-title">稳压二极管</div>
+                            <div class="lesson-duration">⏱ 40分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chapter-item">
+                    <div class="chapter-header" onclick="toggleChapter(2)">
+                        <div class="chapter-number">2</div>
+                        <div class="chapter-info">
+                            <div class="chapter-title">第二章：双极型晶体管及放大电路基础</div>
+                            <div class="chapter-meta">5个知识点 · 已完成 5/5</div>
+                        </div>
+                        <div class="chapter-status">
+                            <span class="status-icon">✅</span>
+                        </div>
+                    </div>
+                    <div class="lessons-list" id="lessons-2">
+                        <div class="lesson-item completed" onclick="openLesson(2, 1)">
+                            <div class="lesson-number">2.1</div>
+                            <div class="lesson-title">晶体管的结构与工作原理</div>
+                            <div class="lesson-duration">⏱ 50分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(2, 2)">
+                            <div class="lesson-number">2.2</div>
+                            <div class="lesson-title">晶体管的特性曲线</div>
+                            <div class="lesson-duration">⏱ 45分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(2, 3)">
+                            <div class="lesson-number">2.3</div>
+                            <div class="lesson-title">共射放大电路</div>
+                            <div class="lesson-duration">⏱ 55分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(2, 4)">
+                            <div class="lesson-number">2.4</div>
+                            <div class="lesson-title">图解分析法</div>
+                            <div class="lesson-duration">⏱ 50分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(2, 5)">
+                            <div class="lesson-number">2.5</div>
+                            <div class="lesson-title">微变等效电路法</div>
+                            <div class="lesson-duration">⏱ 60分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chapter-item">
+                    <div class="chapter-header" onclick="toggleChapter(3)">
+                        <div class="chapter-number">3</div>
+                        <div class="chapter-info">
+                            <div class="chapter-title">第三章：场效应管放大电路</div>
+                            <div class="chapter-meta">4个知识点 · 已完成 3/4</div>
+                        </div>
+                        <div class="chapter-status">
+                            <span class="status-icon">⏳</span>
+                        </div>
+                    </div>
+                    <div class="lessons-list" id="lessons-3">
+                        <div class="lesson-item completed" onclick="openLesson(3, 1)">
+                            <div class="lesson-number">3.1</div>
+                            <div class="lesson-title">场效应管的类型与结构</div>
+                            <div class="lesson-duration">⏱ 45分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(3, 2)">
+                            <div class="lesson-number">3.2</div>
+                            <div class="lesson-title">MOSFET的特性</div>
+                            <div class="lesson-duration">⏱ 50分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(3, 3)">
+                            <div class="lesson-number">3.3</div>
+                            <div class="lesson-title">场效应管放大电路</div>
+                            <div class="lesson-duration">⏱ 55分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item" onclick="openLesson(3, 4)">
+                            <div class="lesson-number">3.4</div>
+                            <div class="lesson-title">BJT与FET的比较</div>
+                            <div class="lesson-duration">⏱ 40分钟</div>
+                            <div class="lesson-check">⭐</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chapter-item">
+                    <div class="chapter-header" onclick="toggleChapter(4)">
+                        <div class="chapter-number">4</div>
+                        <div class="chapter-info">
+                            <div class="chapter-title">第四章：集成运算放大器</div>
+                            <div class="chapter-meta">5个知识点 · 已完成 2/5</div>
+                        </div>
+                        <div class="chapter-status">
+                            <span class="status-icon">📖</span>
+                        </div>
+                    </div>
+                    <div class="lessons-list" id="lessons-4">
+                        <div class="lesson-item completed" onclick="openLesson(4, 1)">
+                            <div class="lesson-number">4.1</div>
+                            <div class="lesson-title">集成运放的基本组成</div>
+                            <div class="lesson-duration">⏱ 50分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item completed" onclick="openLesson(4, 2)">
+                            <div class="lesson-number">4.2</div>
+                            <div class="lesson-title">理想运放及其分析方法</div>
+                            <div class="lesson-duration">⏱ 45分钟</div>
+                            <div class="lesson-check">✅</div>
+                        </div>
+                        <div class="lesson-item" onclick="openLesson(4, 3)">
+                            <div class="lesson-number">4.3</div>
+                            <div class="lesson-title">反相比例放大电路</div>
+                            <div class="lesson-duration">⏱ 50分钟</div>
+                            <div class="lesson-check">📝</div>
+                        </div>
+                        <div class="lesson-item" onclick="openLesson(4, 4)">
+                            <div class="lesson-number">4.4</div>
+                            <div class="lesson-title">同相比例放大电路</div>
+                            <div class="lesson-duration">⏱ 45分钟</div>
+                            <div class="lesson-check">🔒</div>
+                        </div>
+                        <div class="lesson-item" onclick="openLesson(4, 5)">
+                            <div class="lesson-number">4.5</div>
+                            <div class="lesson-title">运放的线性应用</div>
+                            <div class="lesson-duration">⏱ 60分钟</div>
+                            <div class="lesson-check">🔒</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实验视图 -->
+            <div id="experiments-view" class="experiment-grid" style="display: none;">
+                <div class="experiment-card" onclick="openExperiment(1)">
+                    <div class="experiment-header-row">
+                        <div class="experiment-title">实验一：常用电子仪器使用</div>
+                        <span class="status-badge status-completed">已完成</span>
+                    </div>
+                    <div class="experiment-meta">
+                        <div>📅 截止：2024-09-30</div>
+                        <div>📤 提交：2024-09-25</div>
+                    </div>
+                    <div class="experiment-desc">
+                        熟悉示波器、信号发生器、万用表等常用电子仪器的使用方法，掌握基本测量技能。
+                    </div>
+                    <div class="experiment-footer">
+                        <div class="score-display">成绩：92分</div>
+                        <button class="btn-action" onclick="viewReport(1, event)">查看报告</button>
+                    </div>
+                </div>
+
+                <div class="experiment-card" onclick="openExperiment(2)">
+                    <div class="experiment-header-row">
+                        <div class="experiment-title">实验二：单管放大电路</div>
+                        <span class="status-badge status-completed">已完成</span>
+                    </div>
+                    <div class="experiment-meta">
+                        <div>📅 截止：2024-10-15</div>
+                        <div>📤 提交：2024-10-12</div>
+                    </div>
+                    <div class="experiment-desc">
+                        设计并搭建单管共射放大电路，测量静态工作点和动态参数，分析电路性能。
+                    </div>
+                    <div class="experiment-footer">
+                        <div class="score-display">成绩：88分</div>
+                        <button class="btn-action" onclick="viewReport(2, event)">查看报告</button>
+                    </div>
+                </div>
+
+                <div class="experiment-card" onclick="openExperiment(3)">
+                    <div class="experiment-header-row">
+                        <div class="experiment-title">实验三：共射放大电路设计</div>
+                        <span class="status-badge status-todo">待提交</span>
+                    </div>
+                    <div class="experiment-meta">
+                        <div>📅 截止：2024-10-28</div>
+                        <div>⏰ 剩余：5天</div>
+                    </div>
+                    <div class="experiment-desc">
+                        根据给定技术指标，设计共射放大电路，进行参数计算和仿真验证，完成实验报告。
+                    </div>
+                    <div class="experiment-footer">
+                        <div style="color: #666; font-size: 14px;">未提交</div>
+                        <button class="btn-action" onclick="submitExperiment(3, event)">提交实验</button>
+                    </div>
+                </div>
+
+                <div class="experiment-card" onclick="openExperiment(4)">
+                    <div class="experiment-header-row">
+                        <div class="experiment-title">实验四：RC滤波器设计</div>
+                        <span class="status-badge status-todo">待提交</span>
+                    </div>
+                    <div class="experiment-meta">
+                        <div>📅 截止：2024-11-05</div>
+                        <div>⏰ 剩余：13天</div>
+                    </div>
+                    <div class="experiment-desc">
+                        设计低通、高通、带通滤波器，测试频率特性，绘制波特图并分析结果。
+                    </div>
+                    <div class="experiment-footer">
+                        <div style="color: #666; font-size: 14px;">未提交</div>
+                        <button class="btn-action" onclick="submitExperiment(4, event)">提交实验</button>
+                    </div>
+                </div>
+
+                <div class="experiment-card" onclick="openExperiment(5)">
+                    <div class="experiment-header-row">
+                        <div class="experiment-title">实验五：集成运放应用电路</div>
+                        <span class="status-badge status-todo">未开始</span>
+                    </div>
+                    <div class="experiment-meta">
+                        <div>📅 截止：2024-11-20</div>
+                        <div>⏰ 剩余：28天</div>
+                    </div>
+                    <div class="experiment-desc">
+                        使用运算放大器设计信号处理电路，包括加法器、积分器、比较器等应用。
+                    </div>
+                    <div class="experiment-footer">
+                        <div style="color: #999; font-size: 14px;">尚未开放</div>
+                        <button class="btn-action" style="opacity: 0.5; cursor: not-allowed;" disabled>未开放</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 资料视图 -->
+            <div id="resources-view" class="resource-list" style="display: none;">
+                <div class="resource-item">
+                    <div class="resource-icon">📄</div>
+                    <div class="resource-info">
+                        <div class="resource-name">课程教学大纲.pdf</div>
+                        <div class="resource-meta">PDF文档 · 1.2 MB · 2024-09-01上传</div>
+                    </div>
+                    <button class="btn-download" onclick="downloadResource(1)">下载</button>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-icon">📘</div>
+                    <div class="resource-info">
+                        <div class="resource-name">模拟电路分析与设计（第3版）.pdf</div>
+                        <div class="resource-meta">PDF文档 · 45.8 MB · 教材电子版</div>
+                    </div>
+                    <button class="btn-download" onclick="downloadResource(2)">下载</button>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-icon">📊</div>
+                    <div class="resource-info">
+                        <div class="resource-name">第一章课件-半导体二极管.pptx</div>
+                        <div class="resource-meta">PowerPoint · 8.5 MB · 2024-09-05上传</div>
+                    </div>
+                    <button class="btn-download" onclick="downloadResource(3)">下载</button>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-icon">📊</div>
+                    <div class="resource-info">
+                        <div class="resource-name">第二章课件-放大电路基础.pptx</div>
+                        <div class="resource-meta">PowerPoint · 12.3 MB · 2024-09-12上传</div>
+                    </div>
+                    <button class="btn-download" onclick="downloadResource(4)">下载</button>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-icon">📝</div>
+                    <div class="resource-info">
+                        <div class="resource-name">实验指导书.pdf</div>
+                        <div class="resource-meta">PDF文档 · 6.7 MB · 2024-09-01上传</div>
+                    </div>
+                    <button class="btn-download" onclick="downloadResource(5)">下载</button>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-icon">🎥</div>
+                    <div class="resource-info">
+                        <div class="resource-name">示波器使用教程视频</div>
+                        <div class="resource-meta">视频链接 · 在线观看</div>
+                    </div>
+                    <button class="btn-download" onclick="downloadResource(6)">观看</button>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-icon">💾</div>
+                    <div class="resource-info">
+                        <div class="resource-name">Multisim仿真软件及教程.zip</div>
+                        <div class="resource-meta">压缩文件 · 125 MB · 2024-09-01上传</div>
+                    </div>
+                    <button class="btn-download" onclick="downloadResource(7)">下载</button>
+                </div>
+
+                <div class="resource-item">
+                    <div class="resource-icon">📋</div>
+                    <div class="resource-info">
+                        <div class="resource-name">常用元器件数据手册集.pdf</div>
+                        <div class="resource-meta">PDF文档 · 28.4 MB · 2024-09-01上传</div>
+                    </div>
+                    <button class="btn-download" onclick="downloadResource(8)">下载</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧边栏 -->
+        <div class="sidebar-right">
+            <!-- 教师信息 -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">👨‍🏫 授课教师</div>
+                <div class="teacher-info">
+                    <div class="teacher-avatar">王</div>
+                    <div class="teacher-details">
+                        <div class="teacher-name">王教授</div>
+                        <div class="teacher-title">电子工程学院</div>
+                    </div>
+                </div>
+                <button class="btn-contact" onclick="contactTeacher()">💬 联系老师</button>
+            </div>
+
+            <!-- 课程公告 -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">📢 课程公告</div>
+                <div class="announcement-item" onclick="viewAnnouncement(1)">
+                    <div class="announcement-title">🔔 实验三提交提醒</div>
+                    <div class="announcement-date">2天前</div>
+                </div>
+                <div class="announcement-item" onclick="viewAnnouncement(2)">
+                    <div class="announcement-title">📚 第四章课件已上传</div>
+                    <div class="announcement-date">5天前</div>
+                </div>
+                <div class="announcement-item" onclick="viewAnnouncement(3)">
+                    <div class="announcement-title">⚠️ 期中考试安排通知</div>
+                    <div class="announcement-date">1周前</div>
+                </div>
+            </div>
+
+            <!-- 学习进度 -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">📊 我的进度</div>
+                <div class="progress-stats">
+                    <div class="progress-stat">
+                        <div class="progress-stat-value">89%</div>
+                        <div class="progress-stat-label">课程完成度</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-stat-value">16</div>
+                        <div class="progress-stat-label">已学章节</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-stat-value">2/5</div>
+                        <div class="progress-stat-label">实验完成</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-stat-value">91</div>
+                        <div class="progress-stat-label">平均成绩</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 班级排名 -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">🏆 班级排名</div>
+                <div style="text-align: center; padding: 20px;">
+                    <div style="font-size: 48px; font-weight: 800; color: #00bcd4; margin-bottom: 8px;">8</div>
+                    <div style="font-size: 14px; color: #666; margin-bottom: 16px;">/ 68名同学</div>
+                    <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                        你的表现超过了<span style="color: #00bcd4; font-weight: 700;">88%</span>的同学<br>
+                        继续保持！💪
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        function switchTab(tab, button) {
+            // 更新标签页样式
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            button.classList.add('active');
+
+            // 隐藏所有视图
+            document.getElementById('chapters-view').style.display = 'none';
+            document.getElementById('experiments-view').style.display = 'none';
+            document.getElementById('resources-view').style.display = 'none';
+
+            // 显示对应视图
+            if (tab === 'chapters') {
+                document.getElementById('chapters-view').style.display = 'block';
+            } else if (tab === 'experiments') {
+                document.getElementById('experiments-view').style.display = 'grid';
+            } else if (tab === 'resources') {
+                document.getElementById('resources-view').style.display = 'block';
+            }
+        }
+
+        function toggleChapter(id) {
+            const lessonsList = document.getElementById('lessons-' + id);
+            lessonsList.classList.toggle('active');
+        }
+
+        function openLesson(chapterId, lessonId) {
+            alert('打开课程：第' + chapterId + '章 第' + lessonId + '节');
+            // 实际应用中会跳转到学习内容页面或打开视频播放器
+        }
+
+        function openExperiment(id) {
+            if (id <= 2) {
+                alert('查看已完成的实验' + id);
+            } else {
+                window.location.href = 'experiment-submit.html';
+            }
+        }
+
+        function submitExperiment(id, event) {
+            event.stopPropagation();
+            window.location.href = 'experiment-submit.html';
+        }
+
+        function viewReport(id, event) {
+            event.stopPropagation();
+            alert('查看实验' + id + '的报告和评语');
+        }
+
+        function downloadResource(id) {
+            alert('下载资源' + id);
+        }
+
+        function contactTeacher() {
+            alert('打开与教师的联系方式或消息窗口');
+        }
+
+        function viewAnnouncement(id) {
+            alert('查看公告详情：公告' + id);
+        }
+    </script>
+</body>
+</html>

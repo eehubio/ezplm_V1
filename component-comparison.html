@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 元器件对比分析</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .top-nav-links a:hover,
+        .top-nav-links a.active {
+            color: #00890b;
+        }
+        .nav-icon-text {
+            font-size: 18px;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .top-bar-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #00b30e;
+            transform: translateY(-2px);
+        }
+        .btn-outline {
+            background: white;
+            color: #00890b;
+            border: 2px solid #00890b;
+        }
+        .btn-outline:hover {
+            background: #00890b;
+            color: white;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主容器 */
+        .main-container {
+            flex: 1;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* 标题区域 */
+        .header-section {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            padding: 40px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+        .header-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+        .compare-count {
+            display: inline-block;
+            margin-left: 12px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        /* AI 推荐区域 */
+        .ai-recommendation {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 24px 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .ai-icon {
+            font-size: 48px;
+        }
+        .ai-content {
+            flex: 1;
+        }
+        .ai-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .ai-text {
+            font-size: 15px;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+        .recommended-badge {
+            padding: 8px 20px;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* 对比表格容器 */
+        .comparison-wrapper {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 20px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .comparison-table th {
+            background: #f9f9f9;
+            font-weight: 700;
+            color: #2d2d2d;
+            position: sticky;
+            top: 80px;
+            z-index: 10;
+        }
+        .param-label {
+            font-weight: 700;
+            color: #2d2d2d;
+            font-size: 15px;
+            background: #f9f9f9;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+        .category-row {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            font-weight: 800;
+            font-size: 16px;
+        }
+        .category-row td {
+            padding: 16px 20px;
+        }
+
+        /* 组件列 */
+        .component-header {
+            text-align: center;
+            min-width: 280px;
+        }
+        .component-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #f0f0f0, #e0e0e0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            margin: 0 auto 16px;
+        }
+        .component-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2d2d2d;
+            margin-bottom: 8px;
+        }
+        .component-manufacturer {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+        .component-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .tag {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            background: #f0f0f0;
+            color: #666;
+        }
+        .tag.package {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .ai-score-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .component-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 16px;
+        }
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .btn-add {
+            background: #00890b;
+            color: white;
+        }
+        .btn-add:hover {
+            background: #00b30e;
+            transform: translateY(-2px);
+        }
+        .btn-view {
+            background: #f0f0f0;
+            color: #2d2d2d;
+        }
+        .btn-view:hover {
+            background: #e0e0e0;
+        }
+
+        /* 参数值 */
+        .param-value {
+            font-size: 15px;
+            color: #2d2d2d;
+            text-align: center;
+        }
+        .param-value.best {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 700;
+            position: relative;
+        }
+        .param-value.best::after {
+            content: '⭐';
+            margin-left: 6px;
+        }
+        .param-value.worst {
+            color: #999;
+        }
+
+        /* 价格库存 */
+        .price-value {
+            font-size: 20px;
+            font-weight: 800;
+            color: #d32f2f;
+        }
+        .stock-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00890b;
+        }
+
+        /* 资源可用性 */
+        .resource-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        .resource-available {
+            color: #00890b;
+            font-weight: 600;
+        }
+        .resource-missing {
+            color: #d32f2f;
+            font-weight: 600;
+        }
+
+        /* 综合评分 */
+        .score-cell {
+            text-align: center;
+        }
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            font-size: 32px;
+            font-weight: 800;
+            position: relative;
+        }
+        .score-circle.excellent {
+            background: linear-gradient(135deg, #00890b, #00b30e);
+            color: white;
+        }
+        .score-circle.good {
+            background: linear-gradient(135deg, #1976d2, #42a5f5);
+            color: white;
+        }
+        .score-circle.average {
+            background: linear-gradient(135deg, #f57c00, #ff9800);
+            color: white;
+        }
+        .score-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* 图表区域 */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-top: 30px;
+        }
+        .chart-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #2d2d2d;
+        }
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, #f5f5f5, #e0e0e0);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* 优缺点分析 */
+        .pros-cons-section {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 24px;
+        }
+        .pros-cons-card {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .pros-cons-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #2d2d2d;
+        }
+        .pros-list, .cons-list {
+            list-style: none;
+        }
+        .pros-list li, .cons-list li {
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .pros-list li {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+        .pros-list li::before {
+            content: '✓ ';
+            font-weight: 700;
+            margin-right: 8px;
+        }
+        .cons-list li {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+        .cons-list li::before {
+            content: '✗ ';
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1440px) {
+            .comparison-wrapper {
+                overflow-x: auto;
+            }
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- 布局容器 -->
+    <div class="layout">
+        <!-- 左侧导航栏 -->
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item active">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主容器 -->
+        <div class="main-container">
+        <!-- 标题 -->
+        <div class="header-section">
+            <div>
+                <div class="header-title">
+                    📊 元器件对比分析
+                    <span class="compare-count" id="compareCount">对比 0 个元器件</span>
+                </div>
+                <div class="header-subtitle">深度对比技术参数、价格、库存和资源可用性，帮助您做出最佳选择</div>
+            </div>
+            <div style="display: flex; gap: 12px;">
+                <button class="top-bar-btn btn-outline" onclick="history.back()">← 返回搜索</button>
+                <button class="top-bar-btn btn-primary" onclick="exportComparison()">📥 导出对比报告</button>
+            </div>
+        </div>
+
+        <!-- AI 推荐 -->
+        <div class="ai-recommendation" id="aiRecommendation">
+            <div class="ai-icon">🤖</div>
+            <div class="ai-content">
+                <div class="ai-title">AI 智能推荐</div>
+                <div class="ai-text" id="aiRecommendationText">正在分析...</div>
+            </div>
+            <div class="recommended-badge" id="recommendedComponent">-</div>
+        </div>
+
+        <!-- 对比表格 -->
+        <div class="comparison-wrapper">
+            <table class="comparison-table" id="comparisonTable">
+                <thead>
+                    <tr>
+                        <th class="param-label">参数</th>
+                        <!-- 动态生成 -->
+                    </tr>
+                </thead>
+                <tbody id="comparisonBody">
+                    <!-- 动态生成 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 可视化图表 -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <div class="chart-title">📈 综合评分对比</div>
+                <div class="chart-placeholder">雷达图：性能、价格、资源完整度、库存可用性</div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">💰 价格趋势对比</div>
+                <div class="chart-placeholder">柱状图：不同供应商价格对比</div>
+            </div>
+        </div>
+
+        <!-- 优缺点分析 -->
+        <div class="pros-cons-section" id="prosConsSection">
+            <!-- 动态生成 -->
+        </div>
+        </div><!-- 关闭 main-container -->
+    </div><!-- 关闭 layout -->
+
+    <script>
+        // 获取URL参数
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            const ids = params.get('ids');
+            return ids ? ids.split(',').map(id => parseInt(id)) : [];
+        }
+
+        // 示例数据（实际应该从数据库获取）
+        const allComponents = [
+            {
+                id: 1,
+                name: 'STM32F103C8T6',
+                manufacturer: 'STMicroelectronics',
+                package: 'LQFP48',
+                tags: ['ARM Cortex-M3', '72MHz'],
+                params: {
+                    core: 'ARM Cortex-M3',
+                    frequency: 72,
+                    flash: 64,
+                    ram: 20,
+                    io: 37,
+                    voltage: '2.0-3.6V',
+                    temperature: '-40~85°C'
+                },
+                price: 5.80,
+                stock: 50000,
+                resources: { datasheet: true, symbol: true, footprint: true, model3d: true },
+                aiScore: 95,
+                pros: [
+                    '性价比极高，适合入门和小批量生产',
+                    '资源完整，包含所有4种设计文件',
+                    '库存充足，交期短',
+                    '社区支持强大，开发资料丰富'
+                ],
+                cons: [
+                    'Flash容量较小，不适合大型应用',
+                    'IO口数量有限',
+                    'RAM相对较小，复杂应用可能不足'
+                ]
+            },
+            {
+                id: 2,
+                name: 'STM32F103RCT6',
+                manufacturer: 'STMicroelectronics',
+                package: 'LQFP64',
+                tags: ['ARM Cortex-M3', '72MHz'],
+                params: {
+                    core: 'ARM Cortex-M3',
+                    frequency: 72,
+                    flash: 256,
+                    ram: 48,
+                    io: 51,
+                    voltage: '2.0-3.6V',
+                    temperature: '-40~85°C'
+                },
+                price: 12.50,
+                stock: 35000,
+                resources: { datasheet: true, symbol: true, footprint: true, model3d: true },
+                aiScore: 92,
+                pros: [
+                    'Flash容量大，适合中大型应用',
+                    'RAM充足，可运行实时操作系统',
+                    'IO口数量多，扩展性强',
+                    '所有资源完整可用'
+                ],
+                cons: [
+                    '价格相对较高',
+                    '封装尺寸较大，占用PCB空间多',
+                    '库存相比C8T6略少'
+                ]
+            },
+            {
+                id: 3,
+                name: 'STM32F103VET6',
+                manufacturer: 'STMicroelectronics',
+                package: 'LQFP100',
+                tags: ['ARM Cortex-M3', '72MHz'],
+                params: {
+                    core: 'ARM Cortex-M3',
+                    frequency: 72,
+                    flash: 512,
+                    ram: 64,
+                    io: 80,
+                    voltage: '2.0-3.6V',
+                    temperature: '-40~85°C'
+                },
+                price: 22.80,
+                stock: 25000,
+                resources: { datasheet: true, symbol: true, footprint: true, model3d: true },
+                aiScore: 88,
+                pros: [
+                    'Flash和RAM容量最大，适合复杂应用',
+                    'IO口数量最多，接口丰富',
+                    '可运行大型RTOS和复杂算法',
+                    '适合专业产品开发'
+                ],
+                cons: [
+                    '价格最高，成本压力大',
+                    '封装最大，PCB设计难度增加',
+                    '功耗相对较高',
+                    '对小项目来说过于强大（overengineering）'
+                ]
+            },
+            {
+                id: 6,
+                name: 'STM32F103RBT6',
+                manufacturer: 'STMicroelectronics',
+                package: 'LQFP64',
+                tags: ['ARM Cortex-M3', '72MHz'],
+                params: {
+                    core: 'ARM Cortex-M3',
+                    frequency: 72,
+                    flash: 128,
+                    ram: 20,
+                    io: 51,
+                    voltage: '2.0-3.6V',
+                    temperature: '-40~85°C'
+                },
+                price: 8.50,
+                stock: 45000,
+                resources: { datasheet: true, symbol: true, footprint: true, model3d: true },
+                aiScore: 90,
+                pros: [
+                    'Flash和IO口平衡性好',
+                    '价格适中，性价比高',
+                    '库存充足',
+                    '适合中等规模项目'
+                ],
+                cons: [
+                    'RAM较小，限制了应用复杂度',
+                    '与C8T6相比价格优势不明显'
+                ]
+            }
+        ];
+
+        // 获取要对比的元器件
+        const compareIds = getUrlParams();
+        const compareComponents = compareIds.map(id => allComponents.find(c => c.id === id)).filter(c => c);
+
+        // 更新对比数量
+        document.getElementById('compareCount').textContent = `对比 ${compareComponents.length} 个元器件`;
+
+        // 生成AI推荐
+        function generateAIRecommendation() {
+            if (compareComponents.length === 0) {
+                document.getElementById('aiRecommendationText').textContent = '请至少选择2个元器件进行对比';
+                return;
+            }
+
+            const bestComponent = compareComponents.reduce((best, current) =>
+                current.aiScore > best.aiScore ? current : best
+            );
+
+            const avgPrice = (compareComponents.reduce((sum, c) => sum + c.price, 0) / compareComponents.length).toFixed(2);
+            const avgScore = (compareComponents.reduce((sum, c) => sum + c.aiScore, 0) / compareComponents.length).toFixed(0);
+
+            document.getElementById('aiRecommendationText').textContent =
+                `基于综合评分、价格、库存和资源完整度分析，推荐选择 ${bestComponent.name}。该型号AI评分${bestComponent.aiScore}分，在${compareComponents.length}个对比型号中表现最佳。平均价格¥${avgPrice}，平均评分${avgScore}分。`;
+
+            document.getElementById('recommendedComponent').textContent = bestComponent.name;
+        }
+
+        // 生成表头
+        function generateTableHeader() {
+            const thead = document.querySelector('#comparisonTable thead tr');
+            compareComponents.forEach(comp => {
+                const th = document.createElement('th');
+                th.className = 'component-header';
+                th.innerHTML = `
+                    <div class="component-icon">🔲</div>
+                    <div class="component-name">${comp.name}</div>
+                    <div class="component-manufacturer">${comp.manufacturer}</div>
+                    <div class="component-tags">
+                        <span class="tag package">${comp.package}</span>
+                        ${comp.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="ai-score-badge">🤖 AI评分: ${comp.aiScore}</div>
+                    <div class="component-actions">
+                        <button class="action-btn btn-add" onclick="addToLibrary(${comp.id})">添加到库</button>
+                        <button class="action-btn btn-view" onclick="viewDetails(${comp.id})">查看详情</button>
+                    </div>
+                `;
+                thead.appendChild(th);
+            });
+        }
+
+        // 生成对比行
+        function generateComparisonRows() {
+            const tbody = document.getElementById('comparisonBody');
+
+            // 基本信息分类
+            addCategoryRow(tbody, '🔧 核心参数');
+            addParamRow(tbody, '处理器核心', 'core');
+            addParamRow(tbody, '主频 (MHz)', 'frequency', true, 'number');
+            addParamRow(tbody, 'Flash (KB)', 'flash', true, 'number');
+            addParamRow(tbody, 'RAM (KB)', 'ram', true, 'number');
+            addParamRow(tbody, 'IO口数量', 'io', true, 'number');
+            addParamRow(tbody, '工作电压', 'voltage');
+            addParamRow(tbody, '工作温度', 'temperature');
+
+            // 价格库存
+            addCategoryRow(tbody, '💰 价格与库存');
+            addPriceRow(tbody);
+            addStockRow(tbody);
+
+            // 资源可用性
+            addCategoryRow(tbody, '📦 资源可用性');
+            addResourceRow(tbody, '数据手册 (PDF)', 'datasheet');
+            addResourceRow(tbody, '原理图符号', 'symbol');
+            addResourceRow(tbody, 'PCB封装', 'footprint');
+            addResourceRow(tbody, '3D模型', 'model3d');
+
+            // 综合评分
+            addCategoryRow(tbody, '⭐ 综合评分');
+            addScoreRow(tbody);
+        }
+
+        // 添加分类行
+        function addCategoryRow(tbody, title) {
+            const tr = document.createElement('tr');
+            tr.className = 'category-row';
+            const td = document.createElement('td');
+            td.colSpan = compareComponents.length + 1;
+            td.textContent = title;
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+
+        // 添加参数行
+        function addParamRow(tbody, label, paramKey, highlight = false, type = 'text') {
+            const tr = document.createElement('tr');
+
+            const labelTd = document.createElement('td');
+            labelTd.className = 'param-label';
+            labelTd.textContent = label;
+            tr.appendChild(labelTd);
+
+            if (highlight && type === 'number') {
+                const values = compareComponents.map(c => c.params[paramKey]);
+                const maxValue = Math.max(...values);
+                const minValue = Math.min(...values);
+
+                compareComponents.forEach(comp => {
+                    const td = document.createElement('td');
+                    td.className = 'param-value';
+                    const value = comp.params[paramKey];
+                    td.textContent = value;
+
+                    if (value === maxValue && maxValue !== minValue) {
+                        td.classList.add('best');
+                    } else if (value === minValue && maxValue !== minValue) {
+                        td.classList.add('worst');
+                    }
+
+                    tr.appendChild(td);
+                });
+            } else {
+                compareComponents.forEach(comp => {
+                    const td = document.createElement('td');
+                    td.className = 'param-value';
+                    td.textContent = comp.params[paramKey];
+                    tr.appendChild(td);
+                });
+            }
+
+            tbody.appendChild(tr);
+        }
+
+        // 添加价格行
+        function addPriceRow(tbody) {
+            const tr = document.createElement('tr');
+
+            const labelTd = document.createElement('td');
+            labelTd.className = 'param-label';
+            labelTd.textContent = '参考单价';
+            tr.appendChild(labelTd);
+
+            const prices = compareComponents.map(c => c.price);
+            const minPrice = Math.min(...prices);
+
+            compareComponents.forEach(comp => {
+                const td = document.createElement('td');
+                td.innerHTML = `<div class="price-value">¥${comp.price.toFixed(2)}</div>`;
+                if (comp.price === minPrice) {
+                    td.classList.add('best');
+                }
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        }
+
+        // 添加库存行
+        function addStockRow(tbody) {
+            const tr = document.createElement('tr');
+
+            const labelTd = document.createElement('td');
+            labelTd.className = 'param-label';
+            labelTd.textContent = '库存数量';
+            tr.appendChild(labelTd);
+
+            const stocks = compareComponents.map(c => c.stock);
+            const maxStock = Math.max(...stocks);
+
+            compareComponents.forEach(comp => {
+                const td = document.createElement('td');
+                td.innerHTML = `<div class="stock-value">${comp.stock.toLocaleString()}</div>`;
+                if (comp.stock === maxStock) {
+                    td.classList.add('best');
+                }
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        }
+
+        // 添加资源行
+        function addResourceRow(tbody, label, resourceKey) {
+            const tr = document.createElement('tr');
+
+            const labelTd = document.createElement('td');
+            labelTd.className = 'param-label';
+            labelTd.textContent = label;
+            tr.appendChild(labelTd);
+
+            compareComponents.forEach(comp => {
+                const td = document.createElement('td');
+                const available = comp.resources[resourceKey];
+                td.innerHTML = `
+                    <div class="resource-status">
+                        <span class="${available ? 'resource-available' : 'resource-missing'}">
+                            ${available ? '✓ 可用' : '✗ 缺失'}
+                        </span>
+                `;
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        }
+
+        // 添加评分行
+        function addScoreRow(tbody) {
+            const tr = document.createElement('tr');
+
+            const labelTd = document.createElement('td');
+            labelTd.className = 'param-label';
+            labelTd.textContent = 'AI综合评分';
+            tr.appendChild(labelTd);
+
+            compareComponents.forEach(comp => {
+                const td = document.createElement('td');
+                td.className = 'score-cell';
+
+                let scoreClass = 'average';
+                if (comp.aiScore >= 90) scoreClass = 'excellent';
+                else if (comp.aiScore >= 85) scoreClass = 'good';
+
+                td.innerHTML = `
+                    <div class="score-circle ${scoreClass}">${comp.aiScore}</div>
+                    <div class="score-label">综合得分</div>
+                `;
+                tr.appendChild(td);
+            });
+
+            tbody.appendChild(tr);
+        }
+
+        // 生成优缺点分析
+        function generateProsConsAnalysis() {
+            const section = document.getElementById('prosConsSection');
+
+            compareComponents.forEach(comp => {
+                const card = document.createElement('div');
+                card.className = 'pros-cons-card';
+                card.innerHTML = `
+                    <div class="pros-cons-title">${comp.name} - 优缺点分析</div>
+                    <h4 style="color: #2e7d32; margin: 16px 0 8px 0; font-size: 16px;">✓ 优势</h4>
+                    <ul class="pros-list">
+                        ${comp.pros.map(pro => `<li>${pro}</li>`).join('')}
+                    </ul>
+                    <h4 style="color: #c62828; margin: 16px 0 8px 0; font-size: 16px;">✗ 不足</h4>
+                    <ul class="cons-list">
+                        ${comp.cons.map(con => `<li>${con}</li>`).join('')}
+                    </ul>
+                `;
+                section.appendChild(card);
+            });
+        }
+
+        // 功能函数
+        function addToLibrary(id) {
+            const comp = allComponents.find(c => c.id === id);
+            alert(`已将 ${comp.name} 添加到本地库！`);
+        }
+
+        function viewDetails(id) {
+            window.location.href = `component-detail.html?id=${id}`;
+        }
+
+        function exportComparison() {
+            alert('导出对比报告功能开发中...\n将支持导出为PDF、Excel等格式');
+        }
+
+        // 初始化
+        if (compareComponents.length < 2) {
+            document.querySelector('.main-container').innerHTML = `
+                <div style="text-align: center; padding: 100px 20px;">
+                    <div style="font-size: 80px; margin-bottom: 20px;">📊</div>
+                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 12px;">请至少选择2个元器件进行对比</div>
+                    <div style="font-size: 16px; color: #999; margin-bottom: 30px;">从搜索页面选择多个元器件后即可查看详细对比</div>
+                    <button class="top-bar-btn btn-primary" onclick="location.href='component-search-compare.html'">返回搜索页面</button>
+            `;
+        } else {
+            generateAIRecommendation();
+            generateTableHeader();
+            generateComparisonRows();
+            generateProsConsAnalysis();
+        }
+    </script>
+</body>
+</html>

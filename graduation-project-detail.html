@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目管理 - 无人机避障算法研究 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-bar-right { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .top-nav-links a:hover { color: #00890b; }
+
+        .container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 24px;
+            height: fit-content;
+        }
+
+        .nav-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: #f8f9ff;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            color: #999;
+            font-weight: 600;
+            margin: 16px 12px 8px 12px;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            min-height: 600px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+            border: 2px solid #e8eaf6;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .progress-section {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .progress-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .progress-percentage {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            transition: width 1s ease;
+        }
+
+        .progress-detail {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .milestone-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .milestone-item {
+            display: flex;
+            gap: 16px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border-left: 4px solid #e0e0e0;
+            transition: all 0.3s;
+        }
+
+        .milestone-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .milestone-item.completed {
+            border-left-color: #4caf50;
+            background: #f1f8f4;
+        }
+
+        .milestone-item.current {
+            border-left-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .milestone-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            background: #f0f0f0;
+            flex-shrink: 0;
+        }
+
+        .milestone-item.completed .milestone-icon {
+            background: #4caf50;
+            color: white;
+        }
+
+        .milestone-item.current .milestone-icon {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .milestone-content {
+            flex: 1;
+        }
+
+        .milestone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 8px;
+        }
+
+        .milestone-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .milestone-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .milestone-desc {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .milestone-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary-small {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary-small:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(102,126,234,0.3);
+        }
+
+        .btn-secondary-small {
+            background: white;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-secondary-small:hover {
+            background: #f8f9ff;
+        }
+
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: #f8f9ff;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .task-item:hover {
+            background: #f0f2ff;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .task-meta {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .message-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8f9ff;
+            border-radius: 12px;
+        }
+
+        .message-item {
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-item.sent {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            max-width: 60%;
+        }
+
+        .message-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .message-time {
+            color: #999;
+        }
+
+        .message-bubble {
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: white;
+            font-size: 14px;
+            line-height: 1.6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .message-item.sent .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .message-input-area {
+            display: flex;
+            gap: 12px;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+        }
+
+        .message-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%);
+            border: 2px solid #e8eaf6;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .total-score {
+            font-size: 72px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .score-label {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 24px;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-top: 32px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-item-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .score-item-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .score-item-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .score-item-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 4px;
+        }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .document-card {
+            background: #f8f9ff;
+            border: 2px solid #e8eaf6;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .document-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
+        }
+
+        .document-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 12px;
+        }
+
+        .document-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .document-meta {
+            font-size: 12px;
+            color: #999;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .upload-zone {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9ff;
+        }
+
+        .upload-zone:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 13px;
+            color: #999;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 容器 -->
+    <div class="container">
+        <div class="dashboard-grid">
+            <!-- 侧边栏 -->
+            <div class="sidebar">
+                <div class="nav-card">
+                    <div class="nav-item active" onclick="switchSection('overview')">
+                        <span style="font-size: 18px;">📊</span>
+                        <span>项目概览</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('milestones')">
+                        <span style="font-size: 18px;">🎯</span>
+                        <span>里程碑</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('tasks')">
+                        <span style="font-size: 18px;">✅</span>
+                        <span>任务清单</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('communication')">
+                        <span style="font-size: 18px;">💬</span>
+                        <span>导师沟通</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('documents')">
+                        <span style="font-size: 18px;">📁</span>
+                        <span>文档资料</span>
+                    </div>
+                    <div class="nav-item" onclick="switchSection('evaluation')">
+                        <span style="font-size: 18px;">⭐</span>
+                        <span>综合评分</span>
+                    </div>
+
+                    <div class="nav-section-title">快捷操作</div>
+                    <div class="nav-item" onclick="location.href='graduation-hub.html'">
+                        <span style="font-size: 18px;">🏠</span>
+                        <span>返回首页</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="main-content">
+                <!-- 项目概览 -->
+                <div class="content-section active" id="overview">
+                    <div class="section-header">
+                        <div class="section-title">📊 项目概览</div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value">62%</div>
+                            <div class="stat-label">整体进度</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">89天</div>
+                            <div class="stat-label">已用时间</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">31天</div>
+                            <div class="stat-label">剩余时间</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">85分</div>
+                            <div class="stat-label">当前评分</div>
+                        </div>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <div class="progress-title">整体进度</div>
+                            <div class="progress-percentage">62%</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" style="width: 0%" data-width="62%"></div>
+                        </div>
+                        <div class="progress-detail">已完成 3/5 个里程碑 · 预计 2025-03-15 完成</div>
+                    </div>
+
+                    <div class="section-header" style="margin-top: 32px;">
+                        <div style="font-size: 18px; font-weight: 600;">最近活动</div>
+                    </div>
+
+                    <div class="task-list">
+                        <div class="task-item">
+                            <div style="font-size: 20px;">✅</div>
+                            <div class="task-content">
+                                <div class="task-title">提交了避障算法第二版代码</div>
+                                <div class="task-meta">2小时前 · 导师已查看</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <div style="font-size: 20px;">💬</div>
+                            <div class="task-content">
+                                <div class="task-title">收到导师李明的反馈</div>
+                                <div class="task-meta">5小时前</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <div style="font-size: 20px;">📄</div>
+                            <div class="task-content">
+                                <div class="task-title">上传了实验报告第三章</div>
+                                <div class="task-meta">昨天 15:30</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 里程碑 -->
+                <div class="content-section" id="milestones">
+                    <div class="section-header">
+                        <div class="section-title">🎯 项目里程碑</div>
+                    </div>
+
+                    <div class="milestone-list">
+                        <div class="milestone-item completed">
+                            <div class="milestone-icon">✓</div>
+                            <div class="milestone-content">
+                                <div class="milestone-header">
+                                    <div>
+                                        <div class="milestone-title">阶段一：需求分析与方案设计</div>
+                                        <div class="milestone-date">2024-11-01 - 2024-11-30 · 已完成</div>
+                                    </div>
+                                </div>
+                                <div class="milestone-desc">
+                                    完成项目需求调研，设计避障算法技术方案，确定传感器选型和数据处理流程。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="milestone-item completed">
+                            <div class="milestone-icon">✓</div>
+                            <div class="milestone-content">
+                                <div class="milestone-header">
+                                    <div>
+                                        <div class="milestone-title">阶段二：数据采集与预处理</div>
+                                        <div class="milestone-date">2024-12-01 - 2024-12-31 · 已完成</div>
+                                    </div>
+                                </div>
+                                <div class="milestone-desc">
+                                    搭建数据采集平台，收集不同环境下的障碍物数据，完成数据清洗和标注工作。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="milestone-item current">
+                            <div class="milestone-icon">⏳</div>
+                            <div class="milestone-content">
+                                <div class="milestone-header">
+                                    <div>
+                                        <div class="milestone-title">阶段三：算法开发与优化</div>
+                                        <div class="milestone-date">2025-01-01 - 2025-02-15 · 进行中（62%）</div>
+                                    </div>
+                                </div>
+                                <div class="milestone-desc">
+                                    实现避障算法核心代码，进行性能优化和参数调优，完成仿真测试。
+                                </div>
+                                <div class="milestone-actions">
+                                    <button class="btn-primary-small" onclick="uploadDeliverable()">📤 上传成果</button>
+                                    <button class="btn-secondary-small" onclick="viewRequirements()">📋 查看要求</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="milestone-item">
+                            <div class="milestone-icon">4</div>
+                            <div class="milestone-content">
+                                <div class="milestone-header">
+                                    <div>
+                                        <div class="milestone-title">阶段四：实物测试与验证</div>
+                                        <div class="milestone-date">2025-02-16 - 2025-03-10 · 未开始</div>
+                                    </div>
+                                </div>
+                                <div class="milestone-desc">
+                                    将算法部署到无人机硬件平台，进行实际飞行测试，收集性能数据并优化。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="milestone-item">
+                            <div class="milestone-icon">5</div>
+                            <div class="milestone-content">
+                                <div class="milestone-header">
+                                    <div>
+                                        <div class="milestone-title">阶段五：论文撰写与答辩准备</div>
+                                        <div class="milestone-date">2025-03-11 - 2025-04-15 · 未开始</div>
+                                    </div>
+                                </div>
+                                <div class="milestone-desc">
+                                    撰写毕业设计论文，准备答辩PPT和演示Demo，完成项目总结报告。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务清单 -->
+                <div class="content-section" id="tasks">
+                    <div class="section-header">
+                        <div class="section-title">✅ 本周任务清单</div>
+                        <button class="btn-primary" onclick="addTask()">➕ 添加任务</button>
+                    </div>
+
+                    <div class="task-list">
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox" checked>
+                            <div class="task-content">
+                                <div class="task-title">完成避障算法V2.0开发</div>
+                                <div class="task-meta">优先级：高 · 截止日期：2025-01-25</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox" checked>
+                            <div class="task-content">
+                                <div class="task-title">编写单元测试代码</div>
+                                <div class="task-meta">优先级：中 · 截止日期：2025-01-26</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox">
+                            <div class="task-content">
+                                <div class="task-title">准备周报和进度汇报材料</div>
+                                <div class="task-meta">优先级：中 · 截止日期：2025-01-27</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox">
+                            <div class="task-content">
+                                <div class="task-title">优化算法运行效率（目标：提升20%）</div>
+                                <div class="task-meta">优先级：高 · 截止日期：2025-01-28</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox">
+                            <div class="task-content">
+                                <div class="task-title">与导师讨论下阶段计划</div>
+                                <div class="task-meta">优先级：高 · 截止日期：2025-01-29</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 导师沟通 -->
+                <div class="content-section" id="communication">
+                    <div class="section-header">
+                        <div class="section-title">💬 导师沟通</div>
+                    </div>
+
+                    <div class="message-list">
+                        <div class="message-item">
+                            <div class="message-avatar">李</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">李明导师</span>
+                                    <span class="message-time">今天 10:30</span>
+                                </div>
+                                <div class="message-bubble">
+                                    你好！看了你最新提交的避障算法代码，整体思路很清晰。有几点建议：<br>
+                                    1. 边缘情况的处理可以更完善<br>
+                                    2. 建议增加算法鲁棒性测试<br>
+                                    3. 代码注释可以更详细一些<br><br>
+                                    整体完成质量不错，继续加油！
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="message-item sent">
+                            <div class="message-avatar">张</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-time">今天 11:15</span>
+                                    <span class="message-sender">我</span>
+                                </div>
+                                <div class="message-bubble">
+                                    感谢李老师的指导！我会按照您的建议进行改进。关于边缘情况，我计划从以下几个方面优化：<br>
+                                    1. 传感器数据异常处理<br>
+                                    2. 极端环境适应性<br>
+                                    3. 多障碍物场景处理<br><br>
+                                    预计本周五前完成修改，届时再请您review。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="message-item">
+                            <div class="message-avatar">李</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">李明导师</span>
+                                    <span class="message-time">今天 11:45</span>
+                                </div>
+                                <div class="message-bubble">
+                                    很好！思路很清晰。另外，下周我们安排一次线上会议，详细讨论一下实物测试的准备工作。你可以提前准备一下测试方案。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-input-area">
+                        <textarea class="message-input" placeholder="输入消息..." rows="3"></textarea>
+                        <button class="btn btn-primary" onclick="sendMessage()">发送</button>
+                    </div>
+                </div>
+
+                <!-- 文档资料 -->
+                <div class="content-section" id="documents">
+                    <div class="section-header">
+                        <div class="section-title">📁 文档资料</div>
+                    </div>
+
+                    <div class="upload-zone" onclick="uploadDocument()" style="margin-bottom: 24px;">
+                        <div class="upload-icon">📤</div>
+                        <div class="upload-text">上传文档</div>
+                        <div class="upload-hint">支持 PDF、Word、代码文件等</div>
+                    </div>
+
+                    <div class="document-grid">
+                        <div class="document-card">
+                            <div class="document-icon">📄</div>
+                            <div class="document-title">项目需求文档.pdf</div>
+                            <div class="document-meta">
+                                <span>2.3 MB</span>
+                                <span>2024-11-05</span>
+                            </div>
+                        </div>
+
+                        <div class="document-card">
+                            <div class="document-icon">💻</div>
+                            <div class="document-title">避障算法源代码.zip</div>
+                            <div class="document-meta">
+                                <span>5.8 MB</span>
+                                <span>2025-01-20</span>
+                            </div>
+                        </div>
+
+                        <div class="document-card">
+                            <div class="document-icon">📊</div>
+                            <div class="document-title">实验数据分析报告.xlsx</div>
+                            <div class="document-meta">
+                                <span>1.2 MB</span>
+                                <span>2025-01-18</span>
+                            </div>
+                        </div>
+
+                        <div class="document-card">
+                            <div class="document-icon">📝</div>
+                            <div class="document-title">周报-第12周.docx</div>
+                            <div class="document-meta">
+                                <span>456 KB</span>
+                                <span>2025-01-19</span>
+                            </div>
+                        </div>
+
+                        <div class="document-card">
+                            <div class="document-icon">🎬</div>
+                            <div class="document-title">算法演示视频.mp4</div>
+                            <div class="document-meta">
+                                <span>15.6 MB</span>
+                                <span>2025-01-15</span>
+                            </div>
+                        </div>
+
+                        <div class="document-card">
+                            <div class="document-icon">📐</div>
+                            <div class="document-title">系统架构图.png</div>
+                            <div class="document-meta">
+                                <span>890 KB</span>
+                                <span>2024-12-10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 综合评分 -->
+                <div class="content-section" id="evaluation">
+                    <div class="section-header">
+                        <div class="section-title">⭐ 综合评分</div>
+                    </div>
+
+                    <div class="score-card">
+                        <div class="total-score">85</div>
+                        <div class="score-label">当前综合评分（基于已完成阶段）</div>
+
+                        <div class="score-breakdown">
+                            <div class="score-item">
+                                <div class="score-item-title">技术能力 (40%)</div>
+                                <div class="score-item-value">88</div>
+                                <div class="score-item-bar">
+                                    <div class="score-item-fill" style="width: 88%"></div>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-title">项目进度 (20%)</div>
+                                <div class="score-item-value">82</div>
+                                <div class="score-item-bar">
+                                    <div class="score-item-fill" style="width: 82%"></div>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-title">沟通协作 (20%)</div>
+                                <div class="score-item-value">90</div>
+                                <div class="score-item-bar">
+                                    <div class="score-item-fill" style="width: 90%"></div>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-title">文档规范 (10%)</div>
+                                <div class="score-item-value">85</div>
+                                <div class="score-item-bar">
+                                    <div class="score-item-fill" style="width: 85%"></div>
+                                </div>
+                            </div>
+                            <div class="score-item">
+                                <div class="score-item-title">问题解决 (10%)</div>
+                                <div class="score-item-value">87</div>
+                                <div class="score-item-bar">
+                                    <div class="score-item-fill" style="width: 87%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: #f8f9ff; border-radius: 12px; padding: 24px;">
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #333;">📈 评分趋势</div>
+                        <div style="font-size: 14px; color: #666; line-height: 1.8;">
+                            • <strong>技术能力：</strong>代码质量优秀，算法实现思路清晰，有创新点<br>
+                            • <strong>项目进度：</strong>整体进度符合预期，个别环节可以加快<br>
+                            • <strong>沟通协作：</strong>响应及时，主动汇报，沟通效率高<br>
+                            • <strong>文档规范：</strong>文档完整，建议增加更多技术细节说明<br>
+                            • <strong>问题解决：</strong>遇到问题能独立思考并找到解决方案<br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载动画
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                const progressBar = document.querySelector('.progress-bar-fill');
+                if (progressBar) {
+                    progressBar.style.width = progressBar.dataset.width;
+                }
+            }, 300);
+        });
+
+        // 切换内容区域
+        function switchSection(sectionId) {
+            // 更新导航激活状态
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.nav-item').classList.add('active');
+
+            // 切换内容显示
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+
+        // 上传交付成果
+        function uploadDeliverable() {
+            // 创建文件上传输入
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.accept = '.zip,.pdf,.doc,.docx,.ppt,.pptx,.mp4,.avi';
+            input.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                    // 显示上传成功提示
+                    const toast = document.createElement('div');
+                    toast.style.cssText = 'position: fixed; top: 80px; right: 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; animation: slideIn 0.3s;';
+                    toast.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="font-size: 24px;">📤</div>
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 4px;">文件上传成功</div>
+                                <div style="font-size: 13px; opacity: 0.9;">已上传 ${files.length} 个文件，导师将收到通知</div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 3000);
+                }
+            };
+            input.click();
+        }
+
+        // 查看里程碑要求
+        function viewRequirements() {
+            // 创建模态窗口显示要求
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 32px; max-width: 600px; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                        <h3 style="font-size: 20px; font-weight: 700;">📋 阶段三要求详情</h3>
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="background: none; border: none; font-size: 28px; color: #999; cursor: pointer;">&times;</button>
+                    </div>
+
+                    <div style="background: #f8f9ff; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #667eea;">🎯 核心任务</div>
+                        <div style="font-size: 14px; color: #666; line-height: 2;">
+                            1. 实现避障算法核心模块<br>
+                            2. 完成仿真测试（测试用例≥50个）<br>
+                            3. 优化算法性能（响应时间<100ms）<br>
+                            4. 编写技术文档
+                        </div>
+                    </div>
+
+                    <div style="background: #f8f9ff; padding: 20px; border-radius: 12px;">
+                        <div style="font-weight: 600; margin-bottom: 12px; color: #667eea;">📦 交付物</div>
+                        <div style="font-size: 14px; color: #666; line-height: 2;">
+                            • 完整源代码（含注释）<br>
+                            • 单元测试代码<br>
+                            • 性能测试报告<br>
+                            • 技术实现文档
+                        </div>
+                    </div>
+
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="width: 100%; margin-top: 24px; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">知道了</button>
+                </div>
+            `;
+            modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+            document.body.appendChild(modal);
+        }
+
+        // 添加任务
+        function addTask() {
+            const taskList = document.querySelector('#tasks .task-list');
+            const newTask = document.createElement('div');
+            newTask.className = 'task-item';
+            newTask.innerHTML = `
+                <input type="checkbox" class="task-checkbox">
+                <div class="task-content">
+                    <div class="task-title">新任务</div>
+                    <div class="task-meta">优先级：中 · 截止日期：待定</div>
+            `;
+            taskList.appendChild(newTask);
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.querySelector('.message-input');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            const messageList = document.querySelector('.message-list');
+            const newMessage = document.createElement('div');
+            newMessage.className = 'message-item sent';
+            newMessage.innerHTML = `
+                <div class="message-avatar">张</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-time">刚刚</span>
+                        <span class="message-sender">我</span>
+                    <div class="message-bubble">${message}</div>
+            `;
+
+            messageList.appendChild(newMessage);
+            messageList.scrollTop = messageList.scrollHeight;
+            input.value = '';
+        }
+
+        // 上传文档
+        function uploadDocument() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.c,.cpp,.py,.java,.zip,.png,.jpg,.svg,.mp4,.avi';
+            input.onchange = function(e) {
+                const files = Array.from(e.target.files);
+                if (files.length > 0) {
+                    // 显示上传提示
+                    const toast = document.createElement('div');
+                    toast.style.cssText = 'position: fixed; top: 80px; right: 24px; background: #4caf50; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999;';
+                    toast.innerHTML = `<div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 24px;">✓</div>
+                        <div>上传成功！已添加 ${files.length} 个文档</div>
+                    </div>`;
+                    document.body.appendChild(toast);
+                    setTimeout(() => toast.remove(), 2000);
+
+                    // 刷新文档列表
+                    setTimeout(() => location.reload(), 2000);
+                }
+            };
+            input.click();
+        }
+    </script>
+</body>
+</html>

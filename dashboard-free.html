@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作台 - EZPLM 免费版</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .topbar {
+            height: 80px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: #00890b;
+        }
+
+        .plan-badge {
+            background: #f4f4f4;
+            color: #3d4647;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f4f4f4;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: background 0.3s;
+        }
+
+        .icon-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #00890b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 主布局 */
+        .main-layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            padding: 24px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 32px;
+        }
+
+        .nav-section-title {
+            padding: 0 24px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-item:hover {
+            background: #f4f4f4;
+        }
+
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+        }
+
+        .nav-item.active:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: #00890b;
+        }
+
+        .nav-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            width: 24px;
+        }
+
+        .lock-icon {
+            margin-left: auto;
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        /* 升级提示 */
+        .upgrade-banner {
+            background: linear-gradient(135deg, #00890b 0%, #007309 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .upgrade-banner-content h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .upgrade-banner-content p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .btn-upgrade {
+            background: white;
+            color: #00890b;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .btn-upgrade:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 欢迎区域 */
+        .welcome-section {
+            margin-bottom: 32px;
+        }
+
+        .welcome-section h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+
+        .welcome-section p {
+            color: #999;
+            font-size: 16px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            border: 2px solid #f4f4f4;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: #00890b;
+            box-shadow: 0 4px 12px rgba(0,137,11,0.1);
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .stat-card-title {
+            font-size: 14px;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .stat-card-icon {
+            font-size: 24px;
+        }
+
+        .stat-card-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-label {
+            font-size: 13px;
+            color: #999;
+        }
+
+        .stat-card-limit {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #f4f4f4;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 快速操作 */
+        .quick-actions {
+            background: white;
+            padding: 32px;
+            border-radius: 8px;
+            margin-bottom: 32px;
+        }
+
+        .quick-actions h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #3d4647;
+        }
+
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .action-card {
+            padding: 20px;
+            border: 2px solid #f4f4f4;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #3d4647;
+        }
+
+        .action-card:hover {
+            border-color: #00890b;
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .action-title {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* 最近项目 */
+        .recent-section {
+            background: white;
+            padding: 32px;
+            border-radius: 8px;
+        }
+
+        .recent-section h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #3d4647;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #007309;
+        }
+
+        /* 功能限制提示 */
+        .feature-locked {
+            background: #f4f4f4;
+            padding: 16px;
+            border-radius: 6px;
+            margin-top: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feature-locked-icon {
+            font-size: 24px;
+        }
+
+        .feature-locked-text {
+            flex: 1;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .btn-unlock {
+            background: white;
+            color: #00890b;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 2px solid #00890b;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!--
+    ========================================
+    页面信息
+    ========================================
+    页面名称: 工作台 - 免费版
+    用户角色: 免费个人用户
+    可用功能:
+    - ✅ 物料管理（完整）
+    - ✅ 项目管理（基础版）
+    - ✅ BOM管理（基础版）
+    - ❌ 库存管理（锁定）
+    - ❌ 采购管理（锁定）
+    - ❌ 数据分析（锁定）
+
+    存储限制: 5GB
+    ========================================
+    -->
+
+    <!-- 顶部导航栏 -->
+    <div class="topbar">
+        <div class="topbar-left">
+            <div class="logo" onclick="location.href='index.html'" style="cursor: pointer;">EZ-PLM</div>
+            <span class="plan-badge">免费版</span>
+        </div>
+
+        <div class="topbar-right">
+            <button class="icon-btn" title="搜索">🔍</button>
+            <button class="icon-btn" title="通知">🔔</button>
+            <button class="icon-btn" title="帮助">❓</button>
+            <div class="user-avatar" title="张三">张</div>
+        </div>
+    </div>
+
+    <!-- 主布局 -->
+    <div class="main-layout">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">主要功能</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                    <span class="lock-icon">⚡</span>
+                </a>
+                <a href="requirement-initiation.html" class="nav-item disabled">
+                    <span class="nav-icon">📝</span>
+                    <span>需求发起</span>
+                    <span class="lock-icon">🔒</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item disabled">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                    <span class="lock-icon">🔒</span>
+                </a>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="customer-supplied-materials.html" class="nav-item disabled">
+                    <span class="nav-icon">📦</span>
+                    <span>客供物料</span>
+                    <span class="lock-icon">🔒</span>
+                </a>
+                <a href="cloud-search.html" class="nav-item disabled">
+                    <span class="nav-icon">🌐</span>
+                    <span>云端搜索</span>
+                    <span class="lock-icon">🔒</span>
+                </a>
+                <a href="reference-designs.html" class="nav-item disabled">
+                    <span class="nav-icon">📚</span>
+                    <span>参考设计库</span>
+                    <span class="lock-icon">🔒</span>
+                </a>
+                <div class="nav-item disabled">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                    <span class="lock-icon">🔒</span>
+                </div>
+                <div class="nav-item disabled">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                    <span class="lock-icon">🔒</span>
+                </div>
+                <div class="nav-item disabled">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                    <span class="lock-icon">🔒</span>
+                </div>
+                <div class="nav-item disabled">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                    <span class="lock-icon">🔒</span>
+                </div>
+                <div class="nav-item disabled">
+                    <span class="nav-icon">🗂️</span>
+                    <span>分类管理</span>
+                    <span class="lock-icon">🔒</span>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统管理</div>
+                <div class="nav-item disabled">
+                    <span class="nav-icon">📈</span>
+                    <span>数据分析</span>
+                    <span class="lock-icon">🔒</span>
+                </div>
+                <div class="nav-item disabled">
+                    <span class="nav-icon">⏱️</span>
+                    <span>时间管控看板</span>
+                    <span class="lock-icon">🔒</span>
+                </div>
+                <a href="profile.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+                <a href="help.html" class="nav-item">
+                    <span class="nav-icon">❓</span>
+                    <span>帮助中心</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 升级提示 -->
+            <div class="upgrade-banner">
+                <div class="upgrade-banner-content">
+                    <h3>🚀 升级到标准版，解锁更多功能</h3>
+                    <p>库存管理、采购管理、团队协作等高级功能，助力团队效率提升</p>
+                </div>
+                <button class="btn-upgrade" onclick="location.href='upgrade.html'">
+                    立即升级 →
+                </button>
+            </div>
+
+            <!-- 欢迎区域 -->
+            <div class="welcome-section">
+                <h1>欢迎回来，张三 👋</h1>
+                <p>今天是 2025年10月19日 星期日</p>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">物料总数</span>
+                        <span class="stat-card-icon">📦</span>
+                    </div>
+                    <div class="stat-card-value">127</div>
+                    <div class="stat-card-label">个物料</div>
+                    <div class="stat-card-limit">存储空间：2.1GB / 5GB</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">项目数量</span>
+                        <span class="stat-card-icon">📁</span>
+                    </div>
+                    <div class="stat-card-value">5</div>
+                    <div class="stat-card-label">个项目</div>
+                    <div class="stat-card-limit">免费版：最多5个项目</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <span class="stat-card-title">BOM数量</span>
+                        <span class="stat-card-icon">📋</span>
+                    </div>
+                    <div class="stat-card-value">3</div>
+                    <div class="stat-card-label">个BOM清单</div>
+                    <div class="stat-card-limit">基础功能可用 ⚡</div>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="quick-actions">
+                <h2>快速操作</h2>
+                <div class="actions-grid">
+                    <a href="materials.html?action=add" class="action-card">
+                        <div class="action-icon">➕</div>
+                        <div class="action-title">添加物料</div>
+                    </a>
+                    <a href="bom.html?action=create" class="action-card">
+                        <div class="action-icon">📋</div>
+                        <div class="action-title">创建BOM</div>
+                    </a>
+                    <a href="projects.html?action=create" class="action-card">
+                        <div class="action-icon">📁</div>
+                        <div class="action-title">新建项目</div>
+                    </a>
+                    <a href="materials.html?tab=cloud-search" class="action-card">
+                        <div class="action-icon">🔍</div>
+                        <div class="action-title">云端搜索</div>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 功能限制提示 -->
+            <div class="feature-locked">
+                <span class="feature-locked-icon">🔒</span>
+                <div class="feature-locked-text">
+                    <strong>库存管理和采购管理功能已锁定</strong><br>
+                    升级到标准版（¥20/月）即可使用完整的供应链管理功能
+                </div>
+                <button class="btn-unlock" onclick="location.href='upgrade.html'">
+                    查看升级方案
+                </button>
+            </div>
+
+            <!-- 最近项目 -->
+            <div class="recent-section">
+                <h2>最近的项目</h2>
+                <div class="empty-state">
+                    <div class="empty-state-icon">📁</div>
+                    <p>还没有项目，创建您的第一个项目吧</p>
+                    <button class="btn-primary" onclick="location.href='projects.html?action=create'">
+                        创建项目
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // 检查存储空间使用情况
+        function checkStorageUsage() {
+            const used = 2.1; // GB
+            const total = 5; // GB
+            const percentage = (used / total * 100).toFixed(1);
+
+            if (percentage > 80) {
+                alert(`存储空间即将用完（${percentage}%），建议升级到标准版获得50GB空间`);
+            }
+        }
+
+        // 点击锁定功能时的提示
+        document.querySelectorAll('.nav-item.disabled').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const feature = this.querySelector('span:nth-child(2)').textContent;
+                if (confirm(`${feature}是付费功能\n\n升级到标准版即可使用此功能，是否立即升级？`)) {
+                    location.href = 'upgrade.html';
+                }
+            });
+        });
+
+        // 页面加载时显示欢迎提示
+        window.addEventListener('load', function() {
+            // 可以添加新手引导等
+        });
+    </script>
+</body>
+</html>

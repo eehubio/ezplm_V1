@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>外包项目广场 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-bar-right { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .top-nav-links a:hover { color: #00890b; }
+
+        /* 返回按钮 */
+        .back-btn { display: flex; align-items: center; gap: 8px; background: white; border: 2px solid #e0e0e0; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #3d4647; cursor: pointer; transition: all 0.3s; }
+        .back-btn:hover { border-color: #00d2ff; background: rgba(0,210,255,0.05); color: #00d2ff; transform: translateX(-2px); }
+
+        /* 主容器 */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            border-radius: 16px;
+            padding: 40px;
+            color: white;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '💼';
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 100px;
+            opacity: 0.2;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 平台筛选 */
+        .platform-filter {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .platform-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .platform-chip {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            background: white;
+        }
+
+        .platform-chip:hover {
+            border-color: #00d2ff;
+        }
+
+        .platform-chip.active {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, rgba(0,210,255,0.1) 0%, rgba(58,71,213,0.1) 100%);
+            color: #3a47d5;
+        }
+
+        .platform-logo {
+            font-size: 18px;
+        }
+
+        /* 使用graduation-topics.html的样式 */
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+
+        .filter-sidebar {
+            position: sticky;
+            top: 94px;
+            height: fit-content;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+
+        .filter-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-option:hover {
+            background: #f8f9ff;
+        }
+
+        .filter-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .filter-count {
+            margin-left: auto;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .toolbar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 3px rgba(0,210,255,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(0,210,255,0.15);
+        }
+
+        .project-header {
+            height: 70px;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .company-logo {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .project-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .project-body {
+            padding: 20px;
+        }
+
+        .project-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background: #f0f0f0;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .project-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .meta-highlight {
+            color: #00d2ff;
+            font-weight: 700;
+        }
+
+        .project-footer {
+            padding: 0 20px 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,210,255,0.4);
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-sidebar {
+                position: static;
+            }
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 返回按钮 -->
+        <div style="margin-bottom: 16px;">
+            <button onclick="location.href='outsourcing-hub.html'" class="back-btn">
+                <span>←</span>
+                <span>返回外包中心</span>
+            </button>
+        </div>
+
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="page-title">💼 外包项目广场</div>
+            <div class="page-subtitle">89个商业项目等你承接 · 平台担保 · 按时付款</div>
+        </div>
+
+        <!-- 平台筛选 -->
+        <div class="platform-filter">
+            <div class="platform-chips">
+                <div class="platform-chip active" onclick="filterPlatform('all')">
+                    <span class="platform-logo">🌐</span>
+                    <span>全部平台</span>
+                    <span style="color: #00d2ff;">89</span>
+                </div>
+                <div class="platform-chip" onclick="filterPlatform('seeed')">
+                    <span class="platform-logo">🌱</span>
+                    <span>Seeed Studio</span>
+                    <span style="color: #999;">45</span>
+                </div>
+                <div class="platform-chip" onclick="filterPlatform('dianzisenlin')">
+                    <span class="platform-logo">🌲</span>
+                    <span>电子森林</span>
+                    <span style="color: #999;">28</span>
+                </div>
+                <div class="platform-chip" onclick="filterPlatform('moore')">
+                    <span class="platform-logo">📱</span>
+                    <span>摩尔精英</span>
+                    <span style="color: #999;">16</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 布局 -->
+        <div class="layout">
+            <!-- 筛选侧边栏 -->
+            <div class="filter-sidebar">
+                <!-- 项目类型 -->
+                <div class="filter-card">
+                    <div class="filter-title">项目类型</div>
+                    <div class="filter-group">
+                        <label class="filter-option">
+                            <input type="checkbox" value="hardware">
+                            <span>硬件设计</span>
+                            <span class="filter-count">35</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="firmware">
+                            <span>固件开发</span>
+                            <span class="filter-count">28</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="system">
+                            <span>系统集成</span>
+                            <span class="filter-count">18</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="test">
+                            <span>测试验证</span>
+                            <span class="filter-count">8</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 预算范围 -->
+                <div class="filter-card">
+                    <div class="filter-title">预算范围</div>
+                    <div class="filter-group">
+                        <label class="filter-option">
+                            <input type="checkbox" value="low">
+                            <span>< 1万</span>
+                            <span class="filter-count">22</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="medium">
+                            <span>1-5万</span>
+                            <span class="filter-count">38</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="high">
+                            <span>5-10万</span>
+                            <span class="filter-count">18</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="premium">
+                            <span>> 10万</span>
+                            <span class="filter-count">11</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 项目周期 -->
+                <div class="filter-card">
+                    <div class="filter-title">项目周期</div>
+                    <div class="filter-group">
+                        <label class="filter-option">
+                            <input type="checkbox">
+                            <span>< 1个月</span>
+                            <span class="filter-count">25</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox">
+                            <span>1-3个月</span>
+                            <span class="filter-count">42</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox">
+                            <span>> 3个月</span>
+                            <span class="filter-count">22</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="main-content">
+                <!-- 搜索工具栏 -->
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="搜索项目关键词...">
+                    </div>
+                    <select class="search-input" style="flex: none; width: 160px; padding-left: 16px;">
+                        <option>最新发布</option>
+                        <option>预算最高</option>
+                        <option>即将截止</option>
+                    </select>
+                </div>
+
+                <!-- 项目网格 -->
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- 项目卡片将由JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+
+    <script>
+        // 项目数据
+        const projects = [
+            {
+                id: 1,
+                company: 'Seeed Studio',
+                logo: '🌱',
+                category: '智能传感器产品',
+                title: '多合一环境监测传感器模块设计',
+                tags: ['硬件设计', 'I2C通信', '低功耗'],
+                desc: '设计集成温湿度、CO2、光照度传感器的模块，支持I2C通信，需要通过低功耗认证...',
+                budget: '2-3万',
+                duration: '2个月',
+                location: '深圳 · 可远程',
+                applicants: 8,
+                deadline: '3天后截止',
+                status: '招标中',
+                platform: 'seeed',
+                type: 'hardware'
+            },
+            {
+                id: 2,
+                company: '大疆创新',
+                logo: '🚁',
+                category: '无人机项目',
+                title: '无人机飞控算法优化与验证',
+                tags: ['固件开发', '控制算法', '飞控系统'],
+                desc: '优化现有飞控算法，提升飞行稳定性和响应速度，需要进行实机测试验证...',
+                budget: '5-8万',
+                duration: '3个月',
+                location: '深圳 · 需到场',
+                applicants: 12,
+                deadline: '5天后截止',
+                status: '招标中',
+                platform: 'dianzisenlin',
+                type: 'firmware'
+            },
+            {
+                id: 3,
+                company: '华为技术',
+                logo: '📱',
+                category: '通信设备',
+                title: '5G基站射频模块PCB设计',
+                tags: ['PCB Layout', '高速信号', '射频设计'],
+                desc: '设计5G基站射频前端模块PCB，需处理高速信号完整性和EMC问题...',
+                budget: '8-12万',
+                duration: '4个月',
+                location: '深圳',
+                applicants: 15,
+                deadline: '7天后截止',
+                status: '招标中',
+                platform: 'moore',
+                type: 'hardware'
+            },
+            {
+                id: 4,
+                company: '小米科技',
+                logo: '📲',
+                category: '智能家居',
+                title: 'IoT智能网关硬件开发',
+                tags: ['硬件设计', 'WiFi/蓝牙', '系统集成'],
+                desc: '开发智能家居网关硬件，支持WiFi、蓝牙、Zigbee多协议，需要完成认证...',
+                budget: '3-5万',
+                duration: '2个月',
+                location: '北京 · 可远程',
+                applicants: 10,
+                deadline: '4天后截止',
+                status: '招标中',
+                platform: 'seeed',
+                type: 'system'
+            },
+            {
+                id: 5,
+                company: '比亚迪',
+                logo: '🔋',
+                category: '新能源汽车',
+                title: '电池管理系统BMS固件开发',
+                tags: ['固件开发', 'CAN通信', '功能安全'],
+                desc: '开发电动汽车电池管理系统固件，实现电池监控、均衡管理和故障诊断功能...',
+                budget: '10-15万',
+                duration: '5个月',
+                location: '深圳 · 需到场',
+                applicants: 6,
+                deadline: '10天后截止',
+                status: '招标中',
+                platform: 'dianzisenlin',
+                type: 'firmware'
+            },
+            {
+                id: 6,
+                company: '海康威视',
+                logo: '📹',
+                category: '安防监控',
+                title: '智能摄像头图像处理模块设计',
+                tags: ['硬件设计', '图像处理', 'ISP'],
+                desc: '设计智能监控摄像头的图像处理硬件模块，需要集成ISP和AI加速芯片...',
+                budget: '6-9万',
+                duration: '3个月',
+                location: '杭州 · 可远程',
+                applicants: 9,
+                deadline: '6天后截止',
+                status: '招标中',
+                platform: 'moore',
+                type: 'hardware'
+            },
+            {
+                id: 7,
+                company: '腾讯',
+                logo: '💬',
+                category: '游戏硬件',
+                title: '游戏手柄控制板开发',
+                tags: ['硬件设计', '低延迟', '蓝牙5.0'],
+                desc: '设计游戏手柄控制板，要求极低延迟和稳定的无线连接，支持震动反馈...',
+                budget: '4-6万',
+                duration: '2个月',
+                location: '深圳 · 可远程',
+                applicants: 11,
+                deadline: '5天后截止',
+                status: '招标中',
+                platform: 'seeed',
+                type: 'hardware'
+            },
+            {
+                id: 8,
+                company: '中兴通讯',
+                logo: '📡',
+                category: '通信设备',
+                title: '基站电源管理系统测试验证',
+                tags: ['测试验证', '电源管理', 'EMC测试'],
+                desc: '对基站电源管理系统进行全面测试验证，包括功能测试、性能测试和EMC测试...',
+                budget: '3-4万',
+                duration: '1个月',
+                location: '深圳 · 需到场',
+                applicants: 5,
+                deadline: '8天后截止',
+                status: '招标中',
+                platform: 'moore',
+                type: 'test'
+            }
+        ];
+
+        // 渲染项目列表
+        function renderProjects(filteredProjects = projects) {
+            const grid = document.getElementById('projectsGrid');
+            grid.innerHTML = '';
+
+            filteredProjects.forEach(project => {
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                card.innerHTML = `
+                    <div class="project-header">
+                        <div class="company-info">
+                            <div class="company-logo">${project.logo}</div>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600;">${project.category}</div>
+                                <div style="font-size: 11px; opacity: 0.8;">${project.company}</div>
+                            </div>
+                        </div>
+                        <div class="project-badge">
+                            <span>🟢</span>
+                            <span>${project.status}</span>
+                        </div>
+                    </div>
+                    <div class="project-body" onclick="viewProjectDetail(${project.id})">
+                        <div class="project-title">${project.title}</div>
+                        <div class="project-tags">
+                            ${project.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        </div>
+                        <div style="font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 12px;">
+                            ${project.desc}
+                        </div>
+                        <div class="project-meta">
+                            <div class="meta-item">
+                                <span>💰</span>
+                                <span class="meta-highlight">${project.budget}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>⏱️</span>
+                                <span>${project.duration}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>👥</span>
+                                <span>${project.applicants}人已投标</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>📅</span>
+                                <span>${project.deadline}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <button class="btn btn-primary" onclick="applyProject(event, ${project.id})">立即投标</button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // 查看项目详情
+        function viewProjectDetail(projectId) {
+            // 打开项目详情模态框或跳转到详情页
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999; overflow-y: auto; padding: 40px 20px;';
+
+            const project = projects.find(p => p.id === projectId);
+
+            modal.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 40px; max-width: 800px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative;">
+                    <button onclick="this.closest('[style*=fixed]').remove()" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 32px; color: #999; cursor: pointer; line-height: 1;">&times;</button>
+
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 2px solid #f0f0f0;">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 48px;">${project.logo}</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">${project.title}</div>
+                            <div style="color: #666; font-size: 15px;">${project.company} · ${project.location}</div>
+                        </div>
+                        <div style="padding: 8px 16px; background: rgba(0,210,255,0.1); color: #00d2ff; border-radius: 6px; font-weight: 600;">${project.status}</div>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 12px;">📋 项目描述</div>
+                        <div style="font-size: 14px; color: #666; line-height: 1.8; background: #f9f9f9; padding: 20px; border-radius: 8px;">
+                            ${project.desc}
+                            <br><br>
+                            本项目需要承接方具备丰富的${project.tags[0]}经验，熟悉${project.tags.slice(1).join('、')}等相关技术。
+                            我们会提供完整的需求文档和技术支持，期待您的专业方案。
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 12px;">🏷️ 技术标签</div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            ${project.tags.map(tag => `<span style="padding: 8px 16px; background: #f0f0f0; border-radius: 20px; font-size: 13px;">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px;">
+                        <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 4px;">💰 项目预算</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #00d2ff;">${project.budget}</div>
+                        </div>
+                        <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 4px;">⏱️ 项目周期</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #3d4647;">${project.duration}</div>
+                        </div>
+                        <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 4px;">📍 工作地点</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #3d4647;">${project.location}</div>
+                        </div>
+                        <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 4px;">👥 已投标人数</div>
+                            <div style="font-size: 20px; font-weight: 700; color: #3d4647;">${project.applicants}人</div>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff9e6; border-left: 4px solid #ffa726; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #f57c00;">⏰ 投标截止时间</div>
+                        <div style="font-size: 14px; color: #666;">${project.deadline}</div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px;">
+                        <button onclick="window.location.href='outsourcing-apply.html?id=${project.id}'" style="flex: 1; padding: 14px; background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">
+                            立即投标
+                        </button>
+                        <button onclick="this.closest('[style*=fixed]').remove()" style="padding: 14px 24px; background: white; color: #00d2ff; border: 2px solid #00d2ff; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">
+                            关闭
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.remove();
+            };
+
+            document.body.appendChild(modal);
+        }
+
+        // 申请项目
+        function applyProject(event, projectId) {
+            event.stopPropagation();
+            window.location.href = `outsourcing-apply.html?id=${projectId}`;
+        }
+
+        // 平台筛选
+        function filterPlatform(platform) {
+            document.querySelectorAll('.platform-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+
+            if (platform === 'all') {
+                renderProjects(projects);
+            } else {
+                const filtered = projects.filter(p => p.platform === platform);
+                renderProjects(filtered);
+            }
+        }
+
+        // 页面加载时渲染项目
+        document.addEventListener('DOMContentLoaded', function() {
+            renderProjects();
+        });
+    </script>
+</body>
+</html>

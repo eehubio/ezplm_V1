@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM 核心功能模块流程图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .diagram-container {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            max-width: 1400px;
+            width: 100%;
+        }
+        .diagram-title {
+            text-align: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 12px;
+        }
+        .diagram-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* 模块样式 */
+        .module-box {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .module-box:hover rect {
+            filter: brightness(0.95);
+        }
+        .module-box:hover {
+            transform: translateY(-2px);
+        }
+
+        /* 流程线动画 */
+        @keyframes dash {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .flow-line {
+            stroke-dasharray: 5, 5;
+            animation: dash 20s linear infinite;
+        }
+
+        /* 图例 */
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 32px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        .legend-color {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="diagram-container">
+        <h1 class="diagram-title">EZPLM 核心功能模块生态图</h1>
+        <p class="diagram-subtitle">从研发设计到生产交付，打造电子产品全生命周期管理闭环</p>
+
+        <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <!-- 渐变定义 -->
+                <linearGradient id="grad-research" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="grad-supply" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="grad-ai" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+                </linearGradient>
+                <linearGradient id="grad-ecosystem" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#43e97b;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#38f9d7;stop-opacity:1" />
+                </linearGradient>
+
+                <!-- 箭头标记 -->
+                <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#00890b" opacity="0.6"/>
+                </marker>
+                <marker id="arrowhead-blue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#4facfe" opacity="0.5"/>
+                </marker>
+                <marker id="arrowhead-green" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                    <polygon points="0 0, 10 3, 0 6" fill="#43e97b" opacity="0.5"/>
+                </marker>
+            </defs>
+
+            <!-- ========== 核心业务流程（顺时针环形布局）========== -->
+
+            <!-- 1. 项目管理 (左上) -->
+            <g class="module-box" data-module="project">
+                <rect x="50" y="50" width="160" height="90" rx="12" fill="url(#grad-research)" opacity="0.9"/>
+                <text x="130" y="85" text-anchor="middle" fill="white" font-size="26">📁</text>
+                <text x="130" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="600">项目管理</text>
+                <text x="130" y="130" text-anchor="middle" fill="white" font-size="11" opacity="0.9">看板·甘特图·协作</text>
+            </g>
+
+            <!-- 2. BOM管理 (上中) -->
+            <g class="module-box" data-module="bom">
+                <rect x="360" y="50" width="180" height="90" rx="12" fill="url(#grad-research)" opacity="0.9"/>
+                <text x="450" y="85" text-anchor="middle" fill="white" font-size="26">📋</text>
+                <text x="450" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="600">BOM管理</text>
+                <text x="450" y="130" text-anchor="middle" fill="white" font-size="11" opacity="0.9">版本控制·成本分析</text>
+            </g>
+
+            <!-- 3. 物料管理 (右上) -->
+            <g class="module-box" data-module="material">
+                <rect x="680" y="50" width="200" height="90" rx="12" fill="url(#grad-research)" opacity="0.9"/>
+                <text x="780" y="85" text-anchor="middle" fill="white" font-size="26">📦</text>
+                <text x="780" y="112" text-anchor="middle" fill="white" font-size="15" font-weight="600">物料管理</text>
+                <text x="780" y="130" text-anchor="middle" fill="white" font-size="11" opacity="0.9">110万+元器件库·智能选型</text>
+            </g>
+
+            <!-- 4. 采购管理 (右中) -->
+            <g class="module-box" data-module="procurement">
+                <rect x="920" y="200" width="160" height="90" rx="12" fill="url(#grad-supply)" opacity="0.9"/>
+                <text x="1000" y="235" text-anchor="middle" fill="white" font-size="26">🛒</text>
+                <text x="1000" y="262" text-anchor="middle" fill="white" font-size="15" font-weight="600">采购管理</text>
+                <text x="1000" y="280" text-anchor="middle" fill="white" font-size="11" opacity="0.9">询价·比价·合同</text>
+            </g>
+
+            <!-- 5. 库存管理 (右下) -->
+            <g class="module-box" data-module="inventory">
+                <rect x="780" y="350" width="180" height="90" rx="12" fill="url(#grad-supply)" opacity="0.9"/>
+                <text x="870" y="385" text-anchor="middle" fill="white" font-size="26">📊</text>
+                <text x="870" y="412" text-anchor="middle" fill="white" font-size="15" font-weight="600">库存管理</text>
+                <text x="870" y="430" text-anchor="middle" fill="white" font-size="11" opacity="0.9">实时监控·预警·盘点</text>
+            </g>
+
+            <!-- 6. 生产管理 (左下) -->
+            <g class="module-box" data-module="production">
+                <rect x="50" y="350" width="160" height="90" rx="12" fill="url(#grad-supply)" opacity="0.9"/>
+                <text x="130" y="385" text-anchor="middle" fill="white" font-size="26">🏭</text>
+                <text x="130" y="412" text-anchor="middle" fill="white" font-size="15" font-weight="600">生产管理</text>
+                <text x="130" y="430" text-anchor="middle" fill="white" font-size="11" opacity="0.9">计划·SOP·质检</text>
+            </g>
+
+            <!-- ========== 主流程连线（顺时针）========== -->
+            <!-- 项目 → BOM -->
+            <line x1="210" y1="95" x2="360" y2="95" stroke="#00890b" stroke-width="3.5" opacity="0.5" marker-end="url(#arrowhead)" class="flow-line"/>
+
+            <!-- BOM → 物料 -->
+            <line x1="540" y1="95" x2="680" y2="95" stroke="#00890b" stroke-width="3.5" opacity="0.5" marker-end="url(#arrowhead)" class="flow-line"/>
+
+            <!-- 物料 → 采购 -->
+            <path d="M 880 95 Q 950 95, 1000 140 L 1000 200" stroke="#00890b" stroke-width="3.5" opacity="0.5" marker-end="url(#arrowhead)" fill="none" class="flow-line"/>
+
+            <!-- 采购 → 库存 -->
+            <path d="M 1000 290 Q 1000 320, 960 350 L 960 350" stroke="#00890b" stroke-width="3.5" opacity="0.5" marker-end="url(#arrowhead)" fill="none" class="flow-line"/>
+
+            <!-- 库存 → 生产 -->
+            <line x1="780" y1="395" x2="210" y2="395" stroke="#00890b" stroke-width="3.5" opacity="0.5" marker-end="url(#arrowhead)" class="flow-line"/>
+
+            <!-- 生产 → 项目（闭环）-->
+            <path d="M 130 350 Q 130 320, 130 290 L 130 140" stroke="#00890b" stroke-width="3.5" opacity="0.5" marker-end="url(#arrowhead)" fill="none" class="flow-line"/>
+
+            <!-- ========== AI工具层（底部）========== -->
+            <g class="module-box" data-module="ai">
+                <rect x="50" y="530" width="150" height="80" rx="12" fill="url(#grad-ai)" opacity="0.9"/>
+                <text x="125" y="560" text-anchor="middle" fill="white" font-size="24">🤖</text>
+                <text x="125" y="585" text-anchor="middle" fill="white" font-size="14" font-weight="600">AI编程助手</text>
+                <text x="125" y="602" text-anchor="middle" fill="white" font-size="11" opacity="0.9">代码生成·优化</text>
+            </g>
+
+            <g class="module-box" data-module="pcb">
+                <rect x="240" y="530" width="150" height="80" rx="12" fill="url(#grad-ai)" opacity="0.9"/>
+                <text x="315" y="560" text-anchor="middle" fill="white" font-size="24">📐</text>
+                <text x="315" y="585" text-anchor="middle" fill="white" font-size="14" font-weight="600">PCB预布局</text>
+                <text x="315" y="602" text-anchor="middle" fill="white" font-size="11" opacity="0.9">可视化·DRC</text>
+            </g>
+
+            <g class="module-box" data-module="search">
+                <rect x="430" y="530" width="180" height="80" rx="12" fill="url(#grad-ai)" opacity="0.9"/>
+                <text x="520" y="560" text-anchor="middle" fill="white" font-size="24">🔍</text>
+                <text x="520" y="585" text-anchor="middle" fill="white" font-size="14" font-weight="600">元器件资料查询</text>
+                <text x="520" y="602" text-anchor="middle" fill="white" font-size="11" opacity="0.9">精准搜索·参数对比</text>
+            </g>
+
+            <g class="module-box" data-module="reference">
+                <rect x="650" y="530" width="150" height="80" rx="12" fill="url(#grad-ai)" opacity="0.9"/>
+                <text x="725" y="560" text-anchor="middle" fill="white" font-size="24">📚</text>
+                <text x="725" y="585" text-anchor="middle" fill="white" font-size="14" font-weight="600">参考设计库</text>
+                <text x="725" y="602" text-anchor="middle" fill="white" font-size="11" opacity="0.9">2万+方案</text>
+            </g>
+
+            <!-- ========== 产业生态层（右侧）========== -->
+            <g class="module-box" data-module="supply">
+                <rect x="930" y="470" width="150" height="80" rx="12" fill="url(#grad-ecosystem)" opacity="0.9"/>
+                <text x="1005" y="500" text-anchor="middle" fill="white" font-size="24">🏪</text>
+                <text x="1005" y="525" text-anchor="middle" fill="white" font-size="14" font-weight="600">元器件供货</text>
+                <text x="1005" y="542" text-anchor="middle" fill="white" font-size="11" opacity="0.9">供需匹配·报价</text>
+            </g>
+
+            <g class="module-box" data-module="ecosystem">
+                <rect x="930" y="580" width="150" height="80" rx="12" fill="url(#grad-ecosystem)" opacity="0.9"/>
+                <text x="1005" y="610" text-anchor="middle" fill="white" font-size="24">🌐</text>
+                <text x="1005" y="635" text-anchor="middle" fill="white" font-size="14" font-weight="600">产业生态</text>
+                <text x="1005" y="652" text-anchor="middle" fill="white" font-size="11" opacity="0.9">外包·招聘·教育</text>
+            </g>
+
+            <!-- ========== 辅助连线 ========== -->
+            <!-- AI助手 → 项目 -->
+            <path d="M 125 530 Q 125 450, 125 440 L 125 140" stroke="#4facfe" stroke-width="2" opacity="0.35" stroke-dasharray="5,5" marker-end="url(#arrowhead-blue)"/>
+
+            <!-- PCB → BOM -->
+            <path d="M 315 530 Q 315 400, 380 300 L 430 140" stroke="#4facfe" stroke-width="2" opacity="0.35" stroke-dasharray="5,5" marker-end="url(#arrowhead-blue)"/>
+
+            <!-- 元器件查询 → 物料 -->
+            <path d="M 520 530 Q 520 400, 680 300 L 750 140" stroke="#4facfe" stroke-width="2" opacity="0.35" stroke-dasharray="5,5" marker-end="url(#arrowhead-blue)"/>
+
+            <!-- 参考设计 → BOM -->
+            <path d="M 725 530 Q 725 400, 580 300 L 480 140" stroke="#4facfe" stroke-width="2" opacity="0.35" stroke-dasharray="5,5" marker-end="url(#arrowhead-blue)"/>
+
+            <!-- 元器件供货 → 采购 -->
+            <path d="M 1005 470 Q 1005 400, 1005 350 L 1005 290" stroke="#43e97b" stroke-width="2" opacity="0.35" stroke-dasharray="5,5" marker-end="url(#arrowhead-green)"/>
+
+            <!-- ========== 流程标注 ========== -->
+            <g>
+                <!-- 核心流程标注 -->
+                <text x="600" y="240" text-anchor="middle" fill="#00890b" font-size="16" font-weight="700" opacity="0.7">
+                    核心业务流程闭环 ⟳
+                </text>
+
+                <!-- AI工具层标注 -->
+                <text x="420" y="670" text-anchor="middle" fill="#4facfe" font-size="14" font-weight="600" opacity="0.8">
+                    AI智能工具层（全流程辅助）
+                </text>
+
+                <!-- 生态层标注 -->
+                <text x="1005" y="690" text-anchor="middle" fill="#43e97b" font-size="14" font-weight="600" opacity="0.8">
+                    产业生态支撑
+                </text>
+
+                <!-- 流程步骤标注 -->
+                <circle cx="130" cy="40" r="16" fill="#00890b" opacity="0.8"/>
+                <text x="130" y="46" text-anchor="middle" fill="white" font-size="14" font-weight="700">①</text>
+
+                <circle cx="450" cy="40" r="16" fill="#00890b" opacity="0.8"/>
+                <text x="450" y="46" text-anchor="middle" fill="white" font-size="14" font-weight="700">②</text>
+
+                <circle cx="780" cy="40" r="16" fill="#00890b" opacity="0.8"/>
+                <text x="780" y="46" text-anchor="middle" fill="white" font-size="14" font-weight="700">③</text>
+
+                <circle cx="1090" cy="245" r="16" fill="#00890b" opacity="0.8"/>
+                <text x="1090" y="251" text-anchor="middle" fill="white" font-size="14" font-weight="700">④</text>
+
+                <circle cx="870" cy="455" r="16" fill="#00890b" opacity="0.8"/>
+                <text x="870" y="461" text-anchor="middle" fill="white" font-size="14" font-weight="700">⑤</text>
+
+                <circle cx="130" cy="455" r="16" fill="#00890b" opacity="0.8"/>
+                <text x="130" y="461" text-anchor="middle" fill="white" font-size="14" font-weight="700">⑥</text>
+            </g>
+
+            <!-- 流程说明文字 -->
+            <g>
+                <rect x="30" y="710" width="1140" height="70" rx="10" fill="#f8f9fa" opacity="0.9"/>
+                <text x="600" y="735" text-anchor="middle" fill="#3d4647" font-size="15" font-weight="700">
+                    完整业务流程说明
+                </text>
+
+                <text x="50" y="760" fill="#666" font-size="12">
+                    <tspan x="50" dy="0">① 项目立项 → ② BOM设计 → ③ 物料选型（110万+库）→ ④ 采购询比价 → ⑤ 库存入库 → ⑥ 生产执行 → 交付验收</tspan>
+                    <tspan x="50" dy="17" font-weight="600" fill="#4facfe">🤖 AI工具层提供全流程智能辅助（设计、搜索、布局、参考）</tspan>
+                    <tspan x="670" dy="0" font-weight="600" fill="#43e97b">🌐 生态层对接供应商和产业资源</tspan>
+                </text>
+            </g>
+        </svg>
+
+        <!-- 图例 -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+                <span>核心研发管理</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);"></div>
+                <span>供应链管理</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);"></div>
+                <span>AI智能工具</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);"></div>
+                <span>产业生态</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模块点击交互
+        document.querySelectorAll('.module-box').forEach(box => {
+            box.addEventListener('click', function() {
+                const module = this.getAttribute('data-module');
+                console.log('点击模块:', module);
+                // 可以在这里添加跳转或弹窗逻辑
+            });
+        });
+
+        // 鼠标悬停效果
+        document.querySelectorAll('.module-box').forEach(box => {
+            box.addEventListener('mouseenter', function() {
+                this.style.filter = 'brightness(1.1)';
+            });
+            box.addEventListener('mouseleave', function() {
+                this.style.filter = 'brightness(1)';
+            });
+        });
+    </script>
+</body>
+</html>

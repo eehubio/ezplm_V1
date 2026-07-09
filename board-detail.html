@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商品详情 - 板卡商城 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .cart-icon:hover {
+            background: rgba(0,137,11,0.1);
+        }
+        .cart-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4d4f;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #3d4647;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-button:hover {
+            border-color: #00890b;
+            color: #00890b;
+            transform: translateX(-4px);
+        }
+
+        /* 主内容 */
+        .main-content {
+            max-width: 1440px;
+            margin: 32px auto;
+            padding: 0 32px;
+        }
+
+        /* 商品详情容器 */
+        .product-detail {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 24px;
+        }
+
+        .product-main {
+            display: grid;
+            grid-template-columns: 480px 1fr;
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        /* 图片展示区 */
+        .product-gallery {
+            position: sticky;
+            top: 120px;
+        }
+        .main-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+        .main-image-emoji {
+            font-size: 200px;
+        }
+        .thumbnail-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .thumbnail {
+            aspect-ratio: 1;
+            background: #f9f9f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            font-size: 48px;
+        }
+        .thumbnail:hover {
+            border-color: #00890b;
+        }
+        .thumbnail.active {
+            border-color: #00890b;
+            background: rgba(0,137,11,0.1);
+        }
+
+        /* 商品信息区 */
+        .product-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .supplier-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            width: fit-content;
+        }
+        .product-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+        .product-subtitle {
+            font-size: 16px;
+            color: #999;
+            margin-bottom: 24px;
+        }
+        .product-meta {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        .meta-label {
+            color: #999;
+        }
+        .meta-value {
+            color: #3d4647;
+            font-weight: 600;
+        }
+        .rating {
+            color: #faad14;
+        }
+
+        /* 价格区 */
+        .price-section {
+            background: linear-gradient(135deg, #fff8e1 0%, #fff3e0 100%);
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .price-main {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .price-current {
+            font-size: 42px;
+            font-weight: 700;
+            color: #ff4d4f;
+        }
+        .price-unit {
+            font-size: 18px;
+            color: #999;
+        }
+        .price-original {
+            font-size: 18px;
+            color: #999;
+            text-decoration: line-through;
+        }
+        .price-discount {
+            background: #ff4d4f;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .stock-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        .stock-available {
+            color: #00890b;
+        }
+
+        /* 规格选择 */
+        .specs-section {
+            margin-bottom: 24px;
+        }
+        .spec-group {
+            margin-bottom: 20px;
+        }
+        .spec-label {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #3d4647;
+        }
+        .spec-options {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .spec-option {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            background: white;
+        }
+        .spec-option:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .spec-option.active {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            border-color: transparent;
+        }
+        .spec-option.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        /* 数量选择 */
+        .quantity-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .quantity-label {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .quantity-btn {
+            width: 36px;
+            height: 36px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .quantity-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .quantity-input {
+            width: 80px;
+            height: 36px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* 购买按钮 */
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .btn {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,137,11,0.3);
+        }
+        .btn-secondary {
+            background: white;
+            border: 2px solid #00890b;
+            color: #00890b;
+        }
+        .btn-secondary:hover {
+            background: rgba(0,137,11,0.1);
+        }
+
+        /* 服务承诺 */
+        .service-promises {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .service-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 32px;
+        }
+        .tab {
+            padding: 16px 32px;
+            border: none;
+            background: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: #999;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab:hover {
+            color: #00890b;
+        }
+        .tab.active {
+            color: #00890b;
+            border-bottom-color: #00890b;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* 商品详情 */
+        .detail-section {
+            margin-bottom: 32px;
+        }
+        .detail-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .detail-table tr {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-table td {
+            padding: 16px;
+        }
+        .detail-table td:first-child {
+            width: 200px;
+            color: #999;
+            font-weight: 500;
+        }
+        .detail-table td:last-child {
+            color: #3d4647;
+        }
+
+        /* 评价区 */
+        .review-summary {
+            background: #f9f9f9;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            gap: 48px;
+        }
+        .review-score {
+            text-align: center;
+        }
+        .review-score-number {
+            font-size: 56px;
+            font-weight: 700;
+            color: #00890b;
+            line-height: 1;
+        }
+        .review-stars {
+            font-size: 24px;
+            color: #faad14;
+            margin: 8px 0;
+        }
+        .review-count {
+            font-size: 14px;
+            color: #999;
+        }
+        .review-stats {
+            flex: 1;
+        }
+        .review-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .review-stat-label {
+            width: 60px;
+            font-size: 13px;
+            color: #999;
+        }
+        .review-stat-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .review-stat-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #faad14, #ffd666);
+        }
+        .review-stat-count {
+            width: 40px;
+            text-align: right;
+            font-size: 13px;
+            color: #999;
+        }
+
+        .review-list {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .review-item {
+            padding: 24px;
+            border: 1px solid #f0f0f0;
+            border-radius: 12px;
+        }
+        .review-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .review-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+        .review-user-info {
+            flex: 1;
+        }
+        .review-username {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .review-date {
+            font-size: 12px;
+            color: #999;
+        }
+        .review-rating {
+            color: #faad14;
+            font-size: 16px;
+        }
+        .review-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .review-images {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            gap: 12px;
+        }
+        .review-image {
+            width: 100px;
+            height: 100px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+
+        /* 相关推荐 */
+        .recommendations {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .recommendations-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+        }
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .rec-card {
+            border: 1px solid #f0f0f0;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .rec-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+        }
+        .rec-card-image {
+            width: 100%;
+            aspect-ratio: 1;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+        }
+        .rec-card-info {
+            padding: 16px;
+        }
+        .rec-card-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .rec-card-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ff4d4f;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="main-content">
+        <!-- 返回按钮 -->
+        <a href="board-marketplace.html" class="back-button">
+            ← 返回商城列表
+        </a>
+
+        <!-- 商品详情 -->
+        <div class="product-detail">
+            <div class="product-main">
+                <!-- 图片展示区 -->
+                <div class="product-gallery">
+                    <div class="main-image">
+                        <div class="main-image-emoji">🍓</div>
+                    </div>
+                    <div class="thumbnail-list">
+                        <div class="thumbnail active">🍓</div>
+                        <div class="thumbnail">📱</div>
+                        <div class="thumbnail">🔌</div>
+                        <div class="thumbnail">📦</div>
+                    </div>
+                </div>
+
+                <!-- 商品信息区 -->
+                <div class="product-info">
+                    <div class="supplier-badge">✓ 自营商品</div>
+                    <h1 class="product-title">Raspberry Pi 5 (8GB RAM)</h1>
+                    <p class="product-subtitle">树莓派5代 | BCM2712 四核 2.4GHz | 双4K HDMI输出</p>
+
+                    <div class="product-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">品牌:</span>
+                            <span class="meta-value">Raspberry Pi Foundation</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="rating">★★★★★</span>
+                            <span class="meta-value">4.9分 (268条评价)</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">销量:</span>
+                            <span class="meta-value">1,234件</span>
+                        </div>
+                    </div>
+
+                    <!-- 价格区 -->
+                    <div class="price-section">
+                        <div class="price-main">
+                            <span class="price-current">¥599</span>
+                            <span class="price-original">¥699</span>
+                            <span class="price-discount">限时优惠</span>
+                        </div>
+                        <div class="stock-info">
+                            <span class="stock-available">库存充足 (156件)</span>
+                            <span>预计1-2天发货</span>
+                        </div>
+                    </div>
+
+                    <!-- 规格选择 -->
+                    <div class="specs-section">
+                        <div class="spec-group">
+                            <div class="spec-label">内存容量</div>
+                            <div class="spec-options">
+                                <div class="spec-option">4GB - ¥499</div>
+                                <div class="spec-option active">8GB - ¥599</div>
+                            </div>
+                        </div>
+
+                        <div class="spec-group">
+                            <div class="spec-label">套餐选项</div>
+                            <div class="spec-options">
+                                <div class="spec-option active">单板</div>
+                                <div class="spec-option">标配套装 (+¥150)</div>
+                                <div class="spec-option">豪华套装 (+¥299)</div>
+                            </div>
+                        </div>
+
+                        <div class="spec-group">
+                            <div class="spec-label">入库库位</div>
+                            <div class="spec-options">
+                                <select class="spec-option" style="width: 300px; padding: 10px 16px;" id="storageLocation">
+                                    <option value="B01">B区-01货架（开发板专区）</option>
+                                    <option value="B02">B区-02货架（开发板专区）</option>
+                                    <option value="A01">A区-01货架（常用物料）</option>
+                                    <option value="A02">A区-02货架（常用物料）</option>
+                                    <option value="C01">C区-01货架（模组专区）</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 数量选择 -->
+                    <div class="quantity-section">
+                        <span class="quantity-label">购买数量</span>
+                        <div class="quantity-control">
+                            <button class="quantity-btn" onclick="changeQuantity(-1)">-</button>
+                            <input type="number" class="quantity-input" id="quantity" value="1" min="1" max="156">
+                            <button class="quantity-btn" onclick="changeQuantity(1)">+</button>
+                        </div>
+                        <span style="color: #999; font-size: 13px;">最多可购156件</span>
+                    </div>
+
+                    <!-- 购买按钮 -->
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" onclick="buyNow()">
+                            <span>💰</span>
+                            <span>立即购买</span>
+                        </button>
+                        <button class="btn btn-secondary" onclick="addToCart()">
+                            <span>🛒</span>
+                            <span>加入购物车</span>
+                        </button>
+                    </div>
+
+                    <!-- 服务承诺 -->
+                    <div class="service-promises">
+                        <div class="service-item">
+                            <span>✓</span>
+                            <span>7天无理由退货</span>
+                        </div>
+                        <div class="service-item">
+                            <span>✓</span>
+                            <span>正品保障</span>
+                        </div>
+                        <div class="service-item">
+                            <span>✓</span>
+                            <span>顺丰包邮</span>
+                        </div>
+                        <div class="service-item">
+                            <span>✓</span>
+                            <span>自动入库</span>
+                        </div>
+                        <div class="service-item">
+                            <span>✓</span>
+                            <span>开具发票</span>
+                        </div>
+                        <div class="service-item">
+                            <span>✓</span>
+                            <span>质保1年</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('details')">商品详情</button>
+                <button class="tab" onclick="switchTab('specs')">规格参数</button>
+                <button class="tab" onclick="switchTab('reviews')">用户评价</button>
+            </div>
+
+            <!-- 商品详情标签页 -->
+            <div id="tab-details" class="tab-content active">
+                <div class="detail-section">
+                    <h3 class="detail-title">产品介绍</h3>
+                    <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
+                        Raspberry Pi 5是树莓派基金会推出的第五代单板计算机，相比前代产品性能提升显著。采用全新的Broadcom BCM2712处理器，四核Cortex-A76架构，主频2.4GHz，配备8GB LPDDR4X-4267 SDRAM内存。
+                    </p>
+                    <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
+                        支持双4K 60fps HDMI显示输出，千兆以太网，双频Wi-Fi 6，蓝牙5.0，USB 3.0接口，PCIe 2.0接口。内置Real-Time Clock，支持标准树莓派HAT扩展板。
+                    </p>
+                    <p style="color: #666; line-height: 1.8;">
+                        适用于物联网开发、边缘计算、AI学习、家庭媒体中心等各类应用场景。购买后将自动添加到您的物料管理系统，并入库到指定库位。
+                    </p>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">主要特性</h3>
+                    <ul style="color: #666; line-height: 2; padding-left: 24px;">
+                        <li>Broadcom BCM2712 四核Cortex-A76 @ 2.4GHz</li>
+                        <li>8GB LPDDR4X-4267 SDRAM</li>
+                        <li>双频802.11ac Wi-Fi 6 + 蓝牙5.0</li>
+                        <li>2个USB 3.0接口，2个USB 2.0接口</li>
+                        <li>双HDMI接口支持4K 60fps输出</li>
+                        <li>千兆以太网接口</li>
+                        <li>MicroSD卡槽</li>
+                        <li>40针GPIO扩展接口</li>
+                        <li>PCIe 2.0 x1接口</li>
+                        <li>实时时钟（RTC）</li>
+                    </ul>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">应用场景</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                        <div style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 36px; margin-bottom: 12px;">💻</div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">编程学习</div>
+                            <div style="font-size: 13px; color: #999;">Python、C++、Scratch等</div>
+                        </div>
+                        <div style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 36px; margin-bottom: 12px;">🤖</div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">物联网开发</div>
+                            <div style="font-size: 13px; color: #999;">智能家居、传感器网络</div>
+                        </div>
+                        <div style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 36px; margin-bottom: 12px;">🎮</div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">复古游戏</div>
+                            <div style="font-size: 13px; color: #999;">RetroPie游戏模拟器</div>
+                        </div>
+                        <div style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 36px; margin-bottom: 12px;">📹</div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">媒体中心</div>
+                            <div style="font-size: 13px; color: #999;">4K视频播放</div>
+                        </div>
+                        <div style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 36px; margin-bottom: 12px;">🧠</div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">AI学习</div>
+                            <div style="font-size: 13px; color: #999;">TensorFlow、PyTorch</div>
+                        </div>
+                        <div style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 36px; margin-bottom: 12px;">🏭</div>
+                            <div style="font-weight: 600; margin-bottom: 8px;">工业控制</div>
+                            <div style="font-size: 13px; color: #999;">自动化、监控系统</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 规格参数标签页 -->
+            <div id="tab-specs" class="tab-content">
+                <div class="detail-section">
+                    <h3 class="detail-title">技术规格</h3>
+                    <table class="detail-table">
+                        <tr>
+                            <td>处理器</td>
+                            <td>Broadcom BCM2712, 四核Cortex-A76 (ARM v8) 64位 @ 2.4GHz</td>
+                        </tr>
+                        <tr>
+                            <td>内存</td>
+                            <td>8GB LPDDR4X-4267 SDRAM</td>
+                        </tr>
+                        <tr>
+                            <td>存储</td>
+                            <td>MicroSD卡槽（支持UHS-I）</td>
+                        </tr>
+                        <tr>
+                            <td>无线连接</td>
+                            <td>双频802.11ac Wi-Fi 6, 蓝牙5.0, BLE</td>
+                        </tr>
+                        <tr>
+                            <td>有线网络</td>
+                            <td>千兆以太网（Gigabit Ethernet）</td>
+                        </tr>
+                        <tr>
+                            <td>USB接口</td>
+                            <td>2 × USB 3.0, 2 × USB 2.0</td>
+                        </tr>
+                        <tr>
+                            <td>视频输出</td>
+                            <td>2 × micro HDMI (支持4K 60fps)</td>
+                        </tr>
+                        <tr>
+                            <td>GPIO</td>
+                            <td>40针GPIO扩展接口（兼容HAT）</td>
+                        </tr>
+                        <tr>
+                            <td>显示接口</td>
+                            <td>DSI显示接口</td>
+                        </tr>
+                        <tr>
+                            <td>摄像头接口</td>
+                            <td>2 × 4-lane MIPI CSI摄像头/显示接口</td>
+                        </tr>
+                        <tr>
+                            <td>PCIe</td>
+                            <td>PCIe 2.0 x1接口（需要HAT+适配器）</td>
+                        </tr>
+                        <tr>
+                            <td>电源</td>
+                            <td>5V DC via USB-C (最少5V 5A)</td>
+                        </tr>
+                        <tr>
+                            <td>功耗</td>
+                            <td>空载~3W，满载~12W</td>
+                        </tr>
+                        <tr>
+                            <td>尺寸</td>
+                            <td>85mm × 56mm × 17mm</td>
+                        </tr>
+                        <tr>
+                            <td>重量</td>
+                            <td>约45g</td>
+                        </tr>
+                        <tr>
+                            <td>工作温度</td>
+                            <td>0°C ~ 50°C</td>
+                        </tr>
+                        <tr>
+                            <td>操作系统</td>
+                            <td>Raspberry Pi OS, Ubuntu, 其他Linux发行版</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="detail-section">
+                    <h3 class="detail-title">包装清单</h3>
+                    <ul style="color: #666; line-height: 2; padding-left: 24px;">
+                        <li>Raspberry Pi 5主板 × 1</li>
+                        <li>快速入门指南 × 1</li>
+                    </ul>
+                    <p style="color: #ff4d4f; font-size: 13px; margin-top: 12px;">
+                        ⚠️ 注意：本商品不包含电源适配器、SD卡、外壳等配件，请根据需要另行购买
+                    </p>
+                </div>
+            </div>
+
+            <!-- 用户评价标签页 -->
+            <div id="tab-reviews" class="tab-content">
+                <div class="review-summary">
+                    <div class="review-score">
+                        <div class="review-score-number">4.9</div>
+                        <div class="review-stars">★★★★★</div>
+                        <div class="review-count">268条评价</div>
+                    </div>
+                    <div class="review-stats">
+                        <div class="review-stat-item">
+                            <span class="review-stat-label">5星</span>
+                            <div class="review-stat-bar"><div class="review-stat-fill" style="width: 88%;"></div></div>
+                            <span class="review-stat-count">236</span>
+                        </div>
+                        <div class="review-stat-item">
+                            <span class="review-stat-label">4星</span>
+                            <div class="review-stat-bar"><div class="review-stat-fill" style="width: 8%;"></div></div>
+                            <span class="review-stat-count">22</span>
+                        </div>
+                        <div class="review-stat-item">
+                            <span class="review-stat-label">3星</span>
+                            <div class="review-stat-bar"><div class="review-stat-fill" style="width: 3%;"></div></div>
+                            <span class="review-stat-count">8</span>
+                        </div>
+                        <div class="review-stat-item">
+                            <span class="review-stat-label">2星</span>
+                            <div class="review-stat-bar"><div class="review-stat-fill" style="width: 1%;"></div></div>
+                            <span class="review-stat-count">2</span>
+                        </div>
+                        <div class="review-stat-item">
+                            <span class="review-stat-label">1星</span>
+                            <div class="review-stat-bar"><div class="review-stat-fill" style="width: 0%;"></div></div>
+                            <span class="review-stat-count">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="review-list">
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-avatar">李</div>
+                            <div class="review-user-info">
+                                <div class="review-username">李工程师</div>
+                                <div class="review-date">2024-01-15 购买 | 8GB版本</div>
+                            </div>
+                            <div class="review-rating">★★★★★</div>
+                        </div>
+                        <div class="review-content">
+                            性能非常强劲！相比Pi 4提升明显，运行Ubuntu桌面很流畅。双4K输出很实用，用来做开发机完全够用。PCIe接口可以扩展NVMe SSD，速度快了很多。自动入库功能很方便，收货后直接在系统里就能看到，省去了手动录入的麻烦。强烈推荐！
+                        </div>
+                        <div class="review-images">
+                            <div class="review-image">📸</div>
+                            <div class="review-image">📸</div>
+                            <div class="review-image">📸</div>
+                        </div>
+                    </div>
+
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-avatar">王</div>
+                            <div class="review-user-info">
+                                <div class="review-username">王老师</div>
+                                <div class="review-date">2024-01-12 购买 | 8GB版本</div>
+                            </div>
+                            <div class="review-rating">★★★★★</div>
+                        </div>
+                        <div class="review-content">
+                            用于教学非常合适，性能够用，接口丰富。学生们用Python和Scratch编程都很顺畅。Wi-Fi 6连接稳定，不用再拖网线了。发货快，包装好，收到后自动加入物料库，管理起来很方便。
+                        </div>
+                    </div>
+
+                    <div class="review-item">
+                        <div class="review-header">
+                            <div class="review-avatar">张</div>
+                            <div class="review-user-info">
+                                <div class="review-username">张同学</div>
+                                <div class="review-date">2024-01-08 购买 | 8GB版本</div>
+                            </div>
+                            <div class="review-rating">★★★★☆</div>
+                        </div>
+                        <div class="review-content">
+                            整体不错，就是发热有点大，建议配个散热器。跑AI模型速度可以，做毕业设计够用了。自营商品质量有保障，物流也快。入库到B区-01货架，库存管理系统自动更新，很智能。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 相关推荐 -->
+        <div class="recommendations">
+            <h2 class="recommendations-title">相关推荐</h2>
+            <div class="recommendations-grid">
+                <div class="rec-card" onclick="alert('查看商品详情')">
+                    <div class="rec-card-image">🤖</div>
+                    <div class="rec-card-info">
+                        <div class="rec-card-name">Arduino Uno R4 WiFi</div>
+                        <div class="rec-card-price">¥268</div>
+                    </div>
+                </div>
+                <div class="rec-card" onclick="alert('查看商品详情')">
+                    <div class="rec-card-image">📡</div>
+                    <div class="rec-card-info">
+                        <div class="rec-card-name">ESP32-S3-DevKitC-1</div>
+                        <div class="rec-card-price">¥89</div>
+                    </div>
+                </div>
+                <div class="rec-card" onclick="alert('查看商品详情')">
+                    <div class="rec-card-image">🚀</div>
+                    <div class="rec-card-info">
+                        <div class="rec-card-name">Jetson Nano Developer Kit</div>
+                        <div class="rec-card-price">¥999</div>
+                    </div>
+                </div>
+                <div class="rec-card" onclick="alert('查看商品详情')">
+                    <div class="rec-card-image">💻</div>
+                    <div class="rec-card-info">
+                        <div class="rec-card-name">STM32F407 Discovery</div>
+                        <div class="rec-card-price">¥185</div>
+                    </div>
+                </div>
+            </div>
+
+    <script>
+        // 完整的商品数据库
+        const productsData = {
+            1: {
+                id: 1,
+                name: 'Raspberry Pi 5 (8GB)',
+                supplier: 'Raspberry Pi Foundation',
+                category: 'dev-board',
+                categoryName: '开发板',
+                specs: 'BCM2712 2.4GHz | 8GB LPDDR4X | 双4K输出',
+                price: 599,
+                originalPrice: 699,
+                stock: 156,
+                image: '🍓',
+                isSelf: true,
+                rating: 4.9,
+                reviews: 268,
+                sales: 1234,
+                description: 'Raspberry Pi 5是树莓派基金会推出的第五代单板计算机，相比前代产品性能提升显著。采用全新的Broadcom BCM2712处理器，四核Cortex-A76架构，主频2.4GHz，配备8GB LPDDR4X-4267 SDRAM内存。',
+                features: [
+                    'Broadcom BCM2712 四核Cortex-A76 @ 2.4GHz',
+                    '8GB LPDDR4X-4267 SDRAM',
+                    '双频802.11ac Wi-Fi 6 + 蓝牙5.0',
+                    '2个USB 3.0接口，2个USB 2.0接口',
+                    '双HDMI接口支持4K 60fps输出',
+                    '千兆以太网接口',
+                    'MicroSD卡槽',
+                    '40针GPIO扩展接口',
+                    'PCIe 2.0 x1接口',
+                    '实时时钟（RTC）'
+                ],
+                specs_table: {
+                    '处理器': 'Broadcom BCM2712, 四核Cortex-A76 (ARM v8) 64位 @ 2.4GHz',
+                    '内存': '8GB LPDDR4X-4267 SDRAM',
+                    '存储': 'MicroSD卡槽（支持UHS-I）',
+                    '无线连接': '双频802.11ac Wi-Fi 6, 蓝牙5.0, BLE',
+                    '有线网络': '千兆以太网（Gigabit Ethernet）',
+                    'USB接口': '2 × USB 3.0, 2 × USB 2.0',
+                    '视频输出': '2 × micro HDMI (支持4K 60fps)',
+                    'GPIO': '40针GPIO扩展接口（兼容HAT）',
+                    '电源': '5V DC via USB-C (最少5V 5A)',
+                    '尺寸': '85mm × 56mm × 17mm'
+                }
+            },
+            2: {
+                id: 2,
+                name: 'Arduino Uno R4 WiFi',
+                supplier: 'Arduino',
+                category: 'dev-board',
+                categoryName: '开发板',
+                specs: 'RA4M1 48MHz | WiFi | ESP32-S3',
+                price: 268,
+                originalPrice: 299,
+                stock: 234,
+                image: '🤖',
+                isSelf: false,
+                rating: 4.7,
+                reviews: 185,
+                sales: 856,
+                description: 'Arduino Uno R4 WiFi是Arduino官方推出的新一代开发板，在保持Uno经典外形的同时，大幅提升了性能。采用Renesas RA4M1处理器，集成ESP32-S3提供WiFi和蓝牙连接。',
+                features: [
+                    'Renesas RA4M1 (Cortex-M4) @ 48MHz',
+                    '32KB SRAM, 256KB Flash',
+                    '内置ESP32-S3 WiFi/蓝牙模块',
+                    '14个数字I/O引脚',
+                    '6个模拟输入',
+                    '板载LED矩阵 (12x8)',
+                    'USB-C接口',
+                    '工作电压：5V',
+                    '兼容Arduino Shield',
+                    '支持Arduino IDE和Arduino Cloud'
+                ],
+                specs_table: {
+                    '处理器': 'Renesas RA4M1 (ARM Cortex-M4) @ 48MHz',
+                    '内存': '32KB SRAM',
+                    '存储': '256KB Flash',
+                    '无线模块': 'ESP32-S3 (WiFi 802.11b/g/n + 蓝牙)',
+                    '数字I/O': '14个（含6个PWM）',
+                    '模拟输入': '6个（14-bit ADC）',
+                    'LED矩阵': '12x8 红色LED',
+                    '接口': 'USB-C',
+                    '工作电压': '5V',
+                    '尺寸': '68.6mm × 53.4mm'
+                }
+            },
+            3: {
+                id: 3,
+                name: 'ESP32-S3-DevKitC-1',
+                supplier: 'Espressif',
+                category: 'dev-board',
+                categoryName: '开发板',
+                specs: 'ESP32-S3 240MHz | WiFi/BLE | 8MB Flash',
+                price: 89,
+                originalPrice: 109,
+                stock: 567,
+                image: '📡',
+                isSelf: true,
+                rating: 4.8,
+                reviews: 342,
+                sales: 2156,
+                description: 'ESP32-S3-DevKitC-1是乐鑫官方推出的ESP32-S3开发板，集成WiFi和蓝牙双模无线通信，支持AI加速，适合物联网和边缘AI应用开发。',
+                features: [
+                    'Xtensa双核32位LX7 @ 240MHz',
+                    '512KB SRAM, 8MB Flash',
+                    'WiFi 802.11 b/g/n + 蓝牙5.0 LE',
+                    'AI加速指令集',
+                    '45个可编程GPIO',
+                    '内置USB-JTAG调试器',
+                    'USB-C接口',
+                    '低功耗设计',
+                    '支持Arduino和ESP-IDF',
+                    '丰富的外设接口'
+                ],
+                specs_table: {
+                    '处理器': 'Xtensa 双核32位LX7 @ 240MHz',
+                    '内存': '512KB SRAM',
+                    '存储': '8MB Flash',
+                    '无线连接': 'WiFi 802.11 b/g/n, 蓝牙5.0 LE',
+                    'GPIO': '45个可编程I/O',
+                    '接口': 'USB-C (USB-JTAG + UART)',
+                    '工作电压': '3.3V',
+                    '电源输入': '5V via USB-C',
+                    '尺寸': '55mm × 26mm'
+                }
+            },
+            4: {
+                id: 4,
+                name: 'STM32F407 Discovery',
+                supplier: 'STMicroelectronics',
+                category: 'dev-board',
+                categoryName: '开发板',
+                specs: 'STM32F407VGT6 168MHz | 1MB Flash',
+                price: 185,
+                originalPrice: 219,
+                stock: 123,
+                image: '💻',
+                isSelf: true,
+                rating: 4.6,
+                reviews: 156,
+                sales: 678,
+                description: 'STM32F407 Discovery是ST官方推出的探索套件，基于高性能STM32F407VGT6微控制器，板载丰富的传感器和外设，是学习ARM Cortex-M4的理想平台。',
+                features: [
+                    'STM32F407VGT6 (Cortex-M4) @ 168MHz',
+                    '192KB SRAM, 1MB Flash',
+                    '板载ST-LINK/V2调试器',
+                    'MEMS加速度传感器',
+                    'MEMS音频传感器',
+                    'USB OTG全速',
+                    '4个LED，2个按键',
+                    '支持Keil、IAR、STM32CubeIDE',
+                    '丰富的GPIO和外设',
+                    '扩展接口兼容Arduino'
+                ],
+                specs_table: {
+                    '处理器': 'STM32F407VGT6 (ARM Cortex-M4F) @ 168MHz',
+                    '内存': '192KB SRAM',
+                    '存储': '1MB Flash',
+                    'FPU': '单精度浮点运算单元',
+                    '调试器': '板载ST-LINK/V2',
+                    '传感器': 'LIS3DSH加速度计, MP45DT02音频',
+                    'USB': 'USB OTG FS',
+                    '工作电压': '3V',
+                    '尺寸': '100mm × 50mm'
+                }
+            },
+            5: {
+                id: 5,
+                name: 'Seeed XIAO ESP32C3',
+                supplier: 'Seeed Studio',
+                category: 'dev-board',
+                categoryName: '开发板',
+                specs: 'ESP32-C3 160MHz | WiFi/BLE | 拇指大小',
+                price: 45,
+                originalPrice: 55,
+                stock: 890,
+                image: '🔌',
+                isSelf: false,
+                rating: 4.9,
+                reviews: 423,
+                sales: 3245,
+                description: 'Seeed XIAO ESP32C3是一款超小尺寸的物联网开发板，拇指大小却功能完整，集成WiFi和蓝牙，适合可穿戴设备和小型物联网项目。',
+                features: [
+                    'ESP32-C3 RISC-V @ 160MHz',
+                    '400KB SRAM, 4MB Flash',
+                    'WiFi + 蓝牙5.0 LE',
+                    '超小尺寸 20×17.5mm',
+                    '11个GPIO',
+                    'USB-C接口',
+                    '低功耗设计',
+                    '支持Arduino和ESP-IDF',
+                    '兼容XIAO系列扩展板',
+                    '电池充电管理'
+                ],
+                specs_table: {
+                    '处理器': 'ESP32-C3 (RISC-V 32位) @ 160MHz',
+                    '内存': '400KB SRAM',
+                    '存储': '4MB Flash',
+                    '无线连接': 'WiFi 802.11 b/g/n, 蓝牙5.0 LE',
+                    'GPIO': '11个可编程I/O',
+                    '接口': 'USB-C',
+                    '工作电压': '3.3V',
+                    '尺寸': '20mm × 17.5mm'
+                }
+            },
+            6: {
+                id: 6,
+                name: 'Jetson Nano Developer Kit',
+                supplier: 'NVIDIA',
+                category: 'dev-board',
+                categoryName: '开发板',
+                specs: 'Quad-core ARM A57 | 128-core GPU | 4GB',
+                price: 999,
+                originalPrice: 1199,
+                stock: 45,
+                image: '🚀',
+                isSelf: false,
+                rating: 4.9,
+                reviews: 89,
+                sales: 234,
+                description: 'NVIDIA Jetson Nano是专为AI和机器学习应用设计的边缘计算平台，配备强大的128核Maxwell GPU，支持运行多个神经网络模型。',
+                features: [
+                    'Quad-core ARM Cortex-A57 @ 1.43GHz',
+                    '128-core NVIDIA Maxwell GPU',
+                    '4GB LPDDR4 内存',
+                    '支持TensorFlow、PyTorch',
+                    'MIPI CSI-2摄像头接口',
+                    'HDMI 2.0和DP 1.2输出',
+                    '千兆以太网',
+                    'USB 3.0 × 4',
+                    '40针GPIO',
+                    '功耗仅5W~10W'
+                ],
+                specs_table: {
+                    '处理器': 'Quad-core ARM Cortex-A57 @ 1.43GHz',
+                    'GPU': '128-core NVIDIA Maxwell',
+                    '内存': '4GB 64-bit LPDDR4',
+                    '存储': 'MicroSD卡（最少16GB）',
+                    '视频输出': 'HDMI 2.0 + DisplayPort 1.2',
+                    '摄像头': '2× MIPI CSI-2 DPHY',
+                    '网络': '千兆以太网',
+                    'USB': '4× USB 3.0 + 1× USB 2.0 Micro-B',
+                    '功耗': '5W~10W',
+                    '尺寸': '100mm × 80mm × 29mm'
+                }
+            }
+        };
+
+        // 从URL获取商品ID
+        function getProductIdFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('id')) || 1; // 默认显示商品1
+        }
+
+        // 加载商品信息
+        function loadProductInfo() {
+            const productId = getProductIdFromURL();
+            const product = productsData[productId];
+
+            if (!product) {
+                alert('商品不存在');
+                window.location.href = 'board-marketplace.html';
+                return;
+            }
+
+            // 更新面包屑
+            document.getElementById('productName').textContent = product.name;
+
+            // 更新主图
+            document.querySelector('.main-image-emoji').textContent = product.image;
+            document.querySelectorAll('.thumbnail')[0].textContent = product.image;
+
+            // 更新供应商标识
+            document.querySelector('.supplier-badge').textContent = product.isSelf ? '✓ 自营商品' : '✓ 第三方供应商';
+            if (!product.isSelf) {
+                document.querySelector('.supplier-badge').style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+            }
+
+            // 更新标题和副标题
+            document.querySelector('.product-title').textContent = product.name;
+            document.querySelector('.product-subtitle').textContent = product.specs;
+
+            // 更新品牌和评分
+            document.querySelectorAll('.meta-value')[0].textContent = product.supplier;
+            document.querySelectorAll('.meta-value')[1].textContent = `${product.rating}分 (${product.reviews}条评价)`;
+            document.querySelectorAll('.meta-value')[2].textContent = `${product.sales}件`;
+
+            // 更新价格
+            document.querySelector('.price-current').textContent = `¥${product.price}`;
+            if (product.originalPrice) {
+                document.querySelector('.price-original').textContent = `¥${product.originalPrice}`;
+            } else {
+                document.querySelector('.price-original').style.display = 'none';
+                document.querySelector('.price-discount').style.display = 'none';
+            }
+            document.querySelector('.stock-available').textContent = `库存充足 (${product.stock}件)`;
+
+            // 更新数量控制最大值
+            document.getElementById('quantity').max = product.stock;
+
+            // 更新产品介绍
+            document.querySelector('#tab-details .detail-section p').textContent = product.description;
+
+            // 更新主要特性
+            const featuresList = document.querySelector('#tab-details .detail-section:nth-child(2) ul');
+            featuresList.innerHTML = product.features.map(f => `<li>${f}</li>`).join('');
+
+            // 更新规格参数表格
+            const specsTable = document.querySelector('#tab-specs .detail-table');
+            specsTable.innerHTML = Object.entries(product.specs_table).map(([key, value]) =>
+                `<tr><td>${key}</td><td>${value}</td></tr>`
+            ).join('');
+
+            // 更新时域频率标签
+            document.getElementById('timeFreqLabel').textContent = product.name;
+
+            // 存储当前商品信息供其他函数使用
+            window.currentProduct = product;
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            loadProductInfo();
+        };
+
+        // 数量控制
+        function changeQuantity(delta) {
+            const input = document.getElementById('quantity');
+            const max = window.currentProduct ? window.currentProduct.stock : 999;
+            let value = parseInt(input.value) + delta;
+            if (value < 1) value = 1;
+            if (value > max) value = max;
+            input.value = value;
+        }
+
+        // 立即购买
+        function buyNow() {
+            const quantity = document.getElementById('quantity').value;
+            const storage = document.getElementById('storageLocation').value;
+            const total = 599 * quantity;
+
+            if (confirm(`确认购买？\n\n商品：Raspberry Pi 5 (8GB)\n数量：${quantity}件\n总价：¥${total.toFixed(2)}\n入库库位：${storage}\n\n点击确定进入支付`)) {
+                alert('正在跳转到支付页面...');
+                setTimeout(() => {
+                    const orderNo = 'BO' + Date.now();
+                    alert(`✅ 购买成功！\n\n订单号：${orderNo}\n总金额：¥${total.toFixed(2)}\n\n商品将在收货后自动入库到：${storage}\n并同步更新到物料管理和库存管理系统！`);
+                }, 1000);
+            }
+        }
+
+        // 加入购物车
+        function addToCart() {
+            const quantity = document.getElementById('quantity').value;
+            alert(`✅ 已添加${quantity}件商品到购物车！\n\n您可以继续购物或前往购物车结算`);
+
+            // 更新购物车徽章
+            const badge = document.querySelector('.cart-badge');
+            badge.textContent = parseInt(badge.textContent) + parseInt(quantity);
+        }
+
+        // 切换标签页
+        function switchTab(tabName) {
+            // 隐藏所有标签页内容
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // 移除所有标签的active状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 显示选中的标签页
+            document.getElementById('tab-' + tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 规格选项点击
+        document.querySelectorAll('.spec-option:not(select)').forEach(option => {
+            option.addEventListener('click', function() {
+                if (!this.classList.contains('disabled')) {
+                    // 取消同组其他选项的选中状态
+                    this.parentElement.querySelectorAll('.spec-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    // 选中当前选项
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // 缩略图点击
+        document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+            thumb.addEventListener('click', function() {
+                document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                // 这里可以切换主图
+            });
+        });
+    </script>
+</body>
+</html>

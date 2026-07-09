@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<!-- saved from url=(0039)https://ez.eetree.cn/collaboration.html -->
+<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 团队协作</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f4; color: #3d4647; }
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .btn-primary { background: #00890b; color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; }
+        .layout { display: flex; min-height: calc(100vh - 80px); }
+        .sidebar { width: 260px; background: white; box-shadow: 2px 0 8px rgba(0,0,0,0.05); padding: 24px 0; }
+        .nav-section-title { padding: 8px 24px; font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; }
+        .nav-item { padding: 12px 24px; display: flex; align-items: center; gap: 12px; color: #3d4647; text-decoration: none; transition: all 0.2s; }
+        .nav-item:hover { background: rgba(0, 137, 11, 0.05); color: #00890b; }
+        .nav-item.active { background: rgba(0, 137, 11, 0.1); color: #00890b; font-weight: 600; border-right: 3px solid #00890b; }
+        .main-content { flex: 1; padding: 32px; }
+        .card { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; }
+        .card-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+        .member-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .member-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .member-card:hover {
+            border-color: #00890b;
+            box-shadow: 0 4px 12px rgba(0,137,11,0.15);
+            transform: translateY(-2px);
+        }
+        .member-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .member-info {
+            flex: 1;
+        }
+        .member-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+        .member-role {
+            font-size: 13px;
+            color: #666;
+        }
+        .member-workload {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e0e0e0;
+        }
+        .workload-bar {
+            flex: 1;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .workload-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .workload-label {
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .member-projects {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .project-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .project-name {
+            flex: 1;
+            font-weight: 600;
+            color: #3d4647;
+        }
+        .task-count {
+            font-size: 12px;
+            color: #666;
+            padding: 2px 8px;
+            background: white;
+            border-radius: 4px;
+        }
+        .member-tasks {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .task-item-mini {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            background: #fafafa;
+            border-radius: 6px;
+            font-size: 12px;
+            border-left: 3px solid #e0e0e0;
+        }
+        .task-item-mini.in-progress {
+            border-left-color: #2196f3;
+            background: #e3f2fd;
+        }
+        .task-item-mini.completed {
+            border-left-color: #4caf50;
+            background: #e8f5e9;
+        }
+        .task-item-mini.todo {
+            border-left-color: #ff9800;
+            background: #fff3e0;
+        }
+        .task-name-mini {
+            flex: 1;
+            color: #3d4647;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .task-status-badge {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .task-status-badge.todo {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .task-status-badge.in-progress {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .task-status-badge.completed {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .view-tab {
+            flex: 1;
+            padding: 16px 24px;
+            border: none;
+            background: none;
+            font-size: 15px;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .view-tab:hover {
+            background: #f8f9fa;
+            color: #00890b;
+        }
+        .view-tab.active {
+            color: #00890b;
+            border-bottom-color: #00890b;
+        }
+        .view-content {
+            display: none;
+        }
+        .view-content.active {
+            display: block;
+        }
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .workspace-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .workspace-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .todo-item {
+            padding: 16px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .todo-item:hover {
+            border-color: #00890b;
+            box-shadow: 0 2px 8px rgba(0,137,11,0.1);
+        }
+        .todo-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .todo-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+        .todo-meta {
+            font-size: 12px;
+            color: #7f8c8d;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .priority-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .priority-high {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .priority-medium {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .priority-low {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .activity-item {
+            padding: 12px 16px;
+            border-left: 3px solid #e0e0e0;
+            margin-bottom: 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        .activity-item.new {
+            border-left-color: #00890b;
+            background: #f1f8f4;
+        }
+        .activity-time {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        .activity-content {
+            font-size: 13px;
+            color: #3d4647;
+        }
+        .activity-user {
+            font-weight: 600;
+            color: #00890b;
+        }
+        .member-delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 24px;
+            height: 24px;
+            border: none;
+            background: #fff;
+            color: #e74c3c;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            opacity: 0;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .member-card:hover .member-delete-btn {
+            opacity: 1;
+        }
+        .member-delete-btn:hover {
+            background: #fee;
+            transform: scale(1.1);
+        }
+        .member-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+        .approval-item { padding: 16px; background: #f9f9f9; border-radius: 6px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+        /* Modal样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+        .modal-close:hover {
+            color: #3d4647;
+        }
+        .modal-body {
+            padding: 32px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .form-label.required::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            min-height: 80px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .modal-footer {
+            padding: 20px 32px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-cancel {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-cancel:hover {
+            border-color: #999;
+        }
+
+        /* AI助手按钮 */
+        .ai-assistant-btn {
+            background: white;
+            border: 2px solid #00890b;
+            color: #00890b;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ai-assistant-btn:hover {
+            background: #00890b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,137,11,0.2);
+        }
+
+                /* AI助手模态框 */
+        .ai-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+        }
+        .ai-modal-overlay.active {
+            display: block;
+        }
+        .ai-modal-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .ai-modal-close {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00890b;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,137,11,0.3);
+            z-index: 10000;
+            font-weight: 300;
+            line-height: 1;
+        }
+        .ai-modal-close:hover {
+            background: #006b09;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,137,11,0.4);
+        }
+        .ai-modal-body {
+            width: 100%;
+            height: 100%;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-left: auto;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .sidebar {
+                width: 220px;
+            }
+            .main-content {
+                padding: 24px;
+            }
+            .member-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .top-bar {
+                padding: 0 16px;
+                height: 60px;
+            }
+            .logo {
+                font-size: 20px;
+            }
+            .top-nav-links {
+                display: none;
+            }
+            .layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+            .main-content {
+                padding: 16px;
+            }
+            .member-list {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .card {
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .top-bar {
+                padding: 0 12px;
+            }
+            .member-card {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href=&#39;notification-center.html&#39;" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href=&#39;profile.html&#39;" title="账号">用</div>
+        </div>
+    </div>
+    
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item active">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="main-content">
+            <!-- 工具栏 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: white; padding: 20px 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <h2 style="font-size: 24px; font-weight: 700; color: #3d4647; margin: 0;">团队协作</h2>
+                <button class="btn-primary" id="addMemberBtn" onclick="openAddMemberModal()" style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 18px;">+</span>
+                    <span>添加成员</span>
+                </button>
+            </div>
+
+            <!-- TAB导航 -->
+            <div style="background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 24px; overflow: hidden;">
+                <div style="display: flex; border-bottom: 2px solid #f0f0f0;">
+                    <button class="view-tab active" onclick="switchView('workspace')" id="workspaceTab">
+                        <span style="font-size: 18px; margin-right: 8px;">🏠</span>
+                        <span>工作台</span>
+                    </button>
+                    <button class="view-tab" onclick="switchView('team')" id="teamTab">
+                        <span style="font-size: 18px; margin-right: 8px;">👥</span>
+                        <span>团队成员</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 工作台视图 -->
+            <div id="workspaceView" class="view-content active">
+                <div class="workspace-grid">
+                    <!-- 个人待办 -->
+                    <div class="workspace-card">
+                        <div class="workspace-card-title">
+                            <span>📝</span>
+                            <span>个人待办</span>
+                            <span style="background: #ff6b6b; color: white; font-size: 12px; padding: 2px 8px; border-radius: 12px; margin-left: auto;">5</span>
+                        </div>
+                        <div>
+                            <div class="todo-item" onclick="viewTodoDetail('TODO-001')">
+                                <div class="todo-header">
+                                    <div class="todo-title">完成PCB设计审查</div>
+                                    <span class="priority-badge priority-high">高优先级</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>📅 今天 18:00</span>
+                                    <span>📦 智能手环 V2.0</span>
+                                </div>
+                            </div>
+                            <div class="todo-item" onclick="viewTodoDetail('TODO-002')">
+                                <div class="todo-header">
+                                    <div class="todo-title">提交BOM清单</div>
+                                    <span class="priority-badge priority-medium">中优先级</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>📅 明天 12:00</span>
+                                    <span>📦 无线充电器</span>
+                                </div>
+                            </div>
+                            <div class="todo-item" onclick="viewTodoDetail('TODO-003')">
+                                <div class="todo-header">
+                                    <div class="todo-title">更新项目文档</div>
+                                    <span class="priority-badge priority-low">低优先级</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>📅 本周五</span>
+                                    <span>📦 智能音箱</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; text-align: center;">
+                            <a href="tasks.html" style="color: #00890b; text-decoration: none; font-size: 13px; font-weight: 600;">查看全部 →</a>
+                        </div>
+                    </div>
+
+                    <!-- 待我审批 -->
+                    <div class="workspace-card">
+                        <div class="workspace-card-title">
+                            <span>✅</span>
+                            <span>待我审批</span>
+                            <span style="background: #4dabf7; color: white; font-size: 12px; padding: 2px 8px; border-radius: 12px; margin-left: auto;">3</span>
+                        </div>
+                        <div>
+                            <div class="todo-item" onclick="viewApproval('APP-001')">
+                                <div class="todo-header">
+                                    <div class="todo-title">采购申请 - STM32芯片</div>
+                                    <span class="priority-badge priority-high">紧急</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>👤 王芳</span>
+                                    <span>📅 2小时前</span>
+                                    <span>💰 ¥12,500</span>
+                                </div>
+                            </div>
+                            <div class="todo-item" onclick="viewApproval('APP-002')">
+                                <div class="todo-header">
+                                    <div class="todo-title">工程变更申请 - 电源模块</div>
+                                    <span class="priority-badge priority-medium">常规</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>👤 张华</span>
+                                    <span>📅 5小时前</span>
+                                </div>
+                            </div>
+                            <div class="todo-item" onclick="viewApproval('APP-003')">
+                                <div class="todo-header">
+                                    <div class="todo-title">出库申请 - 样品20套</div>
+                                    <span class="priority-badge priority-low">普通</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>👤 李明</span>
+                                    <span>📅 昨天</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; text-align: center;">
+                            <a href="approval-center.html" style="color: #00890b; text-decoration: none; font-size: 13px; font-weight: 600;">查看全部 →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="workspace-grid">
+                    <!-- 我的任务 -->
+                    <div class="workspace-card">
+                        <div class="workspace-card-title">
+                            <span>🎯</span>
+                            <span>我的任务</span>
+                            <span style="background: #9333ea; color: white; font-size: 12px; padding: 2px 8px; border-radius: 12px; margin-left: auto;">8</span>
+                        </div>
+                        <div>
+                            <div class="todo-item" onclick="viewTask('TASK-101')">
+                                <div class="todo-header">
+                                    <div class="todo-title">原理图设计</div>
+                                    <span style="background: #e3f2fd; color: #1565c0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">进行中</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>📦 智能手环 V2.0</span>
+                                    <span>📅 剩余3天</span>
+                                </div>
+                                <div style="margin-top: 8px;">
+                                    <div style="height: 4px; background: #ecf0f1; border-radius: 2px; overflow: hidden;">
+                                        <div style="height: 100%; width: 65%; background: linear-gradient(90deg, #00890b, #00b30e);"></div>
+                                    </div>
+                                    <div style="font-size: 11px; color: #7f8c8d; margin-top: 4px;">进度 65%</div>
+                                </div>
+                            </div>
+                            <div class="todo-item" onclick="viewTask('TASK-102')">
+                                <div class="todo-header">
+                                    <div class="todo-title">BOM整理与核对</div>
+                                    <span style="background: #fff3e0; color: #e65100; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">待开始</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>📦 无线充电器</span>
+                                    <span>📅 明天开始</span>
+                                </div>
+                            </div>
+                            <div class="todo-item" onclick="viewTask('TASK-103')">
+                                <div class="todo-header">
+                                    <div class="todo-title">测试方案编写</div>
+                                    <span style="background: #e8f5e9; color: #2e7d32; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;">已完成</span>
+                                </div>
+                                <div class="todo-meta">
+                                    <span>📦 智能音箱</span>
+                                    <span>✓ 已完成</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-top: 16px; text-align: center;">
+                            <a href="tasks.html" style="color: #00890b; text-decoration: none; font-size: 13px; font-weight: 600;">查看全部任务 →</a>
+                        </div>
+                    </div>
+
+                    <!-- 最近动态 -->
+                    <div class="workspace-card">
+                        <div class="workspace-card-title">
+                            <span>📢</span>
+                            <span>最近动态</span>
+                        </div>
+                        <div style="max-height: 400px; overflow-y: auto;">
+                            <div class="activity-item new">
+                                <div class="activity-time">5分钟前</div>
+                                <div class="activity-content">
+                                    <span class="activity-user">张华</span> 完成了任务 <strong>"PCB布局优化"</strong>
+                                </div>
+                            </div>
+                            <div class="activity-item new">
+                                <div class="activity-time">15分钟前</div>
+                                <div class="activity-content">
+                                    <span class="activity-user">王芳</span> 提交了采购申请 <strong>"STM32芯片采购"</strong>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">1小时前</div>
+                                <div class="activity-content">
+                                    <span class="activity-user">李明</span> 创建了新任务 <strong>"原理图审查"</strong>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">2小时前</div>
+                                <div class="activity-content">
+                                    <span class="activity-user">赵六</span> 更新了项目 <strong>"智能手环 V2.0"</strong> 的进度
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">3小时前</div>
+                                <div class="activity-content">
+                                    <span class="activity-user">孙七</span> 上传了文档 <strong>"测试报告v1.2.pdf"</strong>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">5小时前</div>
+                                <div class="activity-content">
+                                    <span class="activity-user">周八</span> 评论了任务 <strong>"BOM整理"</strong>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-time">今天 09:30</div>
+                                <div class="activity-content">
+                                    <span class="activity-user">张华</span> 审批通过了 <strong>"工程变更申请ECO-2024-015"</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 团队成员视图 -->
+            <div id="teamView" class="view-content">
+            <div class="card">
+                <div class="card-title">团队成员工作概览 (<span id="teamMemberCount">6</span>人)</div>
+                <div class="member-list" id="teamMemberList">
+                    <!-- 成员1: 李明 - 项目经理 -->
+                    <div class="member-card" onclick="viewMemberDetail(&#39;李明&#39;)">
+                        <button class="member-delete-btn" onclick="event.stopPropagation(); removeMember(0)" title="移除成员">✕</button>
+
+                        <div class="member-header">
+                            <div class="member-avatar">LM</div>
+                            <div class="member-info">
+                                <div class="member-name">李明</div>
+                                <div class="member-role">项目经理</div>
+                            </div>
+                        </div>
+
+                        <div class="member-workload">
+                            <span style="font-size: 12px; color: #666;">工作负载:</span>
+                            <div class="workload-bar">
+                                <div class="workload-fill" style="width: 85%; background: linear-gradient(90deg, #ff9800 0%, #f57c00 100%);"></div>
+                            </div>
+                            <span class="workload-label" style="color: #f57c00;">85%</span>
+                        </div>
+
+                        <div>
+                            <div class="section-title">📋 参与项目 (2)</div>
+                            <div class="member-projects">
+                                <div class="project-item">
+                                    <span class="project-name">智能手环 V2.0</span>
+                                    <span class="task-count">5 任务</span>
+                                </div>
+                                <div class="project-item">
+                                    <span class="project-name">无线充电器</span>
+                                    <span class="task-count">3 任务</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="section-title">✅ 当前任务 (8)</div>
+                            <div class="member-tasks">
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">项目进度评审会议</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">团队资源分配优化</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini todo">
+                                    <span class="task-name-mini">Q4项目规划</span>
+                                    <span class="task-status-badge todo">待办</span>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 8px; font-size: 12px; color: #666;">
+                                +5 个更多任务
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 成员2: 张三 - 硬件工程师 -->
+                    <div class="member-card" onclick="viewMemberDetail(&#39;张三&#39;)">
+                        <button class="member-delete-btn" onclick="event.stopPropagation(); removeMember(1)" title="移除成员">✕</button>
+
+                        <div class="member-header">
+                            <div class="member-avatar">ZS</div>
+                            <div class="member-info">
+                                <div class="member-name">张三</div>
+                                <div class="member-role">硬件工程师</div>
+                            </div>
+                        </div>
+
+                        <div class="member-workload">
+                            <span style="font-size: 12px; color: #666;">工作负载:</span>
+                            <div class="workload-bar">
+                                <div class="workload-fill" style="width: 65%; background: linear-gradient(90deg, #4caf50 0%, #2e7d32 100%);"></div>
+                            </div>
+                            <span class="workload-label" style="color: #2e7d32;">65%</span>
+                        </div>
+
+                        <div>
+                            <div class="section-title">📋 参与项目 (1)</div>
+                            <div class="member-projects">
+                                <div class="project-item">
+                                    <span class="project-name">智能手环 V2.0</span>
+                                    <span class="task-count">4 任务</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="section-title">✅ 当前任务 (4)</div>
+                            <div class="member-tasks">
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">PCB设计评审</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">硬件原理图优化</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini completed">
+                                    <span class="task-name-mini">元器件选型</span>
+                                    <span class="task-status-badge completed">已完成</span>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 8px; font-size: 12px; color: #666;">
+                                +1 个更多任务
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 成员3: 李四 - 软件工程师 -->
+                    <div class="member-card" onclick="viewMemberDetail(&#39;李四&#39;)">
+                        <button class="member-delete-btn" onclick="event.stopPropagation(); removeMember(2)" title="移除成员">✕</button>
+
+                        <div class="member-header">
+                            <div class="member-avatar">LS</div>
+                            <div class="member-info">
+                                <div class="member-name">李四</div>
+                                <div class="member-role">软件工程师</div>
+                            </div>
+                        </div>
+
+                        <div class="member-workload">
+                            <span style="font-size: 12px; color: #666;">工作负载:</span>
+                            <div class="workload-bar">
+                                <div class="workload-fill" style="width: 45%; background: linear-gradient(90deg, #4caf50 0%, #2e7d32 100%);"></div>
+                            </div>
+                            <span class="workload-label" style="color: #2e7d32;">45%</span>
+                        </div>
+
+                        <div>
+                            <div class="section-title">📋 参与项目 (2)</div>
+                            <div class="member-projects">
+                                <div class="project-item">
+                                    <span class="project-name">智能手环 V2.0</span>
+                                    <span class="task-count">2 任务</span>
+                                </div>
+                                <div class="project-item">
+                                    <span class="project-name">智能音箱</span>
+                                    <span class="task-count">1 任务</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="section-title">✅ 当前任务 (3)</div>
+                            <div class="member-tasks">
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">蓝牙模块开发</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini todo">
+                                    <span class="task-name-mini">固件升级功能</span>
+                                    <span class="task-status-badge todo">待办</span>
+                                </div>
+                                <div class="task-item-mini completed">
+                                    <span class="task-name-mini">电源管理优化</span>
+                                    <span class="task-status-badge completed">已完成</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 成员4: 王五 - 测试工程师 -->
+                    <div class="member-card" onclick="viewMemberDetail(&#39;王五&#39;)">
+                        <button class="member-delete-btn" onclick="event.stopPropagation(); removeMember(3)" title="移除成员">✕</button>
+
+                        <div class="member-header">
+                            <div class="member-avatar">WW</div>
+                            <div class="member-info">
+                                <div class="member-name">王五</div>
+                                <div class="member-role">测试工程师</div>
+                            </div>
+                        </div>
+
+                        <div class="member-workload">
+                            <span style="font-size: 12px; color: #666;">工作负载:</span>
+                            <div class="workload-bar">
+                                <div class="workload-fill" style="width: 70%; background: linear-gradient(90deg, #ff9800 0%, #f57c00 100%);"></div>
+                            </div>
+                            <span class="workload-label" style="color: #f57c00;">70%</span>
+                        </div>
+
+                        <div>
+                            <div class="section-title">📋 参与项目 (1)</div>
+                            <div class="member-projects">
+                                <div class="project-item">
+                                    <span class="project-name">智能手环 V2.0</span>
+                                    <span class="task-count">5 任务</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="section-title">✅ 当前任务 (5)</div>
+                            <div class="member-tasks">
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">功能测试用例编写</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">自动化测试脚本</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini todo">
+                                    <span class="task-name-mini">回归测试</span>
+                                    <span class="task-status-badge todo">待办</span>
+                                </div>
+                            </div>
+                            <div style="text-align: center; margin-top: 8px; font-size: 12px; color: #666;">
+                                +2 个更多任务
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 成员5: 赵六 - UI设计师 -->
+                    <div class="member-card" onclick="viewMemberDetail(&#39;赵六&#39;)">
+                        <button class="member-delete-btn" onclick="event.stopPropagation(); removeMember(4)" title="移除成员">✕</button>
+
+                        <div class="member-header">
+                            <div class="member-avatar">ZL</div>
+                            <div class="member-info">
+                                <div class="member-name">赵六</div>
+                                <div class="member-role">UI/UX设计师</div>
+                            </div>
+                        </div>
+
+                        <div class="member-workload">
+                            <span style="font-size: 12px; color: #666;">工作负载:</span>
+                            <div class="workload-bar">
+                                <div class="workload-fill" style="width: 30%; background: linear-gradient(90deg, #4caf50 0%, #2e7d32 100%);"></div>
+                            </div>
+                            <span class="workload-label" style="color: #2e7d32;">30%</span>
+                        </div>
+
+                        <div>
+                            <div class="section-title">📋 参与项目 (2)</div>
+                            <div class="member-projects">
+                                <div class="project-item">
+                                    <span class="project-name">智能音箱</span>
+                                    <span class="task-count">2 任务</span>
+                                </div>
+                                <div class="project-item">
+                                    <span class="project-name">智能手环 V2.0</span>
+                                    <span class="task-count">1 任务</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="section-title">✅ 当前任务 (3)</div>
+                            <div class="member-tasks">
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">APP界面设计</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini todo">
+                                    <span class="task-name-mini">交互原型制作</span>
+                                    <span class="task-status-badge todo">待办</span>
+                                </div>
+                                <div class="task-item-mini completed">
+                                    <span class="task-name-mini">视觉规范文档</span>
+                                    <span class="task-status-badge completed">已完成</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 成员6: 钱七 - 采购专员 -->
+                    <div class="member-card" onclick="viewMemberDetail(&#39;钱七&#39;)">
+                        <button class="member-delete-btn" onclick="event.stopPropagation(); removeMember(5)" title="移除成员">✕</button>
+
+                        <div class="member-header">
+                            <div class="member-avatar">QQ</div>
+                            <div class="member-info">
+                                <div class="member-name">钱七</div>
+                                <div class="member-role">采购专员</div>
+                            </div>
+                        </div>
+
+                        <div class="member-workload">
+                            <span style="font-size: 12px; color: #666;">工作负载:</span>
+                            <div class="workload-bar">
+                                <div class="workload-fill" style="width: 55%; background: linear-gradient(90deg, #4caf50 0%, #2e7d32 100%);"></div>
+                            </div>
+                            <span class="workload-label" style="color: #2e7d32;">55%</span>
+                        </div>
+
+                        <div>
+                            <div class="section-title">📋 参与项目 (1)</div>
+                            <div class="member-projects">
+                                <div class="project-item">
+                                    <span class="project-name">智能手环 V2.0</span>
+                                    <span class="task-count">3 任务</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="section-title">✅ 当前任务 (3)</div>
+                            <div class="member-tasks">
+                                <div class="task-item-mini in-progress">
+                                    <span class="task-name-mini">供应商询价</span>
+                                    <span class="task-status-badge in-progress">进行中</span>
+                                </div>
+                                <div class="task-item-mini todo">
+                                    <span class="task-name-mini">采购订单确认</span>
+                                    <span class="task-status-badge todo">待办</span>
+                                </div>
+                                <div class="task-item-mini completed">
+                                    <span class="task-name-mini">元器件清单审核</span>
+                                    <span class="task-status-badge completed">已完成</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加成员Modal -->
+    <div class="modal-overlay" id="addMemberModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">👥 添加团队成员</h3>
+                <button class="modal-close" onclick="closeAddMemberModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <form id="addMemberForm">
+                    <!-- 成员选择方式 -->
+                    <div class="form-group">
+                        <label class="form-label required">添加方式</label>
+                        <div style="display: flex; gap: 12px; margin-bottom: 16px;">
+                            <label style="flex: 1; padding: 16px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s;" id="existingMemberOption">
+                                <input type="radio" name="addMethod" value="existing" checked="" onchange="toggleAddMethod(&#39;existing&#39;)" style="margin-right: 8px;">
+                                <span style="font-weight: 600;">从组织选择</span>
+                                <div style="font-size: 12px; color: #666; margin-top: 4px;">添加已加入组织的成员</div>
+                            </label>
+                            <label style="flex: 1; padding: 16px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s;" id="newMemberOption">
+                                <input type="radio" name="addMethod" value="new" onchange="toggleAddMethod(&#39;new&#39;)" style="margin-right: 8px;">
+                                <span style="font-weight: 600;">邀请新成员</span>
+                                <div style="font-size: 12px; color: #666; margin-top: 4px;">邀请未加入组织的成员</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 从组织选择成员 -->
+                    <div id="existingMemberSection">
+                        <div class="form-group">
+                            <label class="form-label required">选择成员</label>
+                            <select class="form-select" id="organizationMemberSelect" onchange="onOrganizationMemberSelect()" required=""><option value="">请选择组织成员</option><option value="1" data-email="zhangwei@company.com" data-role="硬件工程师">张伟 (硬件工程师 - 研发部)</option><option value="2" data-email="wangfang@company.com" data-role="软件工程师">王芳 (软件工程师 - 研发部)</option><option value="3" data-email="liuyang@company.com" data-role="测试工程师">刘洋 (测试工程师 - 质量部)</option><option value="4" data-email="chenjing@company.com" data-role="UI/UX设计师">陈静 (UI/UX设计师 - 设计部)</option><option value="5" data-email="yangfan@company.com" data-role="采购专员">杨帆 (采购专员 - 供应链部)</option><option value="6" data-email="huanglei@company.com" data-role="质量工程师">黄磊 (质量工程师 - 质量部)</option><option value="7" data-email="zhoumin@company.com" data-role="项目经理">周敏 (项目经理 - 项目管理部)</option><option value="8" data-email="wugang@company.com" data-role="硬件工程师">吴刚 (硬件工程师 - 研发部)</option><option value="9" data-email="zhengli@company.com" data-role="软件工程师">郑丽 (软件工程师 - 研发部)</option><option value="10" data-email="suntao@company.com" data-role="测试工程师">孙涛 (测试工程师 - 质量部)</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">成员邮箱</label>
+                            <input type="email" class="form-input" id="memberEmailDisplay" placeholder="自动填充" readonly="" style="background: #f5f5f5;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">职位角色</label>
+                            <input type="text" class="form-input" id="memberRoleDisplay" placeholder="自动填充" readonly="" style="background: #f5f5f5;">
+                        </div>
+                    </div>
+
+                    <!-- 邀请新成员 -->
+                    <div id="newMemberSection" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label required">成员姓名</label>
+                            <input type="text" class="form-input" id="newMemberName" placeholder="请输入成员姓名">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">成员邮箱</label>
+                            <input type="email" class="form-input" id="newMemberEmail" placeholder="请输入成员邮箱地址">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">职位角色</label>
+                            <select class="form-select" id="newMemberRole">
+                                <option value="">请选择职位角色</option>
+                                <option value="pm">项目经理</option>
+                                <option value="hw">硬件工程师</option>
+                                <option value="sw">软件工程师</option>
+                                <option value="test">测试工程师</option>
+                                <option value="design">UI/UX设计师</option>
+                                <option value="procurement">采购专员</option>
+                                <option value="qa">质量工程师</option>
+                                <option value="other">其他</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">权限级别</label>
+                            <select class="form-select" id="newMemberPermission">
+                                <option value="">请选择权限级别</option>
+                                <option value="admin">管理员 - 完全权限</option>
+                                <option value="member">成员 - 标准权限</option>
+                                <option value="readonly">访客 - 只读权限</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">邀请消息</label>
+                            <textarea class="form-textarea" id="inviteMessage" placeholder="给新成员写一段欢迎消息（可选）"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 项目权限设置 -->
+                    <div class="form-group" style="margin-top: 24px; padding-top: 24px; border-top: 2px solid #e0e0e0;">
+                        <label class="form-label required">项目权限</label>
+                        <select class="form-select" id="projectPermission" required="">
+                            <option value="">请选择项目权限</option>
+                            <option value="owner">项目所有者 - 完全控制</option>
+                            <option value="manager">项目经理 - 管理权限</option>
+                            <option value="member">项目成员 - 编辑权限</option>
+                            <option value="viewer">查看者 - 只读权限</option>
+                        </select>
+                        <div style="font-size: 12px; color: #666; margin-top: 8px;">💡 提示: 组织角色和项目权限是独立的，可以分别设置</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAddMemberModal()">取消</button>
+                <button class="btn-primary" id="submitMemberBtn" onclick="submitAddMember()">添加成员</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成员详情Modal -->
+    <div class="modal-overlay" id="memberDetailModal">
+        <div class="modal-content" style="max-width: 1000px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="memberDetailTitle">👤 成员工作详情</h3>
+                <button class="modal-close" onclick="closeMemberDetailModal()">×</button>
+            </div>
+            <div class="modal-body" id="memberDetailBody">
+                <!-- 动态生成内容 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 当前用户角色（用于权限控制）
+        let currentUserRole = 'manager'; // 'manager' 或 'member' 等
+
+        // 组织成员数据（模拟从组织管理获取的数据）
+        const organizationMembers = [
+            { id: 1, name: '张伟', email: 'zhangwei@company.com', role: '硬件工程师', department: '研发部' },
+            { id: 2, name: '王芳', email: 'wangfang@company.com', role: '软件工程师', department: '研发部' },
+            { id: 3, name: '刘洋', email: 'liuyang@company.com', role: '测试工程师', department: '质量部' },
+            { id: 4, name: '陈静', email: 'chenjing@company.com', role: 'UI/UX设计师', department: '设计部' },
+            { id: 5, name: '杨帆', email: 'yangfan@company.com', role: '采购专员', department: '供应链部' },
+            { id: 6, name: '黄磊', email: 'huanglei@company.com', role: '质量工程师', department: '质量部' },
+            { id: 7, name: '周敏', email: 'zhoumin@company.com', role: '项目经理', department: '项目管理部' },
+            { id: 8, name: '吴刚', email: 'wugang@company.com', role: '硬件工程师', department: '研发部' },
+            { id: 9, name: '郑丽', email: 'zhengli@company.com', role: '软件工程师', department: '研发部' },
+            { id: 10, name: '孙涛', email: 'suntao@company.com', role: '测试工程师', department: '质量部' }
+        ];
+
+        // 团队成员详细信息数据
+        const memberDetails = {
+            '李明': {
+                name: '李明',
+                role: '项目经理',
+                email: 'liming@company.com',
+                phone: '138-1234-5678',
+                workload: 85,
+                projects: [
+                    {
+                        name: '智能手环 V2.0',
+                        status: 'in-progress',
+                        progress: 68,
+                        startDate: '2024-06-01',
+                        endDate: '2024-11-30',
+                        tasks: [
+                            { name: '项目进度评审会议', status: 'in-progress', priority: 'high', dueDate: '2024-10-25' },
+                            { name: '团队资源分配优化', status: 'in-progress', priority: 'medium', dueDate: '2024-10-28' },
+                            { name: 'Q4项目规划', status: 'todo', priority: 'high', dueDate: '2024-10-30' },
+                            { name: '客户需求评审', status: 'completed', priority: 'high', dueDate: '2024-10-15' },
+                            { name: '风险评估报告', status: 'in-progress', priority: 'medium', dueDate: '2024-10-27' }
+                        ]
+                    },
+                    {
+                        name: '无线充电器',
+                        status: 'planning',
+                        progress: 25,
+                        startDate: '2024-08-15',
+                        endDate: '2025-02-28',
+                        tasks: [
+                            { name: '项目启动会', status: 'completed', priority: 'high', dueDate: '2024-08-20' },
+                            { name: '需求分析文档', status: 'in-progress', priority: 'high', dueDate: '2024-10-26' },
+                            { name: '团队组建', status: 'completed', priority: 'medium', dueDate: '2024-09-01' }
+                        ]
+                    }
+                ]
+            },
+            '张三': {
+                name: '张三',
+                role: '硬件工程师',
+                email: 'zhangsan@company.com',
+                phone: '138-2345-6789',
+                workload: 65,
+                projects: [
+                    {
+                        name: '智能手环 V2.0',
+                        status: 'in-progress',
+                        progress: 68,
+                        startDate: '2024-06-01',
+                        endDate: '2024-11-30',
+                        tasks: [
+                            { name: 'PCB设计评审', status: 'in-progress', priority: 'high', dueDate: '2024-10-26' },
+                            { name: '硬件原理图优化', status: 'in-progress', priority: 'high', dueDate: '2024-10-28' },
+                            { name: '元器件选型', status: 'completed', priority: 'medium', dueDate: '2024-10-10' },
+                            { name: 'BOM清单确认', status: 'todo', priority: 'medium', dueDate: '2024-10-30' }
+                        ]
+                    }
+                ]
+            },
+            '李四': {
+                name: '李四',
+                role: '软件工程师',
+                email: 'lisi@company.com',
+                phone: '138-3456-7890',
+                workload: 45,
+                projects: [
+                    {
+                        name: '智能手环 V2.0',
+                        status: 'in-progress',
+                        progress: 68,
+                        startDate: '2024-06-01',
+                        endDate: '2024-11-30',
+                        tasks: [
+                            { name: '蓝牙模块开发', status: 'in-progress', priority: 'high', dueDate: '2024-10-29' },
+                            { name: '电源管理优化', status: 'completed', priority: 'medium', dueDate: '2024-10-12' }
+                        ]
+                    },
+                    {
+                        name: '智能音箱',
+                        status: 'in-progress',
+                        progress: 45,
+                        startDate: '2024-07-01',
+                        endDate: '2024-12-31',
+                        tasks: [
+                            { name: '固件升级功能', status: 'todo', priority: 'low', dueDate: '2024-11-05' }
+                        ]
+                    }
+                ]
+            },
+            '王五': {
+                name: '王五',
+                role: '测试工程师',
+                email: 'wangwu@company.com',
+                phone: '138-4567-8901',
+                workload: 70,
+                projects: [
+                    {
+                        name: '智能手环 V2.0',
+                        status: 'in-progress',
+                        progress: 68,
+                        startDate: '2024-06-01',
+                        endDate: '2024-11-30',
+                        tasks: [
+                            { name: '功能测试用例编写', status: 'in-progress', priority: 'high', dueDate: '2024-10-27' },
+                            { name: '自动化测试脚本', status: 'in-progress', priority: 'medium', dueDate: '2024-10-30' },
+                            { name: '回归测试', status: 'todo', priority: 'high', dueDate: '2024-11-02' },
+                            { name: '性能测试报告', status: 'todo', priority: 'medium', dueDate: '2024-11-05' },
+                            { name: '兼容性测试', status: 'completed', priority: 'medium', dueDate: '2024-10-15' }
+                        ]
+                    }
+                ]
+            },
+            '赵六': {
+                name: '赵六',
+                role: 'UI/UX设计师',
+                email: 'zhaoliu@company.com',
+                phone: '138-5678-9012',
+                workload: 30,
+                projects: [
+                    {
+                        name: '智能音箱',
+                        status: 'in-progress',
+                        progress: 45,
+                        startDate: '2024-07-01',
+                        endDate: '2024-12-31',
+                        tasks: [
+                            { name: 'APP界面设计', status: 'in-progress', priority: 'high', dueDate: '2024-10-28' },
+                            { name: '交互原型制作', status: 'todo', priority: 'medium', dueDate: '2024-11-03' }
+                        ]
+                    },
+                    {
+                        name: '智能手环 V2.0',
+                        status: 'in-progress',
+                        progress: 68,
+                        startDate: '2024-06-01',
+                        endDate: '2024-11-30',
+                        tasks: [
+                            { name: '视觉规范文档', status: 'completed', priority: 'low', dueDate: '2024-09-30' }
+                        ]
+                    }
+                ]
+            },
+            '钱七': {
+                name: '钱七',
+                role: '采购专员',
+                email: 'qianqi@company.com',
+                phone: '138-6789-0123',
+                workload: 55,
+                projects: [
+                    {
+                        name: '智能手环 V2.0',
+                        status: 'in-progress',
+                        progress: 68,
+                        startDate: '2024-06-01',
+                        endDate: '2024-11-30',
+                        tasks: [
+                            { name: '供应商询价', status: 'in-progress', priority: 'high', dueDate: '2024-10-26' },
+                            { name: '采购订单确认', status: 'todo', priority: 'high', dueDate: '2024-10-29' },
+                            { name: '元器件清单审核', status: 'completed', priority: 'medium', dueDate: '2024-10-10' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            checkUserPermissions();
+            loadOrganizationMembers();
+        });
+
+        // 检查用户权限
+        function checkUserPermissions() {
+            const addMemberBtn = document.getElementById('addMemberBtn');
+            const deleteButtons = document.querySelectorAll('.member-delete-btn');
+
+            if (currentUserRole !== 'manager') {
+                // 非项目经理隐藏添加和删除按钮
+                if (addMemberBtn) {
+                    addMemberBtn.style.display = 'none';
+                }
+                deleteButtons.forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
+        }
+
+        // 加载组织成员到下拉框
+        function loadOrganizationMembers() {
+            const select = document.getElementById('organizationMemberSelect');
+            if (!select) return;
+
+            // 清空现有选项（除了默认选项）
+            select.innerHTML = '<option value="">请选择组织成员</option>';
+
+            // 添加组织成员选项
+            organizationMembers.forEach(member => {
+                const option = document.createElement('option');
+                option.value = member.id;
+                option.textContent = `${member.name} (${member.role} - ${member.department})`;
+                option.dataset.email = member.email;
+                option.dataset.role = member.role;
+                select.appendChild(option);
+            });
+        }
+
+        // 添加成员Modal
+        function openAddMemberModal() {
+            // 权限检查
+            if (currentUserRole !== 'manager') {
+                alert('⚠️ 权限不足\n\n只有项目经理可以添加团队成员。');
+                return;
+            }
+
+            document.getElementById('addMemberModal').classList.add('active');
+            loadOrganizationMembers();
+
+            // 设置默认选项样式
+            updateMethodOptionStyle('existing');
+        }
+
+        function closeAddMemberModal() {
+            document.getElementById('addMemberModal').classList.remove('active');
+            document.getElementById('addMemberForm').reset();
+
+            // 清空自动填充字段
+            document.getElementById('memberEmailDisplay').value = '';
+            document.getElementById('memberRoleDisplay').value = '';
+
+            // 重置为默认状态
+            toggleAddMethod('existing');
+            document.querySelector('input[name="addMethod"][value="existing"]').checked = true;
+        }
+
+        // 切换添加方式
+        function toggleAddMethod(method) {
+            const existingSection = document.getElementById('existingMemberSection');
+            const newSection = document.getElementById('newMemberSection');
+            const submitBtn = document.getElementById('submitMemberBtn');
+
+            if (method === 'existing') {
+                existingSection.style.display = 'block';
+                newSection.style.display = 'none';
+                submitBtn.textContent = '添加成员';
+                updateMethodOptionStyle('existing');
+            } else {
+                existingSection.style.display = 'none';
+                newSection.style.display = 'block';
+                submitBtn.textContent = '发送邀请';
+                updateMethodOptionStyle('new');
+            }
+        }
+
+        // 更新选项卡样式
+        function updateMethodOptionStyle(method) {
+            const existingOption = document.getElementById('existingMemberOption');
+            const newOption = document.getElementById('newMemberOption');
+
+            if (method === 'existing') {
+                existingOption.style.borderColor = '#00890b';
+                existingOption.style.background = 'linear-gradient(135deg, #f0f8f0 0%, #e8f5e9 100%)';
+                newOption.style.borderColor = '#e0e0e0';
+                newOption.style.background = 'white';
+            } else {
+                newOption.style.borderColor = '#00890b';
+                newOption.style.background = 'linear-gradient(135deg, #f0f8f0 0%, #e8f5e9 100%)';
+                existingOption.style.borderColor = '#e0e0e0';
+                existingOption.style.background = 'white';
+            }
+        }
+
+        // 选择组织成员时自动填充信息
+        function onOrganizationMemberSelect() {
+            const select = document.getElementById('organizationMemberSelect');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (selectedOption.value) {
+                const email = selectedOption.dataset.email;
+                const role = selectedOption.dataset.role;
+
+                document.getElementById('memberEmailDisplay').value = email;
+                document.getElementById('memberRoleDisplay').value = role;
+            } else {
+                document.getElementById('memberEmailDisplay').value = '';
+                document.getElementById('memberRoleDisplay').value = '';
+            }
+        }
+
+        // 提交添加成员
+        function submitAddMember() {
+            // 权限检查
+            if (currentUserRole !== 'manager') {
+                alert('⚠️ 权限不足\n\n只有项目经理可以添加团队成员。');
+                return;
+            }
+
+            const method = document.querySelector('input[name="addMethod"]:checked').value;
+            const projectPermission = document.getElementById('projectPermission').value;
+
+            if (!projectPermission) {
+                alert('❌ 请选择项目权限！');
+                return;
+            }
+
+            if (method === 'existing') {
+                // 从组织添加成员
+                const select = document.getElementById('organizationMemberSelect');
+                const selectedOption = select.options[select.selectedIndex];
+
+                if (!selectedOption.value) {
+                    alert('❌ 请选择要添加的成员！');
+                    return;
+                }
+
+                const memberName = selectedOption.textContent.split(' (')[0];
+                const email = selectedOption.dataset.email;
+                const role = selectedOption.dataset.role;
+
+                alert(`✅ 成员添加成功！\n\n姓名: ${memberName}\n邮箱: ${email}\n角色: ${role}\n项目权限: ${getPermissionLabel(projectPermission)}\n\n该成员已加入团队，可以立即开始协作。`);
+
+            } else {
+                // 邀请新成员
+                const name = document.getElementById('newMemberName').value;
+                const email = document.getElementById('newMemberEmail').value;
+                const role = document.getElementById('newMemberRole').value;
+                const permission = document.getElementById('newMemberPermission').value;
+
+                if (!name || !email || !role || !permission) {
+                    alert('❌ 请填写所有必填项！');
+                    return;
+                }
+
+                // 邮箱格式验证
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    alert('❌ 请输入有效的邮箱地址！');
+                    return;
+                }
+
+                alert(`✅ 邀请已发送！\n\n邮箱: ${email}\n姓名: ${name}\n角色: ${getRoleLabel(role)}\n组织权限: ${getPermissionLabel(permission)}\n项目权限: ${getPermissionLabel(projectPermission)}\n\n邀请链接已发送到该邮箱，对方接受后将加入组织和项目团队。`);
+            }
+
+            closeAddMemberModal();
+        }
+
+        // 获取权限标签
+        function getPermissionLabel(value) {
+            const labels = {
+                'admin': '管理员',
+                'member': '成员',
+                'readonly': '访客',
+                'owner': '项目所有者',
+                'manager': '项目经理',
+                'viewer': '查看者'
+            };
+            return labels[value] || value;
+        }
+
+        // 获取角色标签
+        function getRoleLabel(value) {
+            const labels = {
+                'pm': '项目经理',
+                'hw': '硬件工程师',
+                'sw': '软件工程师',
+                'test': '测试工程师',
+                'design': 'UI/UX设计师',
+                'procurement': '采购专员',
+                'qa': '质量工程师',
+                'other': '其他'
+            };
+            return labels[value] || value;
+        }
+
+        // 查看成员详情
+        function viewMemberDetail(memberName) {
+            const member = memberDetails[memberName];
+            if (!member) {
+                alert('未找到成员信息');
+                return;
+            }
+
+            // 更新Modal标题
+            document.getElementById('memberDetailTitle').textContent = `👤 ${member.name} - 工作详情`;
+
+            // 生成详情内容
+            const detailBody = document.getElementById('memberDetailBody');
+
+            // 计算总任务数
+            let totalTasks = 0;
+            let completedTasks = 0;
+            let inProgressTasks = 0;
+            let todoTasks = 0;
+
+            member.projects.forEach(project => {
+                totalTasks += project.tasks.length;
+                project.tasks.forEach(task => {
+                    if (task.status === 'completed') completedTasks++;
+                    else if (task.status === 'in-progress') inProgressTasks++;
+                    else if (task.status === 'todo') todoTasks++;
+                });
+            });
+
+            // 工作负载颜色
+            let workloadColor = '#4caf50';
+            if (member.workload >= 80) workloadColor = '#e74c3c';
+            else if (member.workload >= 70) workloadColor = '#ff9800';
+
+            detailBody.innerHTML = `
+                <!-- 成员基本信息 -->
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 24px; border-radius: 8px; color: white; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                        <div class="member-avatar" style="width: 64px; height: 64px; font-size: 24px;">${member.name.substring(0, 2).toUpperCase()}</div>
+                        <div style="flex: 1;">
+                            <h2 style="margin: 0 0 8px 0; font-size: 24px;">${member.name}</h2>
+                            <div style="font-size: 16px; opacity: 0.9;">${member.role}</div>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 20px;">
+                        <div>
+                            <div style="opacity: 0.8; font-size: 13px; margin-bottom: 4px;">📧 邮箱</div>
+                            <div style="font-size: 14px;">${member.email}</div>
+                        </div>
+                        <div>
+                            <div style="opacity: 0.8; font-size: 13px; margin-bottom: 4px;">📱 电话</div>
+                            <div style="font-size: 14px;">${member.phone}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 工作负载统计 -->
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px;">
+                    <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: ${workloadColor}; margin-bottom: 8px;">${member.workload}%</div>
+                        <div style="font-size: 13px; color: #666;">工作负载</div>
+                    </div>
+                    <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #3d4647; margin-bottom: 8px;">${member.projects.length}</div>
+                        <div style="font-size: 13px; color: #666;">参与项目</div>
+                    </div>
+                    <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #3d4647; margin-bottom: 8px;">${totalTasks}</div>
+                        <div style="font-size: 13px; color: #666;">总任务数</div>
+                    </div>
+                    <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 16px; text-align: center;">
+                        <div style="font-size: 32px; font-weight: 700; color: #4caf50; margin-bottom: 8px;">${completedTasks}</div>
+                        <div style="font-size: 13px; color: #666;">已完成</div>
+                    </div>
+                </div>
+
+                <!-- 任务状态分布 -->
+                <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #3d4647;">📊 任务状态分布</div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #666;">进行中</span>
+                                <span style="font-size: 14px; font-weight: 600; color: #2196f3;">${inProgressTasks}</span>
+                            </div>
+                            <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; background: #2196f3; width: ${totalTasks > 0 ? (inProgressTasks/totalTasks*100) : 0}%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #666;">待办</span>
+                                <span style="font-size: 14px; font-weight: 600; color: #ff9800;">${todoTasks}</span>
+                            </div>
+                            <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; background: #ff9800; width: ${totalTasks > 0 ? (todoTasks/totalTasks*100) : 0}%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <span style="font-size: 14px; color: #666;">已完成</span>
+                                <span style="font-size: 14px; font-weight: 600; color: #4caf50;">${completedTasks}</span>
+                            </div>
+                            <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; background: #4caf50; width: ${totalTasks > 0 ? (completedTasks/totalTasks*100) : 0}%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 参与的项目列表 -->
+                <div style="margin-bottom: 16px;">
+                    <h3 style="font-size: 18px; font-weight: 700; color: #3d4647; margin-bottom: 16px;">📋 参与的项目</h3>
+                    ${member.projects.map(project => `
+                        <div style="background: white; border: 2px solid #e0e0e0; border-radius: 8px; padding: 20px; margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                                <div>
+                                    <div style="font-size: 18px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">${project.name}</div>
+                                    <div style="font-size: 13px; color: #666;">
+                                        <span style="margin-right: 16px;">📅 ${project.startDate} ~ ${project.endDate}</span>
+                                        <span style="padding: 4px 8px; background: ${project.status === 'in-progress' ? '#e3f2fd' : '#fff3e0'}; color: ${project.status === 'in-progress' ? '#1565c0' : '#e65100'}; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                                            ${project.status === 'in-progress' ? '进行中' : '筹备中'}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 24px; font-weight: 700; color: #00890b;">${project.progress}%</div>
+                                    <div style="font-size: 12px; color: #666;">项目进度</div>
+                                </div>
+                            </div>
+
+                            <!-- 进度条 -->
+                            <div style="height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-bottom: 20px;">
+                                <div style="height: 100%; background: linear-gradient(90deg, #00890b 0%, #00b30e 100%); width: ${project.progress}%; transition: width 0.3s;"></div>
+                            </div>
+
+                            <!-- 任务列表 -->
+                            <div>
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">负责的任务 (${project.tasks.length})</div>
+                                <div style="display: flex; flex-direction: column; gap: 8px;">
+                                    ${project.tasks.map(task => {
+                                        let statusBg, statusColor, statusText, priorityIcon, priorityColor;
+
+                                        if (task.status === 'completed') {
+                                            statusBg = '#e8f5e9';
+                                            statusColor = '#2e7d32';
+                                            statusText = '已完成';
+                                        } else if (task.status === 'in-progress') {
+                                            statusBg = '#e3f2fd';
+                                            statusColor = '#1565c0';
+                                            statusText = '进行中';
+                                        } else {
+                                            statusBg = '#fff3e0';
+                                            statusColor = '#e65100';
+                                            statusText = '待办';
+                                        }
+
+                                        if (task.priority === 'high') {
+                                            priorityIcon = '🔥';
+                                            priorityColor = '#e74c3c';
+                                        } else if (task.priority === 'medium') {
+                                            priorityIcon = '📌';
+                                            priorityColor = '#ff9800';
+                                        } else {
+                                            priorityIcon = '📍';
+                                            priorityColor = '#999';
+                                        }
+
+                                        return `
+                                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px; background: #fafafa; border-radius: 6px; border-left: 3px solid ${statusColor};">
+                                                <div style="flex: 1;">
+                                                    <div style="font-size: 14px; font-weight: 600; color: #3d4647; margin-bottom: 4px;">${task.name}</div>
+                                                    <div style="display: flex; align-items: center; gap: 12px; font-size: 12px; color: #666;">
+                                                        <span>${priorityIcon} <span style="color: ${priorityColor};">${task.priority === 'high' ? '高优先级' : task.priority === 'medium' ? '中优先级' : '低优先级'}</span></span>
+                                                        <span>📅 ${task.dueDate}</span>
+                                                    </div>
+                                                </div>
+                                                <div style="padding: 4px 12px; background: ${statusBg}; color: ${statusColor}; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap;">
+                                                    ${statusText}
+                                                </div>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // 显示Modal
+            document.getElementById('memberDetailModal').classList.add('active');
+        }
+
+        // 关闭成员详情Modal
+        function closeMemberDetailModal() {
+            document.getElementById('memberDetailModal').classList.remove('active');
+        }
+
+        // 点击背景关闭成员详情Modal
+        document.getElementById('memberDetailModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeMemberDetailModal();
+            }
+        });
+
+        // 移除团队成员
+        function removeMember(index) {
+            // 权限检查
+            if (currentUserRole !== 'manager') {
+                alert('⚠️ 权限不足\n\n只有项目经理可以删除团队成员。');
+                return;
+            }
+
+            const memberList = document.getElementById('teamMemberList');
+            const memberCards = memberList.querySelectorAll('.member-card');
+
+            if (memberCards[index]) {
+                const memberCard = memberCards[index];
+                const memberName = memberCard.querySelector('div[style*="font-weight: 600"]')?.textContent || '该成员';
+
+                // 确认删除
+                if (!confirm(`确定要移除团队成员 "${memberName}" 吗？\n\n移除后该成员将无法访问项目和相关资源。`)) {
+                    return;
+                }
+
+                // 添加移除动画
+                memberCard.style.transition = 'all 0.3s ease-out';
+                memberCard.style.opacity = '0';
+                memberCard.style.transform = 'scale(0.8)';
+
+                setTimeout(() => {
+                    memberCard.remove();
+
+                    // 更新团队成员数量
+                    const remainingCards = document.getElementById('teamMemberList').querySelectorAll('.member-card');
+                    document.getElementById('teamMemberCount').textContent = remainingCards.length;
+
+                    // 显示成功消息
+                    alert(`✅ 成员已移除\n\n"${memberName}" 已从团队中移除。`);
+                }, 300);
+            }
+        }
+
+        // 点击背景关闭Modal
+        document.getElementById('addMemberModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddMemberModal();
+            }
+        });
+    
+        // AI助手功能
+        function openCodeAssistant() {
+            document.getElementById('codeAssistantModal').classList.add('active');
+        }
+
+        function closeCodeAssistant() {
+            document.getElementById('codeAssistantModal').classList.remove('active');
+        }
+
+        function openPCBLayout() {
+            document.getElementById('pcbLayoutModal').classList.add('active');
+        }
+
+        function closePCBLayout() {
+            document.getElementById('pcbLayoutModal').classList.remove('active');
+        }
+
+        // 视图切换函数
+        function switchView(viewName) {
+            // 移除所有tab的active类
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // 隐藏所有视图内容
+            document.querySelectorAll('.view-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // 激活选中的tab和视图
+            if (viewName === 'workspace') {
+                document.getElementById('workspaceTab').classList.add('active');
+                document.getElementById('workspaceView').classList.add('active');
+            } else if (viewName === 'team') {
+                document.getElementById('teamTab').classList.add('active');
+                document.getElementById('teamView').classList.add('active');
+            }
+        }
+
+        // 工作台相关函数
+        function viewTodoDetail(todoId) {
+            alert('查看待办详情: ' + todoId + '\n\n功能开发中...');
+        }
+
+        function viewApproval(appId) {
+            window.location.href = 'approval-center.html?id=' + appId;
+        }
+
+        function viewTask(taskId) {
+            window.location.href = 'tasks.html?id=' + taskId;
+        }
+        </script>
+
+            </div>
+            </div> <!-- 关闭 team view -->
+        </div> <!-- 关闭 main-content -->
+
+        <!-- 编程助手模态框 -->
+    <div class="ai-modal-overlay" id="codeAssistantModal">
+        <button class="ai-modal-close" onclick="closeCodeAssistant()">×</button>
+        <iframe src="./EZPLM - 团队协作_files/ai_coding_embedded.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+
+    <!-- PCB预布局模态框 -->
+    <div class="ai-modal-overlay" id="pcbLayoutModal">
+        <button class="ai-modal-close" onclick="closePCBLayout()">×</button>
+        <iframe src="./EZPLM - 团队协作_files/pcb-editor-styled.html" style="width: 100%; height: 100%; border: none;"></iframe>
+    </div>
+
+
+</body></html>

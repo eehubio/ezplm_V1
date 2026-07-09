@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 添加采购物料</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 主布局 */
+        .main-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0, 137, 11, 0.2);
+        }
+        .header-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 搜索区域 */
+        .search-section {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .search-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .filter-select {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 180px;
+        }
+        .btn-search {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-search:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+
+        /* 物料表格 */
+        .material-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .section-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .selected-count {
+            background: #00890b;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .material-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .material-table th {
+            background: #f9f9f9;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+            font-weight: 700;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .material-table td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .material-table tr:hover {
+            background: #f9f9f9;
+        }
+        .material-image {
+            width: 40px;
+            height: 40px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .stock-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .stock-ok {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .stock-low {
+            background: rgba(255, 193, 7, 0.1);
+            color: #f39c12;
+        }
+        .stock-out {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        .qty-input {
+            width: 80px;
+            padding: 6px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+        }
+        .qty-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+
+        /* 固定底部操作栏 */
+        .bottom-action-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 20px 40px;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .total-info {
+            font-size: 16px;
+            color: #666;
+        }
+        .total-amount {
+            font-size: 24px;
+            font-weight: 800;
+            color: #00890b;
+            margin-left: 20px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="main-content">
+        <!-- 返回按钮 -->
+        <a href="procurement-detail.html?id=PO-2024-0045" class="back-btn">
+            ← 返回采购单详情
+        </a>
+
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="header-title">📦 添加采购物料</div>
+            <div class="header-subtitle">从物料库中选择需要采购的物料，并设置采购数量</div>
+        </div>
+
+        <!-- 搜索区域 -->
+        <div class="search-section">
+            <div class="search-row">
+                <input type="text" class="search-input" placeholder="🔍 搜索物料编号、名称、型号..." id="searchInput" onkeyup="searchMaterials()">
+                <select class="filter-select" id="categoryFilter" onchange="filterMaterials()">
+                    <option value="">全部分类</option>
+                    <option value="ic">集成电路</option>
+                    <option value="passive">阻容感</option>
+                    <option value="connector">连接器</option>
+                    <option value="display">显示器件</option>
+                    <option value="power">电源模块</option>
+                    <option value="sensor">传感器</option>
+                    <option value="mechanical">机械件</option>
+                </select>
+                <select class="filter-select" id="stockFilter" onchange="filterMaterials()">
+                    <option value="">全部库存</option>
+                    <option value="ok">库存充足</option>
+                    <option value="low">库存不足</option>
+                    <option value="out">缺货</option>
+                </select>
+                <button class="btn-search" onclick="searchMaterials()">搜索</button>
+            </div>
+        </div>
+
+        <!-- 物料列表 -->
+        <div class="material-section">
+            <div class="section-header">
+                <div class="section-title">可选物料列表</div>
+                <div class="selected-count">已选择 <span id="selectedCount">0</span> 项</div>
+            </div>
+            <table class="material-table" id="materialTable">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;"><input type="checkbox" onclick="toggleSelectAll(this)"></th>
+                        <th style="width: 60px;">图片</th>
+                        <th>物料编号</th>
+                        <th>物料名称</th>
+                        <th>规格型号</th>
+                        <th>分类</th>
+                        <th>库存</th>
+                        <th>单价</th>
+                        <th>采购数量</th>
+                        <th>小计</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr data-category="ic" data-stock="ok">
+                        <td><input type="checkbox" class="material-checkbox" data-id="M-2024-006" onchange="updateSelection()"></td>
+                        <td><div class="material-image">🔲</div></td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-006</td>
+                        <td>ATmega328P</td>
+                        <td>TQFP-32</td>
+                        <td>集成电路</td>
+                        <td><span class="stock-badge stock-ok">库存充足(500)</span></td>
+                        <td>¥8.50</td>
+                        <td><input type="number" class="qty-input" value="100" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥850</strong></td>
+                    </tr>
+                    <tr data-category="passive" data-stock="ok">
+                        <td><input type="checkbox" class="material-checkbox" data-id="M-2024-007" onchange="updateSelection()"></td>
+                        <td><div class="material-image">⚡</div></td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-007</td>
+                        <td>贴片电阻</td>
+                        <td>0603 10KΩ ±1%</td>
+                        <td>阻容感</td>
+                        <td><span class="stock-badge stock-ok">库存充足(10000)</span></td>
+                        <td>¥0.01</td>
+                        <td><input type="number" class="qty-input" value="1000" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥10</strong></td>
+                    </tr>
+                    <tr data-category="passive" data-stock="ok">
+                        <td><input type="checkbox" class="material-checkbox" data-id="M-2024-008" onchange="updateSelection()"></td>
+                        <td><div class="material-image">⚡</div></td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-008</td>
+                        <td>贴片电容</td>
+                        <td>0805 100nF ±10%</td>
+                        <td>阻容感</td>
+                        <td><span class="stock-badge stock-ok">库存充足(8000)</span></td>
+                        <td>¥0.02</td>
+                        <td><input type="number" class="qty-input" value="500" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥10</strong></td>
+                    </tr>
+                    <tr data-category="connector" data-stock="low">
+                        <td><input type="checkbox" class="material-checkbox" data-id="M-2024-009" onchange="updateSelection()"></td>
+                        <td><div class="material-image">🔌</div></td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-009</td>
+                        <td>USB Type-C接口</td>
+                        <td>16Pin 母座</td>
+                        <td>连接器</td>
+                        <td><span class="stock-badge stock-low">库存不足(50)</span></td>
+                        <td>¥2.80</td>
+                        <td><input type="number" class="qty-input" value="200" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥560</strong></td>
+                    </tr>
+                    <tr data-category="display" data-stock="ok">
+                        <td><input type="checkbox" class="material-checkbox" data-id="M-2024-010" onchange="updateSelection()"></td>
+                        <td><div class="material-image">📺</div></td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-010</td>
+                        <td>TFT液晶屏</td>
+                        <td>2.4寸 320x240 SPI</td>
+                        <td>显示器件</td>
+                        <td><span class="stock-badge stock-ok">库存充足(200)</span></td>
+                        <td>¥15.60</td>
+                        <td><input type="number" class="qty-input" value="50" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥780</strong></td>
+                    </tr>
+                    <tr data-category="power" data-stock="ok">
+                        <td><input type="checkbox" class="material-checkbox" data-id="M-2024-011" onchange="updateSelection()"></td>
+                        <td><div class="material-image">🔋</div></td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-011</td>
+                        <td>DC-DC降压模块</td>
+                        <td>LM2596 5V 3A</td>
+                        <td>电源模块</td>
+                        <td><span class="stock-badge stock-ok">库存充足(300)</span></td>
+                        <td>¥4.50</td>
+                        <td><input type="number" class="qty-input" value="100" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥450</strong></td>
+                    </tr>
+                    <tr data-category="sensor" data-stock="out">
+                        <td><input type="checkbox" class="material-checkbox" data-id="M-2024-012" onchange="updateSelection()"></td>
+                        <td><div class="material-image">📡</div></td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-012</td>
+                        <td>温湿度传感器</td>
+                        <td>DHT22 数字输出</td>
+                        <td>传感器</td>
+                        <td><span class="stock-badge stock-out">缺货(0)</span></td>
+                        <td>¥12.00</td>
+                        <td><input type="number" class="qty-input" value="100" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥1,200</strong></td>
+                    </tr>
+                    <tr data-category="mechanical" data-stock="ok">
+                        <td><input type="checkbox" class="material-checkbox" data-id="M-2024-013" onchange="updateSelection()"></td>
+                        <td><div class="material-image">🔩</div></td>
+                        <td style="color: #00890b; font-weight: 600;">M-2024-013</td>
+                        <td>塑料外壳</td>
+                        <td>ABS 黑色 100x60x25mm</td>
+                        <td>机械件</td>
+                        <td><span class="stock-badge stock-ok">库存充足(500)</span></td>
+                        <td>¥6.80</td>
+                        <td><input type="number" class="qty-input" value="100" min="1" onchange="calculateSubtotal(this)"></td>
+                        <td><strong class="subtotal">¥680</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 底部留白，避免被固定栏遮挡 -->
+        <div style="height: 100px;"></div>
+    </div>
+
+    <!-- 固定底部操作栏 -->
+    <div class="bottom-action-bar">
+        <div>
+            <span class="total-info">已选择 <strong id="bottomSelectedCount">0</strong> 项物料，预计总金额：</span>
+            <span class="total-amount" id="totalAmount">¥0</span>
+        </div>
+        <div class="btn-group">
+            <button class="btn-secondary" onclick="goBack()">取消</button>
+            <button class="btn-primary" onclick="addToProcurement()">添加到采购单</button>
+
+    <script>
+        // 搜索物料
+        function searchMaterials() {
+            filterMaterials();
+        }
+
+        // 筛选物料
+        function filterMaterials() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const category = document.getElementById('categoryFilter').value;
+            const stock = document.getElementById('stockFilter').value;
+            const rows = document.querySelectorAll('#materialTable tbody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const rowCategory = row.getAttribute('data-category');
+                const rowStock = row.getAttribute('data-stock');
+
+                const matchSearch = text.includes(searchTerm);
+                const matchCategory = !category || rowCategory === category;
+                const matchStock = !stock || rowStock === stock;
+
+                row.style.display = (matchSearch && matchCategory && matchStock) ? '' : 'none';
+            });
+        }
+
+        // 全选
+        function toggleSelectAll(checkbox) {
+            const checkboxes = document.querySelectorAll('.material-checkbox');
+            checkboxes.forEach(cb => {
+                const row = cb.closest('tr');
+                if (row.style.display !== 'none') {
+                    cb.checked = checkbox.checked;
+                }
+            });
+            updateSelection();
+        }
+
+        // 计算小计
+        function calculateSubtotal(input) {
+            const row = input.closest('tr');
+            const price = parseFloat(row.cells[7].textContent.replace('¥', ''));
+            const qty = parseInt(input.value) || 0;
+            const subtotal = price * qty;
+            row.querySelector('.subtotal').textContent = '¥' + subtotal.toLocaleString();
+            updateSelection();
+        }
+
+        // 更新选择统计
+        function updateSelection() {
+            const checkboxes = document.querySelectorAll('.material-checkbox:checked');
+            const count = checkboxes.length;
+
+            let total = 0;
+            checkboxes.forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                const subtotalText = row.querySelector('.subtotal').textContent.replace('¥', '').replace(',', '');
+                total += parseFloat(subtotalText);
+            });
+
+            document.getElementById('selectedCount').textContent = count;
+            document.getElementById('bottomSelectedCount').textContent = count;
+            document.getElementById('totalAmount').textContent = '¥' + total.toLocaleString();
+        }
+
+        // 返回
+        function goBack() {
+            location.href = 'procurement-detail.html?id=PO-2024-0045';
+        }
+
+        // 添加到采购单
+        function addToProcurement() {
+            const checkboxes = document.querySelectorAll('.material-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('请至少选择一项物料！');
+                return;
+            }
+
+            const materials = [];
+            checkboxes.forEach(checkbox => {
+                const row = checkbox.closest('tr');
+                const materialId = checkbox.getAttribute('data-id');
+                const materialName = row.cells[3].textContent;
+                const qty = row.querySelector('.qty-input').value;
+                materials.push({ id: materialId, name: materialName, qty: qty });
+            });
+
+            alert('✅ 添加成功！\n\n已添加 ' + materials.length + ' 项物料到采购单\n\n' + materials.map(m => `${m.name} x${m.qty}`).join('\n'));
+
+            setTimeout(() => {
+                location.href = 'procurement-detail.html?id=PO-2024-0045';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题目广场 - EZPLM毕业设计中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .mode-switcher { display: flex; gap: 8px; padding: 6px; background: #f5f5f5; border-radius: 8px; }
+        .mode-link { padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600; transition: all 0.2s; }
+        .mode-link.graduation { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .mode-link.outsourcing { color: #00d2ff; }
+        .mode-link:hover { transform: translateY(-1px); }
+        .top-bar-right { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .top-nav-links a:hover { color: #00890b; }
+
+        /* 返回按钮 */
+        .back-btn { display: flex; align-items: center; gap: 8px; background: white; border: 2px solid #e0e0e0; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #3d4647; cursor: pointer; transition: all 0.3s; }
+        .back-btn:hover { border-color: #667eea; background: #f8f9ff; color: #667eea; transform: translateX(-2px); }
+
+        /* 主容器 */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 40px;
+            color: white;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '🎓';
+            position: absolute;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 100px;
+            opacity: 0.2;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-subtitle {
+            font-size: 16px;
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* 布局 */
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+        }
+
+        /* 筛选侧边栏 */
+        .filter-sidebar {
+            position: sticky;
+            top: 94px;
+            height: fit-content;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 16px;
+        }
+
+        .filter-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-option:hover {
+            background: #f8f9ff;
+        }
+
+        .filter-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .filter-count {
+            margin-left: auto;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .clear-filters {
+            margin-top: 16px;
+            width: 100%;
+            padding: 10px;
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .clear-filters:hover {
+            background: #f8f9ff;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            min-height: 600px;
+        }
+
+        /* 搜索和排序栏 */
+        .toolbar {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+        }
+
+        .sort-select {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        /* 结果统计 */
+        .results-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .results-count {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .results-count strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+        }
+
+        .view-btn {
+            width: 36px;
+            height: 36px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .view-btn:hover {
+            border-color: #667eea;
+        }
+
+        .view-btn.active {
+            border-color: #667eea;
+            background: #f8f9ff;
+            color: #667eea;
+        }
+
+        /* 项目网格 */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* 项目卡片 */
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(102,126,234,0.15);
+        }
+
+        .project-header {
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+        }
+
+        .company-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .company-logo {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .company-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .project-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .save-btn {
+            position: absolute;
+            top: 84px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 10;
+            transition: all 0.3s;
+        }
+
+        .save-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .save-btn.saved {
+            background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+            color: white;
+        }
+
+        .project-body {
+            padding: 20px;
+        }
+
+        .project-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tag {
+            padding: 4px 12px;
+            background: #f0f0f0;
+            border-radius: 16px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .tag.difficulty {
+            background: #fff3e0;
+            color: #ff9800;
+        }
+
+        .project-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 16px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .project-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding-top: 16px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .project-footer {
+            padding: 0 20px 20px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9ff;
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 40px;
+        }
+
+        .page-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .page-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .page-btn.active {
+            border-color: #667eea;
+            background: #667eea;
+            color: white;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.3;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            color: #999;
+            margin-bottom: 24px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        @media (max-width: 1024px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-sidebar {
+                position: static;
+            }
+
+            .projects-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            }
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 返回按钮 -->
+        <div style="margin-bottom: 16px;">
+            <button onclick="location.href='graduation-hub.html'" class="back-btn">
+                <span>←</span>
+                <span>返回毕业设计中心</span>
+            </button>
+        </div>
+
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="page-title">🎓 题目广场</div>
+            <div class="page-subtitle">156个企业真实项目等你来选 · 直通名企Offer</div>
+        </div>
+
+        <!-- 布局 -->
+        <div class="layout">
+            <!-- 筛选侧边栏 -->
+            <div class="filter-sidebar">
+                <!-- 技术方向 -->
+                <div class="filter-card">
+                    <div class="filter-title">技术方向</div>
+                    <div class="filter-group">
+                        <label class="filter-option">
+                            <input type="checkbox" value="embedded" onchange="applyFilters()">
+                            <span>嵌入式开发</span>
+                            <span class="filter-count">42</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="hardware" onchange="applyFilters()">
+                            <span>硬件设计</span>
+                            <span class="filter-count">28</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="iot" onchange="applyFilters()">
+                            <span>物联网</span>
+                            <span class="filter-count">35</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="fpga" onchange="applyFilters()">
+                            <span>FPGA</span>
+                            <span class="filter-count">18</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="signal" onchange="applyFilters()">
+                            <span>信号处理</span>
+                            <span class="filter-count">15</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="power" onchange="applyFilters()">
+                            <span>电源管理</span>
+                            <span class="filter-count">12</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="cv" onchange="applyFilters()">
+                            <span>计算机视觉</span>
+                            <span class="filter-count">22</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 难度等级 -->
+                <div class="filter-card">
+                    <div class="filter-title">难度等级</div>
+                    <div class="filter-group">
+                        <label class="filter-option">
+                            <input type="checkbox" value="easy" onchange="applyFilters()">
+                            <span>⭐ 入门级</span>
+                            <span class="filter-count">45</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="medium" onchange="applyFilters()">
+                            <span>⭐⭐ 进阶级</span>
+                            <span class="filter-count">68</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="hard" onchange="applyFilters()">
+                            <span>⭐⭐⭐ 挑战级</span>
+                            <span class="filter-count">43</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 地区 -->
+                <div class="filter-card">
+                    <div class="filter-title">项目地区</div>
+                    <div class="filter-group">
+                        <label class="filter-option">
+                            <input type="checkbox" value="beijing" onchange="applyFilters()">
+                            <span>北京</span>
+                            <span class="filter-count">28</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="shanghai" onchange="applyFilters()">
+                            <span>上海</span>
+                            <span class="filter-count">24</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="shenzhen" onchange="applyFilters()">
+                            <span>深圳</span>
+                            <span class="filter-count">35</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="hangzhou" onchange="applyFilters()">
+                            <span>杭州</span>
+                            <span class="filter-count">18</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="remote" onchange="applyFilters()">
+                            <span>远程</span>
+                            <span class="filter-count">51</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 福利待遇 -->
+                <div class="filter-card">
+                    <div class="filter-title">福利待遇</div>
+                    <div class="filter-group">
+                        <label class="filter-option">
+                            <input type="checkbox" value="salary" onchange="applyFilters()">
+                            <span>💰 有补贴</span>
+                            <span class="filter-count">89</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="offer" onchange="applyFilters()">
+                            <span>✅ 直通Offer</span>
+                            <span class="filter-count">76</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="internship" onchange="applyFilters()">
+                            <span>🎓 实习机会</span>
+                            <span class="filter-count">92</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="mentor" onchange="applyFilters()">
+                            <span>👨‍🏫 专家指导</span>
+                            <span class="filter-count">156</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button class="clear-filters" onclick="clearAllFilters()">清除筛选</button>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="main-content">
+                <!-- 搜索和排序 -->
+                <div class="toolbar">
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="搜索企业、技术方向或关键词..." id="searchInput" oninput="applyFilters()">
+                    </div>
+                    <select class="sort-select" id="sortSelect" onchange="applySort()">
+                        <option value="recommended">推荐排序</option>
+                        <option value="latest">最新发布</option>
+                        <option value="hot">最热门</option>
+                        <option value="salary">薪资最高</option>
+                        <option value="deadline">即将截止</option>
+                    </select>
+                </div>
+
+                <!-- 结果信息 -->
+                <div class="results-info">
+                    <div class="results-count">
+                        找到 <strong id="resultCount">156</strong> 个匹配的项目
+                    </div>
+                    <div class="view-toggle">
+                        <button class="view-btn active">📊</button>
+                        <button class="view-btn">📋</button>
+                    </div>
+                </div>
+
+                <!-- 项目网格 -->
+                <div class="projects-grid" id="projectsGrid">
+                    <!-- 项目卡片将通过JavaScript动态生成 -->
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination" id="pagination">
+                    <!-- 分页按钮将通过JavaScript动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 项目详情Modal -->
+    <div class="modal-overlay" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">项目详情</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 项目数据
+        const projects = [
+            {
+                id: 1,
+                title: '无人机避障算法研究与实现',
+                company: '大疆创新 DJI',
+                logo: '🚁',
+                location: '深圳',
+                duration: '6个月',
+                salary: '4000元/月',
+                difficulty: 'hard',
+                tags: ['嵌入式', '计算机视觉', '算法'],
+                desc: '研究并实现基于视觉的无人机自主避障系统，涉及图像处理、深度学习和实时控制...',
+                applicants: 23,
+                status: '🟢 招募中',
+                category: ['embedded', 'cv'],
+                benefits: ['salary', 'offer', 'mentor'],
+                gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+            },
+            {
+                id: 2,
+                title: '智能手环健康监测系统',
+                company: '小米科技',
+                logo: '📱',
+                location: '北京',
+                duration: '5个月',
+                salary: 'Offer优先',
+                difficulty: 'medium',
+                tags: ['嵌入式', '传感器', '蓝牙'],
+                desc: '设计并实现一款智能手环，集成心率、血氧、运动监测功能，通过蓝牙与手机通信...',
+                applicants: 31,
+                status: '🟢 招募中',
+                category: ['embedded', 'iot'],
+                benefits: ['offer', 'internship', 'mentor'],
+                gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
+            },
+            {
+                id: 3,
+                title: '工业网关物联网协议栈开发',
+                company: '研华科技',
+                logo: '🏭',
+                location: '上海',
+                duration: '6个月',
+                salary: '3500元/月',
+                difficulty: 'hard',
+                tags: ['物联网', 'Linux', '协议'],
+                desc: '开发支持Modbus、MQTT等协议的工业网关，实现设备数据采集与云端通信...',
+                applicants: 18,
+                status: '🟡 2天后截止',
+                category: ['iot'],
+                benefits: ['salary', 'offer', 'internship', 'mentor'],
+                gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+            },
+            {
+                id: 4,
+                title: '5G基站功放电路设计与优化',
+                company: '华为技术',
+                logo: '📡',
+                location: '深圳',
+                duration: '6个月',
+                salary: '5000元/月',
+                difficulty: 'hard',
+                tags: ['硬件设计', '射频', '功放'],
+                desc: '设计5G基站功放电路，进行电磁仿真和热设计优化，提高输出功率和效率...',
+                applicants: 15,
+                status: '🟢 招募中',
+                category: ['hardware', 'signal'],
+                benefits: ['salary', 'offer', 'mentor'],
+                gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'
+            },
+            {
+                id: 5,
+                title: '智能家居中控系统开发',
+                company: '海尔智家',
+                logo: '🏠',
+                location: '青岛',
+                duration: '5个月',
+                salary: '3000元/月',
+                difficulty: 'medium',
+                tags: ['物联网', '嵌入式', 'WiFi'],
+                desc: '开发智能家居中控系统，实现多协议设备接入和智能联动场景控制...',
+                applicants: 28,
+                status: '🟢 招募中',
+                category: ['iot', 'embedded'],
+                benefits: ['salary', 'internship', 'mentor'],
+                gradient: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)'
+            },
+            {
+                id: 6,
+                title: 'FPGA图像处理加速器设计',
+                company: '赛灵思 Xilinx',
+                logo: '💎',
+                location: '远程',
+                duration: '6个月',
+                salary: '4500元/月',
+                difficulty: 'hard',
+                tags: ['FPGA', 'Verilog', '图像处理'],
+                desc: '使用FPGA实现图像处理算法硬件加速，包括滤波、边缘检测等操作...',
+                applicants: 12,
+                status: '🟢 招募中',
+                category: ['fpga', 'cv'],
+                benefits: ['salary', 'offer', 'mentor'],
+                gradient: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+            },
+            {
+                id: 7,
+                title: '电动汽车BMS电池管理系统',
+                company: '比亚迪',
+                logo: '🚗',
+                location: '深圳',
+                duration: '6个月',
+                salary: '3800元/月',
+                difficulty: 'medium',
+                tags: ['嵌入式', 'CAN', '电源管理'],
+                desc: '开发电动汽车BMS系统，实现电池状态监测、均衡管理和安全保护功能...',
+                applicants: 25,
+                status: '🟢 招募中',
+                category: ['embedded', 'power'],
+                benefits: ['salary', 'offer', 'internship', 'mentor'],
+                gradient: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+            },
+            {
+                id: 8,
+                title: '工业机器人运动控制系统',
+                company: 'ABB中国',
+                logo: '🤖',
+                location: '上海',
+                duration: '6个月',
+                salary: '4200元/月',
+                difficulty: 'hard',
+                tags: ['嵌入式', '电机控制', '算法'],
+                desc: '开发工业机器人多轴运动控制系统，实现轨迹规划和伺服控制...',
+                applicants: 16,
+                status: '🟢 招募中',
+                category: ['embedded', 'signal'],
+                benefits: ['salary', 'offer', 'mentor'],
+                gradient: 'linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)'
+            },
+            {
+                id: 9,
+                title: '智能音箱语音交互系统',
+                company: '阿里巴巴',
+                logo: '🔊',
+                location: '杭州',
+                duration: '5个月',
+                salary: 'Offer优先',
+                difficulty: 'medium',
+                tags: ['嵌入式', '音频', 'AI'],
+                desc: '开发智能音箱系统，集成语音唤醒、降噪和语音识别功能...',
+                applicants: 35,
+                status: '🟢 招募中',
+                category: ['embedded', 'signal'],
+                benefits: ['offer', 'internship', 'mentor'],
+                gradient: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+            },
+            {
+                id: 10,
+                title: '医疗监护仪信号处理',
+                company: '迈瑞医疗',
+                logo: '🏥',
+                location: '深圳',
+                duration: '6个月',
+                salary: '3600元/月',
+                difficulty: 'medium',
+                tags: ['信号处理', '嵌入式', '算法'],
+                desc: '开发医疗监护仪的心电信号处理算法，实现滤波、特征提取和异常检测...',
+                applicants: 20,
+                status: '🟢 招募中',
+                category: ['signal', 'embedded'],
+                benefits: ['salary', 'internship', 'mentor'],
+                gradient: 'linear-gradient(135deg, #ff6e7f 0%, #bfe9ff 100%)'
+            },
+            {
+                id: 11,
+                title: '无线充电系统设计',
+                company: '立讯精密',
+                logo: '⚡',
+                location: '昆山',
+                duration: '5个月',
+                salary: '3200元/月',
+                difficulty: 'medium',
+                tags: ['电源管理', '硬件设计', '射频'],
+                desc: '设计基于Qi标准的无线充电系统，包括发射端和接收端电路...',
+                applicants: 22,
+                status: '🟢 招募中',
+                category: ['power', 'hardware'],
+                benefits: ['salary', 'internship', 'mentor'],
+                gradient: 'linear-gradient(135deg, #fddb92 0%, #d1fdff 100%)'
+            },
+            {
+                id: 12,
+                title: '卫星通信地面站系统',
+                company: '中国航天',
+                logo: '🛰️',
+                location: '北京',
+                duration: '6个月',
+                salary: '4500元/月',
+                difficulty: 'hard',
+                tags: ['通信', '信号处理', 'FPGA'],
+                desc: '开发卫星通信地面站接收系统，实现信号解调和数据处理...',
+                applicants: 10,
+                status: '🟢 招募中',
+                category: ['signal', 'fpga'],
+                benefits: ['salary', 'offer', 'mentor'],
+                gradient: 'linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)'
+            }
+        ];
+
+        let currentPage = 1;
+        const itemsPerPage = 9;
+        let filteredProjects = [...projects];
+
+        // 初始化
+        window.addEventListener('load', function() {
+            renderProjects();
+            renderPagination();
+        });
+
+        // 渲染项目
+        function renderProjects() {
+            const grid = document.getElementById('projectsGrid');
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            const pageProjects = filteredProjects.slice(start, end);
+
+            if (pageProjects.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <div class="empty-icon">🔍</div>
+                        <div class="empty-text">没有找到匹配的项目</div>
+                        <button class="btn btn-primary" onclick="clearAllFilters()">清除筛选条件</button>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = pageProjects.map(project => `
+                <div class="project-card" onclick="openProjectDetail(${project.id})">
+                    <div class="project-header" style="background: ${project.gradient}">
+                        <div class="company-info">
+                            <div class="company-logo">${project.logo}</div>
+                            <div class="company-name">${project.company}</div>
+                        </div>
+                        <div class="project-status">${project.status}</div>
+                    </div>
+                    <button class="save-btn" onclick="toggleSave(event, ${project.id})">⭐</button>
+                    <div class="project-body">
+                        <div class="project-title">${project.title}</div>
+                        <div class="project-tags">
+                            ${project.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            <span class="tag difficulty">${getDifficultyText(project.difficulty)}</span>
+                        </div>
+                        <div class="project-desc">${project.desc}</div>
+                        <div class="project-meta">
+                            <div class="meta-item">
+                                <span>⏱️</span>
+                                <span>${project.duration}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>💰</span>
+                                <span>${project.salary}</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>👥</span>
+                                <span>${project.applicants}人已申请</span>
+                            </div>
+                            <div class="meta-item">
+                                <span>📍</span>
+                                <span>${project.location}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-footer">
+                        <button class="btn btn-primary" onclick="applyProject(event, ${project.id})">立即申请</button>
+                        <button class="btn btn-secondary" onclick="viewDetail(event, ${project.id})">查看详情</button>
+                    </div>
+                </div>
+            `).join('');
+
+            // 更新结果计数
+            document.getElementById('resultCount').textContent = filteredProjects.length;
+        }
+
+        // 渲染分页
+        function renderPagination() {
+            const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+            const pagination = document.getElementById('pagination');
+
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = `
+                <button class="page-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>上一页</button>
+            `;
+
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span style="padding: 8px;">...</span>`;
+                }
+            }
+
+            html += `
+                <button class="page-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>下一页</button>
+            `;
+
+            pagination.innerHTML = html;
+        }
+
+        // 切换页码
+        function changePage(page) {
+            const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
+            if (page < 1 || page > totalPages) return;
+
+            currentPage = page;
+            renderProjects();
+            renderPagination();
+
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 应用筛选
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const checkedFilters = Array.from(document.querySelectorAll('.filter-option input:checked')).map(cb => cb.value);
+
+            filteredProjects = projects.filter(project => {
+                // 搜索过滤
+                const matchesSearch = !searchTerm ||
+                    project.title.toLowerCase().includes(searchTerm) ||
+                    project.company.toLowerCase().includes(searchTerm) ||
+                    project.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+
+                // 分类过滤
+                const matchesCategory = checkedFilters.length === 0 ||
+                    checkedFilters.some(filter => {
+                        if (filter === project.difficulty) return true;
+                        if (project.category.includes(filter)) return true;
+                        if (filter === project.location.toLowerCase()) return true;
+                        if (project.benefits && project.benefits.includes(filter)) return true;
+                        return false;
+                    });
+
+                return matchesSearch && matchesCategory;
+            });
+
+            currentPage = 1;
+            renderProjects();
+            renderPagination();
+        }
+
+        // 排序
+        function applySort() {
+            const sortValue = document.getElementById('sortSelect').value;
+
+            switch(sortValue) {
+                case 'latest':
+                    filteredProjects.sort((a, b) => b.id - a.id);
+                    break;
+                case 'hot':
+                    filteredProjects.sort((a, b) => b.applicants - a.applicants);
+                    break;
+                case 'salary':
+                    filteredProjects.sort((a, b) => {
+                        const salaryA = parseInt(a.salary) || 0;
+                        const salaryB = parseInt(b.salary) || 0;
+                        return salaryB - salaryA;
+                    });
+                    break;
+                default:
+                    filteredProjects = [...projects];
+            }
+
+            currentPage = 1;
+            renderProjects();
+            renderPagination();
+        }
+
+        // 清除筛选
+        function clearAllFilters() {
+            document.querySelectorAll('.filter-option input').forEach(cb => cb.checked = false);
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'recommended';
+            filteredProjects = [...projects];
+            currentPage = 1;
+            renderProjects();
+            renderPagination();
+        }
+
+        // 获取难度文本
+        function getDifficultyText(difficulty) {
+            const map = { easy: '⭐ 入门', medium: '⭐⭐ 进阶', hard: '⭐⭐⭐ 挑战' };
+            return map[difficulty] || '';
+        }
+
+        // 收藏切换
+        function toggleSave(event, projectId) {
+            event.stopPropagation();
+            const btn = event.currentTarget;
+            btn.classList.toggle('saved');
+        }
+
+        // 申请项目
+        function applyProject(event, projectId) {
+            event.stopPropagation();
+            window.location.href = 'graduation-apply.html';
+        }
+
+        // 查看详情
+        function viewDetail(event, projectId) {
+            event.stopPropagation();
+            openProjectDetail(projectId);
+        }
+
+        // 打开项目详情
+        function openProjectDetail(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            if (!project) return;
+
+            const modal = document.getElementById('projectModal');
+            const body = document.getElementById('modalBody');
+
+            body.innerHTML = `
+                <div style="margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                        <div style="width: 60px; height: 60px; background: ${project.gradient}; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 32px; color: white;">${project.logo}</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">${project.title}</div>
+                            <div style="color: #666;">${project.company} · ${project.location}</div>
+                        </div>
+                        <div style="padding: 8px 16px; background: rgba(102,126,234,0.1); color: #667eea; border-radius: 6px; font-weight: 600;">${project.status}</div>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        ${project.tags.map(tag => `<span style="padding: 6px 16px; background: #f0f0f0; border-radius: 20px; font-size: 13px;">${tag}</span>`).join('')}
+                        <span style="padding: 6px 16px; background: #fff3cd; border-radius: 20px; font-size: 13px;">${getDifficultyText(project.difficulty)}</span>
+                    </div>
+                </div>
+
+                <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+                    <div style="font-weight: 600; margin-bottom: 8px;">📋 项目概述</div>
+                    <div style="font-size: 14px; color: #666; line-height: 1.8;">
+                        本项目旨在研究并实现基于视觉的无人机自主避障系统。学生将深入学习计算机视觉、深度学习和实时控制等技术，
+                        设计一套完整的避障算法，并在真实无人机平台上进行验证。项目涉及图像采集、目标检测、路径规划和飞行控制等多个环节。
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <div style="font-weight: 600; margin-bottom: 12px;">🎯 核心任务</div>
+                    <div style="display: grid; gap: 12px;">
+                        <div style="display: flex; gap: 12px; padding: 12px; background: #f9f9f9; border-radius: 6px;">
+                            <span style="color: #667eea;">1.</span>
+                            <span style="font-size: 14px;">研究主流避障算法（SLAM、光流法等）</span>
+                        </div>
+                        <div style="display: flex; gap: 12px; padding: 12px; background: #f9f9f9; border-radius: 6px;">
+                            <span style="color: #667eea;">2.</span>
+                            <span style="font-size: 14px;">设计并实现基于深度学习的障碍物检测模型</span>
+                        </div>
+                        <div style="display: flex; gap: 12px; padding: 12px; background: #f9f9f9; border-radius: 6px;">
+                            <span style="color: #667eea;">3.</span>
+                            <span style="font-size: 14px;">开发实时路径规划算法</span>
+                        </div>
+                        <div style="display: flex; gap: 12px; padding: 12px; background: #f9f9f9; border-radius: 6px;">
+                            <span style="color: #667eea;">4.</span>
+                            <span style="font-size: 14px;">在仿真环境和真机上进行测试验证</span>
+                        </div>
+                        <div style="display: flex; gap: 12px; padding: 12px; background: #f9f9f9; border-radius: 6px;">
+                            <span style="color: #667eea;">5.</span>
+                            <span style="font-size: 14px;">撰写技术文档和论文</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <div style="font-weight: 600; margin-bottom: 12px;">💡 技能要求</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">必须掌握</div>
+                            <div style="font-size: 13px; color: #666;">• C/C++编程<br>• Python<br>• 数据结构与算法</div>
+                        </div>
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 6px;">
+                            <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">加分项</div>
+                            <div style="font-size: 13px; color: #666;">• OpenCV经验<br>• 深度学习框架<br>• ROS使用经验</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <div style="font-weight: 600; margin-bottom: 12px;">📊 项目信息</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 6px;">项目周期</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #3d4647;">⏱️ ${project.duration}</div>
+                        </div>
+                        <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 6px;">招募人数</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #3d4647;">👥 3人</div>
+                        </div>
+                        <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 6px;">工作地点</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #3d4647;">📍 ${project.location === '远程' ? '远程' : '混合办公'}</div>
+                            <div style="font-size: 12px; color: #999; margin-top: 4px;">${project.location === '远程' ? '全程远程协作' : '远程+' + project.location + '到岗'}</div>
+                        </div>
+                        <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                            <div style="font-size: 12px; color: #999; margin-bottom: 6px;">已申请人数</div>
+                            <div style="font-size: 16px; font-weight: 600; color: #00890b;">✅ ${project.applicants}人已申请</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <div style="font-weight: 600; margin-bottom: 12px;">💰 激励与福利</div>
+                    <div style="background: #fff9e6; border-left: 4px solid #ffa726; padding: 16px; border-radius: 6px; margin-bottom: 12px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #f57c00;">📮 实习补贴</div>
+                        <div style="font-size: 15px; font-weight: 700; color: #e65100; margin-bottom: 4px;">
+                            ${project.salary}
+                        </div>
+                        <div style="font-size: 12px; color: #999;">
+                            补贴周期：每月发放 | 完成项目后一次性结算剩余款项
+                        </div>
+                    </div>
+                    <div style="font-weight: 600; margin-bottom: 8px; font-size: 14px;">其他福利：</div>
+                    <div style="display: grid; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #00890b;">✓</span>
+                            <span style="font-size: 14px;">优先录用Offer - 优秀者可直接获得正式工作机会</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #00890b;">✓</span>
+                            <span style="font-size: 14px;">推荐信 - 项目导师提供专业推荐信</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #00890b;">✓</span>
+                            <span style="font-size: 14px;">企业参观 - 参观${project.company}总部及实验室</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #00890b;">✓</span>
+                            <span style="font-size: 14px;">技术培训 - 提供系统的技术培训课程</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 24px;">
+                    <div style="font-weight: 600; margin-bottom: 12px;">🎁 项目收获</div>
+                    <div style="display: grid; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #667eea;">✓</span>
+                            <span style="font-size: 14px;">${project.company}工程师1对1技术指导</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #667eea;">✓</span>
+                            <span style="font-size: 14px;">深入了解行业前沿技术</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #667eea;">✓</span>
+                            <span style="font-size: 14px;">参与真实项目开发，提升实战能力</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #667eea;">✓</span>
+                            <span style="font-size: 14px;">有机会发表学术论文（公司支持）</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #667eea;">✓</span>
+                            <span style="font-size: 14px;">获得项目完成证书</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #2196f3;">💡 导师寄语</div>
+                    <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                        "这是一个非常有挑战性的项目，适合对相关技术充满热情的同学。我们会提供完善的指导和资源支持，
+                        希望你能在这个项目中获得成长，也期待你的创新想法！" <br>
+                        <div style="margin-top: 8px; text-align: right; color: #2196f3;">— 项目导师，${project.company}</div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px;">
+                    <button class="btn btn-primary" style="flex: 1; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px;" onclick="applyProject(event, ${project.id})">
+                        提交申请
+                    </button>
+                    <button class="btn btn-secondary" style="padding: 14px 24px;" onclick="toggleSave(event, ${project.id})">
+                        ⭐ 收藏
+                    </button>
+                </div>
+            `;
+
+            modal.classList.add('active');
+        }
+
+        // 关闭模态窗口
+        function closeModal() {
+            document.getElementById('projectModal').classList.remove('active');
+        }
+
+        // 点击背景关闭
+        document.getElementById('projectModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

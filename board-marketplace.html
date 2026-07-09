@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>板卡商城 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .cart-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 24px;
+            padding: 8px;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+        .cart-icon:hover {
+            background: rgba(0,137,11,0.1);
+        }
+        .cart-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #ff4d4f;
+            color: white;
+            border-radius: 10px;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 32px;
+        }
+        .page-header h1 {
+            font-size: 32px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .page-header p {
+            font-size: 16px;
+            opacity: 0.95;
+        }
+
+        /* 搜索和筛选区 */
+        .filter-section {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .search-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .search-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .filter-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        .filter-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        /* 商品网格 */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        /* 商品卡片 */
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        .product-image {
+            width: 100%;
+            height: 200px;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .product-badge.self-operated {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+        }
+        .product-info {
+            padding: 16px;
+        }
+        .product-supplier {
+            display: inline-block;
+            background: #f0f0f0;
+            color: #666;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-bottom: 8px;
+        }
+        .product-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            min-height: 42px;
+        }
+        .product-specs {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .product-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 12px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .product-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff4d4f;
+        }
+        .product-price-unit {
+            font-size: 14px;
+            color: #999;
+            margin-left: 4px;
+        }
+        .add-to-cart-btn {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .add-to-cart-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,137,11,0.3);
+        }
+
+        /* 购物车侧边栏 */
+        .cart-sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -4px 0 16px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+        }
+        .cart-sidebar.active {
+            right: 0;
+        }
+        .cart-header {
+            padding: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .cart-header h3 {
+            font-size: 20px;
+            color: #3d4647;
+        }
+        .cart-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s;
+        }
+        .cart-close:hover {
+            color: #3d4647;
+        }
+        .cart-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+        .cart-item {
+            display: flex;
+            gap: 12px;
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .cart-item-image {
+            width: 80px;
+            height: 80px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .cart-item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .cart-item-info {
+            flex: 1;
+        }
+        .cart-item-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .cart-item-supplier {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        .cart-item-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ff4d4f;
+        }
+        .cart-item-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .quantity-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 4px;
+        }
+        .remove-item-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #ff4d4f;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .cart-footer {
+            padding: 24px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .cart-total {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+        .cart-total-amount {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ff4d4f;
+        }
+        .checkout-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,137,11,0.3);
+        }
+        .cart-empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .cart-empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1500;
+            display: none;
+        }
+        .overlay.active {
+            display: block;
+        }
+
+        /* 订单确认模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            padding: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #3d4647;
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+        .order-summary {
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 16px;
+            padding-top: 12px;
+            margin-top: 8px;
+            border-top: 2px solid #e0e0e0;
+        }
+        .submit-order-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .submit-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,137,11,0.3);
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item active">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <h1>🛍️ 板卡商城</h1>
+                <p>精选开发板、模组和科研器材，一站式采购，自动入库</p>
+            </div>
+
+            <!-- 搜索和筛选区 -->
+            <div class="filter-section">
+                <div class="search-bar">
+                    <input type="text" class="search-input" id="searchInput" placeholder="搜索板卡名称、型号或关键词...">
+                    <button class="search-btn" onclick="searchProducts()">🔍 搜索</button>
+                </div>
+                <div class="filter-tabs">
+                    <button class="filter-tab active" data-category="all" onclick="filterByCategory('all')">全部商品</button>
+                    <button class="filter-tab" data-category="dev-board" onclick="filterByCategory('dev-board')">开发板</button>
+                    <button class="filter-tab" data-category="module" onclick="filterByCategory('module')">模组</button>
+                    <button class="filter-tab" data-category="sensor" onclick="filterByCategory('sensor')">传感器</button>
+                    <button class="filter-tab" data-category="display" onclick="filterByCategory('display')">显示屏</button>
+                    <button class="filter-tab" data-category="instrument" onclick="filterByCategory('instrument')">仪器仪表</button>
+                    <button class="filter-tab" data-category="accessory" onclick="filterByCategory('accessory')">配件</button>
+                    <button class="filter-tab" data-category="self" onclick="filterByCategory('self')">自营商品</button>
+                </div>
+            </div>
+
+            <!-- 商品网格 -->
+            <div class="products-grid" id="productsGrid">
+                <!-- 商品将通过JavaScript动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 购物车侧边栏 -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3>🛒 购物车</h3>
+            <button class="cart-close" onclick="toggleCart()">&times;</button>
+        </div>
+        <div class="cart-body" id="cartBody">
+            <div class="cart-empty">
+                <div class="cart-empty-icon">🛒</div>
+                <div>购物车是空的</div>
+                <div style="font-size: 13px; margin-top: 8px;">快去挑选心仪的板卡吧~</div>
+            </div>
+        </div>
+        <div class="cart-footer" style="display: none;" id="cartFooter">
+            <div class="cart-total">
+                <span>总计：</span>
+                <span class="cart-total-amount" id="cartTotalAmount">¥0.00</span>
+            </div>
+            <button class="checkout-btn" onclick="checkout()">结算</button>
+        </div>
+    </div>
+
+    <!-- 遮罩层 -->
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+
+    <!-- 订单确认模态框 -->
+    <div class="modal-overlay" id="checkoutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📦 确认订单</h3>
+                <button class="modal-close" onclick="closeCheckout()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">收货地址</label>
+                    <input type="text" class="form-input" id="shippingAddress" placeholder="请输入收货地址" value="广东省深圳市南山区科技园">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">收货人</label>
+                    <input type="text" class="form-input" id="receiverName" placeholder="请输入收货人姓名" value="张工">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">联系电话</label>
+                    <input type="text" class="form-input" id="receiverPhone" placeholder="请输入联系电话" value="138****8888">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">入库库位</label>
+                    <select class="form-select" id="storageLocation">
+                        <option value="A01">A区-01货架（常用物料）</option>
+                        <option value="A02">A区-02货架（常用物料）</option>
+                        <option value="B01">B区-01货架（开发板专区）</option>
+                        <option value="B02">B区-02货架（开发板专区）</option>
+                        <option value="C01">C区-01货架（模组专区）</option>
+                        <option value="C02">C区-02货架（模组专区）</option>
+                        <option value="D01">D区-01货架（仪器仪表）</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">备注</label>
+                    <input type="text" class="form-input" id="orderNote" placeholder="选填，如有特殊要求请在此说明">
+                </div>
+                <div class="order-summary" id="orderSummary">
+                    <!-- 订单摘要将动态生成 -->
+                </div>
+                <button class="submit-order-btn" onclick="submitOrder()">提交订单</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 商品数据
+        const productsData = [
+            // 开发板
+            {
+                id: 1,
+                name: 'Raspberry Pi 5 (8GB)',
+                supplier: 'Raspberry Pi Foundation',
+                category: 'dev-board',
+                specs: 'BCM2712 2.4GHz | 8GB LPDDR4X | 双4K输出',
+                price: 599,
+                stock: 156,
+                image: '🍓',
+                isSelf: false,
+                hot: true
+            },
+            {
+                id: 2,
+                name: 'Arduino Uno R4 WiFi',
+                supplier: 'Arduino',
+                category: 'dev-board',
+                specs: 'RA4M1 48MHz | WiFi | ESP32-S3',
+                price: 268,
+                stock: 234,
+                image: '🤖',
+                isSelf: false,
+                hot: true
+            },
+            {
+                id: 3,
+                name: 'ESP32-S3-DevKitC-1',
+                supplier: 'Espressif',
+                category: 'dev-board',
+                specs: 'ESP32-S3 240MHz | WiFi/BLE | 8MB Flash',
+                price: 89,
+                stock: 567,
+                image: '📡',
+                isSelf: true,
+                hot: false
+            },
+            {
+                id: 4,
+                name: 'STM32F407 Discovery',
+                supplier: 'STMicroelectronics',
+                category: 'dev-board',
+                specs: 'STM32F407VGT6 168MHz | 1MB Flash',
+                price: 185,
+                stock: 123,
+                image: '💻',
+                isSelf: true,
+                hot: false
+            },
+            {
+                id: 5,
+                name: 'Seeed XIAO ESP32C3',
+                supplier: 'Seeed Studio',
+                category: 'dev-board',
+                specs: 'ESP32-C3 160MHz | WiFi/BLE | 拇指大小',
+                price: 45,
+                stock: 890,
+                image: '🔌',
+                isSelf: false,
+                hot: true
+            },
+            {
+                id: 6,
+                name: 'Jetson Nano Developer Kit',
+                supplier: 'NVIDIA',
+                category: 'dev-board',
+                specs: 'Quad-core ARM A57 | 128-core GPU | 4GB',
+                price: 999,
+                stock: 45,
+                image: '🚀',
+                isSelf: false,
+                hot: false
+            },
+            // 模组
+            {
+                id: 7,
+                name: 'SIM7600G 4G通信模组',
+                supplier: '微雪电子',
+                category: 'module',
+                specs: '全网通4G | GPS/GLONASS | USB接口',
+                price: 168,
+                stock: 234,
+                image: '📶',
+                isSelf: false,
+                hot: false
+            },
+            {
+                id: 8,
+                name: 'LoRa E32-433T30D模组',
+                supplier: 'DFRobot',
+                category: 'module',
+                specs: '433MHz | 3km距离 | UART接口',
+                price: 38,
+                stock: 456,
+                image: '📡',
+                isSelf: true,
+                hot: false
+            },
+            {
+                id: 9,
+                name: 'ESP32-CAM AI摄像头',
+                supplier: '安信可',
+                category: 'module',
+                specs: 'ESP32 | 200万像素 | WiFi/BT',
+                price: 56,
+                stock: 678,
+                image: '📷',
+                isSelf: true,
+                hot: true
+            },
+            // 传感器
+            {
+                id: 10,
+                name: 'BME280环境传感器',
+                supplier: 'Adafruit',
+                category: 'sensor',
+                specs: '温湿度气压三合一 | I2C/SPI',
+                price: 45,
+                stock: 345,
+                image: '🌡️',
+                isSelf: false,
+                hot: false
+            },
+            {
+                id: 11,
+                name: 'VL53L0X激光测距传感器',
+                supplier: 'STMicroelectronics',
+                category: 'sensor',
+                specs: '2m测距 | I2C接口 | 高精度',
+                price: 68,
+                stock: 234,
+                image: '📏',
+                isSelf: true,
+                hot: false
+            },
+            {
+                id: 12,
+                name: 'MPU6050六轴传感器',
+                supplier: 'InvenSense',
+                category: 'sensor',
+                specs: '3轴加速度+3轴陀螺仪 | I2C',
+                price: 18,
+                stock: 890,
+                image: '🎯',
+                isSelf: true,
+                hot: true
+            },
+            // 显示屏
+            {
+                id: 13,
+                name: '2.8寸TFT触摸屏',
+                supplier: '微雪电子',
+                category: 'display',
+                specs: '320x240 | 电阻触摸 | SPI接口',
+                price: 78,
+                stock: 167,
+                image: '📱',
+                isSelf: false,
+                hot: false
+            },
+            {
+                id: 14,
+                name: '1.3寸OLED显示屏',
+                supplier: 'Adafruit',
+                category: 'display',
+                specs: '128x64 | I2C/SPI | 蓝色',
+                price: 42,
+                stock: 456,
+                image: '🖥️',
+                isSelf: true,
+                hot: false
+            },
+            {
+                id: 15,
+                name: '7寸电容触摸屏',
+                supplier: 'Waveshare',
+                category: 'display',
+                specs: '1024x600 | HDMI | 树莓派兼容',
+                price: 358,
+                stock: 89,
+                image: '💻',
+                isSelf: false,
+                hot: false
+            },
+            // 仪器仪表
+            {
+                id: 16,
+                name: 'DSO138示波器套件',
+                supplier: 'JYETech',
+                category: 'instrument',
+                specs: '200KHz带宽 | DIY套件 | 入门级',
+                price: 128,
+                stock: 67,
+                image: '📊',
+                isSelf: false,
+                hot: false
+            },
+            {
+                id: 17,
+                name: 'USB逻辑分析仪',
+                supplier: 'DreamSourceLab',
+                category: 'instrument',
+                specs: '16通道 | 100MHz采样 | 支持I2C/SPI',
+                price: 289,
+                stock: 45,
+                image: '🔍',
+                isSelf: true,
+                hot: false
+            },
+            {
+                id: 18,
+                name: 'T12焊台控制板',
+                supplier: 'KSGER',
+                category: 'instrument',
+                specs: 'OLED屏 | PID控温 | T12烙铁头',
+                price: 158,
+                stock: 123,
+                image: '🔧',
+                isSelf: true,
+                hot: true
+            },
+            // 配件
+            {
+                id: 19,
+                name: '杜邦线套装（120根）',
+                supplier: 'DFRobot',
+                category: 'accessory',
+                specs: '公对公/公对母/母对母 各40根',
+                price: 15,
+                stock: 1234,
+                image: '🔌',
+                isSelf: true,
+                hot: false
+            },
+            {
+                id: 20,
+                name: '面包板套装',
+                supplier: 'Elegoo',
+                category: 'accessory',
+                specs: '830孔+400孔+170孔 各1块',
+                price: 35,
+                stock: 567,
+                image: '📋',
+                isSelf: true,
+                hot: false
+            }
+        ];
+
+        let currentCategory = 'all';
+        let cart = [];
+
+        // 初始化
+        function init() {
+            renderProducts();
+            updateCartBadge();
+        }
+
+        // 渲染商品
+        function renderProducts() {
+            const grid = document.getElementById('productsGrid');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = productsData.filter(p => {
+                const matchCategory = currentCategory === 'all' ||
+                                     (currentCategory === 'self' ? p.isSelf : p.category === currentCategory);
+                const matchSearch = !searchTerm ||
+                                   p.name.toLowerCase().includes(searchTerm) ||
+                                   p.specs.toLowerCase().includes(searchTerm) ||
+                                   p.supplier.toLowerCase().includes(searchTerm);
+                return matchCategory && matchSearch;
+            });
+
+            grid.innerHTML = filtered.map(product => `
+                <div class="product-card" onclick="viewProduct(${product.id})">
+                    ${product.hot ? '<div class="product-badge">🔥 热销</div>' : ''}
+                    ${product.isSelf && !product.hot ? '<div class="product-badge self-operated">自营</div>' : ''}
+                    <div class="product-image">
+                        <div style="font-size: 80px;">${product.image}</div>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-supplier">${product.supplier}</div>
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-specs">${product.specs}</div>
+                        <div class="product-footer">
+                            <div>
+                                <span class="product-price">¥${product.price}</span>
+                                <span class="product-price-unit">库存${product.stock}</span>
+                            </div>
+                            <button class="add-to-cart-btn" onclick="addToCart(event, ${product.id})">
+                                加入购物车
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 分类筛选
+        function filterByCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            renderProducts();
+        }
+
+        // 搜索
+        function searchProducts() {
+            renderProducts();
+        }
+
+        // 查看商品详情
+        function viewProduct(id) {
+            // 跳转到详情页面，传递商品ID
+            window.location.href = `board-detail.html?id=${id}`;
+        }
+
+        // 添加到购物车
+        function addToCart(event, productId) {
+            event.stopPropagation();
+            const product = productsData.find(p => p.id === productId);
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({
+                    ...product,
+                    quantity: 1
+                });
+            }
+
+            updateCartUI();
+
+            // 显示提示
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = '✓ 已添加';
+            btn.style.background = '#52c41a';
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+            }, 1000);
+        }
+
+        // 更新购物车UI
+        function updateCartUI() {
+            updateCartBadge();
+            renderCartItems();
+        }
+
+        // 更新购物车徽章
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartBadge').textContent = totalItems;
+        }
+
+        // 渲染购物车项目
+        function renderCartItems() {
+            const cartBody = document.getElementById('cartBody');
+            const cartFooter = document.getElementById('cartFooter');
+
+            if (cart.length === 0) {
+                cartBody.innerHTML = `
+                    <div class="cart-empty">
+                        <div class="cart-empty-icon">🛒</div>
+                        <div>购物车是空的</div>
+                        <div style="font-size: 13px; margin-top: 8px;">快去挑选心仪的板卡吧~</div>
+                    </div>
+                `;
+                cartFooter.style.display = 'none';
+                return;
+            }
+
+            cartBody.innerHTML = cart.map((item, index) => `
+                <div class="cart-item">
+                    <div class="cart-item-image">
+                        <div style="font-size: 40px; display: flex; align-items: center; justify-content: center; height: 100%;">${item.image}</div>
+                    </div>
+                    <div class="cart-item-info">
+                        <div class="cart-item-name">${item.name}</div>
+                        <div class="cart-item-supplier">${item.supplier}</div>
+                        <div class="cart-item-price">¥${item.price}</div>
+                        <div class="cart-item-controls">
+                            <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">-</button>
+                            <input type="number" class="quantity-input" value="${item.quantity}" min="1" onchange="setQuantity(${index}, this.value)">
+                            <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                            <button class="remove-item-btn" onclick="removeFromCart(${index})">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            document.getElementById('cartTotalAmount').textContent = `¥${total.toFixed(2)}`;
+            cartFooter.style.display = 'block';
+        }
+
+        // 更新数量
+        function updateQuantity(index, delta) {
+            cart[index].quantity += delta;
+            if (cart[index].quantity <= 0) {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        // 设置数量
+        function setQuantity(index, value) {
+            const qty = parseInt(value);
+            if (qty > 0) {
+                cart[index].quantity = qty;
+            } else {
+                cart.splice(index, 1);
+            }
+            updateCartUI();
+        }
+
+        // 从购物车移除
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        // 切换购物车显示
+        function toggleCart() {
+            const sidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        // 结算
+        function checkout() {
+            if (cart.length === 0) {
+                alert('购物车是空的！');
+                return;
+            }
+
+            toggleCart();
+
+            // 生成订单摘要
+            const summary = document.getElementById('orderSummary');
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            summary.innerHTML = `
+                <h4 style="margin-bottom: 12px;">订单商品 (${cart.length})</h4>
+                ${cart.map(item => `
+                    <div class="order-item">
+                        <span>${item.name} x ${item.quantity}</span>
+                        <span>¥${(item.price * item.quantity).toFixed(2)}</span>
+                `).join('')}
+                <div class="order-item">
+                    <span>总计</span>
+                    <span style="color: #ff4d4f;">¥${total.toFixed(2)}</span>
+            `;
+
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+
+        // 关闭结算
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('active');
+        }
+
+        // 提交订单
+        function submitOrder() {
+            const address = document.getElementById('shippingAddress').value;
+            const receiver = document.getElementById('receiverName').value;
+            const phone = document.getElementById('receiverPhone').value;
+            const storage = document.getElementById('storageLocation').value;
+            const note = document.getElementById('orderNote').value;
+
+            if (!address || !receiver || !phone) {
+                alert('请填写完整的收货信息！');
+                return;
+            }
+
+            // 模拟订单提交
+            const orderNumber = 'BO' + Date.now();
+            const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+            setTimeout(() => {
+                alert(`✅ 订单提交成功！\n\n订单号：${orderNumber}\n总金额：¥${total.toFixed(2)}\n收货地址：${address}\n入库库位：${storage}\n\n商品将在收货后自动入库到物料管理和库存管理系统！`);
+
+                // 清空购物车
+                cart = [];
+                updateCartUI();
+                closeCheckout();
+
+                // 模拟自动入库提示
+                setTimeout(() => {
+                    alert(`📦 自动入库通知\n\n订单 ${orderNumber} 的商品已成功入库！\n\n• 已添加到【物料管理】系统\n• 已更新【库存管理】系统\n• 库位：${storage}\n\n您可以在物料管理和库存管理中查看详情。`);
+                }, 2000);
+            }, 500);
+        }
+
+        // 页面加载时初始化
+        window.onload = init;
+
+        // 搜索框回车搜索
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchProducts();
+            }
+        });
+    </script>
+</body>
+</html>

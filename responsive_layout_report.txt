@@ -1,0 +1,590 @@
+================================================================================
+EZPLM Responsive Layout Fix Report
+================================================================================
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total files processed: 130
+Files updated: 130
+Files skipped: 0
+Viewport tags added: 1
+Max-width values fixed: 85
+
+CHANGES BY FILE
+--------------------------------------------------------------------------------
+
+File: 404.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: activities-all-projects.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: activities-enhanced.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: activities.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: activity-project-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: ai_coding_embedded.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: analytics-enhanced.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: analytics.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: approval-center.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: approval-detail.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: auth.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: board-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: board-marketplace.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: bom-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: bom.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: campus-recruitment.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: candidate-evaluation.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: category-management.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: cloud-search.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: collaboration.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-compare.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive typography
+
+File: component-comparison.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-compare.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-inquiry-batch.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-inquiry-create.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-inquiry-detail.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-inquiry-list.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-inquiry-reply.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-product-edit.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-product-publish.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply-sales-analytics.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: component-supply.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: course-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: course-learning.html
+  ✓ Fixed 2 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: customer-supplied-materials.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: dashboard-free.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: dashboard-pro.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: education-enhanced.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: education-student.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: education.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: experiment-submit.html
+  ✓ Fixed 2 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: experiment-templates.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: graduation-apply.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: graduation-evaluation.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: graduation-guidance.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: graduation-hub.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: graduation-project-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: graduation-publish.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: graduation-topics.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: help.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: hr-campus-recruitment.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: hr-dashboard.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: hr-interview-schedule.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: hr-job-post.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: hr-resume-review.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: hr-send-offer.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: index.html
+  ✓ Fixed 6 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: inventory-inbound.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive typography
+
+File: inventory.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: job-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: library-resources-backup.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: library-resources.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: materials.html
+  ✓ Fixed 3 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: messages.html
+  ✓ Added responsive typography
+
+File: module-version-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: notification-center.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: organization-create-backup.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: organization-create.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: outsourcing-apply.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: outsourcing-hub.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: outsourcing-publish.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: outsourcing-topics.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: pcb-editor-styled.html
+  ✓ Fixed 3 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-add-material.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive typography
+
+File: procurement-contact-supplier.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-contract.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-detail.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-edit.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-inquiry.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-orders.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive typography
+
+File: procurement-payment.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-receipt.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-supplier-eval.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-supplier-match.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement-tracking.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: procurement.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: production-detail.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: production-test-create.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: production-test-export.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: production-test-report.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: production-test-standards.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: production.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: profile.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: project-center.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: project-create.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: project-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: project-list-enhanced.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: project-list.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: project-templates.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: project-views.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: projects-enhanced.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: projects-new-features.html
+  ✓ Added viewport meta tag
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: projects.html
+  ✓ Fixed 3 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: projects_backup.html
+  ✓ Fixed 5 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: projects_before_cleanup.html
+  ✓ Fixed 5 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: quality-inspection.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: reference-design-detail.html
+  ✓ Fixed 2 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: reference-designs.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: requirement-initiation.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: role-permissions-documentation.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: settings.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: student-applications-interview.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: student-applications-offer.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: student-applications-sent.html
+  ✓ Added responsive typography
+
+File: student-applications.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: student-resume.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: supplier-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: supplier-management.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: supplier-product-listing.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: task-create.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: task-detail.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: task-list-enhanced.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive typography
+
+File: task-list.html
+  ✓ Added responsive typography
+
+File: tasks-enhanced.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: tasks.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: team-discussion.html
+  ✓ Fixed 1 max-width values to 1440px
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: timeline-dashboard.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: work-order-detail.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography
+
+File: workspace-dashboard.html
+  ✓ Added responsive grid layouts
+  ✓ Added responsive typography

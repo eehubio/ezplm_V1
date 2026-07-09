@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 教育中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f4; color: #3d4647; }
+
+        /* 顶部导航 */
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-bar-right { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .top-nav-links a:hover { color: #00890b; }
+
+        /* 布局 */
+        .layout { display: flex; min-height: calc(100vh - 80px); }
+        .sidebar { width: 260px; background: white; box-shadow: 2px 0 8px rgba(0,0,0,0.05); padding: 24px 0; }
+        .nav-section-title { padding: 8px 24px; font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; }
+        .nav-item { padding: 12px 24px; display: flex; align-items: center; gap: 12px; color: #3d4647; text-decoration: none; transition: all 0.2s; }
+        .nav-item:hover { background: rgba(0, 137, 11, 0.05); color: #00890b; }
+        .nav-item.active { background: rgba(0, 137, 11, 0.1); color: #00890b; font-weight: 600; border-right: 3px solid #00890b; }
+
+        /* 主内容 */
+        .main-content { flex: 1; padding: 32px; }
+
+        /* Hero区域 */
+        .hero-section { background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); border-radius: 12px; padding: 40px; color: white; margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; }
+        .hero-left { flex: 1; }
+        .hero-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+        .hero-subtitle { font-size: 16px; opacity: 0.9; margin-bottom: 24px; }
+        .role-switch { display: flex; gap: 8px; background: rgba(255,255,255,0.2); padding: 4px; border-radius: 8px; display: inline-flex; }
+        .role-btn { padding: 10px 20px; background: transparent; border: none; color: white; font-weight: 600; border-radius: 6px; cursor: pointer; transition: all 0.3s; }
+        .role-btn.active { background: white; color: #2196f3; }
+        .hero-stats { display: flex; gap: 40px; }
+        .stat-item { text-align: center; }
+        .stat-value { font-size: 36px; font-weight: 800; }
+        .stat-label { font-size: 14px; opacity: 0.9; }
+
+        /* 快速操作 */
+        .quick-actions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+        .action-card { background: white; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .action-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(33,150,243,0.15); }
+        .action-icon { font-size: 36px; margin-bottom: 12px; }
+        .action-title { font-size: 14px; font-weight: 600; color: #3d4647; }
+
+        /* 课程网格 */
+        .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px; }
+
+        /* 课程卡片 */
+        .course-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; }
+        .course-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(33,150,243,0.15); }
+        .course-header { height: 160px; background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; position: relative; }
+        .course-badge { position: absolute; top: 12px; right: 12px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; background: rgba(255,255,255,0.9); color: #2196f3; }
+        .course-body { padding: 20px; }
+        .course-title { font-size: 18px; font-weight: 700; color: #3d4647; margin-bottom: 8px; }
+        .course-teacher { font-size: 13px; color: #666; margin-bottom: 12px; }
+        .course-meta { display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; color: #666; }
+        .course-progress { margin-bottom: 12px; }
+        .progress-label { font-size: 13px; color: #666; margin-bottom: 6px; display: flex; justify-content: space-between; }
+        .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #2196f3; border-radius: 4px; transition: width 0.3s; }
+        .course-footer { display: flex; gap: 8px; }
+        .btn-primary { background: #2196f3; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; flex: 1; transition: background 0.3s; }
+        .btn-primary:hover { background: #1976d2; }
+        .btn-secondary { background: white; color: #2196f3; border: 2px solid #2196f3; padding: 8px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-secondary:hover { background: #2196f3; color: white; }
+
+        /* 实验列表 */
+        .experiment-list { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 32px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-title { font-size: 20px; font-weight: 700; color: #3d4647; }
+        .experiment-item { display: flex; align-items: center; padding: 16px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px; transition: all 0.3s; }
+        .experiment-item:hover { background: #f0f0f0; }
+        .experiment-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; margin-right: 16px; }
+        .experiment-info { flex: 1; }
+        .experiment-name { font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 4px; }
+        .experiment-details { font-size: 13px; color: #666; }
+        .experiment-status { display: flex; align-items: center; gap: 12px; }
+        .status-badge { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-pending { background: rgba(255,193,7,0.1); color: #ffc107; }
+        .status-submitted { background: rgba(33,150,243,0.1); color: #2196f3; }
+        .status-completed { background: rgba(76,175,80,0.1); color: #4caf50; }
+        .status-overdue { background: rgba(244,67,54,0.1); color: #f44336; }
+
+        /* 班级管理 */
+        .class-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 32px; }
+        .class-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; }
+        .class-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(33,150,243,0.15); }
+        .class-name { font-size: 18px; font-weight: 700; color: #3d4647; margin-bottom: 8px; }
+        .class-code { font-size: 13px; color: #666; margin-bottom: 16px; font-family: monospace; }
+        .class-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .class-stat { text-align: center; padding: 12px; background: #f9f9f9; border-radius: 6px; }
+        .class-stat-value { font-size: 20px; font-weight: 700; color: #2196f3; }
+        .class-stat-label { font-size: 12px; color: #666; margin-top: 4px; }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { padding: 24px 32px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 20px; font-weight: 700; color: #3d4647; }
+        .modal-close { background: none; border: none; font-size: 28px; color: #999; cursor: pointer; line-height: 1; transition: color 0.3s; }
+        .modal-close:hover { color: #3d4647; }
+        .modal-body { padding: 32px; }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; font-size: 14px; font-weight: 600; color: #3d4647; margin-bottom: 8px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #2196f3; }
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .modal-footer { padding: 20px 32px; border-top: 1px solid #e0e0e0; display: flex; justify-content: flex-end; gap: 12px; }
+        .btn-cancel { background: white; color: #3d4647; border: 2px solid #e0e0e0; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-cancel:hover { border-color: #999; }
+
+        /* 学生表格 */
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f9f9f9; padding: 12px; text-align: left; font-size: 13px; color: #666; font-weight: 700; border-bottom: 2px solid #e0e0e0; }
+        td { padding: 12px; font-size: 14px; border-bottom: 1px solid #f0f0f0; }
+        tr:hover { background: #f9f9f9; }
+
+        /* 标签页 */
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tab { padding: 12px 24px; background: transparent; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; color: #666; }
+        .tab.active { background: #2196f3; color: white; }
+
+        /* 文件上传 */
+        .upload-area { border: 2px dashed #e0e0e0; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.3s; }
+        .upload-area:hover { border-color: #2196f3; background: rgba(33,150,243,0.05); }
+        .upload-icon { font-size: 48px; color: #2196f3; margin-bottom: 12px; }
+        .upload-text { font-size: 14px; color: #666; }
+        .file-input { display: none; }
+
+        /* 成绩显示 */
+        .grade-display { display: inline-block; padding: 8px 16px; background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%); color: white; border-radius: 6px; font-size: 20px; font-weight: 700; }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 主布局 -->
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item active">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <!-- Hero区域 -->
+            <div class="hero-section">
+                <div class="hero-left">
+                    <div class="hero-title">🎓 教育中心</div>
+                    <div class="hero-subtitle">面向高校的电子设计实验教学与管理平台</div>
+                    <div class="role-switch">
+                        <button class="role-btn active" onclick="switchRole('teacher')">教师视图</button>
+                        <button class="role-btn" onclick="switchRole('student')">学生视图</button>
+                    </div>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">8</div>
+                        <div class="stat-label">我的课程</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">256</div>
+                        <div class="stat-label">学生人数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">42</div>
+                        <div class="stat-label">实验项目</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="quick-actions">
+                <div class="action-card" onclick="openCreateCourse()">
+                    <div class="action-icon">📚</div>
+                    <div class="action-title">创建课程</div>
+                </div>
+                <div class="action-card" onclick="openCreateExperiment()">
+                    <div class="action-icon">🧪</div>
+                    <div class="action-title">发布实验</div>
+                </div>
+                <div class="action-card" onclick="openCreateClass()">
+                    <div class="action-icon">👥</div>
+                    <div class="action-title">创建班级</div>
+                </div>
+                <div class="action-card" onclick="openTemplates()">
+                    <div class="action-icon">📋</div>
+                    <div class="action-title">实验模板</div>
+                </div>
+            </div>
+
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('courses')">我的课程 (8)</button>
+                <button class="tab" onclick="switchTab('experiments')">待批改 (12)</button>
+                <button class="tab" onclick="switchTab('classes')">班级管理 (5)</button>
+                <button class="tab" onclick="switchTab('templates')">实验模板 (20)</button>
+            </div>
+
+            <!-- 课程网格 -->
+            <div class="course-grid" id="coursesView">
+                <!-- 课程卡片1 -->
+                <div class="course-card" onclick="openCourse('analog')">
+                    <div class="course-header">
+                        ⚡
+                        <div class="course-badge">进行中</div>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">模拟电路设计与实验</div>
+                        <div class="course-teacher">授课教师：王教授 · 电子工程学院</div>
+                        <div class="course-meta">
+                            <div>📅 2024秋季学期</div>
+                            <div>👥 68名学生</div>
+                        </div>
+                        <div class="course-progress">
+                            <div class="progress-label">
+                                <span>课程进度</span>
+                                <span>8/12</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 67%;"></div>
+                            </div>
+                        </div>
+                        <div class="course-footer">
+                            <button class="btn-primary">进入课程</button>
+                            <button class="btn-secondary">📊</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 课程卡片2 -->
+                <div class="course-card" onclick="openCourse('digital')">
+                    <div class="course-header">
+                        💻
+                        <div class="course-badge">进行中</div>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">数字逻辑电路设计</div>
+                        <div class="course-teacher">授课教师：王教授 · 电子工程学院</div>
+                        <div class="course-meta">
+                            <div>📅 2024秋季学期</div>
+                            <div>👥 72名学生</div>
+                        </div>
+                        <div class="course-progress">
+                            <div class="progress-label">
+                                <span>课程进度</span>
+                                <span>6/10</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%;"></div>
+                            </div>
+                        </div>
+                        <div class="course-footer">
+                            <button class="btn-primary">进入课程</button>
+                            <button class="btn-secondary">📊</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 课程卡片3 -->
+                <div class="course-card" onclick="openCourse('mcu')">
+                    <div class="course-header">
+                        🤖
+                        <div class="course-badge">进行中</div>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">单片机系统设计</div>
+                        <div class="course-teacher">授课教师：王教授 · 电子工程学院</div>
+                        <div class="course-meta">
+                            <div>📅 2024秋季学期</div>
+                            <div>👥 58名学生</div>
+                        </div>
+                        <div class="course-progress">
+                            <div class="progress-label">
+                                <span>课程进度</span>
+                                <span>10/14</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 71%;"></div>
+                            </div>
+                        </div>
+                        <div class="course-footer">
+                            <button class="btn-primary">进入课程</button>
+                            <button class="btn-secondary">📊</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 课程卡片4 -->
+                <div class="course-card" onclick="openCourse('pcb')">
+                    <div class="course-header">
+                        📐
+                        <div class="course-badge">进行中</div>
+                    </div>
+                    <div class="course-body">
+                        <div class="course-title">PCB设计与制作实践</div>
+                        <div class="course-teacher">授课教师：王教授 · 电子工程学院</div>
+                        <div class="course-meta">
+                            <div>📅 2024秋季学期</div>
+                            <div>👥 45名学生</div>
+                        </div>
+                        <div class="course-progress">
+                            <div class="progress-label">
+                                <span>课程进度</span>
+                                <span>4/8</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%;"></div>
+                            </div>
+                        </div>
+                        <div class="course-footer">
+                            <button class="btn-primary">进入课程</button>
+                            <button class="btn-secondary">📊</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 待批改实验 -->
+            <div class="experiment-list" id="experimentsView" style="display: none;">
+                <div class="section-header">
+                    <div class="section-title">待批改的实验报告</div>
+                    <button class="btn-secondary">批量操作</button>
+                </div>
+
+                <div class="experiment-item">
+                    <div class="experiment-icon">📝</div>
+                    <div class="experiment-info">
+                        <div class="experiment-name">实验三：共射放大电路设计</div>
+                        <div class="experiment-details">模拟电路设计 · 提交人：张三 · 提交时间：2小时前</div>
+                    </div>
+                    <div class="experiment-status">
+                        <span class="status-badge status-submitted">待批改</span>
+                        <button class="btn-primary" style="width: 100px;" onclick="openGrading()">批改</button>
+                    </div>
+                </div>
+
+                <div class="experiment-item">
+                    <div class="experiment-icon">📝</div>
+                    <div class="experiment-info">
+                        <div class="experiment-name">实验三：共射放大电路设计</div>
+                        <div class="experiment-details">模拟电路设计 · 提交人：李四 · 提交时间：5小时前</div>
+                    </div>
+                    <div class="experiment-status">
+                        <span class="status-badge status-submitted">待批改</span>
+                        <button class="btn-primary" style="width: 100px;" onclick="openGrading()">批改</button>
+                    </div>
+                </div>
+
+                <div class="experiment-item">
+                    <div class="experiment-icon">📝</div>
+                    <div class="experiment-info">
+                        <div class="experiment-name">实验二：74系列逻辑门测试</div>
+                        <div class="experiment-details">数字逻辑电路 · 提交人：王五 · 提交时间：1天前</div>
+                    </div>
+                    <div class="experiment-status">
+                        <span class="status-badge status-submitted">待批改</span>
+                        <button class="btn-primary" style="width: 100px;" onclick="openGrading()">批改</button>
+                    </div>
+                </div>
+
+                <div class="experiment-item">
+                    <div class="experiment-icon">📝</div>
+                    <div class="experiment-info">
+                        <div class="experiment-name">实验五：LED流水灯控制</div>
+                        <div class="experiment-details">单片机系统 · 提交人：赵六 · 提交时间：1天前</div>
+                    </div>
+                    <div class="experiment-status">
+                        <span class="status-badge status-overdue">逾期提交</span>
+                        <button class="btn-primary" style="width: 100px;" onclick="openGrading()">批改</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 班级管理 -->
+            <div class="class-grid" id="classesView" style="display: none;">
+                <div class="class-card" onclick="openClass('2024-01')">
+                    <div class="class-name">电子2024-01班</div>
+                    <div class="class-code">班级代码：EE240101</div>
+                    <div class="class-stats">
+                        <div class="class-stat">
+                            <div class="class-stat-value">68</div>
+                            <div class="class-stat-label">学生人数</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">4</div>
+                            <div class="class-stat-label">课程数</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">18</div>
+                            <div class="class-stat-label">实验项目</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">86%</div>
+                            <div class="class-stat-label">平均完成率</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="class-card" onclick="openClass('2024-02')">
+                    <div class="class-name">电子2024-02班</div>
+                    <div class="class-code">班级代码：EE240102</div>
+                    <div class="class-stats">
+                        <div class="class-stat">
+                            <div class="class-stat-value">72</div>
+                            <div class="class-stat-label">学生人数</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">4</div>
+                            <div class="class-stat-label">课程数</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">16</div>
+                            <div class="class-stat-label">实验项目</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">92%</div>
+                            <div class="class-stat-label">平均完成率</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="class-card" onclick="openClass('2023-01')">
+                    <div class="class-name">电子2023-01班</div>
+                    <div class="class-code">班级代码：EE230101</div>
+                    <div class="class-stats">
+                        <div class="class-stat">
+                            <div class="class-stat-value">64</div>
+                            <div class="class-stat-label">学生人数</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">5</div>
+                            <div class="class-stat-label">课程数</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">24</div>
+                            <div class="class-stat-label">实验项目</div>
+                        </div>
+                        <div class="class-stat">
+                            <div class="class-stat-value">89%</div>
+                            <div class="class-stat-label">平均完成率</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="class-card" style="border: 2px dashed #e0e0e0; display: flex; align-items: center; justify-content: center;" onclick="openCreateClass()">
+                    <div style="text-align: center; color: #999;">
+                        <div style="font-size: 48px; margin-bottom: 8px;">➕</div>
+                        <div style="font-size: 14px; font-weight: 600;">创建新班级</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建课程Modal -->
+    <div class="modal-overlay" id="createCourseModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📚 创建课程</h3>
+                <button class="modal-close" onclick="closeCreateCourse()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">课程名称 *</label>
+                        <input type="text" class="form-input" placeholder="例如：模拟电路设计与实验" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">课程代码</label>
+                        <input type="text" class="form-input" placeholder="例如：EE301">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">学期</label>
+                        <select class="form-select">
+                            <option>2024秋季学期</option>
+                            <option>2025春季学期</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">关联班级</label>
+                        <select class="form-select" multiple style="min-height: 100px;">
+                            <option>电子2024-01班</option>
+                            <option>电子2024-02班</option>
+                            <option>电子2023-01班</option>
+                        </select>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">按住Ctrl可多选</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">课程简介</label>
+                        <textarea class="form-textarea" placeholder="输入课程简介..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCreateCourse()">取消</button>
+                <button class="btn-primary" onclick="submitCreateCourse()">创建课程</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 发布实验Modal -->
+    <div class="modal-overlay" id="createExperimentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🧪 发布实验</h3>
+                <button class="modal-close" onclick="closeCreateExperiment()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">实验名称 *</label>
+                        <input type="text" class="form-input" placeholder="例如：共射放大电路设计" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">所属课程 *</label>
+                        <select class="form-select" required>
+                            <option value="">请选择课程</option>
+                            <option>模拟电路设计与实验</option>
+                            <option>数字逻辑电路设计</option>
+                            <option>单片机系统设计</option>
+                            <option>PCB设计与制作实践</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">选择实验模板</label>
+                        <select class="form-select">
+                            <option value="">从空白开始</option>
+                            <option>模板：放大电路实验</option>
+                            <option>模板：滤波器设计</option>
+                            <option>模板：振荡电路</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">截止日期 *</label>
+                        <input type="datetime-local" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">实验要求</label>
+                        <textarea class="form-textarea" placeholder="输入实验要求和说明..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">参考资料</label>
+                        <div class="upload-area" onclick="document.getElementById('expFileInput').click()">
+                            <div class="upload-icon">📎</div>
+                            <div class="upload-text">点击上传实验资料（PDF、Word、图片等）</div>
+                        </div>
+                        <input type="file" id="expFileInput" class="file-input" multiple>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCreateExperiment()">取消</button>
+                <button class="btn-primary" onclick="submitCreateExperiment()">发布实验</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 批改实验Modal -->
+    <div class="modal-overlay" id="gradingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">批改实验报告</h3>
+                <button class="modal-close" onclick="closeGrading()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 24px; padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="font-weight: 600;">实验三：共射放大电路设计</span>
+                        <span style="color: #666;">模拟电路设计</span>
+                    </div>
+                    <div style="font-size: 13px; color: #666;">
+                        提交人：张三 (202401001) · 提交时间：2024-10-20 14:32
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">实验报告</label>
+                    <div style="padding: 16px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">📄</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600;">实验报告_张三.pdf</div>
+                                <div style="font-size: 12px; color: #666;">2.4 MB</div>
+                            </div>
+                            <button class="btn-secondary" style="width: auto;">查看</button>
+                        </div>
+                    </div>
+                    <div style="padding: 16px; background: #f9f9f9; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 24px;">📦</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600;">PCB工程文件.zip</div>
+                                <div style="font-size: 12px; color: #666;">5.8 MB</div>
+                            </div>
+                            <button class="btn-secondary" style="width: auto;">下载</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">成绩评定 *</label>
+                    <input type="number" class="form-input" placeholder="0-100分" min="0" max="100" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">评语与建议</label>
+                    <textarea class="form-textarea" placeholder="输入评语和改进建议..."></textarea>
+                </div>
+
+                <div style="padding: 16px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 6px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #2196f3;">💡 评分参考</div>
+                    <ul style="margin-left: 20px; color: #666; font-size: 13px; line-height: 1.6;">
+                        <li>实验原理理解 (20分)</li>
+                        <li>电路设计合理性 (30分)</li>
+                        <li>实验数据完整性 (20分)</li>
+                        <li>结果分析与总结 (20分)</li>
+                        <li>报告规范性 (10分)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeGrading()">稍后批改</button>
+                <button class="btn-primary" onclick="submitGrading()">提交批改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建班级Modal -->
+    <div class="modal-overlay" id="createClassModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">👥 创建班级</h3>
+                <button class="modal-close" onclick="closeCreateClass()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">班级名称 *</label>
+                        <input type="text" class="form-input" placeholder="例如：电子2024-03班" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">班级代码</label>
+                        <input type="text" class="form-input" placeholder="例如：EE240103" value="EE240103" readonly style="background: #f9f9f9;">
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">学生通过此代码加入班级</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">学院/专业</label>
+                        <input type="text" class="form-input" placeholder="例如：电子工程学院">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">年级</label>
+                        <select class="form-select">
+                            <option>2024级</option>
+                            <option>2023级</option>
+                            <option>2022级</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">添加学生</label>
+                        <textarea class="form-textarea" placeholder="输入学生邮箱，每行一个"></textarea>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">也可以创建后通过班级代码邀请学生加入</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCreateClass()">取消</button>
+                <button class="btn-primary" onclick="submitCreateClass()">创建班级</button>
+            </div>
+        </div>
+
+    <script>
+        function switchRole(role) {
+            const buttons = document.querySelectorAll('.role-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (role === 'student') {
+                window.location.href = 'education-student.html';
+            }
+        }
+
+        function switchTab(tab) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // 隐藏所有视图
+            document.getElementById('coursesView').style.display = 'none';
+            document.getElementById('experimentsView').style.display = 'none';
+            document.getElementById('classesView').style.display = 'none';
+
+            // 显示对应视图
+            if (tab === 'courses') {
+                document.getElementById('coursesView').style.display = 'grid';
+            } else if (tab === 'experiments') {
+                document.getElementById('experimentsView').style.display = 'block';
+            } else if (tab === 'classes') {
+                document.getElementById('classesView').style.display = 'grid';
+            }
+        }
+
+        function openCreateCourse() {
+            document.getElementById('createCourseModal').classList.add('active');
+        }
+
+        function closeCreateCourse() {
+            document.getElementById('createCourseModal').classList.remove('active');
+        }
+
+        function submitCreateCourse() {
+            alert('课程创建成功！');
+            closeCreateCourse();
+        }
+
+        function openCreateExperiment() {
+            document.getElementById('createExperimentModal').classList.add('active');
+        }
+
+        function closeCreateExperiment() {
+            document.getElementById('createExperimentModal').classList.remove('active');
+        }
+
+        function submitCreateExperiment() {
+            alert('实验发布成功！');
+            closeCreateExperiment();
+        }
+
+        function openCreateClass() {
+            document.getElementById('createClassModal').classList.add('active');
+        }
+
+        function closeCreateClass() {
+            document.getElementById('createClassModal').classList.remove('active');
+        }
+
+        function submitCreateClass() {
+            alert('班级创建成功！邀请码已生成。');
+            closeCreateClass();
+        }
+
+        function openGrading() {
+            document.getElementById('gradingModal').classList.add('active');
+        }
+
+        function closeGrading() {
+            document.getElementById('gradingModal').classList.remove('active');
+        }
+
+        function submitGrading() {
+            alert('批改已提交，成绩已保存！');
+            closeGrading();
+        }
+
+        function openCourse(courseId) {
+            window.location.href = 'course-detail.html';
+        }
+
+        function openClass(classId) {
+            alert('进入班级管理页面：' + classId);
+        }
+
+        function openTemplates() {
+            window.location.href = 'experiment-templates.html';
+        }
+
+        // 点击背景关闭Modal
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

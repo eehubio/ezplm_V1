@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 职位详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 15px;
+        }
+        .btn-primary:hover {
+            background: #007309;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,137,11,0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #00890b;
+            border: 2px solid #00890b;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #00890b;
+            color: white;
+        }
+
+        /* 主内容 */
+        .main-content {
+            max-width: 1440px;
+            margin: 32px auto;
+            padding: 0 24px;
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+        }
+
+        /* 左侧内容 */
+        .content-left {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 职位标题卡片 */
+        .job-header-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .company-logo-large {
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 20px;
+        }
+        .job-title-large {
+            font-size: 28px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 12px;
+        }
+        .company-name-large {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .job-tags-large {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+        .job-tag-large {
+            padding: 6px 14px;
+            background: #f0f0f0;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+        .job-tag-large.hot {
+            background: #ffebee;
+            color: #e74c3c;
+        }
+        .job-tag-large.new {
+            background: #e8f5e9;
+            color: #00890b;
+        }
+        .job-salary-large {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00890b;
+            margin-bottom: 24px;
+        }
+        .job-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            padding-top: 24px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .job-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            color: #666;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .content-card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .content-text {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.8;
+        }
+        .content-list {
+            list-style: none;
+            padding: 0;
+        }
+        .content-list li {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.8;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 12px;
+        }
+        .content-list li:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: #00890b;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        /* 右侧侧边栏 */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* 固定操作栏 */
+        .sticky-action-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            position: sticky;
+            top: 100px;
+        }
+        .action-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 16px;
+        }
+        .action-btn-large {
+            width: 100%;
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+        .action-btn-large:hover {
+            background: #007309;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,137,11,0.3);
+        }
+        .action-btn-outline {
+            width: 100%;
+            background: white;
+            color: #00890b;
+            border: 2px solid #00890b;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .action-btn-outline:hover {
+            background: rgba(0,137,11,0.05);
+        }
+
+        /* AI匹配度 */
+        .ai-match-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 24px;
+            color: white;
+        }
+        .ai-match-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ai-match-score {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .ai-match-desc {
+            font-size: 14px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        .ai-match-reasons {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+        .ai-match-reasons li {
+            font-size: 13px;
+            margin-bottom: 8px;
+            padding-left: 0;
+        }
+        .ai-match-reasons li:before {
+            content: '✓';
+            color: white;
+            margin-right: 8px;
+        }
+
+        /* 公司信息卡片 */
+        .company-info-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .company-info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .company-info-item:last-child {
+            border-bottom: none;
+        }
+        .company-info-label {
+            font-size: 14px;
+            color: #999;
+        }
+        .company-info-value {
+            font-size: 14px;
+            color: #3d4647;
+            font-weight: 600;
+        }
+
+        /* 推荐职位 */
+        .recommended-jobs {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .recommended-job-item {
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .recommended-job-item:hover {
+            background: rgba(0,137,11,0.05);
+            transform: translateX(4px);
+        }
+        .recommended-job-item:last-child {
+            margin-bottom: 0;
+        }
+        .recommended-job-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 6px;
+        }
+        .recommended-job-company {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        .recommended-job-salary {
+            font-size: 14px;
+            font-weight: 700;
+            color: #00890b;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .back-btn:hover {
+            color: #00890b;
+            background: rgba(0,137,11,0.05);
+        }
+
+        /* 投递简历模态框 */
+        .apply-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .apply-modal-overlay.active {
+            display: flex;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .apply-modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .apply-modal-header {
+            padding: 28px 32px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .apply-modal-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #3d4647;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .apply-modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        .apply-modal-close:hover {
+            background: #f0f0f0;
+            color: #3d4647;
+        }
+        .apply-modal-body {
+            padding: 32px;
+        }
+        .apply-job-info {
+            background: linear-gradient(135deg, rgba(0,137,11,0.05) 0%, rgba(0,179,14,0.05) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border-left: 4px solid #00890b;
+        }
+        .apply-job-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .apply-company-name {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .apply-job-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 13px;
+            color: #999;
+        }
+        .apply-section {
+            margin-bottom: 24px;
+        }
+        .apply-section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .resume-preview {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 16px;
+            border: 2px dashed #d0d0d0;
+        }
+        .resume-preview-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .resume-preview-item:last-child {
+            border-bottom: none;
+        }
+        .resume-preview-label {
+            font-size: 13px;
+            color: #999;
+        }
+        .resume-preview-value {
+            font-size: 14px;
+            color: #3d4647;
+            font-weight: 600;
+        }
+        .edit-resume-link {
+            color: #00890b;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+        .edit-resume-link:hover {
+            text-decoration: underline;
+        }
+        .cover-letter-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.2s;
+        }
+        .cover-letter-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+            background: rgba(0,137,11,0.02);
+        }
+        .ai-tips {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 13px;
+            color: #1e40af;
+            line-height: 1.6;
+            display: flex;
+            gap: 10px;
+        }
+        .ai-tips-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .apply-modal-footer {
+            padding: 20px 32px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        .btn-cancel {
+            background: white;
+            color: #666;
+            border: 2px solid #d0d0d0;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-cancel:hover {
+            background: #f0f0f0;
+            border-color: #999;
+        }
+        .btn-submit {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-submit:hover {
+            background: #007309;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,137,11,0.3);
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 左侧内容 -->
+        <div class="content-left">
+            <a href="campus-recruitment.html" class="back-btn">← 返回职位列表</a>
+
+            <!-- 职位标题卡片 -->
+            <div class="job-header-card">
+                <div class="company-logo-large">H</div>
+                <div class="job-title-large">硬件工程师</div>
+                <div class="company-name-large">华为技术有限公司</div>
+                <div class="job-tags-large">
+                    <span class="job-tag-large hot">热招</span>
+                    <span class="job-tag-large">全职</span>
+                    <span class="job-tag-large">应届生</span>
+                    <span class="job-tag-large">五险一金</span>
+                </div>
+                <div class="job-salary-large">15K-25K · 15薪</div>
+                <div class="job-meta-grid">
+                    <div class="job-meta-item">📍 深圳市南山区</div>
+                    <div class="job-meta-item">🎓 本科及以上</div>
+                    <div class="job-meta-item">👥 应届生/1-3年</div>
+                    <div class="job-meta-item">📅 3天前发布</div>
+                </div>
+            </div>
+
+            <!-- 职位描述 -->
+            <div class="content-card">
+                <h3 class="content-card-title">📋 职位描述</h3>
+                <div class="content-text">
+                    我们正在寻找一位充满激情的硬件工程师加入我们的消费者BG硬件团队。您将参与从概念设计到量产的完整产品开发周期，与优秀的团队一起打造世界级的消费电子产品。
+                </div>
+            </div>
+
+            <!-- 岗位职责 -->
+            <div class="content-card">
+                <h3 class="content-card-title">💼 岗位职责</h3>
+                <ul class="content-list">
+                    <li>负责消费电子产品的硬件电路设计，包括主控、电源、接口等模块</li>
+                    <li>完成原理图设计和PCB Layout，确保电路的可靠性和性能指标</li>
+                    <li>参与硬件调试、测试和问题排查，保证产品质量</li>
+                    <li>与软件、结构、工艺等团队协作，推进项目按时交付</li>
+                    <li>编写相关技术文档，进行技术评审和设计优化</li>
+                    <li>跟进生产过程，解决生产中遇到的硬件问题</li>
+                </ul>
+            </div>
+
+            <!-- 任职要求 -->
+            <div class="content-card">
+                <h3 class="content-card-title">✅ 任职要求</h3>
+                <ul class="content-list">
+                    <li>电子信息、通信工程等相关专业本科及以上学历</li>
+                    <li>扎实的模拟电路和数字电路基础，熟悉常用电子元器件特性</li>
+                    <li>熟练使用Altium Designer或Cadence等EDA工具</li>
+                    <li>具有完整的硬件产品开发经验者优先</li>
+                    <li>了解EMC、信号完整性等相关知识优先</li>
+                    <li>良好的沟通能力和团队协作精神</li>
+                    <li>有相关项目或竞赛经验者优先考虑</li>
+                </ul>
+            </div>
+
+            <!-- 薪资福利 -->
+            <div class="content-card">
+                <h3 class="content-card-title">💰 薪资福利</h3>
+                <ul class="content-list">
+                    <li>具有竞争力的薪资待遇：15K-25K，15薪</li>
+                    <li>完善的五险一金和补充商业保险</li>
+                    <li>每年15-20天带薪年假</li>
+                    <li>员工持股计划</li>
+                    <li>丰富的培训和学习资源</li>
+                    <li>健身房、餐厅补贴</li>
+                    <li>定期团建活动</li>
+                    <li>广阔的职业发展空间</li>
+                </ul>
+            </div>
+
+            <!-- 公司介绍 -->
+            <div class="content-card">
+                <h3 class="content-card-title">🏢 公司介绍</h3>
+                <div class="content-text">
+                    华为技术有限公司成立于1987年，是全球领先的ICT（信息与通信）基础设施和智能终端提供商。我们致力于把数字世界带入每个人、每个家庭、每个组织，构建万物互联的智能世界。目前，华为约有19.7万员工，业务遍及170多个国家和地区，服务全球30多亿人口。
+                    <br><br>
+                    在消费者业务领域，华为提供智能手机、PC和平板电脑、可穿戴设备、智慧屏等全场景智能终端产品。我们拥有世界一流的研发团队，为员工提供良好的发展平台和工作环境。
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧侧边栏 -->
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item active">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+    <!-- 投递简历模态框 -->
+    <div class="apply-modal-overlay" id="applyModal">
+        <div class="apply-modal">
+            <div class="apply-modal-header">
+                <h3 class="apply-modal-title">📤 投递简历</h3>
+                <button class="apply-modal-close" onclick="closeApplyModal()">&times;</button>
+            </div>
+
+            <div class="apply-modal-body">
+                <!-- 职位信息 -->
+                <div class="apply-job-info">
+                    <div class="apply-job-title">硬件工程师</div>
+                    <div class="apply-company-name">华为技术有限公司</div>
+                    <div class="apply-job-meta">
+                        <span>📍 深圳市南山区</span>
+                        <span>💰 15K-25K · 15薪</span>
+                        <span>🎓 本科及以上</span>
+                    </div>
+                </div>
+
+                <!-- 简历预览 -->
+                <div class="apply-section">
+                    <div class="apply-section-title">
+                        <span>📋</span>
+                        <span>简历信息</span>
+                    </div>
+                    <div class="resume-preview">
+                        <div class="resume-preview-item">
+                            <span class="resume-preview-label">姓名</span>
+                            <span class="resume-preview-value">张三</span>
+                        </div>
+                        <div class="resume-preview-item">
+                            <span class="resume-preview-label">学历</span>
+                            <span class="resume-preview-value">本科 · 电子信息工程</span>
+                        </div>
+                        <div class="resume-preview-item">
+                            <span class="resume-preview-label">毕业院校</span>
+                            <span class="resume-preview-value">清华大学</span>
+                        </div>
+                        <div class="resume-preview-item">
+                            <span class="resume-preview-label">简历完整度</span>
+                            <span class="resume-preview-value" style="color: #00890b;">85%</span>
+                        </div>
+                    </div>
+                    <a href="student-resume.html" class="edit-resume-link" target="_blank">
+                        ✏️ 编辑简历以提高通过率
+                    </a>
+                </div>
+
+                <!-- AI建议 -->
+                <div class="apply-section">
+                    <div class="ai-tips">
+                        <span class="ai-tips-icon">🤖</span>
+                        <div>
+                            <strong>AI智能建议：</strong>根据职位要求分析，您的简历匹配度为92分。建议在求职信中重点强调您的ESP32项目经验和PCB设计能力，这将大大提高通过率！
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 求职信 -->
+                <div class="apply-section">
+                    <div class="apply-section-title">
+                        <span>✍️</span>
+                        <span>求职信（选填）</span>
+                    </div>
+                    <textarea
+                        class="cover-letter-textarea"
+                        id="coverLetter"
+                        placeholder="简要介绍您为什么适合这个职位，以及您对这个岗位的期望...&#10;&#10;提示：突出您的项目经验、技术能力和学习态度，将帮助HR更好地了解您！"
+                    ></textarea>
+                </div>
+            </div>
+
+            <div class="apply-modal-footer">
+                <button class="btn-cancel" onclick="closeApplyModal()">取消</button>
+                <button class="btn-submit" onclick="submitApplication()">确认投递</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 打开投递简历模态框
+        function applyJob() {
+            const modal = document.getElementById('applyModal');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // 禁止背景滚动
+        }
+
+        // 关闭投递简历模态框
+        function closeApplyModal() {
+            const modal = document.getElementById('applyModal');
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // 恢复背景滚动
+        }
+
+        // 点击背景关闭模态框
+        document.getElementById('applyModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeApplyModal();
+            }
+        });
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeApplyModal();
+            }
+        });
+
+        // 提交投递
+        function submitApplication() {
+            const coverLetter = document.getElementById('coverLetter').value;
+
+            // 模拟提交过程
+            const submitBtn = event.target;
+            submitBtn.textContent = '投递中...';
+            submitBtn.disabled = true;
+
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                closeApplyModal();
+
+                // 显示成功提示
+                alert('✅ 简历投递成功！\n\n您的简历已成功投递到"华为技术有限公司 - 硬件工程师"职位。\n\n企业HR将在3个工作日内审核您的简历，请耐心等待。\n\n您可以在"投递管理"中查看投递状态。');
+
+                // 重置按钮状态
+                submitBtn.textContent = '确认投递';
+                submitBtn.disabled = false;
+
+                // 清空求职信
+                document.getElementById('coverLetter').value = '';
+
+                // 可选：跳转到投递记录页面
+                setTimeout(() => {
+                    if (confirm('是否前往查看投递记录？')) {
+                        location.href = 'student-applications-sent.html';
+                    }
+                }, 500);
+            }, 1500);
+        }
+
+        // 收藏职位
+        function collectJob() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+
+            if (originalText.includes('收藏')) {
+                btn.textContent = '⭐ 已收藏';
+                btn.style.background = 'rgba(0,137,11,0.1)';
+                btn.style.color = '#00890b';
+                btn.style.borderColor = '#00890b';
+
+                // 显示提示
+                const tipDiv = document.createElement('div');
+                tipDiv.textContent = '✅ 职位已收藏';
+                tipDiv.style.cssText = 'position: fixed; top: 100px; right: 40px; background: #00890b; color: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 9999; animation: slideInRight 0.3s ease;';
+                document.body.appendChild(tipDiv);
+
+                setTimeout(() => {
+                    tipDiv.style.animation = 'slideOutRight 0.3s ease';
+                    setTimeout(() => tipDiv.remove(), 300);
+                }, 2000);
+            } else {
+                btn.textContent = '⭐ 收藏职位';
+                btn.style.background = 'white';
+                btn.style.color = '#00890b';
+                btn.style.borderColor = '#00890b';
+            }
+        }
+
+        // 添加滑入动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOutRight {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

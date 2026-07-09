@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 消息中心</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .notification-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            position: relative;
+        }
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #e74c3c;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 10px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            min-width: 260px;
+            max-width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        .nav-item:hover {
+            background: #f8f9fa;
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: #e8f5e9;
+            color: #00890b;
+            border-left-color: #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 32px 40px;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #999;
+        }
+
+        /* 消息分类标签 */
+        .message-tabs {
+            background: white;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .message-tab {
+            padding: 8px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .message-tab:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .message-tab.active {
+            background: #00890b;
+            color: white;
+            border-color: #00890b;
+        }
+        .message-tab .count {
+            background: rgba(255, 255, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 6px;
+        }
+        .message-tab.active .count {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 操作栏 */
+        .message-actions {
+            background: white;
+            padding: 16px 24px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .message-actions-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .action-btn {
+            padding: 8px 16px;
+            border: 1px solid #e0e0e0;
+            background: white;
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 消息列表 */
+        .messages-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .message-item {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .message-item:hover {
+            background: #f8f9fa;
+        }
+        .message-item.unread {
+            background: #f0f8ff;
+        }
+        .message-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: #00890b;
+        }
+        .message-checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #d0d0d0;
+            border-radius: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .message-checkbox.checked {
+            background: #00890b;
+            border-color: #00890b;
+            position: relative;
+        }
+        .message-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .message-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .message-avatar.system {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .message-avatar.task {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+        }
+        .message-avatar.project {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .message-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+        .message-time {
+            font-size: 13px;
+            color: #999;
+            white-space: nowrap;
+        }
+        .message-body {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .message-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .message-tag {
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .message-tag.system {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .message-tag.task {
+            background: #e8f5e9;
+            color: #00890b;
+        }
+        .message-tag.project {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .message-tag.mention {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+        .message-tag.comment {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;
+        }
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        .empty-state-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .empty-state-desc {
+            font-size: 14px;
+        }
+
+        /* 响应式 */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #3d4647;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -260px;
+                top: 80px;
+                bottom: 0;
+                z-index: 999;
+                transition: left 0.3s;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .mobile-menu-btn {
+                display: block;
+            }
+            .top-bar {
+                padding: 0 20px;
+            }
+            .top-nav-links {
+                display: none;
+            }
+            .main-content {
+                padding: 20px 16px;
+            }
+            .message-tabs {
+                gap: 8px;
+            }
+            .message-item {
+                padding: 16px;
+            }
+        }
+
+        /* 按钮样式 */
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-size: 14px;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button class="notification-btn" onclick="location.href='messages.html'">
+                🔔
+                <span class="notification-badge">12</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="个人中心">用</div>
+        </div>
+    </div>
+
+    <!-- 主布局 -->
+    <div class="layout">
+                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item active">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <h1 class="page-title">💬 消息中心</h1>
+                <p class="page-subtitle">查看和管理所有消息通知</p>
+            </div>
+
+            <!-- 消息分类标签 -->
+            <div class="message-tabs">
+                <button class="message-tab active" onclick="filterMessages('all')" data-category="all">
+                    📬 全部消息 <span class="count">12</span>
+                </button>
+                <button class="message-tab" onclick="filterMessages('system')" data-category="system">
+                    🔔 系统通知 <span class="count">3</span>
+                </button>
+                <button class="message-tab" onclick="filterMessages('task')" data-category="task">
+                    ✅ 任务提醒 <span class="count">5</span>
+                </button>
+                <button class="message-tab" onclick="filterMessages('project')" data-category="project">
+                    📋 项目动态 <span class="count">2</span>
+                </button>
+                <button class="message-tab" onclick="filterMessages('mention')" data-category="mention">
+                    @ @我的 <span class="count">1</span>
+                </button>
+                <button class="message-tab" onclick="filterMessages('comment')" data-category="comment">
+                    💬 评论回复 <span class="count">1</span>
+                </button>
+            </div>
+
+            <!-- 操作栏 -->
+            <div class="message-actions">
+                <div class="message-actions-left">
+                    <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+                        <input type="checkbox" id="selectAll" onchange="toggleSelectAll()" style="width: 16px; height: 16px; cursor: pointer;">
+                        <span style="font-size: 14px; color: #666;">全选</span>
+                    </label>
+                    <button class="action-btn" onclick="markAsRead()">✓ 标记已读</button>
+                    <button class="action-btn" onclick="deleteSelected()">🗑️ 删除</button>
+                </div>
+                <div>
+                    <span id="unreadCount" style="font-size: 14px; color: #666;">未读消息：<strong style="color: #00890b;">8</strong></span>
+                </div>
+            </div>
+
+            <!-- 消息列表 -->
+            <div class="messages-container" id="messagesContainer">
+                <!-- 消息1 - 任务提醒 -->
+                <div class="message-item unread" data-category="task" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar task">📝</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">任务即将到期提醒</div>
+                            <div class="message-time">2分钟前</div>
+                        </div>
+                        <div class="message-body">
+                            您负责的任务"完成智能手环主板PCB设计评审"将于今天 18:00 到期，请及时处理。项目：智能手环 V2.0
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag task">任务提醒</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息2 - @我的 -->
+                <div class="message-item unread" data-category="mention" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar">李明</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">李明 在任务中@了你</div>
+                            <div class="message-time">15分钟前</div>
+                        </div>
+                        <div class="message-body">
+                            @张伟 请帮忙评审一下BOM清单，重点关注MCU和电源管理芯片的选型，谢谢！
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag mention">@提及</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息3 - 系统通知 -->
+                <div class="message-item unread" data-category="system" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar system">🔔</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">系统升级通知</div>
+                            <div class="message-time">1小时前</div>
+                        </div>
+                        <div class="message-body">
+                            EZPLM系统将于今晚 22:00-23:00 进行升级维护，届时可能无法访问。本次升级将带来全新的AI辅助设计功能和性能优化，敬请期待！
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag system">系统通知</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息4 - 任务提醒 -->
+                <div class="message-item unread" data-category="task" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar task">✅</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">新任务分配</div>
+                            <div class="message-time">2小时前</div>
+                        </div>
+                        <div class="message-body">
+                            王芳 为您分配了新任务"完成充电芯片选型和测试"，优先级：高，截止时间：2024-01-28 18:00
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag task">任务提醒</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息5 - 项目动态 -->
+                <div class="message-item unread" data-category="project" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar project">📋</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">项目里程碑达成</div>
+                            <div class="message-time">3小时前</div>
+                        </div>
+                        <div class="message-body">
+                            恭喜！项目"智能手环 V2.0"已完成原型设计阶段，进入测试阶段。团队表现出色，请继续保持！
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag project">项目动态</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息6 - 评论回复 -->
+                <div class="message-item unread" data-category="comment" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar">赵敏</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">赵敏 回复了你的评论</div>
+                            <div class="message-time">4小时前</div>
+                        </div>
+                        <div class="message-body">
+                            关于电源管理方案，我建议使用TI的BQ24195，性价比更高，而且我们之前的项目有使用经验。你觉得怎么样？
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag comment">评论回复</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息7 - 任务提醒（已读） -->
+                <div class="message-item" data-category="task" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar task">✅</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">任务状态变更</div>
+                            <div class="message-time">昨天 16:30</div>
+                        </div>
+                        <div class="message-body">
+                            任务"完成电源电路设计"已被标记为已完成。感谢您的出色工作！
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag task">任务提醒</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息8 - 任务提醒（已读） -->
+                <div class="message-item" data-category="task" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar task">📝</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">任务评论更新</div>
+                            <div class="message-time">昨天 14:20</div>
+                        </div>
+                        <div class="message-body">
+                            李明 在任务"MCU选型评审"中添加了新评论，请查看。
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag task">任务提醒</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息9 - 系统通知（已读） -->
+                <div class="message-item" data-category="system" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar system">🔔</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">云端物料库更新</div>
+                            <div class="message-time">昨天 10:15</div>
+                        </div>
+                        <div class="message-body">
+                            云端物料数据库已更新，新增20000+元器件数据，包括最新的MCU、传感器和电源管理芯片。
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag system">系统通知</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息10 - 项目动态（已读） -->
+                <div class="message-item" data-category="project" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar project">📋</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">项目文档更新</div>
+                            <div class="message-time">2天前</div>
+                        </div>
+                        <div class="message-body">
+                            王芳 在项目"智能手环 V2.0"中上传了新文档"硬件设计规范 v2.1.pdf"
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag project">项目动态</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息11 - 系统通知（已读） -->
+                <div class="message-item" data-category="system" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar system">🎉</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">欢迎使用EZPLM</div>
+                            <div class="message-time">3天前</div>
+                        </div>
+                        <div class="message-body">
+                            欢迎加入EZPLM！这里是您的专属PLM管理平台，开始探索强大的项目管理、物料管理和协作功能吧！
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag system">系统通知</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 消息12 - 任务提醒（已读） -->
+                <div class="message-item" data-category="task" onclick="openMessage(this)">
+                    <div class="message-checkbox" onclick="event.stopPropagation(); toggleCheckbox(this)"></div>
+                    <div class="message-avatar task">✅</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <div class="message-title">任务即将开始</div>
+                            <div class="message-time">3天前</div>
+                        </div>
+                        <div class="message-body">
+                            您参与的任务"原型机组装和调试"将于明天开始，请做好准备。
+                        </div>
+                        <div class="message-meta">
+                            <span class="message-tag task">任务提醒</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+    <script>
+        // 移动端菜单切换
+        function toggleMobileMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // 筛选消息
+        function filterMessages(category) {
+            // 更新标签样式
+            const tabs = document.querySelectorAll('.message-tab');
+            tabs.forEach(tab => {
+                if (tab.getAttribute('data-category') === category) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+
+            // 筛选消息
+            const messages = document.querySelectorAll('.message-item');
+            messages.forEach(msg => {
+                if (category === 'all' || msg.getAttribute('data-category') === category) {
+                    msg.style.display = 'flex';
+                } else {
+                    msg.style.display = 'none';
+                }
+            });
+
+            // 取消所有选中
+            document.getElementById('selectAll').checked = false;
+            document.querySelectorAll('.message-checkbox').forEach(cb => {
+                cb.classList.remove('checked');
+            });
+        }
+
+        // 切换复选框
+        function toggleCheckbox(checkbox) {
+            checkbox.classList.toggle('checked');
+        }
+
+        // 全选/取消全选
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.message-item:not([style*="display: none"]) .message-checkbox');
+
+            checkboxes.forEach(cb => {
+                if (selectAll.checked) {
+                    cb.classList.add('checked');
+                } else {
+                    cb.classList.remove('checked');
+                }
+            });
+        }
+
+        // 标记已读
+        function markAsRead() {
+            const checkedBoxes = document.querySelectorAll('.message-checkbox.checked');
+
+            if (checkedBoxes.length === 0) {
+                alert('⚠️ 请先选择要标记的消息！');
+                return;
+            }
+
+            checkedBoxes.forEach(cb => {
+                const messageItem = cb.closest('.message-item');
+                messageItem.classList.remove('unread');
+                cb.classList.remove('checked');
+            });
+
+            document.getElementById('selectAll').checked = false;
+            updateUnreadCount();
+            alert(`✅ 已标记 ${checkedBoxes.length} 条消息为已读`);
+        }
+
+        // 删除选中的消息
+        function deleteSelected() {
+            const checkedBoxes = document.querySelectorAll('.message-checkbox.checked');
+
+            if (checkedBoxes.length === 0) {
+                alert('⚠️ 请先选择要删除的消息！');
+                return;
+            }
+
+            if (confirm(`确认删除选中的 ${checkedBoxes.length} 条消息吗？此操作无法撤销。`)) {
+                checkedBoxes.forEach(cb => {
+                    const messageItem = cb.closest('.message-item');
+                    messageItem.remove();
+                });
+
+                document.getElementById('selectAll').checked = false;
+                updateUnreadCount();
+                updateMessageCounts();
+                alert(`✅ 已删除 ${checkedBoxes.length} 条消息`);
+            }
+        }
+
+        // 打开消息详情
+        function openMessage(messageItem) {
+            // 标记为已读
+            messageItem.classList.remove('unread');
+            updateUnreadCount();
+
+            // 这里可以打开消息详情模态框
+            // 为了演示，使用alert
+            const title = messageItem.querySelector('.message-title').textContent;
+            const body = messageItem.querySelector('.message-body').textContent;
+            alert(`消息详情\n\n标题：${title}\n\n内容：${body}\n\n（实际应用中这里会打开详细的消息详情页面）`);
+        }
+
+        // 更新未读消息数量
+        function updateUnreadCount() {
+            const unreadMessages = document.querySelectorAll('.message-item.unread');
+            const count = unreadMessages.length;
+            document.getElementById('unreadCount').innerHTML = `未读消息：<strong style="color: #00890b;">${count}</strong>`;
+
+            // 更新铃铛徽章
+            const badge = document.querySelector('.notification-badge');
+            if (badge) {
+                badge.textContent = count;
+                if (count === 0) {
+                    badge.style.display = 'none';
+                } else {
+                    badge.style.display = 'block';
+                }
+            }
+        }
+
+        // 更新各分类消息数量
+        function updateMessageCounts() {
+            const categories = ['all', 'system', 'task', 'project', 'mention', 'comment'];
+
+            categories.forEach(category => {
+                const tab = document.querySelector(`.message-tab[data-category="${category}"]`);
+                if (!tab) return;
+
+                let count;
+                if (category === 'all') {
+                    count = document.querySelectorAll('.message-item').length;
+                } else {
+                    count = document.querySelectorAll(`.message-item[data-category="${category}"]`).length;
+                }
+
+                const countSpan = tab.querySelector('.count');
+                if (countSpan) {
+                    countSpan.textContent = count;
+                }
+            });
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateUnreadCount();
+        });
+    </script>
+</body>
+</html>

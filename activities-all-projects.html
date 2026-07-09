@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的活动项目 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f4; color: #3d4647; }
+
+        /* 顶部导航 */
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-bar-right { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .top-nav-links a:hover { color: #00890b; }
+
+        /* 主内容 */
+        .main-content { max-width: 1440px; margin: 0 auto; padding: 32px; }
+
+        /* 页面标题 */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; }
+        .page-title-section { display: flex; align-items: center; gap: 16px; }
+        .back-btn { background: white; border: 2px solid #e0e0e0; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { border-color: #00890b; color: #00890b; }
+        .page-title { font-size: 32px; font-weight: 800; color: #3d4647; }
+        .create-btn { background: #00890b; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
+        .create-btn:hover { background: #007309; }
+
+        /* 统计卡片 */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
+        .stat-card { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .stat-label { font-size: 14px; color: #666; margin-bottom: 8px; }
+        .stat-value { font-size: 32px; font-weight: 800; color: #00890b; }
+
+        /* 筛选栏 */
+        .filter-bar { background: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .filter-row { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+        .filter-row:last-child { margin-bottom: 0; }
+        .search-input { padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; flex: 1; max-width: 400px; }
+        .search-input:focus { outline: none; border-color: #00890b; }
+        .filter-select { padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; cursor: pointer; min-width: 150px; }
+        .filter-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-tag { padding: 6px 12px; background: rgba(0,137,11,0.1); color: #00890b; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .filter-tag:hover { background: rgba(0,137,11,0.2); }
+        .filter-tag.active { background: #00890b; color: white; }
+
+        /* 项目列表 */
+        .projects-section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .projects-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .projects-count { font-size: 16px; color: #666; }
+        .view-toggle { display: flex; gap: 8px; }
+        .view-btn { padding: 8px 16px; background: white; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; transition: all 0.3s; }
+        .view-btn.active { border-color: #00890b; background: rgba(0,137,11,0.05); color: #00890b; }
+
+        /* 项目卡片 */
+        .project-list { display: grid; gap: 16px; }
+        .project-card { display: flex; padding: 20px; background: #f9f9f9; border-radius: 12px; transition: all 0.3s; cursor: pointer; border: 2px solid transparent; }
+        .project-card:hover { background: white; border-color: #00890b; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,137,11,0.1); }
+        .project-icon { width: 80px; height: 80px; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 36px; flex-shrink: 0; }
+        .project-content { flex: 1; margin-left: 20px; }
+        .project-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px; }
+        .project-name { font-size: 18px; font-weight: 700; color: #3d4647; margin-bottom: 4px; }
+        .project-status { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-active { background: rgba(0,137,11,0.1); color: #00890b; }
+        .status-review { background: rgba(52,152,219,0.1); color: #3498db; }
+        .status-completed { background: rgba(149,165,166,0.1); color: #95a5a6; }
+        .project-meta { display: flex; gap: 20px; margin-bottom: 12px; font-size: 13px; color: #666; }
+        .project-meta-item { display: flex; align-items: center; gap: 6px; }
+        .project-desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 16px; }
+        .project-footer { display: flex; justify-content: space-between; align-items: center; }
+        .project-progress { flex: 1; max-width: 300px; }
+        .progress-info { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px; }
+        .progress-label { color: #666; }
+        .progress-percent { color: #00890b; font-weight: 600; }
+        .progress-bar { width: 100%; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #00890b; border-radius: 4px; transition: width 0.3s; }
+        .project-actions { display: flex; gap: 12px; }
+        .btn-primary { background: #00890b; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
+        .btn-primary:hover { background: #007309; }
+        .btn-secondary { background: white; color: #00890b; border: 2px solid #00890b; padding: 8px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-secondary:hover { background: #00890b; color: white; }
+
+        /* 分页 */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 24px; }
+        .page-btn { padding: 8px 16px; background: white; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; transition: all 0.3s; }
+        .page-btn:hover { border-color: #00890b; color: #00890b; }
+        .page-btn.active { background: #00890b; color: white; border-color: #00890b; }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 页面标题 -->
+        <div class="page-header">
+            <div class="page-title-section">
+                <button class="back-btn" onclick="history.back()">
+                    <span>←</span>
+                    <span>返回</span>
+                </button>
+                <h1 class="page-title">📁 我的活动项目</h1>
+            </div>
+            <button class="create-btn" onclick="location.href='activities.html'">+ 加入新活动</button>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">进行中项目</div>
+                <div class="stat-value">8</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">待审核项目</div>
+                <div class="stat-value">3</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">已完成项目</div>
+                <div class="stat-value">12</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">获奖次数</div>
+                <div class="stat-value">5</div>
+            </div>
+        </div>
+
+        <!-- 筛选栏 -->
+        <div class="filter-bar">
+            <div class="filter-row">
+                <input type="text" class="search-input" placeholder="🔍 搜索项目名称或活动名称">
+                <select class="filter-select">
+                    <option>全部状态</option>
+                    <option>进行中</option>
+                    <option>待审核</option>
+                    <option>已完成</option>
+                    <option>已结束</option>
+                </select>
+                <select class="filter-select">
+                    <option>全部活动类型</option>
+                    <option>电子设计竞赛</option>
+                    <option>毕业设计大赛</option>
+                    <option>创客马拉松</option>
+                    <option>校园挑战赛</option>
+                </select>
+                <select class="filter-select">
+                    <option>按时间排序</option>
+                    <option>最新创建</option>
+                    <option>最近更新</option>
+                    <option>截止时间</option>
+                </select>
+            </div>
+            <div class="filter-row">
+                <div class="filter-tags">
+                    <div class="filter-tag active">全部 (23)</div>
+                    <div class="filter-tag">队长 (8)</div>
+                    <div class="filter-tag">队员 (12)</div>
+                    <div class="filter-tag">个人项目 (3)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 项目列表 -->
+        <div class="projects-section">
+            <div class="projects-header">
+                <div class="projects-count">共 <strong>23</strong> 个项目</div>
+                <div class="view-toggle">
+                    <button class="view-btn active">列表视图</button>
+                    <button class="view-btn">卡片视图</button>
+                </div>
+            </div>
+
+            <div class="project-list">
+                <!-- 项目卡片1 -->
+                <div class="project-card" onclick="location.href='activity-project-detail.html?id=PRJ001&name=ESP32智能小车竞赛'">
+                    <div class="project-icon">🚗</div>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <div>
+                                <div class="project-name">ESP32智能小车竞赛 - 寻迹组</div>
+                                <div class="project-meta">
+                                    <div class="project-meta-item">
+                                        <span>🏆</span>
+                                        <span>2024全国大学生电子设计竞赛</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👤</span>
+                                        <span>队长：张三</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👥</span>
+                                        <span>队员：3人</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>📅</span>
+                                        <span>截止：2024-10-30</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="project-status status-active">进行中</div>
+                        </div>
+                        <div class="project-desc">
+                            使用ESP32开发板实现智能小车自主寻迹功能，包含超声波避障、PID控制算法、摄像头视觉识别等功能模块。
+                        </div>
+                        <div class="project-footer">
+                            <div class="project-progress">
+                                <div class="progress-info">
+                                    <span class="progress-label">项目进度</span>
+                                    <span class="progress-percent">65%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 65%;"></div>
+                                </div>
+                            </div>
+                            <div class="project-actions">
+                                <button class="btn-secondary" onclick="event.stopPropagation(); alert('功能开发中')">团队</button>
+                                <button class="btn-primary" onclick="event.stopPropagation(); location.href='activity-project-detail.html?id=PRJ001'">进入项目</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目卡片2 -->
+                <div class="project-card" onclick="location.href='activity-project-detail.html?id=PRJ002&name=便携式示波器设计'">
+                    <div class="project-icon">📊</div>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <div>
+                                <div class="project-name">便携式示波器设计</div>
+                                <div class="project-meta">
+                                    <div class="project-meta-item">
+                                        <span>🏆</span>
+                                        <span>电子森林毕业设计大赛</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👤</span>
+                                        <span>个人项目</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>📅</span>
+                                        <span>截止：2024-11-15</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="project-status status-active">进行中</div>
+                        </div>
+                        <div class="project-desc">
+                            基于STM32的便携式双通道示波器，支持1MHz采样率、LCD显示、触摸屏操作、波形存储等功能。
+                        </div>
+                        <div class="project-footer">
+                            <div class="project-progress">
+                                <div class="progress-info">
+                                    <span class="progress-label">项目进度</span>
+                                    <span class="progress-percent">40%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 40%;"></div>
+                                </div>
+                            </div>
+                            <div class="project-actions">
+                                <button class="btn-secondary" onclick="event.stopPropagation(); alert('功能开发中')">分享</button>
+                                <button class="btn-primary" onclick="event.stopPropagation(); location.href='activity-project-detail.html?id=PRJ002'">进入项目</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目卡片3 -->
+                <div class="project-card">
+                    <div class="project-icon">🤖</div>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <div>
+                                <div class="project-name">六足机器人控制系统</div>
+                                <div class="project-meta">
+                                    <div class="project-meta-item">
+                                        <span>🏆</span>
+                                        <span>机器人创新大赛</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👤</span>
+                                        <span>队长：李四</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👥</span>
+                                        <span>队员：4人</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>📅</span>
+                                        <span>截止：2024-12-01</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="project-status status-review">待审核</div>
+                        </div>
+                        <div class="project-desc">
+                            设计并实现六足机器人的步态控制算法，支持多种地形适应、远程控制、自主避障等功能。
+                        </div>
+                        <div class="project-footer">
+                            <div class="project-progress">
+                                <div class="progress-info">
+                                    <span class="progress-label">项目进度</span>
+                                    <span class="progress-percent">85%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 85%;"></div>
+                                </div>
+                            </div>
+                            <div class="project-actions">
+                                <button class="btn-secondary" onclick="event.stopPropagation(); alert('功能开发中')">团队</button>
+                                <button class="btn-primary" onclick="event.stopPropagation(); location.href='activity-project-detail.html?id=PRJ003'">进入项目</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目卡片4 -->
+                <div class="project-card">
+                    <div class="project-icon">🎵</div>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <div>
+                                <div class="project-name">智能音乐频谱仪</div>
+                                <div class="project-meta">
+                                    <div class="project-meta-item">
+                                        <span>🏆</span>
+                                        <span>创客马拉松</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👤</span>
+                                        <span>队长：王五</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👥</span>
+                                        <span>队员：2人</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>📅</span>
+                                        <span>截止：2024-09-20</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="project-status status-completed">已完成</div>
+                        </div>
+                        <div class="project-desc">
+                            实时音频采集与FFT频谱分析，LED矩阵动态显示，支持多种显示模式和音乐律动效果。
+                        </div>
+                        <div class="project-footer">
+                            <div class="project-progress">
+                                <div class="progress-info">
+                                    <span class="progress-label">项目进度</span>
+                                    <span class="progress-percent">100%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 100%;"></div>
+                                </div>
+                            </div>
+                            <div class="project-actions">
+                                <button class="btn-secondary" onclick="event.stopPropagation(); alert('功能开发中')">查看成果</button>
+                                <button class="btn-primary" onclick="event.stopPropagation(); location.href='activity-project-detail.html?id=PRJ004'">进入项目</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 项目卡片5 -->
+                <div class="project-card">
+                    <div class="project-icon">💡</div>
+                    <div class="project-content">
+                        <div class="project-header">
+                            <div>
+                                <div class="project-name">智能家居控制中心</div>
+                                <div class="project-meta">
+                                    <div class="project-meta-item">
+                                        <span>🏆</span>
+                                        <span>物联网创新大赛</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👤</span>
+                                        <span>队长：赵六</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>👥</span>
+                                        <span>队员：5人</span>
+                                    </div>
+                                    <div class="project-meta-item">
+                                        <span>📅</span>
+                                        <span>截止：2024-10-25</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="project-status status-active">进行中</div>
+                        </div>
+                        <div class="project-desc">
+                            集成灯光、空调、窗帘等设备控制，支持语音助手、手机APP、触摸屏多种控制方式，实现智能场景联动。
+                        </div>
+                        <div class="project-footer">
+                            <div class="project-progress">
+                                <div class="progress-info">
+                                    <span class="progress-label">项目进度</span>
+                                    <span class="progress-percent">55%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 55%;"></div>
+                                </div>
+                            </div>
+                            <div class="project-actions">
+                                <button class="btn-secondary" onclick="event.stopPropagation(); alert('功能开发中')">团队</button>
+                                <button class="btn-primary" onclick="event.stopPropagation(); location.href='activity-project-detail.html?id=PRJ005'">进入项目</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 分页 -->
+            <div class="pagination">
+                <button class="page-btn">← 上一页</button>
+                <button class="page-btn active">1</button>
+                <button class="page-btn">2</button>
+                <button class="page-btn">3</button>
+                <button class="page-btn">...</button>
+                <button class="page-btn">5</button>
+                <button class="page-btn">下一页 →</button>
+            </div>
+</body>
+</html>

@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>批量询价 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #3d4647;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            border-color: #00890b;
+            color: #00890b;
+            transform: translateX(-4px);
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #007309 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+        .header-stats {
+            display: flex;
+            gap: 32px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+        }
+
+        /* 步骤指示器 */
+        .steps-indicator {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #666;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+        .step.active .step-number {
+            background: #00890b;
+            color: white;
+        }
+        .step-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+        .step.active .step-label {
+            color: #00890b;
+        }
+
+        /* 表单卡片 */
+        .form-card {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* 物料列表 */
+        .material-list {
+            margin-bottom: 24px;
+        }
+        .material-item {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            transition: all 0.3s;
+        }
+        .material-item:hover {
+            border-color: #00890b;
+            background: rgba(0,137,11,0.02);
+        }
+        .material-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 16px;
+        }
+        .material-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 6px;
+        }
+        .material-desc {
+            font-size: 14px;
+            color: #666;
+        }
+        .material-remove {
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #dc2626;
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .material-remove:hover {
+            border-color: #dc2626;
+            background: #fef2f2;
+        }
+        .material-info-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .material-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .input-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+        }
+        .material-input {
+            padding: 10px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .material-input:focus {
+            outline: none;
+            border-color: #00890b;
+            box-shadow: 0 0 0 3px rgba(0,137,11,0.1);
+        }
+        .supplier-match {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #dcfce7;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #00890b;
+            font-weight: 600;
+        }
+
+        /* 供应商选择 */
+        .supplier-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .supplier-checkbox {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            padding: 16px;
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .supplier-checkbox:hover {
+            border-color: #00890b;
+            background: rgba(0,137,11,0.02);
+        }
+        .supplier-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            margin-top: 4px;
+        }
+        .supplier-checkbox.checked {
+            border-color: #00890b;
+            background: rgba(0,137,11,0.05);
+        }
+        .supplier-info {
+            flex: 1;
+        }
+        .supplier-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+        .supplier-rating {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .supplier-coverage {
+            font-size: 13px;
+            color: #00890b;
+            font-weight: 600;
+        }
+
+        /* 统一设置 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+            box-shadow: 0 0 0 3px rgba(0,137,11,0.1);
+        }
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* 预览清单 */
+        .preview-card {
+            background: #f9f9f9;
+            border: 2px solid #00890b;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+        .preview-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00890b;
+            margin-bottom: 16px;
+        }
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .preview-table th,
+        .preview-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .preview-table th {
+            background: #f9f9f9;
+            font-weight: 700;
+            color: #3d4647;
+            font-size: 13px;
+        }
+        .preview-table td {
+            font-size: 14px;
+            color: #3d4647;
+        }
+        .preview-summary {
+            margin-top: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .summary-label {
+            font-size: 13px;
+            color: #666;
+        }
+        .summary-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+
+        /* 按钮 */
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: #007309;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,137,11,0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            padding: 12px 28px;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .btn-text {
+            background: none;
+            border: none;
+            color: #00890b;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding-top: 24px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            padding: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .modal-close:hover {
+            background: #e0e0e0;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .search-box {
+            position: relative;
+            margin-bottom: 24px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 44px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: #00890b;
+            box-shadow: 0 0 0 3px rgba(0,137,11,0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #999;
+        }
+        .material-search-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .material-search-item {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .material-search-item:hover {
+            border-color: #00890b;
+            background: rgba(0,137,11,0.02);
+        }
+        .material-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        .material-details {
+            flex: 1;
+        }
+        .material-model {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+        .material-spec {
+            font-size: 13px;
+            color: #666;
+        }
+        .material-stock {
+            font-size: 13px;
+            color: #00890b;
+            font-weight: 600;
+        }
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        /* 提交确认卡片 */
+        .confirm-card {
+            background: #f9f9f9;
+            border: 2px solid #00890b;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+        .confirm-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #00890b;
+            margin-bottom: 12px;
+        }
+        .confirm-detail {
+            font-size: 14px;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item active">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <a href="procurement.html" class="back-button">
+                ← 返回采购管理
+            </a>
+
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">📦 批量询价</div>
+                    <div class="page-subtitle">一次性向多个供应商询价多个物料，提高采购效率</div>
+                </div>
+                <div class="header-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">物料数量</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">目标供应商</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 步骤指示器 -->
+            <div class="steps-indicator">
+                <div class="step active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">设置物料信息</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-label">选择供应商</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-label">预览并提交</div>
+                </div>
+            </div>
+
+            <!-- 物料列表 -->
+            <div class="form-card">
+                <div class="section-title">
+                    <span>📋 已选物料清单</span>
+                    <button class="btn-text" onclick="addMaterial()">+ 添加更多物料</button>
+                </div>
+
+                <div class="material-list">
+                    <!-- 物料 1 -->
+                    <div class="material-item">
+                        <div class="material-header">
+                            <div>
+                                <div class="material-name">STM32F407VGT6</div>
+                                <div class="material-desc">ARM Cortex-M4 MCU | LQFP-100 | STMicroelectronics</div>
+                            </div>
+                            <button class="material-remove" onclick="removeMaterial(this)">移除</button>
+                        </div>
+
+                        <div class="material-info-row">
+                            <div class="material-input-group">
+                                <label class="input-label">采购数量</label>
+                                <input type="number" class="material-input" value="500" min="1">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">期望单价 (¥)</label>
+                                <input type="number" class="material-input" value="28.00" step="0.01">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">当前库存</label>
+                                <input type="text" class="material-input" value="120 片" readonly>
+                            </div>
+                        </div>
+
+                        <div class="supplier-match">
+                            🎯 找到 3 家供应商可供货 | 最低价 ¥28.50/片 | 节省 10.9%
+                        </div>
+                    </div>
+
+                    <!-- 物料 2 -->
+                    <div class="material-item">
+                        <div class="material-header">
+                            <div>
+                                <div class="material-name">Nordic nRF52840</div>
+                                <div class="material-desc">BLE 5.0/5.1 SoC | ARM Cortex-M4 | QFN-73 | Nordic</div>
+                            </div>
+                            <button class="material-remove" onclick="removeMaterial(this)">移除</button>
+                        </div>
+
+                        <div class="material-info-row">
+                            <div class="material-input-group">
+                                <label class="input-label">采购数量</label>
+                                <input type="number" class="material-input" value="300" min="1">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">期望单价 (¥)</label>
+                                <input type="number" class="material-input" value="32.00" step="0.01">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">当前库存</label>
+                                <input type="text" class="material-input" value="85 片" readonly>
+                            </div>
+                        </div>
+
+                        <div class="supplier-match">
+                            🎯 找到 2 家供应商可供货 | 最低价 ¥32.00/片 | 节省 15.8%
+                        </div>
+                    </div>
+
+                    <!-- 物料 3 -->
+                    <div class="material-item">
+                        <div class="material-header">
+                            <div>
+                                <div class="material-name">TI TPS54620</div>
+                                <div class="material-desc">6A降压转换器 | SOT-23-6 | Texas Instruments</div>
+                            </div>
+                            <button class="material-remove" onclick="removeMaterial(this)">移除</button>
+                        </div>
+
+                        <div class="material-info-row">
+                            <div class="material-input-group">
+                                <label class="input-label">采购数量</label>
+                                <input type="number" class="material-input" value="1000" min="1">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">期望单价 (¥)</label>
+                                <input type="number" class="material-input" value="8.00" step="0.01">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">当前库存</label>
+                                <input type="text" class="material-input" value="450 片" readonly>
+                            </div>
+                        </div>
+
+                        <div class="supplier-match">
+                            🎯 找到 4 家供应商可供货 | 最低价 ¥8.20/片 | 节省 12.5%
+                        </div>
+                    </div>
+
+                    <!-- 物料 4 -->
+                    <div class="material-item">
+                        <div class="material-header">
+                            <div>
+                                <div class="material-name">ESP32-WROOM-32</div>
+                                <div class="material-desc">WiFi+BT模块 | SMD-38 | Espressif</div>
+                            </div>
+                            <button class="material-remove" onclick="removeMaterial(this)">移除</button>
+                        </div>
+
+                        <div class="material-info-row">
+                            <div class="material-input-group">
+                                <label class="input-label">采购数量</label>
+                                <input type="number" class="material-input" value="800" min="1">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">期望单价 (¥)</label>
+                                <input type="number" class="material-input" value="15.00" step="0.01">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">当前库存</label>
+                                <input type="text" class="material-input" value="230 片" readonly>
+                            </div>
+                        </div>
+
+                        <div class="supplier-match">
+                            🎯 找到 3 家供应商可供货 | 最低价 ¥15.50/片 | 节省 8.3%
+                        </div>
+                    </div>
+
+                    <!-- 物料 5 -->
+                    <div class="material-item">
+                        <div class="material-header">
+                            <div>
+                                <div class="material-name">MCP2515-I/SO</div>
+                                <div class="material-desc">CAN控制器 | SOIC-18 | Microchip</div>
+                            </div>
+                            <button class="material-remove" onclick="removeMaterial(this)">移除</button>
+                        </div>
+
+                        <div class="material-info-row">
+                            <div class="material-input-group">
+                                <label class="input-label">采购数量</label>
+                                <input type="number" class="material-input" value="400" min="1">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">期望单价 (¥)</label>
+                                <input type="number" class="material-input" value="12.00" step="0.01">
+                            </div>
+                            <div class="material-input-group">
+                                <label class="input-label">当前库存</label>
+                                <input type="text" class="material-input" value="180 片" readonly>
+                            </div>
+                        </div>
+
+                        <div class="supplier-match">
+                            🎯 找到 2 家供应商可供货 | 最低价 ¥12.50/片 | 节省 6.7%
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 批量选择供应商 -->
+            <div class="form-card">
+                <div class="section-title">
+                    <span>🏢 批量选择供应商</span>
+                    <span style="font-size: 13px; font-weight: 500; color: #666;">选择的供应商将收到所有物料的询价</span>
+                </div>
+
+                <div class="supplier-grid">
+                    <label class="supplier-checkbox checked">
+                        <input type="checkbox" name="supplier" value="supplier1" checked onchange="toggleSupplierCheck(this)">
+                        <div class="supplier-info">
+                            <div class="supplier-name">深圳芯片之家电子</div>
+                            <div class="supplier-rating">⭐⭐⭐⭐⭐ 5.0分 | 快速响应</div>
+                            <div class="supplier-coverage">可供货 5/5 个物料 (100%)</div>
+                        </div>
+                    </label>
+
+                    <label class="supplier-checkbox checked">
+                        <input type="checkbox" name="supplier" value="supplier2" checked onchange="toggleSupplierCheck(this)">
+                        <div class="supplier-info">
+                            <div class="supplier-name">华强北电子市场</div>
+                            <div class="supplier-rating">⭐⭐⭐⭐ 4.5分 | 快速发货</div>
+                            <div class="supplier-coverage">可供货 4/5 个物料 (80%)</div>
+                        </div>
+                    </label>
+
+                    <label class="supplier-checkbox checked">
+                        <input type="checkbox" name="supplier" value="supplier3" checked onchange="toggleSupplierCheck(this)">
+                        <div class="supplier-info">
+                            <div class="supplier-name">元器件在线商城</div>
+                            <div class="supplier-rating">⭐⭐⭐⭐ 4.2分</div>
+                            <div class="supplier-coverage">可供货 3/5 个物料 (60%)</div>
+                        </div>
+                    </label>
+
+                    <label class="supplier-checkbox">
+                        <input type="checkbox" name="supplier" value="supplier4" onchange="toggleSupplierCheck(this)">
+                        <div class="supplier-info">
+                            <div class="supplier-name">广州电子元件城</div>
+                            <div class="supplier-rating">⭐⭐⭐⭐ 4.3分</div>
+                            <div class="supplier-coverage">可供货 3/5 个物料 (60%)</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 统一设置 -->
+            <div class="form-card">
+                <div class="section-title">⚙️ 统一设置</div>
+
+                <div class="form-group">
+                    <label class="form-label">交期要求</label>
+                    <select class="form-select">
+                        <option value="">请选择统一交期要求</option>
+                        <option value="1-3">1-3天内</option>
+                        <option value="3-5" selected>3-5天内</option>
+                        <option value="5-7">5-7天内</option>
+                        <option value="7-14">7-14天内</option>
+                        <option value="custom">各物料单独协商</option>
+                    </select>
+                    <div class="form-hint">选择统一的交期要求，或选择单独协商</div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">质量要求</label>
+                    <select class="form-select">
+                        <option value="original" selected>统一要求原装正品</option>
+                        <option value="alternative">可接受替代料</option>
+                        <option value="mixed">根据物料不同要求</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">需求说明</label>
+                    <textarea class="form-textarea" placeholder="统一的需求说明将应用到所有物料...">需要批量采购以上物料用于产品生产。所有物料要求原装正品，需提供原厂证明。支持货到付款或月结。期望3-5天内交货。</textarea>
+                    <div class="form-hint">此说明将应用到所有物料的询价中</div>
+                </div>
+            </div>
+
+            <!-- 预览询价清单 -->
+            <div class="form-card">
+                <div class="section-title">📄 预览询价清单</div>
+
+                <div class="preview-card">
+                    <div class="preview-title">即将向 3 家供应商发起询价</div>
+
+                    <table class="preview-table">
+                        <thead>
+                            <tr>
+                                <th>物料型号</th>
+                                <th>采购数量</th>
+                                <th>期望单价</th>
+                                <th>匹配供应商</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>STM32F407VGT6</strong></td>
+                                <td>500 片</td>
+                                <td>¥28.00</td>
+                                <td>3 家</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Nordic nRF52840</strong></td>
+                                <td>300 片</td>
+                                <td>¥32.00</td>
+                                <td>2 家</td>
+                            </tr>
+                            <tr>
+                                <td><strong>TI TPS54620</strong></td>
+                                <td>1000 片</td>
+                                <td>¥8.00</td>
+                                <td>3 家</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ESP32-WROOM-32</strong></td>
+                                <td>800 片</td>
+                                <td>¥15.00</td>
+                                <td>3 家</td>
+                            </tr>
+                            <tr>
+                                <td><strong>MCP2515-I/SO</strong></td>
+                                <td>400 片</td>
+                                <td>¥12.00</td>
+                                <td>2 家</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="preview-summary">
+                        <div class="summary-item">
+                            <div class="summary-label">总物料数</div>
+                            <div class="summary-value">5 个</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">总数量</div>
+                            <div class="summary-value">3,000 片</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">预估金额</div>
+                            <div class="summary-value">¥38,200</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">目标供应商</div>
+                            <div class="summary-value">3 家</div>
+                        </div>
+                        <div class="summary-item">
+                            <div class="summary-label">预计节省</div>
+                            <div class="summary-value" style="color: #00890b;">¥3,850</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 表单操作 -->
+            <div class="form-card">
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="saveDraft()">保存草稿</button>
+                    <button type="button" class="btn-primary" onclick="submitBatchInquiry()">批量提交询价</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加物料模态框 -->
+    <div class="modal" id="addMaterialModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🔍 添加物料到询价清单</div>
+                <button class="modal-close" onclick="closeAddMaterialModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="search-box">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" placeholder="搜索物料型号或描述..." id="materialSearchInput" oninput="searchMaterials()">
+                </div>
+
+                <div class="material-search-list" id="materialSearchResults">
+                    <!-- 搜索结果将动态插入这里 -->
+                    <div class="material-search-item">
+                        <input type="checkbox" class="material-checkbox" value="ATmega328P-PU">
+                        <div class="material-details">
+                            <div class="material-model">ATmega328P-PU</div>
+                            <div class="material-spec">8位AVR MCU | DIP-28 | Microchip</div>
+                            <div class="material-stock">库存: 350片 | 3家供应商</div>
+                        </div>
+                    </div>
+
+                    <div class="material-search-item">
+                        <input type="checkbox" class="material-checkbox" value="LM358N">
+                        <div class="material-details">
+                            <div class="material-model">LM358N</div>
+                            <div class="material-spec">双运放 | DIP-8 | Texas Instruments</div>
+                            <div class="material-stock">库存: 500片 | 5家供应商</div>
+                        </div>
+                    </div>
+
+                    <div class="material-search-item">
+                        <input type="checkbox" class="material-checkbox" value="SSD1306">
+                        <div class="material-details">
+                            <div class="material-model">SSD1306</div>
+                            <div class="material-spec">OLED驱动器 | LQFP-64 | Solomon Systech</div>
+                            <div class="material-stock">库存: 280片 | 4家供应商</div>
+                        </div>
+                    </div>
+
+                    <div class="material-search-item">
+                        <input type="checkbox" class="material-checkbox" value="74HC595">
+                        <div class="material-details">
+                            <div class="material-model">74HC595</div>
+                            <div class="material-spec">8位移位寄存器 | SOIC-16 | NXP</div>
+                            <div class="material-stock">库存: 600片 | 6家供应商</div>
+                        </div>
+                    </div>
+
+                    <div class="material-search-item">
+                        <input type="checkbox" class="material-checkbox" value="AMS1117-3.3">
+                        <div class="material-details">
+                            <div class="material-model">AMS1117-3.3</div>
+                            <div class="material-spec">LDO稳压器 | SOT-223 | Advanced Monolithic</div>
+                            <div class="material-stock">库存: 450片 | 4家供应商</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAddMaterialModal()">取消</button>
+                <button class="btn-primary" onclick="confirmAddMaterials()">添加选中物料</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 已选物料计数器
+        let materialCount = 5;
+
+        function toggleSupplierCheck(checkbox) {
+            const label = checkbox.closest('.supplier-checkbox');
+            if (checkbox.checked) {
+                label.classList.add('checked');
+            } else {
+                label.classList.remove('checked');
+            }
+        }
+
+        function removeMaterial(button) {
+            if (confirm('确认移除此物料？')) {
+                const item = button.closest('.material-item');
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                setTimeout(() => {
+                    item.remove();
+                    updateStats();
+                }, 300);
+            }
+        }
+
+        // 打开添加物料模态框
+        function addMaterial() {
+            const modal = document.getElementById('addMaterialModal');
+            modal.classList.add('show');
+            // 重置搜索框
+            document.getElementById('materialSearchInput').value = '';
+            // 取消所有选中
+            document.querySelectorAll('.material-checkbox').forEach(cb => cb.checked = false);
+        }
+
+        // 关闭添加物料模态框
+        function closeAddMaterialModal() {
+            const modal = document.getElementById('addMaterialModal');
+            modal.classList.remove('show');
+        }
+
+        // 搜索物料
+        function searchMaterials() {
+            const searchTerm = document.getElementById('materialSearchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.material-search-item');
+
+            items.forEach(item => {
+                const model = item.querySelector('.material-model').textContent.toLowerCase();
+                const spec = item.querySelector('.material-spec').textContent.toLowerCase();
+
+                if (model.includes(searchTerm) || spec.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // 确认添加选中的物料
+        function confirmAddMaterials() {
+            const selectedCheckboxes = Array.from(document.querySelectorAll('.material-checkbox:checked'));
+
+            if (selectedCheckboxes.length === 0) {
+                alert('请至少选择一个物料');
+                return;
+            }
+
+            const materialList = document.querySelector('.material-list');
+
+            selectedCheckboxes.forEach(checkbox => {
+                const item = checkbox.closest('.material-search-item');
+                const model = item.querySelector('.material-model').textContent;
+                const spec = item.querySelector('.material-spec').textContent;
+
+                // 创建新的物料项
+                materialCount++;
+                const newMaterial = createMaterialItem(model, spec, materialCount);
+                materialList.insertAdjacentHTML('beforeend', newMaterial);
+            });
+
+            // 更新统计
+            updateStats();
+
+            // 显示成功提示
+            alert(`成功添加 ${selectedCheckboxes.length} 个物料到询价清单`);
+
+            // 关闭模态框
+            closeAddMaterialModal();
+        }
+
+        // 创建物料项HTML
+        function createMaterialItem(model, spec, index) {
+            const randomSuppliers = Math.floor(Math.random() * 4) + 2; // 2-5家供应商
+            const randomQty = (Math.floor(Math.random() * 10) + 1) * 100; // 100-1000
+            const randomPrice = (Math.random() * 20 + 5).toFixed(2); // 5-25元
+            const randomStock = Math.floor(Math.random() * 400) + 50; // 50-450片
+            const randomSave = (Math.random() * 10 + 5).toFixed(1); // 5-15%
+
+            return `
+                <div class="material-item">
+                    <div class="material-header">
+                        <div>
+                            <div class="material-name">${model}</div>
+                            <div class="material-desc">${spec}</div>
+                        </div>
+                        <button class="material-remove" onclick="removeMaterial(this)">移除</button>
+                    </div>
+
+                    <div class="material-info-row">
+                        <div class="material-input-group">
+                            <label class="input-label">采购数量</label>
+                            <input type="number" class="material-input" value="${randomQty}" min="1" oninput="updateStats()">
+                        </div>
+                        <div class="material-input-group">
+                            <label class="input-label">期望单价 (¥)</label>
+                            <input type="number" class="material-input" value="${randomPrice}" step="0.01" oninput="updateStats()">
+                        </div>
+                        <div class="material-input-group">
+                            <label class="input-label">当前库存</label>
+                            <input type="text" class="material-input" value="${randomStock} 片" readonly>
+                        </div>
+                    </div>
+
+                    <div class="supplier-match">
+                        🎯 找到 ${randomSuppliers} 家供应商可供货 | 最低价 ¥${randomPrice}/片 | 节省 ${randomSave}%
+            `;
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            const materialItems = document.querySelectorAll('.material-item');
+            let totalQty = 0;
+            let totalAmount = 0;
+
+            materialItems.forEach(item => {
+                const qty = parseFloat(item.querySelector('input[type="number"]').value) || 0;
+                const price = parseFloat(item.querySelectorAll('input[type="number"]')[1].value) || 0;
+                totalQty += qty;
+                totalAmount += qty * price;
+            });
+
+            // 更新头部统计
+            const statValues = document.querySelectorAll('.header-stats .stat-value');
+            if (statValues.length >= 2) {
+                statValues[0].textContent = materialItems.length;
+            }
+
+            // 更新预览表格
+            const previewTable = document.querySelector('.preview-table tbody');
+            if (previewTable) {
+                previewTable.innerHTML = '';
+                materialItems.forEach(item => {
+                    const model = item.querySelector('.material-name').textContent;
+                    const qty = item.querySelector('input[type="number"]').value;
+                    const price = item.querySelectorAll('input[type="number"]')[1].value;
+                    const suppliers = item.querySelector('.supplier-match').textContent.match(/\d+/)[0];
+
+                    previewTable.innerHTML += `
+                        <tr>
+                            <td><strong>${model}</strong></td>
+                            <td>${qty} 片</td>
+                            <td>¥${price}</td>
+                            <td>${suppliers} 家</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // 更新预览统计
+            const summaryValues = document.querySelectorAll('.summary-value');
+            if (summaryValues.length >= 3) {
+                summaryValues[0].textContent = `${materialItems.length} 个`;
+                summaryValues[1].textContent = `${totalQty.toLocaleString()} 片`;
+                summaryValues[2].textContent = `¥${totalAmount.toLocaleString()}`;
+            }
+        }
+
+        // 保存草稿
+        function saveDraft() {
+            const materialItems = document.querySelectorAll('.material-item');
+            const checkedSuppliers = document.querySelectorAll('input[name="supplier"]:checked');
+
+            if (materialItems.length === 0) {
+                alert('请先添加物料');
+                return;
+            }
+
+            // 模拟保存草稿
+            const draftData = {
+                materials: materialItems.length,
+                suppliers: checkedSuppliers.length,
+                timestamp: new Date().toLocaleString()
+            };
+
+            console.log('保存草稿:', draftData);
+            alert(`✅ 批量询价单已保存为草稿\n\n物料数量: ${draftData.materials}\n供应商数量: ${draftData.suppliers}\n保存时间: ${draftData.timestamp}\n\n您可以稍后继续编辑并提交。`);
+        }
+
+        // 批量提交询价
+        function submitBatchInquiry() {
+            const checkedSuppliers = document.querySelectorAll('input[name="supplier"]:checked');
+            const materialItems = document.querySelectorAll('.material-item');
+
+            // 验证
+            if (materialItems.length === 0) {
+                alert('❌ 请先添加物料到询价清单');
+                return;
+            }
+
+            if (checkedSuppliers.length === 0) {
+                alert('❌ 请至少选择一家供应商');
+                return;
+            }
+
+            // 收集供应商名称
+            const supplierNames = Array.from(checkedSuppliers).map(cb => {
+                return cb.closest('.supplier-checkbox').querySelector('.supplier-name').textContent;
+            });
+
+            // 计算总金额
+            let totalAmount = 0;
+            let totalQty = 0;
+            materialItems.forEach(item => {
+                const qty = parseFloat(item.querySelector('input[type="number"]').value) || 0;
+                const price = parseFloat(item.querySelectorAll('input[type="number"]')[1].value) || 0;
+                totalQty += qty;
+                totalAmount += qty * price;
+            });
+
+            const estimatedSave = (totalAmount * 0.10).toFixed(0); // 假设节省10%
+
+            // 确认提交
+            const confirmMsg = `📦 确认批量提交询价\n\n━━━━━━━━━━━━━━━━━━\n📋 物料数量: ${materialItems.length} 个\n📦 总数量: ${totalQty.toLocaleString()} 片\n💰 预估金额: ¥${totalAmount.toLocaleString()}\n💚 预计节省: ¥${estimatedSave}\n━━━━━━━━━━━━━━━━━━\n\n🏢 目标供应商 (${checkedSuppliers.length}家):\n${supplierNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}\n\n━━━━━━━━━━━━━━━━━━\n\n是否确认提交？`;
+
+            if (confirm(confirmMsg)) {
+                // 显示提交成功
+                setTimeout(() => {
+                    alert(`✅ 批量询价单提交成功！\n\n━━━━━━━━━━━━━━━━━━\n📨 询价单编号: BIQ${Date.now().toString().slice(-8)}\n📅 提交时间: ${new Date().toLocaleString()}\n\n🏢 已向以下供应商发送询价:\n${supplierNames.map((name, i) => `${i + 1}. ${name}`).join('\n')}\n\n━━━━━━━━━━━━━━━━━━\n⏰ 供应商将在24小时内回复报价\n📧 您将收到邮件和站内通知\n\n感谢使用EZPLM元器件供货平台！`);
+
+                    // 跳转回供货平台
+                    setTimeout(() => {
+                        location.href = 'component-supply-inquiry-list.html';
+                    }, 500);
+                }, 300);
+            }
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('addMaterialModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeAddMaterialModal();
+            }
+        });
+    </script>
+</body>
+</html>

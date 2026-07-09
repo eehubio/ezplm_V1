@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 入库管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; }
+        .top-bar-right { display: flex; align-items: center; gap: 16px; }
+        .main-content { padding: 32px; max-width: 1440px; margin: 0 auto; }
+        .page-header {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .content-section {
+            background: white;
+            padding: 32px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f8f9fa;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        td {
+            padding: 16px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='approval-center.html'">
+                ✅
+                <span style="position: absolute; top: -4px; right: -4px; background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">8</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="个人中心">用</div>
+        </div>
+    </div>
+    <div class="main-content">
+
+        <div class="page-header">
+            <div class="page-title">📦 入库管理</div>
+            <div class="page-subtitle">管理物料入库、质检、上架全流程</div>
+        </div>
+
+        <div class="content-section">
+            <div class="section-title">待入库单据</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>入库单号</th>
+                        <th>入库理由</th>
+                        <th>关联单号</th>
+                        <th>来源</th>
+                        <th>物料名称</th>
+                        <th>数量</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>IN-2025-001</td>
+                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">📦 采购入库</span></td>
+                        <td>PO-2025-001</td>
+                        <td>深圳XX电子</td>
+                        <td>STM32F407VGT6</td>
+                        <td>2,000片</td>
+                        <td><span style="color: #f39c12;">⏳ 待质检</span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="startQC(1)" style="margin-right: 8px;">开始质检</button>
+                            <button class="btn" onclick="cancelOrder('IN-2025-001')" style="background: #ff4d4f; color: white; border: none;">取消订单</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>IN-2025-002</td>
+                        <td><span style="background: #e3f2fd; color: #1976d2; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">📦 采购入库</span></td>
+                        <td>PO-2025-005</td>
+                        <td>北京YY科技</td>
+                        <td>温湿度传感器</td>
+                        <td>500个</td>
+                        <td><span style="color: #00890b;">✓ 已入库</span></td>
+                        <td>
+                            <button class="btn" style="background: #f5f5f5; margin-right: 8px;">查看详情</button>
+                            <button class="btn" onclick="printInboundReceipt('IN-2025-002')" style="background: #1890ff; color: white; border: none;">📄 打印入库单</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>IN-2025-003</td>
+                        <td><span style="background: #e8f5e9; color: #00890b; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">🏭 生产入库</span></td>
+                        <td>PROD-2025-001</td>
+                        <td>生产车间A</td>
+                        <td>智能家居控制器v2.0</td>
+                        <td>100台</td>
+                        <td><span style="color: #f39c12;">⏳ 待质检</span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="startQC(3)" style="margin-right: 8px;">开始质检</button>
+                            <button class="btn" onclick="cancelOrder('IN-2025-003')" style="background: #ff4d4f; color: white; border: none;">取消订单</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>IN-2025-004</td>
+                        <td><span style="background: #fff3e0; color: #f57c00; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">🔄 退货入库</span></td>
+                        <td>RET-2025-001</td>
+                        <td>深圳XX电子</td>
+                        <td>不合格MCU芯片</td>
+                        <td>50片</td>
+                        <td><span style="color: #00890b;">✓ 已入库</span></td>
+                        <td>
+                            <button class="btn" style="background: #f5f5f5; margin-right: 8px;">查看详情</button>
+                            <button class="btn" onclick="printInboundReceipt('IN-2025-004')" style="background: #1890ff; color: white; border: none;">📄 打印入库单</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            function startQC(id) {
+                if (confirm('开始质检流程？')) {
+                    alert('✓ 已创建质检任务，请前往质检管理进行检验');
+                    location.href = 'quality-inspection.html';
+                }
+            }
+
+            // 取消入库订单功能
+            function cancelOrder(orderId) {
+                const confirmMsg = `确定要取消入库订单 ${orderId} 吗？\n\n取消后：\n• 订单将被标记为已取消\n• 物料不会入库\n• 关联的采购订单/生产单将收到通知\n\n此操作不可撤销！`;
+
+                if (confirm(confirmMsg)) {
+                    // 模拟取消订单操作
+                    console.log('取消订单:', orderId);
+
+                    // 显示成功消息
+                    alert(`✅ 订单 ${orderId} 已成功取消！\n\n系统已：\n• 更新订单状态为"已取消"\n• 通知相关部门\n• 记录操作日志\n\n页面将刷新以显示最新状态。`);
+
+                    // 刷新页面
+                    location.reload();
+                }
+            }
+
+            // 打印入库单功能
+            function printInboundReceipt(orderId) {
+                // 模拟获取入库单数据
+                const receiptData = {
+                    'IN-2025-002': {
+                        orderNo: 'IN-2025-002',
+                        type: '采购入库',
+                        relatedNo: 'PO-2025-005',
+                        supplier: '北京YY科技',
+                        material: '温湿度传感器',
+                        quantity: '500个',
+                        inboundDate: '2025-10-15',
+                        operator: '张三',
+                        checker: '李四'
+                    },
+                    'IN-2025-004': {
+                        orderNo: 'IN-2025-004',
+                        type: '退货入库',
+                        relatedNo: 'RET-2025-001',
+                        supplier: '深圳XX电子',
+                        material: '不合格MCU芯片',
+                        quantity: '50片',
+                        inboundDate: '2025-10-18',
+                        operator: '王五',
+                        checker: '赵六'
+                    }
+                };
+
+                const data = receiptData[orderId];
+                if (!data) {
+                    alert('❌ 未找到入库单数据');
+                    return;
+                }
+
+                // 生成打印内容
+                const printContent = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <title>入库单 - ${data.orderNo}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; padding: 40px; }
+                            .header { text-align: center; margin-bottom: 30px; }
+                            .header h1 { font-size: 28px; margin: 0; }
+                            .header p { font-size: 14px; color: #666; margin: 5px 0; }
+                            .info-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            .info-table td { padding: 12px; border: 1px solid #ddd; }
+                            .info-table td:first-child { background: #f5f5f5; font-weight: bold; width: 150px; }
+                            .footer { margin-top: 50px; display: flex; justify-content: space-between; }
+                            .signature { text-align: center; }
+                            .signature-line { border-top: 1px solid #000; width: 150px; margin-top: 50px; padding-top: 5px; }
+                            @media print { body { padding: 20px; } }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>物料入库单</h1>
+                            <p>EZPLM库存管理系统</p>
+                            <p>单号：${data.orderNo}</p>
+                        </div>
+
+                        <table class="info-table">
+                            <tr>
+                                <td>入库单号</td>
+                                <td>${data.orderNo}</td>
+                                <td>入库类型</td>
+                                <td>${data.type}</td>
+                            </tr>
+                            <tr>
+                                <td>关联单号</td>
+                                <td>${data.relatedNo}</td>
+                                <td>供应商/来源</td>
+                                <td>${data.supplier}</td>
+                            </tr>
+                            <tr>
+                                <td>物料名称</td>
+                                <td colspan="3">${data.material}</td>
+                            </tr>
+                            <tr>
+                                <td>入库数量</td>
+                                <td>${data.quantity}</td>
+                                <td>入库日期</td>
+                                <td>${data.inboundDate}</td>
+                            </tr>
+                            <tr>
+                                <td>操作员</td>
+                                <td>${data.operator}</td>
+                                <td>质检员</td>
+                                <td>${data.checker}</td>
+                            </tr>
+                        </table>
+
+                        <div class="footer">
+                            <div class="signature">
+                                <div class="signature-line">仓库主管签字</div>
+                            </div>
+                            <div class="signature">
+                                <div class="signature-line">财务签字</div>
+                            </div>
+                            <div class="signature">
+                                <div class="signature-line">日期</div>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `;
+
+                // 打开新窗口打印
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(printContent);
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
+            }
+        </script>
+        
+    </div>
+</body>
+</html>

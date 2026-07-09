@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 采购单详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .notification-bell {
+            font-size: 20px;
+            color: #3d4647;
+            cursor: pointer;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+
+        /* 主内容 */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+            padding: 30px 35px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0, 137, 11, 0.2);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .po-number {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .po-name {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        .btn-white {
+            background: white;
+            color: #00890b;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .btn-white:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .info-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+        }
+        .info-label {
+            font-size: 12px;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+        .info-value {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* 状态徽章 */
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-draft { background: rgba(149, 165, 166, 0.2); color: white; }
+        .status-pending { background: rgba(255, 193, 7, 0.3); color: white; }
+        .status-approved { background: rgba(255, 255, 255, 0.3); color: white; }
+        .status-received { background: rgba(52, 152, 219, 0.3); color: white; }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        /* 物料表格 */
+        .material-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .material-table th {
+            background: #f9f9f9;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            color: #666;
+            font-weight: 700;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .material-table td {
+            padding: 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .material-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* 审批流程 */
+        .approval-flow {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .approval-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+        .approval-step::after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -10px;
+            width: 20px;
+            height: 2px;
+            background: #e0e0e0;
+        }
+        .approval-step:last-child::after {
+            display: none;
+        }
+        .approval-step.completed::after {
+            background: #00890b;
+        }
+        .approval-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 18px;
+        }
+        .approval-step.completed .approval-icon {
+            background: #00890b;
+        }
+        .approval-step.current .approval-icon {
+            background: #f39c12;
+        }
+        .approval-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .approval-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 操作历史 */
+        .history-list {
+            list-style: none;
+        }
+        .history-item {
+            padding: 16px 0;
+            border-left: 3px solid #e0e0e0;
+            padding-left: 20px;
+            position: relative;
+            margin-left: 10px;
+        }
+        .history-item::before {
+            content: '';
+            position: absolute;
+            left: -8px;
+            top: 20px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #e0e0e0;
+        }
+        .history-item.success::before {
+            border-color: #00890b;
+        }
+        .history-item.warning::before {
+            border-color: #f39c12;
+        }
+        .history-time {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+        .history-content {
+            font-size: 14px;
+            color: #3d4647;
+        }
+        .history-user {
+            color: #00890b;
+            font-weight: 600;
+        }
+
+        /* 按钮 */
+        .btn-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+        .btn-secondary {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .btn-danger {
+            background: white;
+            color: #ff4444;
+            border: 2px solid #ff4444;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-danger:hover {
+            background: #ff4444;
+            color: white;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item active">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <div class="main-content">
+            <!-- 返回按钮 -->
+            <a href="procurement.html" class="back-btn">
+                ← 返回采购列表
+            </a>
+
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <div class="header-top">
+                    <div>
+                        <div class="po-number">PO-2024-0045</div>
+                        <div class="po-name">智能手环 V2.0 物料采购</div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn-white" onclick="downloadPDF()">📄 下载PDF</button>
+                        <button class="btn-white" onclick="printPO()">🖨️ 打印</button>
+                    </div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <div class="info-label">供应商</div>
+                        <div class="info-value">深圳立创商城</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">总金额</div>
+                        <div class="info-value">¥12,580</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">交货日期</div>
+                        <div class="info-value">2024-10-22</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-label">当前状态</div>
+                        <div class="info-value"><span class="status-badge status-approved">已审批</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 物料清单 -->
+            <div class="content-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <div class="card-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">📦 物料清单</div>
+                    <button class="btn-secondary" onclick="addMaterial()">➕ 添加物料</button>
+                </div>
+                <table class="material-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>物料编号</th>
+                            <th>物料名称</th>
+                            <th>规格型号</th>
+                            <th>数量</th>
+                            <th>单价</th>
+                            <th>小计</th>
+                            <th>交期（天）</th>
+                            <th style="width: 100px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td style="color: #00890b; font-weight: 600;">M-2024-001</td>
+                            <td>STM32F103C8T6</td>
+                            <td>LQFP48</td>
+                            <td>200</td>
+                            <td>¥12.50</td>
+                            <td><strong>¥2,500</strong></td>
+                            <td>3-5</td>
+                            <td>
+                                <button style="padding: 4px 8px; font-size: 12px; background: white; border: 2px solid #e0e0e0; border-radius: 4px; cursor: pointer;" onclick="editMaterial(1)">编辑</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td style="color: #00890b; font-weight: 600;">M-2024-002</td>
+                            <td>0.96寸OLED显示屏</td>
+                            <td>128x64 IIC</td>
+                            <td>200</td>
+                            <td>¥8.50</td>
+                            <td><strong>¥1,700</strong></td>
+                            <td>5-7</td>
+                            <td>
+                                <button style="padding: 4px 8px; font-size: 12px; background: white; border: 2px solid #e0e0e0; border-radius: 4px; cursor: pointer;" onclick="editMaterial(2)">编辑</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>3</td>
+                            <td style="color: #00890b; font-weight: 600;">M-2024-003</td>
+                            <td>锂电池</td>
+                            <td>3.7V 200mAh</td>
+                            <td>200</td>
+                            <td>¥4.50</td>
+                            <td><strong>¥900</strong></td>
+                            <td>7-10</td>
+                            <td>
+                                <button style="padding: 4px 8px; font-size: 12px; background: white; border: 2px solid #e0e0e0; border-radius: 4px; cursor: pointer;" onclick="editMaterial(3)">编辑</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>4</td>
+                            <td style="color: #00890b; font-weight: 600;">M-2024-004</td>
+                            <td>心率传感器</td>
+                            <td>MAX30102</td>
+                            <td>200</td>
+                            <td>¥15.80</td>
+                            <td><strong>¥3,160</strong></td>
+                            <td>5-7</td>
+                            <td>
+                                <button style="padding: 4px 8px; font-size: 12px; background: white; border: 2px solid #e0e0e0; border-radius: 4px; cursor: pointer;" onclick="editMaterial(4)">编辑</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>5</td>
+                            <td style="color: #00890b; font-weight: 600;">M-2024-005</td>
+                            <td>加速度计</td>
+                            <td>MPU6050</td>
+                            <td>200</td>
+                            <td>¥6.90</td>
+                            <td><strong>¥1,380</strong></td>
+                            <td>3-5</td>
+                            <td>
+                                <button style="padding: 4px 8px; font-size: 12px; background: white; border: 2px solid #e0e0e0; border-radius: 4px; cursor: pointer;" onclick="editMaterial(5)">编辑</button>
+                            </td>
+                        </tr>
+                        <tr style="background: #f9f9f9; font-weight: 600;">
+                            <td colspan="6" style="text-align: right; padding-right: 20px;">合计</td>
+                            <td><strong style="font-size: 16px; color: #00890b;">¥9,640</strong></td>
+                            <td colspan="2"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 审批流程 -->
+            <div class="content-card">
+                <div class="card-title">✓ 审批流程</div>
+                <div class="approval-flow">
+                    <div class="approval-step completed">
+                        <div class="approval-icon">✓</div>
+                        <div class="approval-name">创建采购单</div>
+                        <div class="approval-time">2024-10-15 10:30</div>
+                    </div>
+                    <div class="approval-step completed">
+                        <div class="approval-icon">✓</div>
+                        <div class="approval-name">项目经理审批</div>
+                        <div class="approval-time">2024-10-15 14:20</div>
+                    </div>
+                    <div class="approval-step completed">
+                        <div class="approval-icon">✓</div>
+                        <div class="approval-name">采购主管审批</div>
+                        <div class="approval-time">2024-10-16 09:15</div>
+                    </div>
+                    <div class="approval-step current">
+                        <div class="approval-icon">⏱</div>
+                        <div class="approval-name">等待收货</div>
+                        <div class="approval-time">预计 2024-10-22</div>
+                    </div>
+                    <div class="approval-step">
+                        <div class="approval-icon">○</div>
+                        <div class="approval-name">入库完成</div>
+                        <div class="approval-time">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 操作历史 -->
+            <div class="content-card">
+                <div class="card-title">📋 操作历史</div>
+                <ul class="history-list">
+                    <li class="history-item success">
+                        <div class="history-time">2024-10-16 09:15</div>
+                        <div class="history-content">
+                            <span class="history-user">张主管</span> 审批通过了采购单，订单已发送给供应商
+                        </div>
+                    </li>
+                    <li class="history-item success">
+                        <div class="history-time">2024-10-15 14:20</div>
+                        <div class="history-content">
+                            <span class="history-user">李经理</span> 审批通过了采购单
+                        </div>
+                    </li>
+                    <li class="history-item warning">
+                        <div class="history-time">2024-10-15 11:30</div>
+                        <div class="history-content">
+                            <span class="history-user">钱七</span> 提交了采购单审批申请
+                        </div>
+                    </li>
+                    <li class="history-item success">
+                        <div class="history-time">2024-10-15 11:15</div>
+                        <div class="history-content">
+                            <span class="history-user">钱七</span> 添加了 5 个物料项目
+                        </div>
+                    </li>
+                    <li class="history-item success">
+                        <div class="history-time">2024-10-15 10:30</div>
+                        <div class="history-content">
+                            <span class="history-user">钱七</span> 创建了采购单 PO-2024-0045
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- 操作按钮 -->
+            <div class="content-card">
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="confirmReceipt()">✓ 确认收货</button>
+                    <button class="btn-secondary" onclick="trackShipment()">📦 物流跟踪</button>
+                    <button class="btn-secondary" onclick="contactSupplier()">📞 联系供应商</button>
+                    <button class="btn-secondary" onclick="editPO()">✏️ 编辑采购单</button>
+                    <button class="btn-danger" onclick="cancelPO()">✕ 取消采购单</button>
+                </div>
+            </div>
+
+    <script>
+        // 下载PDF
+        function downloadPDF() {
+            alert('📄 正在生成PDF文件...\n\n文件名: PO-2024-0045_采购单.pdf');
+        }
+
+        // 打印
+        function printPO() {
+            window.print();
+        }
+
+        // 添加物料
+        function addMaterial() {
+            location.href = 'procurement-add-material.html?id=PO-2024-0045';
+        }
+
+        // 编辑物料
+        function editMaterial(id) {
+            alert('编辑物料项目 #' + id);
+        }
+
+        // 确认收货
+        function confirmReceipt() {
+            location.href = 'procurement-receipt.html?id=PO-2024-0045';
+        }
+
+        // 物流跟踪
+        function trackShipment() {
+            location.href = 'procurement-tracking.html?id=PO-2024-0045';
+        }
+
+        // 联系供应商
+        function contactSupplier() {
+            location.href = 'procurement-contact-supplier.html?id=PO-2024-0045';
+        }
+
+        // 编辑采购单
+        function editPO() {
+            location.href = 'procurement-edit.html?id=PO-2024-0045';
+        }
+
+        // 取消采购单
+        function cancelPO() {
+            if (confirm('确认取消采购单吗？\n\n取消后需要联系供应商确认，此操作不可恢复！')) {
+                alert('❌ 采购单已取消\n\n请联系供应商确认订单取消事宜。');
+            }
+        }
+    </script>
+</body>
+</html>

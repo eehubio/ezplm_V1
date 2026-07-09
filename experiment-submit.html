@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提交实验 - 共射放大电路设计</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f4; color: #3d4647; }
+
+        /* 顶部导航 */
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: #666; }
+        .breadcrumb a { color: #00890b; text-decoration: none; }
+        .breadcrumb a:hover { text-decoration: underline; }
+        .top-bar-right { display: flex; align-items: center; gap: 24px; }
+
+        /* 实验头部 */
+        .experiment-header { background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; padding: 40px; }
+        .header-content { max-width: 1440px; margin: 0 auto; }
+        .experiment-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+        .experiment-meta { display: flex; gap: 32px; font-size: 14px; opacity: 0.9; margin-bottom: 16px; }
+        .deadline-warning { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: rgba(255,193,7,0.2); border-radius: 8px; font-weight: 600; }
+        .deadline-warning.urgent { background: rgba(244,67,54,0.2); }
+
+        /* 主内容 */
+        .main-content { max-width: 1440px; margin: 32px auto; padding: 0 40px; display: grid; grid-template-columns: 1fr 320px; gap: 32px; }
+
+        /* 左侧内容 */
+        .content-left { display: flex; flex-direction: column; gap: 24px; }
+
+        /* 实验要求卡片 */
+        .requirement-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #3d4647; display: flex; align-items: center; gap: 8px; }
+        .requirement-content { line-height: 1.8; color: #666; }
+        .requirement-content h4 { color: #3d4647; margin-top: 16px; margin-bottom: 8px; font-size: 16px; }
+        .requirement-content ul { margin-left: 24px; margin-top: 8px; }
+        .requirement-content li { margin-bottom: 8px; }
+
+        /* 文件上传区 */
+        .upload-card { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .upload-area { border: 3px dashed #e0e0e0; border-radius: 12px; padding: 60px; text-align: center; cursor: pointer; transition: all 0.3s; background: #fafafa; }
+        .upload-area:hover { border-color: #00bcd4; background: #e0f7fa; }
+        .upload-area.dragover { border-color: #00bcd4; background: #b2ebf2; }
+        .upload-icon { font-size: 64px; margin-bottom: 16px; }
+        .upload-text { font-size: 16px; color: #666; margin-bottom: 8px; }
+        .upload-hint { font-size: 13px; color: #999; }
+        .file-input { display: none; }
+
+        /* 已上传文件列表 */
+        .uploaded-files { margin-top: 24px; }
+        .file-item { display: flex; align-items: center; padding: 16px; background: #f9f9f9; border-radius: 8px; margin-bottom: 12px; transition: all 0.3s; }
+        .file-item:hover { background: #e0f7fa; }
+        .file-icon { width: 48px; height: 48px; background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; margin-right: 16px; }
+        .file-info { flex: 1; }
+        .file-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .file-meta { font-size: 13px; color: #666; }
+        .file-actions { display: flex; gap: 8px; }
+        .btn-icon { width: 36px; height: 36px; border: none; background: white; border-radius: 6px; cursor: pointer; font-size: 18px; transition: all 0.3s; }
+        .btn-icon:hover { background: #f44336; color: white; }
+
+        /* 提交说明 */
+        .submit-note { background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .note-textarea { width: 100%; min-height: 120px; padding: 16px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; transition: border-color 0.3s; }
+        .note-textarea:focus { outline: none; border-color: #00bcd4; }
+
+        /* 提交按钮区 */
+        .submit-actions { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; gap: 12px; }
+        .btn-primary { flex: 1; padding: 16px; background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,188,212,0.3); }
+        .btn-secondary { padding: 16px 32px; background: white; color: #666; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-secondary:hover { border-color: #00bcd4; color: #00bcd4; }
+
+        /* 右侧边栏 */
+        .sidebar-right { display: flex; flex-direction: column; gap: 20px; }
+        .sidebar-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .sidebar-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: #3d4647; }
+
+        /* 进度指示 */
+        .progress-steps { display: flex; flex-direction: column; gap: 16px; }
+        .step-item { display: flex; align-items: flex-start; gap: 12px; }
+        .step-number { width: 32px; height: 32px; background: #e0e0e0; color: #999; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+        .step-number.active { background: linear-gradient(135deg, #00bcd4 0%, #0097a7 100%); color: white; }
+        .step-number.completed { background: #4caf50; color: white; }
+        .step-info { flex: 1; padding-top: 4px; }
+        .step-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+        .step-desc { font-size: 12px; color: #666; }
+
+        /* 提交历史 */
+        .history-item { padding: 12px; background: #f9f9f9; border-radius: 6px; margin-bottom: 8px; }
+        .history-time { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+        .history-status { font-size: 12px; color: #666; }
+        .status-tag { display: inline-block; padding: 4px 8px; background: rgba(33,150,243,0.1); color: #2196f3; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 8px; }
+        .status-tag.draft { background: rgba(158,158,158,0.1); color: #9e9e9e; }
+
+        /* 评分标准 */
+        .rubric-list { display: flex; flex-direction: column; gap: 12px; }
+        .rubric-item { padding: 12px; background: #f9f9f9; border-radius: 6px; }
+        .rubric-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+        .rubric-score { font-size: 12px; color: #00bcd4; font-weight: 700; }
+
+        /* 成绩显示 */
+        .grade-display { text-align: center; padding: 32px; }
+        .grade-value { font-size: 64px; font-weight: 800; color: #4caf50; margin-bottom: 8px; }
+        .grade-label { font-size: 14px; color: #666; margin-bottom: 24px; }
+        .grade-feedback { text-align: left; padding: 20px; background: #f9f9f9; border-radius: 8px; margin-top: 16px; }
+        .feedback-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+        .feedback-text { font-size: 13px; color: #666; line-height: 1.6; }
+
+        /* 警告信息 */
+        .warning-box { padding: 16px; background: #fff3e0; border-left: 4px solid #ff9800; border-radius: 6px; margin-bottom: 20px; }
+        .warning-title { font-size: 14px; font-weight: 600; color: #f57c00; margin-bottom: 8px; }
+        .warning-text { font-size: 13px; color: #e65100; line-height: 1.6; }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 实验头部 -->
+    <div class="experiment-header">
+        <div class="header-content">
+            <div class="experiment-title">📝 实验三：共射放大电路设计</div>
+            <div class="experiment-meta">
+                <div>📚 模拟电路设计与实验</div>
+                <div>👨‍🏫 王教授</div>
+                <div>📅 发布时间：2024-10-15</div>
+            </div>
+            <div class="deadline-warning">
+                ⏰ 截止时间：2024-10-28 23:59 （还剩 5 天）
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <!-- 左侧内容 -->
+        <div class="content-left">
+            <!-- 实验要求 -->
+            <div class="requirement-card">
+                <div class="section-title">📋 实验要求</div>
+                <div class="requirement-content">
+                    <h4>一、实验目的</h4>
+                    <ul>
+                        <li>掌握共射放大电路的设计方法和工作原理</li>
+                        <li>学会使用静态工作点的计算和调试方法</li>
+                        <li>熟悉放大电路的性能指标测试方法</li>
+                        <li>培养电路设计、仿真和实验技能</li>
+                    </ul>
+
+                    <h4>二、设计要求</h4>
+                    <ul>
+                        <li>电压放大倍数 Av ≥ 50</li>
+                        <li>输入电阻 Ri ≥ 1kΩ</li>
+                        <li>输出电阻 Ro ≤ 5kΩ</li>
+                        <li>工作频率范围：20Hz - 20kHz</li>
+                        <li>电源电压 VCC = 12V</li>
+                        <li>负载电阻 RL = 2kΩ</li>
+                    </ul>
+
+                    <h4>三、实验内容</h4>
+                    <ul>
+                        <li>根据技术指标设计电路，计算元器件参数</li>
+                        <li>使用Multisim进行电路仿真，验证设计正确性</li>
+                        <li>搭建实验电路，调试静态工作点</li>
+                        <li>测量电压放大倍数、输入输出电阻等参数</li>
+                        <li>分析实验数据，与理论计算对比</li>
+                        <li>完成实验报告，包含设计过程、仿真结果、实测数据和分析</li>
+                    </ul>
+
+                    <h4>四、提交要求</h4>
+                    <ul>
+                        <li>实验报告（PDF格式，包含封面、目录、正文、附录）</li>
+                        <li>电路设计图和仿真文件（Multisim .ms14格式）</li>
+                        <li>实验数据记录表和波形图片</li>
+                        <li>电路实物照片（至少3张不同角度）</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 上传文件 -->
+            <div class="upload-card">
+                <div class="section-title">📤 上传文件</div>
+                <div class="warning-box">
+                    <div class="warning-title">⚠️ 提交前请注意</div>
+                    <div class="warning-text">
+                        • 确保所有文件完整且格式正确<br>
+                        • 实验报告需包含完整的设计过程和数据分析<br>
+                        • 单个文件大小不超过50MB，总大小不超过200MB<br>
+                        • 提交后可修改，以最后一次提交为准
+                    </div>
+                </div>
+
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <div class="upload-icon">📁</div>
+                    <div class="upload-text">点击选择文件或拖拽文件到此处</div>
+                    <div class="upload-hint">支持 PDF、Word、图片、压缩包等格式</div>
+                </div>
+                <input type="file" id="fileInput" class="file-input" multiple onchange="handleFileSelect(event)">
+
+                <div class="uploaded-files" id="uploadedFiles">
+                    <!-- 示例文件 -->
+                    <div class="file-item">
+                        <div class="file-icon">📄</div>
+                        <div class="file-info">
+                            <div class="file-name">实验报告-共射放大电路.pdf</div>
+                            <div class="file-meta">PDF文档 · 2.4 MB · 刚刚上传</div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn-icon" onclick="previewFile(1)" title="预览">👁️</button>
+                            <button class="btn-icon" onclick="removeFile(1)" title="删除">🗑️</button>
+                        </div>
+                    </div>
+
+                    <div class="file-item">
+                        <div class="file-icon">💾</div>
+                        <div class="file-info">
+                            <div class="file-name">电路仿真文件.ms14</div>
+                            <div class="file-meta">Multisim · 856 KB · 刚刚上传</div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn-icon" onclick="removeFile(2)" title="删除">🗑️</button>
+                        </div>
+                    </div>
+
+                    <div class="file-item">
+                        <div class="file-icon">🖼️</div>
+                        <div class="file-info">
+                            <div class="file-name">实验照片.zip</div>
+                            <div class="file-meta">压缩文件 · 5.2 MB · 刚刚上传</div>
+                        </div>
+                        <div class="file-actions">
+                            <button class="btn-icon" onclick="removeFile(3)" title="删除">🗑️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提交说明 -->
+            <div class="submit-note">
+                <div class="section-title">💬 提交说明（选填）</div>
+                <textarea class="note-textarea" placeholder="在这里添加关于本次提交的说明，例如：&#10;• 遇到的问题和解决方法&#10;• 实验中的特殊情况&#10;• 需要老师重点关注的部分&#10;等等..."></textarea>
+            </div>
+
+            <!-- 提交按钮 -->
+            <div class="submit-actions">
+                <button class="btn-secondary" onclick="saveDraft()">💾 保存草稿</button>
+                <button class="btn-primary" onclick="submitExperiment()">✅ 提交实验</button>
+            </div>
+        </div>
+
+        <!-- 右侧边栏 -->
+        <div class="sidebar-right">
+            <!-- 提交进度 -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">📊 提交进度</div>
+                <div class="progress-steps">
+                    <div class="step-item">
+                        <div class="step-number completed">✓</div>
+                        <div class="step-info">
+                            <div class="step-title">查看要求</div>
+                            <div class="step-desc">已阅读实验要求</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number active">2</div>
+                        <div class="step-info">
+                            <div class="step-title">上传文件</div>
+                            <div class="step-desc">已上传 3 个文件</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-info">
+                            <div class="step-title">正式提交</div>
+                            <div class="step-desc">检查并提交</div>
+                        </div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">4</div>
+                        <div class="step-info">
+                            <div class="step-title">等待批改</div>
+                            <div class="step-desc">老师批改中</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 评分标准 -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">📐 评分标准</div>
+                <div class="rubric-list">
+                    <div class="rubric-item">
+                        <div class="rubric-title">电路设计</div>
+                        <div class="rubric-score">30分</div>
+                    </div>
+                    <div class="rubric-item">
+                        <div class="rubric-title">仿真结果</div>
+                        <div class="rubric-score">20分</div>
+                    </div>
+                    <div class="rubric-item">
+                        <div class="rubric-title">实验数据</div>
+                        <div class="rubric-score">20分</div>
+                    </div>
+                    <div class="rubric-item">
+                        <div class="rubric-title">数据分析</div>
+                        <div class="rubric-score">20分</div>
+                    </div>
+                    <div class="rubric-item">
+                        <div class="rubric-title">报告规范</div>
+                        <div class="rubric-score">10分</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提交历史 -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">📜 提交历史</div>
+                <div class="history-item">
+                    <div class="history-time">2024-10-23 15:30</div>
+                    <div class="history-status">
+                        草稿保存
+                        <span class="status-tag draft">草稿</span>
+                    </div>
+                </div>
+                <div class="history-item">
+                    <div class="history-time">2024-10-22 20:15</div>
+                    <div class="history-status">
+                        草稿保存
+                        <span class="status-tag draft">草稿</span>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 12px; color: #999; font-size: 13px;">
+                    尚未正式提交
+                </div>
+            </div>
+
+            <!-- 帮助信息 -->
+            <div class="sidebar-card">
+                <div class="sidebar-title">💡 温馨提示</div>
+                <div style="font-size: 13px; color: #666; line-height: 1.8;">
+                    • 建议提前1-2天提交，避免截止日期前网络拥堵<br><br>
+                    • 保存草稿不影响截止时间，可以多次修改<br><br>
+                    • 如有问题可以联系助教或在讨论区提问<br><br>
+                    • 提交后会收到确认邮件
+                </div>
+            </div>
+        </div>
+
+    <script>
+        // 拖拽上传
+        const uploadArea = document.getElementById('uploadArea');
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            console.log('上传文件：', files);
+            // 实际应用中会处理文件上传
+            alert(`选择了 ${files.length} 个文件`);
+        }
+
+        function previewFile(id) {
+            alert('预览文件：' + id);
+        }
+
+        function removeFile(id) {
+            if (confirm('确定要删除这个文件吗？')) {
+                alert('删除文件：' + id);
+                // 实际应用中会从列表中移除
+            }
+        }
+
+        function saveDraft() {
+            alert('草稿已保存！\n\n保存时间：' + new Date().toLocaleString());
+        }
+
+        function submitExperiment() {
+            if (confirm('确定要提交实验吗？\n\n提交后老师会进行批改，你仍然可以修改提交内容。')) {
+                alert('实验提交成功！\n\n提交时间：' + new Date().toLocaleString() + '\n\n老师批改后你会收到通知。');
+                // 实际应用中会跳转到提交成功页面或返回课程页面
+                setTimeout(() => {
+                    window.location.href = 'course-learning.html';
+                }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>

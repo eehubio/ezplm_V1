@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 登录/注册</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            width: 90%;
+            max-width: 450px;
+            padding: 40px;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .logo h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: #00890b;
+            margin-bottom: 8px;
+        }
+        .logo p {
+            color: #3d4647;
+            font-size: 14px;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            color: #3d4647;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: -2px;
+        }
+        .tab.active {
+            color: #00890b;
+            border-bottom-color: #00890b;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #3d4647;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: #00890b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .form-footer {
+            margin-top: 24px;
+            text-align: center;
+            color: #3d4647;
+            font-size: 14px;
+        }
+        .form-footer a {
+            color: #197bc0;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .form-footer a:hover {
+            text-decoration: underline;
+        }
+        .hidden {
+            display: none;
+        }
+        .plan-selection {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .plan-card {
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .plan-card:hover {
+            border-color: #00890b;
+        }
+        .plan-card.selected {
+            border-color: #00890b;
+            background: rgba(0, 137, 11, 0.05);
+        }
+        .plan-card h4 {
+            font-size: 14px;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .plan-card .price {
+            font-size: 20px;
+            font-weight: 800;
+            color: #00890b;
+        }
+
+        /* 忘记密码模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+            padding: 0;
+        }
+        .modal-close:hover {
+            color: #3d4647;
+        }
+        .modal-steps {
+            margin-bottom: 24px;
+        }
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            position: relative;
+        }
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+        .step-item {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            color: #999;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 auto 8px;
+            transition: all 0.3s;
+        }
+        .step-item.active .step-number {
+            background: #00890b;
+            color: white;
+        }
+        .step-item.completed .step-number {
+            background: #00890b;
+            color: white;
+        }
+        .step-label {
+            font-size: 12px;
+            color: #999;
+        }
+        .step-item.active .step-label {
+            color: #00890b;
+            font-weight: 600;
+        }
+        .verification-group {
+            display: flex;
+            gap: 8px;
+        }
+        .verification-group input {
+            flex: 1;
+        }
+        .verification-group button {
+            padding: 12px 20px;
+            background: #00890b;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.3s;
+        }
+        .verification-group button:hover {
+            background: #007309;
+        }
+        .verification-group button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .info-text {
+            background: #f0f8ff;
+            border-left: 4px solid #00890b;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!--
+    ========================================
+    页面信息 - Arena风格设计
+    ========================================
+    页面名称: 登录/注册（合并）
+    路由路径: /auth
+    访问权限: 公开访问
+    设计风格: Arena Solutions（绿色主色调）
+
+    优化说明:
+    - ✅ 合并登录和注册为一个页面
+    - ✅ 采用Arena配色：#00890b绿色
+    - ✅ 简洁的卡片设计
+    - ✅ 标签切换，减少页面跳转
+    ========================================
+    -->
+
+    <div class="container">
+        <!-- Logo -->
+        <div class="logo">
+            <h1>EZ-PLM</h1>
+            <p>产品生命周期管理平台</p>
+        </div>
+
+        <!-- 标签切换 -->
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('login')">登录</button>
+            <button class="tab" onclick="showTab('register')">注册</button>
+        </div>
+
+        <!-- 登录表单 -->
+        <form id="loginForm" class="auth-form">
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" id="email" placeholder="请输入您的邮箱" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" placeholder="请输入密码" required>
+            </div>
+
+            <button type="submit" class="btn-primary">登录</button>
+
+            <div class="form-footer">
+                <a href="#forgot">忘记密码？</a>
+            </div>
+        </form>
+
+        <!-- 注册表单 -->
+        <form id="registerForm" class="auth-form hidden">
+            <div class="form-group">
+                <label>选择套餐</label>
+                <div class="plan-selection">
+                    <div class="plan-card" onclick="selectPlan('free', this)">
+                        <h4>免费版</h4>
+                        <div class="price">¥0</div>
+                    </div>
+                    <div class="plan-card selected" onclick="selectPlan('standard', this)">
+                        <h4>标准版</h4>
+                        <div class="price">¥49/月</div>
+                    </div>
+                    <div class="plan-card" onclick="selectPlan('pro', this)">
+                        <h4>专业版</h4>
+                        <div class="price">¥79/月</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="reg-name">姓名</label>
+                <input type="text" id="reg-name" placeholder="请输入姓名" required>
+            </div>
+
+            <div class="form-group">
+                <label for="reg-email">邮箱</label>
+                <input type="email" id="reg-email" placeholder="请输入邮箱" required>
+            </div>
+
+            <div class="form-group">
+                <label for="reg-password">密码</label>
+                <input type="password" id="reg-password" placeholder="至少8位，包含字母和数字" required>
+            </div>
+
+            <button type="submit" class="btn-primary">立即注册</button>
+        </form>
+    </div>
+
+    <script>
+        let currentTab = 'login';
+        let selectedPlan = 'standard';
+
+        function showTab(tab) {
+            currentTab = tab;
+
+            // 切换标签样式
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // 切换表单显示
+            document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+        }
+
+        function selectPlan(plan, element) {
+            selectedPlan = plan;
+            document.querySelectorAll('.plan-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            element.classList.add('selected');
+        }
+
+        // 登录表单提交
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('登录');
+
+            // 模拟登录验证
+            const email = document.querySelector('#loginForm input[type="email"]').value;
+            const password = document.querySelector('#loginForm input[type="password"]').value;
+
+            if (email && password) {
+                // 存储登录状态（演示用）
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('userEmail', email);
+                sessionStorage.setItem('userName', '测试用户');
+                sessionStorage.setItem('userRole', 'admin'); // 演示版给予管理员权限
+
+                // 跳转到主工作台
+                window.location.href = 'dashboard-pro.html';
+            } else {
+                alert('请输入邮箱和密码');
+            }
+        });
+
+        // 注册表单提交
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('注册', { plan: selectedPlan });
+            alert(`注册成功（模拟）\n套餐: ${selectedPlan}`);
+        });
+
+        // 忘记密码功能
+        let currentStep = 1;
+        let countdown = 60;
+        let countdownTimer = null;
+
+        function openForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.add('active');
+            currentStep = 1;
+            updateStepDisplay();
+        }
+
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('active');
+            document.getElementById('forgotPasswordForm').reset();
+            if (countdownTimer) {
+                clearInterval(countdownTimer);
+                countdownTimer = null;
+            }
+            countdown = 60;
+        }
+
+        function updateStepDisplay() {
+            // 更新步骤指示器
+            document.querySelectorAll('.step-item').forEach((item, index) => {
+                item.classList.remove('active', 'completed');
+                if (index + 1 < currentStep) {
+                    item.classList.add('completed');
+                } else if (index + 1 === currentStep) {
+                    item.classList.add('active');
+                }
+            });
+
+            // 显示当前步骤
+            document.querySelectorAll('.step').forEach((step, index) => {
+                step.classList.remove('active');
+                if (index + 1 === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        function sendVerificationCode() {
+            const email = document.getElementById('forgot-email').value;
+            if (!email) {
+                alert('请输入邮箱地址');
+                return;
+            }
+
+            // 模拟发送验证码
+            alert(`验证码已发送到 ${email}`);
+
+            // 开始倒计时
+            const btn = event.target;
+            btn.disabled = true;
+            countdown = 60;
+            btn.textContent = `${countdown}秒后重发`;
+
+            countdownTimer = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    btn.textContent = `${countdown}秒后重发`;
+                } else {
+                    clearInterval(countdownTimer);
+                    btn.disabled = false;
+                    btn.textContent = '发送验证码';
+                }
+            }, 1000);
+        }
+
+        function nextStep() {
+            if (currentStep === 1) {
+                const email = document.getElementById('forgot-email').value;
+                const code = document.getElementById('verification-code').value;
+
+                if (!email || !code) {
+                    alert('请输入邮箱和验证码');
+                    return;
+                }
+
+                // 模拟验证
+                currentStep = 2;
+                updateStepDisplay();
+            } else if (currentStep === 2) {
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+
+                if (!newPassword || !confirmPassword) {
+                    alert('请输入新密码');
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    alert('两次输入的密码不一致');
+                    return;
+                }
+
+                if (newPassword.length < 6) {
+                    alert('密码长度至少6位');
+                    return;
+                }
+
+                // 模拟重置成功
+                alert('密码重置成功！');
+                closeForgotPasswordModal();
+            }
+        }
+
+        // 点击外部关闭模态框
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'forgotPasswordModal') {
+                closeForgotPasswordModal();
+            }
+        });
+
+        // 更新"忘记密码"链接
+        document.querySelector('a[href="#forgot"]').addEventListener('click', function(e) {
+            e.preventDefault();
+            openForgotPasswordModal();
+        });
+    </script>
+
+    <!-- 忘记密码模态框 -->
+    <div id="forgotPasswordModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">找回密码</h2>
+                <button class="modal-close" onclick="closeForgotPasswordModal()">&times;</button>
+            </div>
+
+            <!-- 步骤指示器 -->
+            <div class="step-indicator">
+                <div class="step-item active">
+                    <div class="step-number">1</div>
+                    <div class="step-label">验证身份</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-label">重置密码</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-label">完成</div>
+                </div>
+            </div>
+
+            <form id="forgotPasswordForm" onsubmit="event.preventDefault();">
+                <!-- 步骤1: 验证邮箱 -->
+                <div class="step active">
+                    <div class="info-text">
+                        💡 我们将向您的注册邮箱发送验证码，请注意查收
+                    </div>
+
+                    <div class="form-group">
+                        <label for="forgot-email">邮箱地址</label>
+                        <input type="email" id="forgot-email" placeholder="请输入注册邮箱" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="verification-code">验证码</label>
+                        <div class="verification-group">
+                            <input type="text" id="verification-code" placeholder="请输入验证码" required>
+                            <button type="button" onclick="sendVerificationCode()">发送验证码</button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn-primary" onclick="nextStep()">下一步</button>
+                </div>
+
+                <!-- 步骤2: 设置新密码 -->
+                <div class="step">
+                    <div class="info-text">
+                        🔒 请设置新密码，密码长度至少6位
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-password">新密码</label>
+                        <input type="password" id="new-password" placeholder="请输入新密码（至少6位）" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-password">确认密码</label>
+                        <input type="password" id="confirm-password" placeholder="请再次输入新密码" required>
+                    </div>
+
+                    <button type="button" class="btn-primary" onclick="nextStep()">完成重置</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

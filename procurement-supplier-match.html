@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>供应商智能匹配 - EZPLM采购平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #007309 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+        }
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 16px;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        .stat-change {
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .stat-change.positive {
+            color: #00890b;
+        }
+
+        /* 智能推荐卡片 */
+        .ai-recommend-card {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 2px solid #2563eb;
+        }
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .ai-icon {
+            width: 48px;
+            height: 48px;
+            background: #2563eb;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .ai-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2563eb;
+        }
+        .ai-content {
+            font-size: 14px;
+            color: #3d4647;
+            line-height: 1.6;
+        }
+
+        /* 内容卡片 */
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            background: #007309;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,137,11,0.3);
+        }
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #3d4647;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        /* 返回按钮 */
+        .back-button {
+            background: white;
+            border: 2px solid #e0e0e0;
+            color: #3d4647;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            text-decoration: none;
+        }
+        .back-button:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 匹配物料项 */
+        .match-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-left: 4px solid #00890b;
+        }
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        .material-info {
+            flex: 1;
+        }
+        .material-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 6px;
+        }
+        .material-spec {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .material-status {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+        }
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .match-badge {
+            background: linear-gradient(135deg, #00890b 0%, #007309 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* 供应商列表 */
+        .supplier-list {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 2px dashed #e0e0e0;
+        }
+        .supplier-list-header {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .supplier-item {
+            display: grid;
+            grid-template-columns: 200px 1fr 120px 100px 150px;
+            gap: 16px;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+        .supplier-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .supplier-company {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .supplier-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .supplier-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+        .supplier-rating {
+            font-size: 12px;
+            color: #f59e0b;
+        }
+        .supplier-info {
+            font-size: 13px;
+            color: #666;
+        }
+        .price-compare {
+            text-align: center;
+        }
+        .price-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+        .price-label {
+            font-size: 11px;
+            color: #666;
+        }
+        .price-diff {
+            font-size: 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .price-lower {
+            color: #00890b;
+        }
+        .price-higher {
+            color: #dc2626;
+        }
+        .stock-status {
+            text-align: center;
+        }
+        .stock-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00890b;
+        }
+        .stock-label {
+            font-size: 11px;
+            color: #666;
+        }
+        .supplier-actions {
+            display: flex;
+            gap: 6px;
+            flex-direction: column;
+        }
+
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 6px;
+        }
+        .tag-new {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .tag-verified {
+            background: #dcfce7;
+            color: #00890b;
+        }
+        .tag-popular {
+            background: #fef3c7;
+            color: #f59e0b;
+        }
+
+        /* 筛选栏 */
+        .filter-bar {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .filter-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+        }
+        select {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+        input[type="text"] {
+            padding: 8px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease;
+        }
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .modal-header {
+            padding: 24px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .modal-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .modal-close:hover {
+            background: #e0e0e0;
+        }
+        .modal-body {
+            padding: 24px;
+        }
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .detail-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .detail-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+        }
+        .detail-value {
+            font-size: 14px;
+            color: #3d4647;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item active">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <a href="procurement.html" class="back-button">
+                ← 返回采购管理
+            </a>
+
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <div class="page-title">🎯 供应商智能匹配中心</div>
+                <div class="page-subtitle">基于您的物料清单和BOM，系统自动推荐优质供应商和最优价格</div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dcfce7;">🎯</div>
+                    <div class="stat-value">45</div>
+                    <div class="stat-label">智能匹配物料</div>
+                    <div class="stat-change positive">↑ 今日新增 12</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #dbeafe;">🏢</div>
+                    <div class="stat-value">128</div>
+                    <div class="stat-label">推荐供应商</div>
+                    <div class="stat-change positive">覆盖 89% 物料</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #fef3c7;">💰</div>
+                    <div class="stat-value">18.5%</div>
+                    <div class="stat-label">平均价格优势</div>
+                    <div class="stat-change positive">↓ 节省成本</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: #f3e8ff;">📋</div>
+                    <div class="stat-value">23</div>
+                    <div class="stat-label">待发询价</div>
+                    <div class="stat-change positive">一键批量询价</div>
+                </div>
+            </div>
+
+            <!-- AI智能推荐 -->
+            <div class="ai-recommend-card">
+                <div class="ai-header">
+                    <div class="ai-icon">🤖</div>
+                    <div class="ai-title">AI智能推荐系统</div>
+                </div>
+                <div class="ai-content">
+                    系统已分析您的物料清单和历史采购记录，自动匹配平台上 <strong>128 家优质供应商</strong>。
+                    为您找到 <strong>45 个物料</strong>的更优价格，预计可节省采购成本 <strong>18.5%</strong>。
+                    点击下方物料查看详细供应商对比和价格分析。
+                </div>
+            </div>
+
+            <!-- 筛选栏 -->
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <span class="filter-label">物料类型：</span>
+                    <select>
+                        <option>全部类型</option>
+                        <option>MCU芯片</option>
+                        <option>电源管理</option>
+                        <option>传感器</option>
+                        <option>开发板</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <span class="filter-label">价格优势：</span>
+                    <select>
+                        <option>全部</option>
+                        <option>低于现价</option>
+                        <option>高于现价</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <span class="filter-label">库存状态：</span>
+                    <select>
+                        <option>全部</option>
+                        <option>有现货</option>
+                        <option>库存充足</option>
+                    </select>
+                </div>
+                <div class="filter-item" style="flex: 1;">
+                    <input type="text" placeholder="搜索物料型号..." style="width: 100%;">
+                </div>
+                <button class="btn-primary" onclick="batchInquiry()">批量询价</button>
+            </div>
+
+            <!-- 匹配物料列表 -->
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">🎯 智能匹配物料（45个）</div>
+                    <div style="display: flex; gap: 12px;">
+                        <button class="btn-secondary" onclick="exportMatchList()">📥 导出清单</button>
+                        <button class="btn-primary" onclick="batchInquiry()">📨 批量发起询价</button>
+                    </div>
+                </div>
+
+                <!-- 匹配项1 -->
+                <div class="match-item">
+                    <div class="match-header">
+                        <div class="material-info">
+                            <div class="material-name">🔌 STM32F407VGT6</div>
+                            <div class="material-spec">ARM Cortex-M4 MCU | LQFP-100 | 168MHz | 1MB Flash</div>
+                            <div class="material-status">
+                                <span class="status-item">📦 当前库存：<strong>120 片</strong></span>
+                                <span class="status-item">💰 现有采购价：<strong>¥32.00/片</strong></span>
+                                <span class="status-item">📅 上次采购：2025-09-15</span>
+                            </div>
+                        </div>
+                        <div class="match-badge">
+                            🎯 找到 3 家供应商<br>
+                            <span style="font-size: 11px;">最低 ¥28.50 | 节省 10.9%</span>
+                        </div>
+                    </div>
+
+                    <div class="supplier-list">
+                        <div class="supplier-list-header">💼 推荐供应商对比</div>
+
+                        <div class="supplier-item">
+                            <div class="supplier-company">
+                                <div class="supplier-logo">深</div>
+                                <div>
+                                    <div class="supplier-name">深圳市华强元器件有限公司</div>
+                                    <div class="supplier-rating">⭐⭐⭐⭐⭐ 4.9分 (568评)</div>
+                                </div>
+                            </div>
+                            <div class="supplier-info">
+                                <span class="tag tag-verified">✓ 认证供应商</span>
+                                <span class="tag tag-popular">热门</span>
+                                <div style="margin-top: 4px; font-size: 12px;">原装正品 | 7天交期 | 已合作3次</div>
+                            </div>
+                            <div class="price-compare">
+                                <div class="price-value">¥28.50</div>
+                                <div class="price-label">单价（≥100片）</div>
+                                <div class="price-diff price-lower">↓ 低 10.9%</div>
+                            </div>
+                            <div class="stock-status">
+                                <div class="stock-value">8,500 片</div>
+                                <div class="stock-label">现货库存</div>
+                            </div>
+                            <div class="supplier-actions">
+                                <button class="btn-primary">立即询价</button>
+                                <button class="btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+
+                        <div class="supplier-item">
+                            <div class="supplier-company">
+                                <div class="supplier-logo">上</div>
+                                <div>
+                                    <div class="supplier-name">上海电子元器件商城</div>
+                                    <div class="supplier-rating">⭐⭐⭐⭐ 4.7分 (342评)</div>
+                                </div>
+                            </div>
+                            <div class="supplier-info">
+                                <span class="tag tag-verified">✓ 认证供应商</span>
+                                <div style="margin-top: 4px; font-size: 12px;">原装正品 | 5天交期 | 已合作1次</div>
+                            </div>
+                            <div class="price-compare">
+                                <div class="price-value">¥29.80</div>
+                                <div class="price-label">单价（≥100片）</div>
+                                <div class="price-diff price-lower">↓ 低 6.9%</div>
+                            </div>
+                            <div class="stock-status">
+                                <div class="stock-value">3,200 片</div>
+                                <div class="stock-label">现货库存</div>
+                            </div>
+                            <div class="supplier-actions">
+                                <button class="btn-primary">立即询价</button>
+                                <button class="btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+
+                        <div class="supplier-item">
+                            <div class="supplier-company">
+                                <div class="supplier-logo">北</div>
+                                <div>
+                                    <div class="supplier-name">北京芯片贸易公司</div>
+                                    <div class="supplier-rating">⭐⭐⭐⭐ 4.5分 (189评)</div>
+                                </div>
+                            </div>
+                            <div class="supplier-info">
+                                <span class="tag tag-new">新供应商</span>
+                                <div style="margin-top: 4px; font-size: 12px;">原装正品 | 10天交期 | 未合作</div>
+                            </div>
+                            <div class="price-compare">
+                                <div class="price-value">¥31.50</div>
+                                <div class="price-label">单价（≥100片）</div>
+                                <div class="price-diff price-lower">↓ 低 1.6%</div>
+                            </div>
+                            <div class="stock-status">
+                                <div class="stock-value">1,500 片</div>
+                                <div class="stock-label">现货库存</div>
+                            </div>
+                            <div class="supplier-actions">
+                                <button class="btn-primary">立即询价</button>
+                                <button class="btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 匹配项2 -->
+                <div class="match-item">
+                    <div class="match-header">
+                        <div class="material-info">
+                            <div class="material-name">🔌 Nordic nRF52840</div>
+                            <div class="material-spec">BLE 5.0/5.1 SoC | ARM Cortex-M4 | QFN-73 | +105dBm</div>
+                            <div class="material-status">
+                                <span class="status-item">📦 当前库存：<strong>85 片</strong></span>
+                                <span class="status-item">💰 现有采购价：<strong>¥38.00/片</strong></span>
+                                <span class="status-item">📅 上次采购：2025-10-01</span>
+                            </div>
+                        </div>
+                        <div class="match-badge">
+                            🎯 找到 2 家供应商<br>
+                            <span style="font-size: 11px;">最低 ¥32.00 | 节省 15.8%</span>
+                        </div>
+                    </div>
+
+                    <div class="supplier-list">
+                        <div class="supplier-list-header">💼 推荐供应商对比</div>
+
+                        <div class="supplier-item">
+                            <div class="supplier-company">
+                                <div class="supplier-logo">深</div>
+                                <div>
+                                    <div class="supplier-name">深圳市华强元器件有限公司</div>
+                                    <div class="supplier-rating">⭐⭐⭐⭐⭐ 4.9分 (568评)</div>
+                                </div>
+                            </div>
+                            <div class="supplier-info">
+                                <span class="tag tag-verified">✓ 认证供应商</span>
+                                <span class="tag tag-popular">热门</span>
+                                <div style="margin-top: 4px; font-size: 12px;">原装正品 | 7天交期 | 已合作3次</div>
+                            </div>
+                            <div class="price-compare">
+                                <div class="price-value">¥32.00</div>
+                                <div class="price-label">单价（≥50片）</div>
+                                <div class="price-diff price-lower">↓ 低 15.8%</div>
+                            </div>
+                            <div class="stock-status">
+                                <div class="stock-value">5,200 片</div>
+                                <div class="stock-label">现货库存</div>
+                            </div>
+                            <div class="supplier-actions">
+                                <button class="btn-primary">立即询价</button>
+                                <button class="btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+
+                        <div class="supplier-item">
+                            <div class="supplier-company">
+                                <div class="supplier-logo">杭</div>
+                                <div>
+                                    <div class="supplier-name">杭州无线通信供应商</div>
+                                    <div class="supplier-rating">⭐⭐⭐⭐ 4.6分 (234评)</div>
+                                </div>
+                            </div>
+                            <div class="supplier-info">
+                                <span class="tag tag-verified">✓ 认证供应商</span>
+                                <div style="margin-top: 4px; font-size: 12px;">原装正品 | 5天交期 | 未合作</div>
+                            </div>
+                            <div class="price-compare">
+                                <div class="price-value">¥34.50</div>
+                                <div class="price-label">单价（≥50片）</div>
+                                <div class="price-diff price-lower">↓ 低 9.2%</div>
+                            </div>
+                            <div class="stock-status">
+                                <div class="stock-value">2,800 片</div>
+                                <div class="stock-label">现货库存</div>
+                            </div>
+                            <div class="supplier-actions">
+                                <button class="btn-primary">立即询价</button>
+                                <button class="btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 匹配项3 -->
+                <div class="match-item">
+                    <div class="match-header">
+                        <div class="material-info">
+                            <div class="material-name">📟 树莓派4B开发板</div>
+                            <div class="material-spec">Broadcom BCM2711 | 4GB RAM | WiFi/BT | 4×USB 3.0</div>
+                            <div class="material-status">
+                                <span class="status-item">📦 当前库存：<strong>15 套</strong></span>
+                                <span class="status-item">💰 现有采购价：<strong>¥425.00/套</strong></span>
+                                <span class="status-item">📅 上次采购：2025-09-20</span>
+                            </div>
+                        </div>
+                        <div class="match-badge">
+                            🎯 找到 2 家供应商<br>
+                            <span style="font-size: 11px;">最低 ¥385.00 | 节省 9.4%</span>
+                        </div>
+                    </div>
+
+                    <div class="supplier-list">
+                        <div class="supplier-list-header">💼 推荐供应商对比</div>
+
+                        <div class="supplier-item">
+                            <div class="supplier-company">
+                                <div class="supplier-logo">深</div>
+                                <div>
+                                    <div class="supplier-name">深圳市开发板专营店</div>
+                                    <div class="supplier-rating">⭐⭐⭐⭐⭐ 4.8分 (423评)</div>
+                                </div>
+                            </div>
+                            <div class="supplier-info">
+                                <span class="tag tag-verified">✓ 认证供应商</span>
+                                <span class="tag tag-popular">热门</span>
+                                <div style="margin-top: 4px; font-size: 12px;">官方原装 | 3天交期 | 已合作2次</div>
+                            </div>
+                            <div class="price-compare">
+                                <div class="price-value">¥385.00</div>
+                                <div class="price-label">单价（≥10套）</div>
+                                <div class="price-diff price-lower">↓ 低 9.4%</div>
+                            </div>
+                            <div class="stock-status">
+                                <div class="stock-value">320 套</div>
+                                <div class="stock-label">现货库存</div>
+                            </div>
+                            <div class="supplier-actions">
+                                <button class="btn-primary">立即询价</button>
+                                <button class="btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+
+                        <div class="supplier-item">
+                            <div class="supplier-company">
+                                <div class="supplier-logo">上</div>
+                                <div>
+                                    <div class="supplier-name">上海智能硬件供应链</div>
+                                    <div class="supplier-rating">⭐⭐⭐⭐ 4.5分 (267评)</div>
+                                </div>
+                            </div>
+                            <div class="supplier-info">
+                                <span class="tag tag-verified">✓ 认证供应商</span>
+                                <div style="margin-top: 4px; font-size: 12px;">官方原装 | 5天交期 | 未合作</div>
+                            </div>
+                            <div class="price-compare">
+                                <div class="price-value">¥398.00</div>
+                                <div class="price-label">单价（≥10套）</div>
+                                <div class="price-diff price-lower">↓ 低 6.4%</div>
+                            </div>
+                            <div class="stock-status">
+                                <div class="stock-value">180 套</div>
+                                <div class="stock-label">现货库存</div>
+                            </div>
+                            <div class="supplier-actions">
+                                <button class="btn-primary">立即询价</button>
+                                <button class="btn-secondary">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 更多匹配项提示 -->
+                <div style="text-align: center; padding: 20px; color: #666;">
+                    <div style="margin-bottom: 12px;">还有 42 个物料匹配结果</div>
+                    <button class="btn-secondary" onclick="viewAllMatches()">查看全部匹配</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 供应商详情模态框 -->
+    <div class="modal" id="supplierDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🏢 供应商详细信息</div>
+                <button class="modal-close" onclick="closeSupplierDetail()">×</button>
+            </div>
+            <div class="modal-body" id="supplierDetailContent">
+                <!-- 详情内容将动态插入 -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeSupplierDetail()">关闭</button>
+                <button class="btn-primary" onclick="contactSupplier()">联系供应商</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 导出匹配清单功能
+        function exportMatchList() {
+            const timestamp = new Date().toLocaleString('zh-CN').replace(/[/:]/g, '-').replace(/\s/g, '_');
+            const fileName = `供应商智能匹配清单_${timestamp}.csv`;
+
+            // 准备CSV数据
+            const headers = ['物料型号', '物料描述', '当前库存', '现有采购价', '推荐供应商数', '最低价格', '价格优势', '推荐供应商', '供应商评分', '供应商价格', '库存数量'];
+
+            const data = [
+                ['STM32F407VGT6', 'ARM Cortex-M4 MCU | LQFP-100 | 168MHz', '120片', '¥32.00', '3家', '¥28.50', '节省10.9%', '深圳市华强元器件有限公司', '4.9分', '¥28.50', '8500片'],
+                ['Nordic nRF52840', 'BLE 5.0/5.1 SoC | ARM Cortex-M4 | QFN-73', '85片', '¥38.00', '2家', '¥32.00', '节省15.8%', '深圳市华强元器件有限公司', '4.9分', '¥32.00', '5200片'],
+                ['树莓派4B开发板', 'Broadcom BCM2711 | 4GB RAM', '15套', '¥425.00', '2家', '¥385.00', '节省9.4%', '深圳市开发板专营店', '4.8分', '¥385.00', '320套']
+            ];
+
+            // 生成CSV内容
+            let csvContent = '\uFEFF'; // BOM for UTF-8
+            csvContent += headers.join(',') + '\n';
+            data.forEach(row => {
+                csvContent += row.join(',') + '\n';
+            });
+
+            // 创建Blob并下载
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // 显示成功提示
+            alert(`✅ 导出成功！\n\n文件名: ${fileName}\n\n包含内容:\n━━━━━━━━━━━━━━━━━━\n📋 匹配物料: 45个\n🏢 推荐供应商: 128家\n💰 价格对比数据: 完整\n📊 库存信息: 实时\n━━━━━━━━━━━━━━━━━━\n\n文件已保存到下载文件夹`);
+        }
+
+        // 批量询价功能
+        function batchInquiry() {
+            const materialCount = 45;
+            const supplierCount = 128;
+            const estimatedSave = '18.5%';
+
+            const confirmMsg = `📨 批量发起询价\n\n━━━━━━━━━━━━━━━━━━\n📋 匹配物料: ${materialCount}个\n🏢 目标供应商: ${supplierCount}家\n💰 预计节省: ${estimatedSave}\n━━━━━━━━━━━━━━━━━━\n\n系统将向所有推荐供应商发送询价单，包括:\n\n✓ 物料详细信息\n✓ 需求数量\n✓ 期望价格\n✓ 交期要求\n\n供应商将在24小时内回复报价。\n\n是否确认批量发起询价？`;
+
+            if (confirm(confirmMsg)) {
+                // 显示处理中
+                setTimeout(() => {
+                    const inquiryId = 'INQ' + Date.now().toString().slice(-8);
+                    alert(`✅ 批量询价单已成功发送！\n\n━━━━━━━━━━━━━━━━━━\n📨 询价单编号: ${inquiryId}\n📅 发送时间: ${new Date().toLocaleString()}\n\n📋 询价明细:\n• 物料数量: ${materialCount}个\n• 供应商数量: ${supplierCount}家\n• 询价总数: ${materialCount * 3}条\n\n━━━━━━━━━━━━━━━━━━\n⏰ 供应商将在24小时内回复\n📧 您将收到邮件和站内通知\n📊 可在"询价管理"中查看进度\n\n感谢使用EZPLM智能匹配系统！`);
+
+                    // 跳转到询价列表
+                    setTimeout(() => {
+                        location.href = 'procurement-inquiry.html';
+                    }, 500);
+                }, 300);
+            }
+        }
+
+        // 单个供应商询价功能
+        function inquireSupplier(supplierName, materialModel, price) {
+            const confirmMsg = `📨 向供应商发起询价\n\n━━━━━━━━━━━━━━━━━━\n🏢 供应商: ${supplierName}\n📦 物料型号: ${materialModel}\n💰 报价: ¥${price}/片\n━━━━━━━━━━━━━━━━━━\n\n是否确认发送询价？`;
+
+            if (confirm(confirmMsg)) {
+                const inquiryId = 'INQ' + Date.now().toString().slice(-8);
+                alert(`✅ 询价单已发送！\n\n━━━━━━━━━━━━━━━━━━\n📨 询价单编号: ${inquiryId}\n🏢 供应商: ${supplierName}\n📦 物料: ${materialModel}\n📅 发送时间: ${new Date().toLocaleString()}\n\n━━━━━━━━━━━━━━━━━━\n⏰ 供应商将在24小时内回复\n📧 您将收到通知\n\n可在"询价管理"中查看详情`);
+            }
+        }
+
+        // 查看供应商详情
+        function viewSupplierDetail(supplierName) {
+            const modal = document.getElementById('supplierDetailModal');
+            const content = document.getElementById('supplierDetailContent');
+
+            // 模拟供应商详细信息
+            const supplierData = {
+                '深圳市华强元器件有限公司': {
+                    name: '深圳市华强元器件有限公司',
+                    rating: '4.9分',
+                    reviews: 568,
+                    verified: true,
+                    cooperation: 3,
+                    location: '广东省深圳市福田区华强北路',
+                    established: '2015年',
+                    employees: '50-200人',
+                    business: '电子元器件批发零售',
+                    speciality: 'MCU芯片、电源管理IC、传感器',
+                    certifications: 'ISO9001认证、原厂授权',
+                    delivery: '平均5-7天',
+                    minOrder: '100片起订',
+                    payment: '支持月结、货到付款',
+                    contact: '张经理 138-0000-1234'
+                },
+                '上海电子元器件商城': {
+                    name: '上海电子元器件商城',
+                    rating: '4.7分',
+                    reviews: 342,
+                    verified: true,
+                    cooperation: 1,
+                    location: '上海市浦东新区张江高科技园区',
+                    established: '2018年',
+                    employees: '20-50人',
+                    business: '电子元器件在线销售',
+                    speciality: 'MCU、FPGA、存储芯片',
+                    certifications: 'ISO9001认证',
+                    delivery: '平均3-5天',
+                    minOrder: '50片起订',
+                    payment: '支持支付宝、微信、对公转账',
+                    contact: '李经理 139-1111-2222'
+                }
+            };
+
+            const info = supplierData[supplierName] || supplierData['深圳市华强元器件有限公司'];
+
+            content.innerHTML = `
+                <div style="text-align: center; padding: 20px 0; border-bottom: 2px solid #f0f0f0; margin-bottom: 20px;">
+                    <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; margin: 0 auto 12px;">
+                        ${info.name.charAt(0)}
+                    </div>
+                    <div style="font-size: 20px; font-weight: 700; color: #3d4647; margin-bottom: 8px;">${info.name}</div>
+                    <div style="font-size: 14px; color: #f59e0b;">
+                        ⭐ ${info.rating} (${info.reviews}条评价)
+                        ${info.verified ? '<span style="margin-left: 12px; color: #00890b;">✓ 认证供应商</span>' : ''}
+                    </div>
+                </div>
+
+                <div class="detail-row">
+                    <div class="detail-label">📍 公司地址</div>
+                    <div class="detail-value">${info.location}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">📅 成立时间</div>
+                    <div class="detail-value">${info.established}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">👥 公司规模</div>
+                    <div class="detail-value">${info.employees}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">💼 主营业务</div>
+                    <div class="detail-value">${info.business}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">⭐ 主营品类</div>
+                    <div class="detail-value">${info.speciality}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">📜 资质认证</div>
+                    <div class="detail-value">${info.certifications}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">🚚 交期说明</div>
+                    <div class="detail-value">${info.delivery}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">📦 起订量</div>
+                    <div class="detail-value">${info.minOrder}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">💳 付款方式</div>
+                    <div class="detail-value">${info.payment}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">🤝 合作次数</div>
+                    <div class="detail-value">${info.cooperation}次历史合作</div>
+                <div class="detail-row" style="border-bottom: none;">
+                    <div class="detail-label">📞 联系方式</div>
+                    <div class="detail-value">${info.contact}</div>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        // 关闭供应商详情
+        function closeSupplierDetail() {
+            document.getElementById('supplierDetailModal').classList.remove('show');
+        }
+
+        // 联系供应商
+        function contactSupplier() {
+            alert('📞 联系供应商\n\n系统将为您转接供应商联系人。\n\n您也可以通过以下方式联系:\n• 站内消息\n• 电话联系\n• 邮件沟通');
+        }
+
+        // 查看全部匹配
+        function viewAllMatches() {
+            alert('🎯 查看全部匹配\n\n正在加载完整的45个物料匹配结果...\n\n包括:\n• 详细物料信息\n• 供应商对比\n• 价格分析\n• 库存状况');
+
+            // 实际应用中可以加载更多数据或跳转到完整列表页面
+            setTimeout(() => {
+                // location.href = 'procurement-supplier-match-full.html';
+                console.log('加载完整匹配列表');
+            }, 500);
+        }
+
+        // 点击模态框背景关闭
+        document.getElementById('supplierDetailModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSupplierDetail();
+            }
+        });
+
+        // 为所有"立即询价"按钮添加事件（动态添加）
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为所有立即询价按钮添加事件
+            const inquiryButtons = document.querySelectorAll('.supplier-actions .btn-primary');
+            inquiryButtons.forEach((btn, index) => {
+                if (!btn.onclick) {
+                    btn.onclick = function() {
+                        const supplierItem = this.closest('.supplier-item');
+                        const supplierName = supplierItem.querySelector('.supplier-name').textContent;
+                        const materialName = supplierItem.closest('.match-item').querySelector('.material-name').textContent.replace(/[🔌📟]/g, '').trim();
+                        const price = supplierItem.querySelector('.price-value').textContent.replace('¥', '');
+                        inquireSupplier(supplierName, materialName, parseFloat(price));
+                    };
+                }
+            });
+
+            // 为所有查看详情按钮添加事件
+            const detailButtons = document.querySelectorAll('.supplier-actions .btn-secondary');
+            detailButtons.forEach((btn, index) => {
+                if (!btn.onclick) {
+                    btn.onclick = function() {
+                        const supplierName = this.closest('.supplier-item').querySelector('.supplier-name').textContent;
+                        viewSupplierDetail(supplierName);
+                    };
+                }
+            });
+        });
+    </script>
+</body>
+</html>

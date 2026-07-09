@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 专业的产品生命周期管理平台</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            color: #3d4647;
+            line-height: 1.6;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 40px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            text-decoration: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+
+        .nav-menu a {
+            color: #3d4647;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .nav-menu a:hover {
+            color: #00890b;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-outline {
+            background: white;
+            color: #00890b;
+            border: 2px solid #00890b;
+        }
+
+        .btn-outline:hover {
+            background: #00890b;
+            color: white;
+        }
+
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #007309;
+        }
+
+        /* Hero区域 */
+        .hero {
+            background: linear-gradient(135deg, #f4f4f4 0%, #e8f5e9 100%);
+            padding: 100px 40px;
+            text-align: center;
+        }
+
+        .hero-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        .hero .highlight {
+            color: #00890b;
+        }
+
+        .hero p {
+            font-size: 20px;
+            color: #3d4647;
+            margin-bottom: 40px;
+            opacity: 0.85;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 60px;
+        }
+
+        .hero-actions .btn {
+            padding: 16px 40px;
+            font-size: 16px;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+            margin-top: 60px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 48px;
+            font-weight: 800;
+            color: #00890b;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 16px;
+            color: #3d4647;
+        }
+
+        /* 功能特性区域 */
+        .features {
+            padding: 100px 40px;
+            background: white;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 40px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            font-size: 18px;
+            color: #3d4647;
+            opacity: 0.7;
+        }
+
+        .features-grid {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 40px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 40px;
+            border-radius: 8px;
+            border: 2px solid #f4f4f4;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: #00890b;
+            box-shadow: 0 8px 24px rgba(0,137,11,0.1);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            font-size: 15px;
+            color: #3d4647;
+            opacity: 0.75;
+            line-height: 1.8;
+        }
+
+        /* 产品优势区域 */
+        .benefits {
+            padding: 100px 40px;
+            background: #f4f4f4;
+        }
+
+        .benefits-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .benefits-content h2 {
+            font-size: 40px;
+            font-weight: 800;
+            color: #3d4647;
+            margin-bottom: 24px;
+        }
+
+        .benefits-list {
+            list-style: none;
+        }
+
+        .benefits-list li {
+            padding: 16px 0;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .benefits-list li:before {
+            content: '✓';
+            background: #00890b;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .benefits-visual {
+            background: white;
+            padding: 60px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .benefits-visual img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* 定价区域 */
+        .pricing {
+            padding: 100px 40px;
+            background: white;
+        }
+
+        .pricing-grid {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+            align-items: stretch;
+        }
+
+        .pricing-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card.featured {
+            border-color: #00890b;
+            box-shadow: 0 8px 24px rgba(0,137,11,0.15);
+        }
+
+        .pricing-badge {
+            display: inline-block;
+            background: #00890b;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 12px;
+            vertical-align: middle;
+        }
+
+        .pricing-header {
+            margin-bottom: 24px;
+        }
+
+        .price-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .pricing-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 16px;
+        }
+
+        .pricing-price {
+            font-size: 48px;
+            font-weight: 800;
+            color: #00890b;
+            margin-bottom: 8px;
+        }
+
+        .pricing-price span {
+            font-size: 16px;
+            color: #3d4647;
+            opacity: 0.7;
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 32px 0;
+            text-align: left;
+            flex-grow: 1;
+        }
+
+        .pricing-features li {
+            padding: 12px 0;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .pricing-features li:before {
+            content: '✓';
+            color: #00890b;
+            font-weight: bold;
+        }
+
+        .pricing-action {
+            margin-top: auto;
+        }
+
+        /* CTA区域 */
+        .cta {
+            background: linear-gradient(135deg, #00890b 0%, #007309 100%);
+            padding: 100px 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .cta h2 {
+            font-size: 40px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        .cta p {
+            font-size: 18px;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        .cta .btn-outline {
+            background: white;
+            color: #00890b;
+            border-color: white;
+        }
+
+        .cta .btn-outline:hover {
+            background: transparent;
+            color: white;
+        }
+
+        /* 底部 */
+        .footer {
+            background: #3d4647;
+            color: white;
+            padding: 60px 40px 30px;
+        }
+
+        .footer-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 40px;
+        }
+
+        .footer h4 {
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer ul {
+            list-style: none;
+        }
+
+        .footer ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+        }
+
+        /* 应用场景 */
+        .use-cases {
+            padding: 100px 40px;
+            background: #f4f4f4;
+        }
+
+        .use-cases-grid {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        .use-case-card {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+
+        .use-case-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,137,11,0.15);
+        }
+
+        .use-case-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .use-case-card h3 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 16px;
+        }
+
+        .use-case-card p {
+            font-size: 15px;
+            color: #3d4647;
+            opacity: 0.75;
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .use-case-features {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .use-case-features li {
+            font-size: 14px;
+            color: #3d4647;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .use-case-features li:before {
+            content: '✓';
+            color: #00890b;
+            font-weight: bold;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 36px; }
+            .hero p { white-space: normal !important; }
+            .hero-stats, .features-grid, .pricing-grid, .footer-container, .use-cases-grid {
+                grid-template-columns: 1fr;
+            }
+            .benefits-container {
+                grid-template-columns: 1fr;
+                gap: 40px;
+            }
+            .use-case-features {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">EZ-PLM</a>
+
+            <ul class="nav-menu">
+                <li><a href="#features">产品功能</a></li>
+                <li><a href="#benefits">产品优势</a></li>
+                <li><a href="#use-cases">应用场景</a></li>
+                <li><a href="#pricing">价格方案</a></li>
+                <li><a href="help.html">帮助中心</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="auth.html" class="btn btn-outline">登录</a>
+                <a href="auth.html" class="btn btn-primary">免费试用</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero区域 -->
+    <section class="hero">
+        <div class="hero-container">
+            <h1>让产品研发<span class="highlight">更高效</span></h1>
+            <p style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">AI驱动的研发管理平台，从元器件管理到项目交付、从竞赛活动到产业协作的一站式解决方案</p>
+
+            <div class="hero-actions">
+                <a href="auth.html" class="btn btn-primary">免费开始</a>
+                <a href="#demo" class="btn btn-outline">观看演示</a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number">110万+</div>
+                    <div class="stat-label">云端元器件数据</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2万+</div>
+                    <div class="stat-label">参考设计资源</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">5000+</div>
+                    <div class="stat-label">企业用户信赖</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 功能特性 -->
+    <section id="features" class="features">
+        <div class="section-header">
+            <h2>全方位功能模块</h2>
+            <p>12大核心功能模块，打造电子产品研发生态闭环</p>
+        </div>
+
+        <div class="features-grid">
+            <!-- 研发管理 -->
+            <div class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h3>项目管理</h3>
+                <p>看板视图、甘特图、里程碑管理，团队协作、任务分配，让项目进度一目了然</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📦</div>
+                <h3>物料管理</h3>
+                <p>110万+云端元器件数据库，智能搜索、参数对比、替代料推荐，让选型更简单</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>BOM管理</h3>
+                <p>可视化BOM编辑、成本分析、版本管理，支持多格式导入导出，一键生成采购订单</p>
+            </div>
+
+            <!-- 供应链管理 -->
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>库存管理</h3>
+                <p>实时库存监控、安全库存预警、入库出库管理、库存周转分析，降低库存成本</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🛒</div>
+                <h3>采购管理</h3>
+                <p>询价管理、合同管理、付款管理、供应商评价，全流程数字化采购</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🏭</div>
+                <h3>生产管理</h3>
+                <p>生产计划、质量管理、测试标准、报告导出，规范化生产流程</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🔍</div>
+                <h3>精准元器件资料查询</h3>
+                <p>110万+元器件数据库，智能搜索引擎，精准匹配参数规格，快速获取完整技术资料</p>
+            </div>
+
+            <!-- AI与工具 -->
+            <div class="feature-card">
+                <div class="feature-icon">🤖</div>
+                <h3>AI编程助手</h3>
+                <p>智能代码生成、嵌入式开发辅助、代码优化建议，提升10倍开发效率</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📐</div>
+                <h3>PCB预布局</h3>
+                <p>可视化PCB设计、智能布局优化、DRC检查，快速完成硬件设计</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📚</div>
+                <h3>参考设计库</h3>
+                <p>2万+参考设计方案、开源电路、应用笔记，快速原型开发</p>
+            </div>
+
+            <!-- 业务生态 -->
+            <div class="feature-card">
+                <div class="feature-icon">🏪</div>
+                <h3>元器件供货</h3>
+                <p>供需智能匹配、实时报价、询价管理，打通元器件采购通道</p>
+            </div>
+
+            <!-- 产业生态 -->
+            <div class="feature-card">
+                <div class="feature-icon">🌐</div>
+                <h3>产业生态</h3>
+                <p>服务外包、校园招聘、教育培训、竞赛活动，构建完整产学研生态圈</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 产品优势 -->
+    <section id="benefits" class="benefits">
+        <div class="benefits-container">
+            <div class="benefits-content">
+                <h2>为什么选择 EZPLM？</h2>
+                <ul class="benefits-list">
+                    <li>全生态闭环：从研发到生产，从采购到供货，一站式解决</li>
+                    <li>海量数据支持：110万+元器件库，2万+参考设计，快速选型</li>
+                    <li>智能AI赋能：编程助手、PCB布局、自动化工作流</li>
+                    <li>完整供应链管理：询价、采购、库存、生产全流程数字化</li>
+                    <li>产业生态对接：元器件供货、服务外包、人才招聘</li>
+                    <li>教育社区支持：在线课程、竞赛活动、毕业设计</li>
+                    <li>灵活权限体系：多角色、多层级、审批流程可定制</li>
+                    <li>云端协作：随时随地访问，团队实时同步</li>
+                </ul>
+            </div>
+
+            <div class="benefits-visual">
+                <div style="width: 100%; height: 400px; background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 40px;">
+                    <div style="font-size: 72px; margin-bottom: 20px;">🚀</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #00890b; margin-bottom: 12px;">EZPLM生态平台</div>
+                    <div style="font-size: 14px; color: #3d4647; text-align: center; line-height: 1.8;">
+                        研发管理 + 供应链 + AI工具<br>
+                        产业协作 + 教育社区 + 智能匹配
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 价格方案 -->
+    <section id="pricing" class="pricing">
+        <div class="section-header">
+            <h2>选择适合您的方案</h2>
+            <p>灵活的定价方案，满足不同规模企业的需求</p>
+        </div>
+
+        <div class="pricing-grid">
+            <!-- 免费版 -->
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>免费版</h3>
+                    <div class="pricing-price">¥0<span>/月</span></div>
+                </div>
+                <ul class="pricing-features">
+                    <li>5GB 云存储空间</li>
+                    <li>物料管理（基础）</li>
+                    <li>项目管理（基础）</li>
+                    <li>BOM管理（基础）</li>
+                    <li>适合个人创客</li>
+                </ul>
+                <div class="pricing-action">
+                    <a href="auth.html" class="btn btn-outline" style="width: 100%;">免费使用</a>
+                </div>
+            </div>
+
+            <!-- 标准版 -->
+            <div class="pricing-card featured">
+                <div class="pricing-header">
+                    <h3>标准版</h3>
+                    <div class="price-row">
+                        <div class="pricing-price">¥49<span>/人/月</span></div>
+                        <span class="pricing-badge">推荐</span>
+                    </div>
+                </div>
+                <ul class="pricing-features">
+                    <li>50GB 云存储空间</li>
+                    <li>完整的研发管理功能</li>
+                    <li>库存采购生产管理</li>
+                    <li>元器件供货平台</li>
+                    <li>团队协作与审批</li>
+                    <li>多用户协作</li>
+                    <li>适合小团队</li>
+                </ul>
+                <div class="pricing-action">
+                    <a href="auth.html" class="btn btn-primary" style="width: 100%;">立即购买</a>
+                </div>
+            </div>
+
+            <!-- 专业版 -->
+            <div class="pricing-card">
+                <div class="pricing-header">
+                    <h3>专业版</h3>
+                    <div class="pricing-price">¥79<span>/人/月</span></div>
+                </div>
+                <ul class="pricing-features">
+                    <li>200GB 云存储空间</li>
+                    <li>AI编程助手+PCB工具</li>
+                    <li>服务外包与招聘</li>
+                    <li>教育中心与活动</li>
+                    <li>高级数据分析</li>
+                    <li>API接口与集成</li>
+                    <li>自定义权限体系</li>
+                    <li>专属客户经理</li>
+                    <li>适合企业与高校</li>
+                </ul>
+                <div class="pricing-action">
+                    <a href="auth.html" class="btn btn-outline" style="width: 100%;">联系销售</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 应用场景 -->
+    <section id="use-cases" class="use-cases">
+        <div class="section-header">
+            <h2>适用场景</h2>
+            <p>服务电子产品全生命周期，覆盖企业、高校、个人多场景</p>
+        </div>
+
+        <div class="use-cases-grid">
+            <!-- 企业研发团队 -->
+            <div class="use-case-card">
+                <div class="use-case-icon">🏢</div>
+                <h3>企业研发团队</h3>
+                <p>提供从研发到生产的完整数字化解决方案，提升团队协作效率，降低研发成本</p>
+                <ul class="use-case-features">
+                    <li>项目全生命周期管理</li>
+                    <li>供应链协同优化</li>
+                    <li>BOM成本分析</li>
+                    <li>生产质量管控</li>
+                    <li>AI辅助设计</li>
+                    <li>审批流程自动化</li>
+                </ul>
+            </div>
+
+            <!-- 高校教育 -->
+            <div class="use-case-card">
+                <div class="use-case-icon">🎓</div>
+                <h3>高校电子教育</h3>
+                <p>支持实验教学、课程管理、毕业设计、学科竞赛，培养电子工程人才</p>
+                <ul class="use-case-features">
+                    <li>在线课程与实验</li>
+                    <li>作业批改管理</li>
+                    <li>毕业设计平台</li>
+                    <li>竞赛项目管理</li>
+                    <li>校企合作对接</li>
+                    <li>学生作品展示</li>
+                </ul>
+            </div>
+
+            <!-- 元器件供应商 -->
+            <div class="use-case-card">
+                <div class="use-case-icon">🏪</div>
+                <h3>元器件供应商</h3>
+                <p>连接供需两端，智能匹配采购需求，提供报价询价、库存管理一体化服务</p>
+                <ul class="use-case-features">
+                    <li>产品发布与推广</li>
+                    <li>智能需求匹配</li>
+                    <li>询价管理</li>
+                    <li>报价对比</li>
+                    <li>订单跟踪</li>
+                    <li>客户管理</li>
+                </ul>
+            </div>
+
+            <!-- 创客与个人开发者 -->
+            <div class="use-case-card">
+                <div class="use-case-icon">💡</div>
+                <h3>创客与个人开发者</h3>
+                <p>海量参考设计、AI编程助手、元器件搜索，快速完成创意原型开发</p>
+                <ul class="use-case-features">
+                    <li>免费元器件库</li>
+                    <li>参考设计资源</li>
+                    <li>AI编程辅助</li>
+                    <li>PCB设计工具</li>
+                    <li>项目管理</li>
+                    <li>社区交流</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA区域 -->
+    <section class="cta">
+        <h2>准备好开始了吗？</h2>
+        <p>立即注册，免费试用所有专业版功能14天</p>
+        <div style="display: flex; gap: 20px; justify-content: center;">
+            <a href="auth.html" class="btn btn-primary">免费试用</a>
+            <a href="#contact" class="btn btn-outline">联系我们</a>
+        </div>
+    </section>
+
+    <!-- 底部 -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div>
+                <h4>关于 EZPLM</h4>
+                <p style="opacity: 0.8; font-size: 14px; line-height: 1.8;">
+                    专为电子技术领域打造的PLM+PM+AI平台，帮助企业实现产品研发的数字化转型。
+                </p>
+            </div>
+
+            <div>
+                <h4>产品</h4>
+                <ul>
+                    <li><a href="#features">功能介绍</a></li>
+                    <li><a href="#use-cases">应用场景</a></li>
+                    <li><a href="#pricing">价格方案</a></li>
+                    <li><a href="dashboard-pro.html">立即体验</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4>生态服务</h4>
+                <ul>
+                    <li><a href="component-supply.html">元器件供货</a></li>
+                    <li><a href="outsourcing-hub.html">服务外包</a></li>
+                    <li><a href="campus-recruitment.html">校园招聘</a></li>
+                    <li><a href="education.html">教育中心</a></li>
+                    <li><a href="activities.html">活动专区</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4>联系我们</h4>
+                <ul>
+                    <li><a href="mailto:support@ezplm.cn">support@ezplm.cn</a></li>
+                    <li><a href="tel:400-123-4567">400-123-4567</a></li>
+                    <li><a href="#wechat">微信客服</a></li>
+                    <li><a href="help.html">帮助中心</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025 EZPLM. All rights reserved. | <a href="#privacy">隐私政策</a> | <a href="#terms">服务条款</a></p>
+        </div>
+    </footer>
+
+    <script>
+        // 平滑滚动
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // 导航栏滚动效果
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            const currentScroll = window.pageYOffset;
+
+            if (currentScroll > 100) {
+                navbar.style.boxShadow = '0 4px 12px rgba(0,0,0,0.12)';
+            } else {
+                navbar.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>

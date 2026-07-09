@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑产品 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容 */
+        .main-content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 15px;
+            opacity: 0.9;
+        }
+
+        /* 产品状态卡片 */
+        .status-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .status-badge.online {
+            background: #dcfce7;
+            color: #00890b;
+        }
+        .status-badge.offline {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .status-text {
+            font-size: 14px;
+            color: #666;
+        }
+        .status-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 表单容器 */
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            max-width: 1440px;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+            padding-bottom: 32px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .section-icon {
+            font-size: 24px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 20px;
+        }
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .required {
+            color: #dc2626;
+            font-size: 14px;
+        }
+        .form-input {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        .form-textarea {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-height: 120px;
+            resize: vertical;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-textarea:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+        .form-select {
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .form-select:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .form-hint {
+            font-size: 12px;
+            color: #666;
+            margin-top: 6px;
+        }
+
+        /* 阶梯价格 */
+        .price-tier-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .price-tier-item {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: end;
+        }
+        .btn-remove {
+            padding: 12px 16px;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-remove:hover {
+            background: #fecaca;
+        }
+        .btn-add-tier {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #3d4647;
+            border: 2px dashed #c0c0c0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 8px;
+        }
+        .btn-add-tier:hover {
+            background: #e0e0e0;
+            border-color: #a0a0a0;
+        }
+
+        /* 图片上传 */
+        .image-upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .image-upload-area:hover {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.05);
+        }
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .upload-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .upload-hint {
+            font-size: 12px;
+            color: #999;
+        }
+        .image-preview-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .image-preview-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid #e0e0e0;
+            background: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #ccc;
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        .image-remove-btn:hover {
+            background: #dc2626;
+        }
+
+        /* 统计信息 */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #f59e0b;
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 按钮组 */
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 2px solid #f0f0f0;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #3d4647;
+            border: none;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .btn-danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 2px solid #dc2626;
+            padding: 14px 40px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+
+        /* 切换开关 */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 32px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 32px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 24px;
+            width: 24px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background-color: #00890b;
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(28px);
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item active">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <!-- 页面头部 -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">✏️ 编辑产品信息</div>
+                    <div class="page-subtitle">STM32F407VGT6 - ARM Cortex-M4 MCU</div>
+                </div>
+            </div>
+
+            <!-- 产品状态卡片 -->
+            <div class="status-card">
+                <div class="status-info">
+                    <span class="status-badge online">已上架</span>
+                    <span class="status-text">产品ID: PRD-20240324-001 | 发布时间: 2024-03-24 10:30</span>
+                </div>
+                <div class="status-actions">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="productStatus" checked onchange="toggleProductStatus()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <span style="font-size: 14px; color: #666; font-weight: 600;">上架/下架</span>
+                </div>
+            </div>
+
+            <!-- 表单容器 -->
+            <div class="form-container">
+                <!-- 产品统计 -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <span class="section-icon">📊</span>
+                        <span>产品数据统计</span>
+                    </div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-value">342</div>
+                            <div class="stat-label">匹配推送次数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">156</div>
+                            <div class="stat-label">被查看次数</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">28</div>
+                            <div class="stat-label">收到询价</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">成交订单</div>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="productForm">
+                    <!-- 基本信息 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">📋</span>
+                            <span>基本信息</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    物料型号 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" value="STM32F407VGT6" required>
+                                <div class="form-hint">修改型号会影响匹配推送</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    品牌 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" value="STMicroelectronics" required>
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    规格参数 <span class="required">*</span>
+                                </label>
+                                <textarea class="form-textarea" required>ARM Cortex-M4 168MHz, 1MB Flash, 192KB RAM, LQFP-100封装, 工作温度-40°C至85°C</textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    产品分类 <span class="required">*</span>
+                                </label>
+                                <select class="form-select" required>
+                                    <option value="mcu" selected>微控制器(MCU)</option>
+                                    <option value="sensor">传感器</option>
+                                    <option value="power">电源管理</option>
+                                    <option value="rf">射频通信</option>
+                                    <option value="analog">模拟器件</option>
+                                    <option value="passive">被动元件</option>
+                                    <option value="connector">连接器</option>
+                                    <option value="other">其他</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    封装类型 <span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" value="LQFP-100" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 价格设置 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">💰</span>
+                            <span>价格设置</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    基础单价 (元) <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-input" value="28.50" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    货币单位
+                                </label>
+                                <select class="form-select">
+                                    <option value="CNY" selected>人民币 (CNY)</option>
+                                    <option value="USD">美元 (USD)</option>
+                                    <option value="EUR">欧元 (EUR)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    阶梯价格设置
+                                </label>
+                                <div class="price-tier-list" id="priceTierList">
+                                    <div class="price-tier-item">
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" value="100" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" value="26.50" step="0.01" min="0">
+                                        </div>
+                                        <button type="button" class="btn-remove" onclick="removePriceTier(this)">删除</button>
+                                    </div>
+                                    <div class="price-tier-item">
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" value="500" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" value="24.80" step="0.01" min="0">
+                                        </div>
+                                        <button type="button" class="btn-remove" onclick="removePriceTier(this)">删除</button>
+                                    </div>
+                                    <div class="price-tier-item">
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" value="1000" min="1">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="number" class="form-input" value="23.20" step="0.01" min="0">
+                                        </div>
+                                        <button type="button" class="btn-remove" onclick="removePriceTier(this)">删除</button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-add-tier" onclick="addPriceTier()">+ 添加阶梯价格</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 库存信息 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">📦</span>
+                            <span>库存信息</span>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    库存数量 <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-input" value="8500" min="0" required>
+                                <div class="form-hint">已售出: 1,500 片</div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    最小起订量
+                                </label>
+                                <input type="number" class="form-input" value="10" min="1">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    产品状态 <span class="required">*</span>
+                                </label>
+                                <select class="form-select" required>
+                                    <option value="new" selected>全新原装</option>
+                                    <option value="original">原装现货</option>
+                                    <option value="alternative">替代料</option>
+                                    <option value="refurbished">翻新件</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    交期承诺 (天) <span class="required">*</span>
+                                </label>
+                                <input type="number" class="form-input" value="3" min="1" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 产品图片 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">📷</span>
+                            <span>产品图片</span>
+                        </div>
+                        <div class="form-group">
+                            <div class="image-preview-list" id="imagePreviewList">
+                                <div class="image-preview-item">
+                                    📷
+                                    <button type="button" class="image-remove-btn" onclick="removeImage(this)">×</button>
+                                </div>
+                                <div class="image-preview-item">
+                                    📷
+                                    <button type="button" class="image-remove-btn" onclick="removeImage(this)">×</button>
+                                </div>
+                            </div>
+                            <div class="image-upload-area" onclick="document.getElementById('imageInput').click()" style="margin-top: 16px;">
+                                <div class="upload-icon">📷</div>
+                                <div class="upload-text">点击添加更多图片</div>
+                                <div class="upload-hint">支持 JPG、PNG 格式，最多5张</div>
+                            </div>
+                            <input type="file" id="imageInput" accept="image/*" multiple style="display: none;" onchange="handleImageUpload(event)">
+                        </div>
+                    </div>
+
+                    <!-- 产品描述 -->
+                    <div class="form-section">
+                        <div class="section-title">
+                            <span class="section-icon">📝</span>
+                            <span>产品描述</span>
+                        </div>
+                        <div class="form-row single">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    详细描述
+                                </label>
+                                <textarea class="form-textarea" style="min-height: 150px;">原装正品STM32F407VGT6微控制器，基于高性能ARM Cortex-M4 32位RISC内核，工作频率高达168MHz。具有1MB Flash、192KB SRAM，支持多种外设接口。适用于工业控制、物联网设备、消费电子等领域。现货供应，质量保证，支持小批量采购。</textarea>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    质保期限
+                                </label>
+                                <select class="form-select">
+                                    <option value="">无质保</option>
+                                    <option value="30">30天</option>
+                                    <option value="90">90天</option>
+                                    <option value="180" selected>180天</option>
+                                    <option value="365">1年</option>
+                                    <option value="730">2年</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    退换货政策
+                                </label>
+                                <select class="form-select">
+                                    <option value="no">不支持退换货</option>
+                                    <option value="7" selected>7天无理由退换</option>
+                                    <option value="15">15天无理由退换</option>
+                                    <option value="quality">质量问题退换</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 按钮组 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn-danger" onclick="deleteProduct()">删除产品</button>
+                        <button type="button" class="btn-secondary" onclick="location.href='component-supply.html?view=supplier'">取消</button>
+                        <button type="submit" class="btn-primary">保存修改</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加阶梯价格
+        function addPriceTier() {
+            const tierList = document.getElementById('priceTierList');
+            const tierItem = document.createElement('div');
+            tierItem.className = 'price-tier-item';
+            tierItem.innerHTML = `
+                <div class="form-group">
+                    <input type="number" class="form-input" placeholder="起始数量" min="1">
+                <div class="form-group">
+                    <input type="number" class="form-input" placeholder="单价" step="0.01" min="0">
+                <button type="button" class="btn-remove" onclick="removePriceTier(this)">删除</button>
+            `;
+            tierList.appendChild(tierItem);
+        }
+
+        // 删除阶梯价格
+        function removePriceTier(btn) {
+            if (confirm('确定删除这个价格档位吗？')) {
+                btn.parentElement.remove();
+            }
+        }
+
+        // 处理图片上传
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            const previewList = document.getElementById('imagePreviewList');
+
+            const currentImages = previewList.children.length;
+            const maxImages = 5;
+            const canAdd = maxImages - currentImages;
+
+            if (canAdd <= 0) {
+                alert('最多只能上传5张图片');
+                return;
+            }
+
+            for (let i = 0; i < Math.min(files.length, canAdd); i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'image-preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="产品图片">
+                        <button type="button" class="image-remove-btn" onclick="removeImage(this)">×</button>
+                    `;
+                    previewList.appendChild(previewItem);
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 删除图片
+        function removeImage(btn) {
+            if (confirm('确定删除这张图片吗？')) {
+                btn.parentElement.remove();
+            }
+        }
+
+        // 切换产品状态
+        function toggleProductStatus() {
+            const checkbox = document.getElementById('productStatus');
+            const status = checkbox.checked ? '上架' : '下架';
+            if (confirm(`确定要${status}该产品吗？`)) {
+                alert(`产品已${status}！`);
+            } else {
+                checkbox.checked = !checkbox.checked;
+            }
+        }
+
+        // 删除产品
+        function deleteProduct() {
+            if (confirm('确定要删除该产品吗？此操作不可恢复！')) {
+                if (confirm('再次确认：删除后所有相关数据将被清除！')) {
+                    alert('产品已删除！');
+                    location.href = 'component-supply.html?view=supplier';
+                }
+            }
+        }
+
+        // 表单提交
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            alert('产品信息已更新！');
+
+            setTimeout(() => {
+                location.href = 'component-supply.html?view=supplier';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

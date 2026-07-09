@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOM管理 - EZPLM</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+        .page-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #007309;
+        }
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+        .btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 筛选面板 */
+        .filter-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+        }
+        .filter-group input,
+        .filter-group select {
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .filter-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        /* 统计卡片 */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .stat-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .stat-icon.green { background: rgba(0, 137, 11, 0.1); }
+        .stat-icon.blue { background: rgba(77, 171, 247, 0.1); }
+        .stat-icon.orange { background: rgba(255, 152, 0, 0.1); }
+        .stat-icon.purple { background: rgba(156, 39, 176, 0.1); }
+        .stat-content h3 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+        .stat-content p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* BOM列表表格 */
+        .bom-table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .bom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .bom-table thead {
+            background: #f8f9fa;
+        }
+        .bom-table th {
+            padding: 16px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: 700;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .bom-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #3d4647;
+        }
+        .bom-table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .bom-table tbody tr:hover {
+            background: rgba(0, 137, 11, 0.02);
+        }
+
+        /* 状态标签 */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-draft { background: #e0e0e0; color: #666; }
+        .status-approved { background: rgba(0, 137, 11, 0.1); color: #00890b; }
+        .status-pending { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
+        .status-rejected { background: rgba(244, 67, 54, 0.1); color: #f44336; }
+
+        /* 操作按钮 */
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            color: #00890b;
+        }
+        .action-btn:hover {
+            background: rgba(0, 137, 11, 0.1);
+        }
+
+        /* 分页 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            padding: 24px;
+        }
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .page-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .page-btn.active {
+            background: #00890b;
+            color: white;
+            border-color: #00890b;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 布局 -->
+    <div class="layout">
+                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item active">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <h1 class="page-title">BOM管理</h1>
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="exportBOMs()">
+                        <span>📥</span>
+                        <span>导出数据</span>
+                    </button>
+                    <button id="batchProductionBtn" class="btn btn-secondary" onclick="batchCreateProductionOrder()" style="display: none; background: #1890ff; color: white; border: 2px solid #1890ff;">
+                        <span>🏭</span>
+                        <span>批量下生产单</span>
+                        <span id="selectedCount" style="background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 12px; margin-left: 8px; font-size: 12px;">0</span>
+                    </button>
+                    <button class="btn btn-primary" onclick="createNewBOM()">
+                        <span>➕</span>
+                        <span>新建BOM</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-icon green">📝</div>
+                    <div class="stat-content">
+                        <h3>45</h3>
+                        <p>总BOM数量</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon blue">✅</div>
+                    <div class="stat-content">
+                        <h3>32</h3>
+                        <p>已审批</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon orange">⏳</div>
+                    <div class="stat-content">
+                        <h3>8</h3>
+                        <p>待审批</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">📦</div>
+                    <div class="stat-content">
+                        <h3>1,247</h3>
+                        <p>物料种类</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 筛选面板 -->
+            <div class="filter-panel">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label>项目名称</label>
+                        <input type="text" placeholder="搜索项目..." id="filterProject">
+                    </div>
+                    <div class="filter-group">
+                        <label>BOM名称</label>
+                        <input type="text" placeholder="搜索BOM..." id="filterBOM">
+                    </div>
+                    <div class="filter-group">
+                        <label>状态</label>
+                        <select id="filterStatus">
+                            <option value="">全部状态</option>
+                            <option value="draft">草稿</option>
+                            <option value="pending">待审批</option>
+                            <option value="approved">已审批</option>
+                            <option value="rejected">已驳回</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>创建时间</label>
+                        <input type="date" id="filterDate">
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn btn-secondary" onclick="resetFilters()">重置</button>
+                    <button class="btn btn-primary" onclick="applyFilters()">应用筛选</button>
+                </div>
+            </div>
+
+            <!-- BOM列表表格 -->
+            <div class="bom-table-container">
+                <table class="bom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">
+                                <input type="checkbox" id="selectAllBOM" onchange="toggleSelectAllBOM(this.checked)" style="width: 18px; height: 18px; cursor: pointer; accent-color: #00890b;">
+                            </th>
+                            <th>BOM编号</th>
+                            <th>项目名称</th>
+                            <th>子模块</th>
+                            <th>物料数量</th>
+                            <th>总成本</th>
+                            <th>状态</th>
+                            <th>生产状态</th>
+                            <th>创建人</th>
+                            <th>创建时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bomTableBody">
+                        <!-- 数据将通过JavaScript动态填充 -->
+                    </tbody>
+                </table>
+
+                <!-- 分页 -->
+                <div class="pagination">
+                    <button class="page-btn" onclick="prevPage()">‹ 上一页</button>
+                    <button class="page-btn active">1</button>
+                    <button class="page-btn">2</button>
+                    <button class="page-btn">3</button>
+                    <button class="page-btn">4</button>
+                    <button class="page-btn">5</button>
+                    <button class="page-btn" onclick="nextPage()">下一页 ›</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新建BOM选择方式Modal -->
+    <div id="createBOMModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid #e0e0e0;">
+                <h3 class="modal-title" style="font-size: 20px; font-weight: 700; color: #3d4647;">➕ 新建BOM</h3>
+                <button class="close-btn" onclick="closeCreateBOMModal()" style="background: none; border: none; font-size: 28px; color: #8c8c8c; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <div style="padding: 24px;">
+                <div style="background: #f0f9ff; border-left: 4px solid #1890ff; padding: 16px; border-radius: 4px; margin-bottom: 24px;">
+                    <div style="font-size: 14px; color: #096dd9; line-height: 1.6;">
+                        <strong>💡 创建方式说明：</strong><br>
+                        • <strong>从工程文件创建</strong>：上传Altium、KiCad等工程文件，自动提取BOM<br>
+                        • <strong>上传BOM文件</strong>：直接上传Excel/CSV格式的BOM文件<br>
+                        • <strong>手动创建</strong>：填写基本信息后，手动或从物料库添加物料
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+                    <!-- 从工程文件创建 -->
+                    <div class="create-option-card" onclick="selectCreateMethod('project')" style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.3s; background: white;">
+                        <div style="font-size: 48px; text-align: center; margin-bottom: 16px;">📁</div>
+                        <div style="font-size: 16px; font-weight: 600; color: #3d4647; text-align: center; margin-bottom: 8px;">从工程文件创建</div>
+                        <div style="font-size: 13px; color: #8c8c8c; text-align: center; line-height: 1.5;">
+                            上传完整的工程文件<br>
+                            自动提取BOM清单<br>
+                            <span style="color: #00890b; font-weight: 500;">推荐：准确度高</span>
+                        </div>
+                        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #8c8c8c; text-align: center;">
+                            支持：Altium, KiCad, Eagle
+                        </div>
+                    </div>
+
+                    <!-- 上传BOM文件 -->
+                    <div class="create-option-card" onclick="selectCreateMethod('upload')" style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.3s; background: white;">
+                        <div style="font-size: 48px; text-align: center; margin-bottom: 16px;">📤</div>
+                        <div style="font-size: 16px; font-weight: 600; color: #3d4647; text-align: center; margin-bottom: 8px;">上传BOM文件</div>
+                        <div style="font-size: 13px; color: #8c8c8c; text-align: center; line-height: 1.5;">
+                            上传Excel/CSV文件<br>
+                            AI自动匹配物料库<br>
+                            <span style="color: #1890ff; font-weight: 500;">推荐：快速导入</span>
+                        </div>
+                        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #8c8c8c; text-align: center;">
+                            支持：.xlsx, .xls, .csv
+                        </div>
+                    </div>
+
+                    <!-- 手动创建 -->
+                    <div class="create-option-card" onclick="selectCreateMethod('manual')" style="border: 2px solid #e0e0e0; border-radius: 12px; padding: 24px; cursor: pointer; transition: all 0.3s; background: white;">
+                        <div style="font-size: 48px; text-align: center; margin-bottom: 16px;">✍️</div>
+                        <div style="font-size: 16px; font-weight: 600; color: #3d4647; text-align: center; margin-bottom: 8px;">手动创建</div>
+                        <div style="font-size: 13px; color: #8c8c8c; text-align: center; line-height: 1.5;">
+                            填写项目基本信息<br>
+                            从物料库逐个添加<br>
+                            <span style="color: #faad14; font-weight: 500;">适合：小型项目</span>
+                        </div>
+                        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #f0f0f0; font-size: 12px; color: #8c8c8c; text-align: center;">
+                            完全自定义控制
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 从工程文件创建BOM Modal -->
+    <div id="createFromProjectModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid #e0e0e0;">
+                <h3 class="modal-title" style="font-size: 20px; font-weight: 700; color: #3d4647;">📁 从工程文件创建BOM</h3>
+                <button class="close-btn" onclick="closeCreateFromProjectModal()" style="background: none; border: none; font-size: 28px; color: #8c8c8c; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <div style="padding: 24px;">
+                <!-- 项目关联信息 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 16px;">📋 项目关联信息</h4>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                关联项目 *
+                                <span style="color: #ff4d4f; margin-left: 4px;">*</span>
+                            </label>
+                            <select id="projectSelect" onchange="loadModuleVersions('project')" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">-- 选择已有项目 --</option>
+                                <option value="1">智能手环开发</option>
+                                <option value="2">物联网传感器</option>
+                                <option value="3">无人机飞控</option>
+                            </select>
+                            <div style="margin-top: 6px; font-size: 12px;">
+                                <a href="projects.html" style="color: #00890b; text-decoration: none;">+ 创建新项目</a>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                选择模块版本 *
+                                <span style="color: #ff4d4f; margin-left: 4px;">*</span>
+                            </label>
+                            <select id="moduleVersionSelect" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">-- 请先选择项目 --</option>
+                            </select>
+                            <div style="margin-top: 6px; font-size: 12px; color: #8c8c8c;" id="moduleVersionHint">
+                                选择项目后自动加载模块版本
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                BOM初始版本号 *
+                                <span style="color: #ff4d4f; margin-left: 4px;">*</span>
+                            </label>
+                            <input type="text" id="bomVersionInput" value="v1.0" placeholder="v1.0" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;">
+                            <div style="margin-top: 6px; font-size: 12px; color: #8c8c8c;">
+                                遵循语义化版本规则：v主版本号.次版本号.修订号
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">版本说明</label>
+                            <textarea id="bomVersionDescription" placeholder="描述此BOM版本的主要特点..." style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 46px;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 关联信息提示卡片 -->
+                    <div id="projectInfoCard" style="display: none; margin-top: 16px; padding: 12px 16px; background: #f0f9ff; border-left: 4px solid #1890ff; border-radius: 6px;">
+                        <div style="font-size: 13px; color: #096dd9; line-height: 1.6;">
+                            <strong>📌 关联信息：</strong>
+                            <div style="margin-top: 8px;">
+                                <div>• 项目：<span id="selectedProjectName" style="font-weight: 600;">-</span></div>
+                                <div>• 模块版本：<span id="selectedModuleVersion" style="font-weight: 600;">-</span></div>
+                                <div>• BOM版本：<span id="displayBomVersion" style="font-weight: 600;">v1.0</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 上传工程文件 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 16px;">上传工程文件</h4>
+                    <div style="border: 2px dashed #d9d9d9; border-radius: 8px; padding: 40px; text-align: center; background: #fafafa; cursor: pointer; transition: all 0.3s;"
+                         id="projectFileUploadArea"
+                         onclick="document.getElementById('projectFileInput').click()"
+                         ondragover="event.preventDefault(); this.style.borderColor='#00890b'; this.style.background='#f0f9f0';"
+                         ondragleave="this.style.borderColor='#d9d9d9'; this.style.background='#fafafa';"
+                         ondrop="handleProjectFileDrop(event)">
+                        <input type="file" id="projectFileInput" accept=".zip,.PrjPcb,.kicad_pro,.sch,.brd" style="display: none;" onchange="handleProjectFileSelect(event)">
+                        <div style="font-size: 48px; margin-bottom: 12px;">📦</div>
+                        <div style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">点击上传或拖拽工程文件到此处</div>
+                        <div style="font-size: 13px; color: #8c8c8c;">支持 Altium (.PrjPcb), KiCad (.kicad_pro), Eagle (.sch, .brd) 或压缩包 (.zip)</div>
+                    </div>
+                    <div id="selectedProjectFile" style="display: none; margin-top: 12px; padding: 12px; background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 6px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 20px;">📎</span>
+                                <div>
+                                    <div style="font-weight: 600; color: #3d4647;" id="projectFileName"></div>
+                                    <div style="font-size: 12px; color: #8c8c8c;" id="projectFileSize"></div>
+                                </div>
+                            </div>
+                            <button onclick="clearProjectFile()" style="padding: 4px 12px; background: white; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; font-size: 12px;">移除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 解析选项 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 16px;">解析选项</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="autoMatchMaterials" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 14px; color: #3d4647;">自动匹配本地物料库（使用AI智能匹配物料型号）</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="extractParameters" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 14px; color: #3d4647;">提取元器件参数（封装、额定值等）</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="groupByCategory" style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 14px; color: #3d4647;">按类别分组显示</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 解析进度 -->
+                <div id="projectParseProgress" style="display: none; margin-bottom: 20px;">
+                    <div style="padding: 16px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="font-size: 24px;">⚙️</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #3d4647;">正在解析工程文件...</div>
+                                <div style="font-size: 13px; color: #8c8c8c;" id="projectParseStatus">准备解析...</div>
+                            </div>
+                        </div>
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div id="projectParseProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00890b, #00b96b); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button onclick="closeCreateFromProjectModal()" style="padding: 10px 24px; background: white; border: 1px solid #d9d9d9; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">取消</button>
+                    <button id="parseProjectBtn" onclick="parseProjectFile()" disabled style="padding: 10px 24px; background: #00890b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; opacity: 0.5;">
+                        <span>🔍</span>
+                        <span>开始解析</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 上传BOM文件Modal -->
+    <div id="uploadBOMModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid #e0e0e0;">
+                <h3 class="modal-title" style="font-size: 20px; font-weight: 700; color: #3d4647;">📤 上传BOM文件</h3>
+                <button class="close-btn" onclick="closeUploadBOMModal()" style="background: none; border: none; font-size: 28px; color: #8c8c8c; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <div style="padding: 24px;">
+                <!-- 项目关联信息 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 16px;">📋 项目关联信息</h4>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                关联项目 *
+                            </label>
+                            <select id="uploadProjectSelect" onchange="loadModuleVersions('upload')" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">-- 选择已有项目 --</option>
+                                <option value="1">智能手环开发</option>
+                                <option value="2">物联网传感器</option>
+                                <option value="3">无人机飞控</option>
+                            </select>
+                            <div style="margin-top: 6px; font-size: 12px;">
+                                <a href="projects.html" style="color: #00890b; text-decoration: none;">+ 创建新项目</a>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                选择模块版本 *
+                            </label>
+                            <select id="uploadModuleVersionSelect" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">-- 请先选择项目 --</option>
+                            </select>
+                            <div style="margin-top: 6px; font-size: 12px; color: #8c8c8c;">
+                                选择项目后自动加载模块版本
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                BOM初始版本号 *
+                            </label>
+                            <input type="text" id="uploadBomVersionInput" value="v1.0" placeholder="v1.0" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;">
+                            <div style="margin-top: 6px; font-size: 12px; color: #8c8c8c;">
+                                遵循语义化版本规则
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">版本说明</label>
+                            <textarea id="uploadBomVersionDescription" placeholder="描述此BOM版本的主要特点..." style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 46px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BOM模板下载 -->
+                <div style="background: #fff7e6; border-left: 4px solid #faad14; padding: 16px; border-radius: 4px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-weight: 600; color: #d46b08; margin-bottom: 4px;">📋 BOM模板</div>
+                            <div style="font-size: 13px; color: #d46b08;">建议使用标准模板，确保字段正确匹配</div>
+                        </div>
+                        <button onclick="downloadBOMTemplate()" style="padding: 8px 16px; background: white; border: 1px solid #faad14; color: #d46b08; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500;">
+                            <span>📥</span>
+                            <span>下载模板</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 上传BOM文件 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 16px;">上传BOM文件</h4>
+                    <div style="border: 2px dashed #d9d9d9; border-radius: 8px; padding: 40px; text-align: center; background: #fafafa; cursor: pointer; transition: all 0.3s;"
+                         id="bomFileUploadArea"
+                         onclick="document.getElementById('bomFileInput').click()"
+                         ondragover="event.preventDefault(); this.style.borderColor='#00890b'; this.style.background='#f0f9f0';"
+                         ondragleave="this.style.borderColor='#d9d9d9'; this.style.background='#fafafa';"
+                         ondrop="handleBOMFileDrop(event)">
+                        <input type="file" id="bomFileInput" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleBOMFileSelect(event)">
+                        <div style="font-size: 48px; margin-bottom: 12px;">📊</div>
+                        <div style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">点击上传或拖拽BOM文件到此处</div>
+                        <div style="font-size: 13px; color: #8c8c8c;">支持 Excel (.xlsx, .xls) 和 CSV (.csv) 格式</div>
+                    </div>
+                    <div id="selectedBOMFile" style="display: none; margin-top: 12px; padding: 12px; background: #e6f7ff; border: 1px solid #91d5ff; border-radius: 6px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span style="font-size: 20px;">📎</span>
+                                <div>
+                                    <div style="font-weight: 600; color: #3d4647;" id="bomFileName"></div>
+                                    <div style="font-size: 12px; color: #8c8c8c;" id="bomFileSize"></div>
+                                </div>
+                            </div>
+                            <button onclick="clearBOMFile()" style="padding: 4px 12px; background: white; border: 1px solid #d9d9d9; border-radius: 4px; cursor: pointer; font-size: 12px;">移除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI匹配选项 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 16px;">AI智能匹配</h4>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="enableAIMatch" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 14px; color: #3d4647;">启用AI自动匹配本地物料库</span>
+                        </label>
+                        <div style="margin-left: 26px; font-size: 13px; color: #8c8c8c; line-height: 1.5;">
+                            系统将使用AI算法，根据型号、描述、封装等信息智能匹配本地物料库中的器件<br>
+                            匹配成功率约85-95%，未匹配的器件可手动选择
+                        </div>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="createMissingMaterials" style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 14px; color: #3d4647;">自动创建缺失的物料（添加到物料库）</span>
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="validatePrices" checked style="width: 18px; height: 18px; cursor: pointer;">
+                            <span style="font-size: 14px; color: #3d4647;">验证价格和库存信息</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 解析进度 -->
+                <div id="bomParseProgress" style="display: none; margin-bottom: 20px;">
+                    <div style="padding: 16px; background: #f6ffed; border: 1px solid #b7eb8f; border-radius: 6px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="font-size: 24px;">🤖</div>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #3d4647;">AI正在智能匹配物料...</div>
+                                <div style="font-size: 13px; color: #8c8c8c;" id="bomParseStatus">准备解析...</div>
+                            </div>
+                        </div>
+                        <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
+                            <div id="bomParseProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00890b, #00b96b); transition: width 0.3s;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 匹配结果预览 -->
+                <div id="matchResultPreview" style="display: none; margin-bottom: 20px;">
+                    <div style="background: #f6ffed; border: 2px solid #52c41a; border-radius: 8px; padding: 20px;">
+                        <div style="font-size: 18px; font-weight: 700; color: #3d4647; margin-bottom: 16px;">✅ 匹配完成</div>
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                            <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                                <div style="font-size: 24px; font-weight: 700; color: #00890b;" id="totalItems">0</div>
+                                <div style="font-size: 13px; color: #8c8c8c;">总物料数</div>
+                            </div>
+                            <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                                <div style="font-size: 24px; font-weight: 700; color: #52c41a;" id="matchedItems">0</div>
+                                <div style="font-size: 13px; color: #8c8c8c;">匹配成功</div>
+                            </div>
+                            <div style="text-align: center; padding: 12px; background: white; border-radius: 6px;">
+                                <div style="font-size: 24px; font-weight: 700; color: #faad14;" id="unmatchedItems">0</div>
+                                <div style="font-size: 13px; color: #8c8c8c;">待手动匹配</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button onclick="closeUploadBOMModal()" style="padding: 10px 24px; background: white; border: 1px solid #d9d9d9; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">取消</button>
+                    <button id="parseBOMBtn" onclick="parseBOMFile()" disabled style="padding: 10px 24px; background: #00890b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; opacity: 0.5;">
+                        <span>🤖</span>
+                        <span>开始AI匹配</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 手动创建BOM Modal -->
+    <div id="manualCreateBOMModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; padding: 24px; border-bottom: 1px solid #e0e0e0;">
+                <h3 class="modal-title" style="font-size: 20px; font-weight: 700; color: #3d4647;">✍️ 手动创建BOM</h3>
+                <button class="close-btn" onclick="closeManualCreateBOMModal()" style="background: none; border: none; font-size: 28px; color: #8c8c8c; cursor: pointer; line-height: 1;">&times;</button>
+            </div>
+
+            <div style="padding: 24px;">
+                <!-- 项目关联信息 -->
+                <div style="margin-bottom: 24px;">
+                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 16px;">📋 项目关联信息</h4>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                关联项目 *
+                            </label>
+                            <select id="manualProjectSelect" onchange="loadModuleVersions('manual')" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">-- 选择已有项目 --</option>
+                                <option value="1">智能手环开发</option>
+                                <option value="2">物联网传感器</option>
+                                <option value="3">无人机飞控</option>
+                            </select>
+                            <div style="margin-top: 6px; font-size: 12px;">
+                                <a href="projects.html" style="color: #00890b; text-decoration: none;">+ 创建新项目</a>
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                选择模块版本 *
+                            </label>
+                            <select id="manualModuleVersionSelect" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; background: white; cursor: pointer;">
+                                <option value="">-- 请先选择项目 --</option>
+                            </select>
+                            <div style="margin-top: 6px; font-size: 12px; color: #8c8c8c;">
+                                选择项目后自动加载模块版本
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">
+                                BOM初始版本号 *
+                            </label>
+                            <input type="text" id="manualBomVersionInput" value="v1.0" placeholder="v1.0" style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px;">
+                            <div style="margin-top: 6px; font-size: 12px; color: #8c8c8c;">
+                                遵循语义化版本规则
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">版本说明</label>
+                            <textarea id="manualBomVersionDescription" placeholder="描述此BOM版本的主要特点..." style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 46px;"></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 14px; font-weight: 500; color: #3d4647; margin-bottom: 8px;">BOM描述</label>
+                        <textarea id="manualProjectDesc" placeholder="简要描述该BOM的用途和功能..." style="width: 100%; padding: 10px 12px; border: 1px solid #d9d9d9; border-radius: 6px; font-size: 14px; resize: vertical; min-height: 60px;"></textarea>
+                    </div>
+                </div>
+
+                <div style="background: #f0f9ff; border-left: 4px solid #1890ff; padding: 16px; border-radius: 4px; margin-bottom: 20px;">
+                    <div style="font-size: 14px; color: #096dd9; line-height: 1.6;">
+                        <strong>💡 提示：</strong><br>
+                        创建空白BOM后，您可以：<br>
+                        • 从物料库中搜索并添加物料<br>
+                        • 输入物料型号快速添加<br>
+                        • 批量导入物料清单<br>
+                        • 设置每个物料的数量和备注
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button onclick="closeManualCreateBOMModal()" style="padding: 10px 24px; background: white; border: 1px solid #d9d9d9; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">取消</button>
+                    <button onclick="createEmptyBOM()" style="padding: 10px 24px; background: #00890b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500;">
+                        <span>✅</span>
+                        <span>创建空白BOM</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal样式 -->
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .create-option-card:hover {
+            border-color: #00890b !important;
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.15) !important;
+            transform: translateY(-2px);
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #00890b;
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #006908;
+        }
+    </style>
+
+    <script>
+        // BOM数据模拟
+        const bomData = [
+            { id: 'BOM-2024-001', project: '智能手环开发', module: '主控板', itemCount: 68, totalCost: 12580.50, status: 'approved', productionStatus: 'completed', creator: '张三', createTime: '2024-01-15' },
+            { id: 'BOM-2024-002', project: '智能手环开发', module: '显示模块', itemCount: 24, totalCost: 3450.20, status: 'approved', productionStatus: 'in_production', creator: '李四', createTime: '2024-01-16' },
+            { id: 'BOM-2024-003', project: '物联网传感器', module: '数据采集板', itemCount: 45, totalCost: 8920.00, status: 'pending', productionStatus: 'not_started', creator: '王五', createTime: '2024-01-18' },
+            { id: 'BOM-2024-004', project: '无人机飞控', module: '飞控主板', itemCount: 152, totalCost: 28750.00, status: 'approved', productionStatus: 'in_production', creator: '赵六', createTime: '2024-01-20' },
+            { id: 'BOM-2024-005', project: '无人机飞控', module: '电源管理', itemCount: 32, totalCost: 5680.00, status: 'approved', productionStatus: 'completed', creator: '赵六', createTime: '2024-01-21' },
+            { id: 'BOM-2024-006', project: '智能门锁', module: '控制板', itemCount: 58, totalCost: 9450.00, status: 'draft', productionStatus: 'not_started', creator: '孙七', createTime: '2024-01-22' },
+            { id: 'BOM-2024-007', project: '机器人底盘', module: '驱动板', itemCount: 76, totalCost: 15200.00, status: 'pending', productionStatus: 'not_started', creator: '周八', createTime: '2024-01-23' },
+            { id: 'BOM-2024-008', project: '智能音箱', module: '音频处理', itemCount: 42, totalCost: 6780.00, status: 'approved', productionStatus: 'in_production', creator: '吴九', createTime: '2024-01-24' },
+            { id: 'BOM-2024-009', project: '电动滑板车', module: '控制器', itemCount: 89, totalCost: 18960.00, status: 'rejected', productionStatus: 'not_started', creator: '郑十', createTime: '2024-01-25' },
+            { id: 'BOM-2024-010', project: '智能插座', module: '主板', itemCount: 28, totalCost: 3280.00, status: 'approved', productionStatus: 'not_started', creator: '陈十一', createTime: '2024-01-26' }
+        ];
+
+        // ==================== 模块版本数据（模拟从项目详情页获取）====================
+        const moduleVersionsData = {
+            '1': [ // 智能手环开发
+                { id: 1, moduleId: 1, moduleName: '主控板', version: 'V2.1', type: 'current', itemCount: 156, cost: 32450 },
+                { id: 2, moduleId: 1, moduleName: '主控板', version: 'V2.0', type: 'previous', itemCount: 142, cost: 28900 },
+                { id: 3, moduleId: 2, moduleName: '电源模块', version: 'V1.5', type: 'current', itemCount: 42, cost: 8650 },
+                { id: 4, moduleId: 3, moduleName: '显示屏模块', version: 'V1.2', type: 'current', itemCount: 28, cost: 5200 }
+            ],
+            '2': [ // 物联网传感器
+                { id: 5, moduleId: 4, moduleName: '传感器阵列', version: 'V1.3', type: 'current', itemCount: 64, cost: 12300 },
+                { id: 6, moduleId: 5, moduleName: '数据采集板', version: 'V2.0', type: 'current', itemCount: 88, cost: 18600 }
+            ],
+            '3': [ // 无人机飞控
+                { id: 7, moduleId: 6, moduleName: '飞控主板', version: 'V3.1', type: 'current', itemCount: 152, cost: 28750 },
+                { id: 8, moduleId: 7, moduleName: '电源管理', version: 'V2.2', type: 'current', itemCount: 32, cost: 5680 },
+                { id: 9, moduleId: 8, moduleName: 'GPS模块', version: 'V1.0', type: 'current', itemCount: 18, cost: 4200 }
+            ]
+        };
+
+        // 项目名称映射
+        const projectNames = {
+            '1': '智能手环开发',
+            '2': '物联网传感器',
+            '3': '无人机飞控'
+        };
+
+        // ==================== 动态加载模块版本 ====================
+        function loadModuleVersions(source) {
+            let projectSelectId, moduleSelectId, infoCardId, projectNameSpan, moduleVersionSpan;
+
+            // 根据来源（from project / upload / manual）确定元素ID
+            if (source === 'project') {
+                projectSelectId = 'projectSelect';
+                moduleSelectId = 'moduleVersionSelect';
+                infoCardId = 'projectInfoCard';
+                projectNameSpan = 'selectedProjectName';
+                moduleVersionSpan = 'selectedModuleVersion';
+            } else if (source === 'upload') {
+                projectSelectId = 'uploadProjectSelect';
+                moduleSelectId = 'uploadModuleVersionSelect';
+            } else if (source === 'manual') {
+                projectSelectId = 'manualProjectSelect';
+                moduleSelectId = 'manualModuleVersionSelect';
+            }
+
+            const projectId = document.getElementById(projectSelectId).value;
+            const moduleSelect = document.getElementById(moduleSelectId);
+
+            if (!projectId) {
+                moduleSelect.innerHTML = '<option value="">-- 请先选择项目 --</option>';
+                if (infoCardId) {
+                    document.getElementById(infoCardId).style.display = 'none';
+                }
+                return;
+            }
+
+            // 获取该项目的所有模块版本
+            const modules = moduleVersionsData[projectId] || [];
+
+            if (modules.length === 0) {
+                moduleSelect.innerHTML = '<option value="">该项目暂无模块版本</option>';
+                return;
+            }
+
+            // 生成模块版本选项
+            moduleSelect.innerHTML = modules.map(m =>
+                `<option value="${m.id}" data-module-name="${m.moduleName}" data-version="${m.version}">
+                    ${m.moduleName} ${m.version} ${m.type === 'current' ? '(当前)' : ''}
+                </option>`
+            ).join('');
+
+            // 显示关联信息卡片（仅在从工程文件创建时）
+            if (infoCardId && projectNameSpan && moduleVersionSpan) {
+                document.getElementById(infoCardId).style.display = 'block';
+                document.getElementById(projectNameSpan).textContent = projectNames[projectId];
+
+                // 监听模块选择变化
+                moduleSelect.addEventListener('change', function() {
+                    const selectedOption = this.options[this.selectedIndex];
+                    const moduleName = selectedOption.getAttribute('data-module-name');
+                    const version = selectedOption.getAttribute('data-version');
+                    document.getElementById(moduleVersionSpan).textContent = `${moduleName} ${version}`;
+                });
+
+                // 触发首次选择
+                if (modules.length > 0) {
+                    const firstOption = moduleSelect.options[0];
+                    const moduleName = firstOption.getAttribute('data-module-name');
+                    const version = firstOption.getAttribute('data-version');
+                    document.getElementById(moduleVersionSpan).textContent = `${moduleName} ${version}`;
+                }
+            }
+
+            console.log(`✅ 已加载 ${modules.length} 个模块版本`);
+        }
+
+        // ==================== 版本号验证 ====================
+        function validateVersion(version) {
+            const versionPattern = /^v?\d+\.\d+(\.\d+)?$/;
+            return versionPattern.test(version);
+        }
+
+        // ==================== 监听版本号输入 ====================
+        document.addEventListener('DOMContentLoaded', function() {
+            // 监听BOM版本号输入
+            const versionInputs = ['bomVersionInput', 'uploadBomVersionInput', 'manualBomVersionInput'];
+            versionInputs.forEach(inputId => {
+                const input = document.getElementById(inputId);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        const version = this.value;
+                        if (version && !validateVersion(version)) {
+                            this.style.borderColor = '#ff4d4f';
+                        } else {
+                            this.style.borderColor = '#d9d9d9';
+                        }
+
+                        // 更新显示的版本号（仅在project模式）
+                        const displaySpan = document.getElementById('displayBomVersion');
+                        if (displaySpan && inputId === 'bomVersionInput') {
+                            displaySpan.textContent = version || 'v1.0';
+                        }
+                    });
+                }
+            });
+        });
+
+        // 状态映射
+        const statusMap = {
+            'draft': { label: '草稿', class: 'status-draft' },
+            'pending': { label: '待审批', class: 'status-pending' },
+            'approved': { label: '已审批', class: 'status-approved' },
+            'rejected': { label: '已驳回', class: 'status-rejected' }
+        };
+
+        const productionStatusMap = {
+            'not_started': { label: '未开始', color: '#8c8c8c', bgColor: '#f5f5f5' },
+            'in_production': { label: '生产中', color: '#1890ff', bgColor: '#e6f7ff' },
+            'completed': { label: '已完成', color: '#52c41a', bgColor: '#f6ffed' }
+        };
+
+        // 存储选中的BOM项
+        let selectedBOMs = new Set();
+
+        // 渲染表格
+        function renderTable(data = bomData) {
+            const tbody = document.getElementById('bomTableBody');
+            tbody.innerHTML = '';
+
+            data.forEach(bom => {
+                const statusInfo = statusMap[bom.status];
+                const productionInfo = productionStatusMap[bom.productionStatus];
+                const row = document.createElement('tr');
+                row.onclick = () => viewBOMDetail(bom.id);
+
+                row.innerHTML = `
+                    <td onclick="event.stopPropagation()">
+                        <input type="checkbox" class="bom-checkbox" value="${bom.id}" onchange="toggleBOMSelection('${bom.id}', this.checked)" style="width: 18px; height: 18px; cursor: pointer; accent-color: #00890b;">
+                    </td>
+                    <td><strong>${bom.id}</strong></td>
+                    <td>${bom.project}</td>
+                    <td>${bom.module}</td>
+                    <td>${bom.itemCount} 项</td>
+                    <td>¥${bom.totalCost.toLocaleString()}</td>
+                    <td><span class="status-badge ${statusInfo.class}">${statusInfo.label}</span></td>
+                    <td><span style="background: ${productionInfo.bgColor}; color: ${productionInfo.color}; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600;">${productionInfo.label}</span></td>
+                    <td>${bom.creator}</td>
+                    <td>${bom.createTime}</td>
+                    <td onclick="event.stopPropagation()">
+                        <button class="action-btn" onclick="viewBOMDetail('${bom.id}')">查看</button>
+                        <button class="action-btn" onclick="editBOM('${bom.id}')">编辑</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // 查看BOM详情
+        function viewBOMDetail(bomId) {
+            window.location.href = `bom-detail.html?id=${bomId}`;
+        }
+
+        // 编辑BOM
+        function editBOM(bomId) {
+            window.location.href = `bom-detail.html?id=${bomId}&edit=true`;
+        }
+
+        // 创建新BOM
+        // ========== 新建BOM功能 ==========
+
+        function createNewBOM() {
+            document.getElementById('createBOMModal').style.display = 'flex';
+        }
+
+        function closeCreateBOMModal() {
+            document.getElementById('createBOMModal').style.display = 'none';
+        }
+
+        function selectCreateMethod(method) {
+            closeCreateBOMModal();
+            if (method === 'project') {
+                document.getElementById('createFromProjectModal').style.display = 'flex';
+            } else if (method === 'upload') {
+                document.getElementById('uploadBOMModal').style.display = 'flex';
+            } else if (method === 'manual') {
+                document.getElementById('manualCreateBOMModal').style.display = 'flex';
+            }
+        }
+
+        // ========== 从工程文件创建BOM ==========
+
+        let selectedProjectFile = null;
+
+        function closeCreateFromProjectModal() {
+            document.getElementById('createFromProjectModal').style.display = 'none';
+            clearProjectFile();
+        }
+
+        function handleProjectFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processProjectFile(file);
+            }
+        }
+
+        function handleProjectFileDrop(event) {
+            event.preventDefault();
+            const uploadArea = document.getElementById('projectFileUploadArea');
+            uploadArea.style.borderColor = '#d9d9d9';
+            uploadArea.style.background = '#fafafa';
+
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                processProjectFile(file);
+            }
+        }
+
+        function processProjectFile(file) {
+            selectedProjectFile = file;
+
+            document.getElementById('selectedProjectFile').style.display = 'block';
+            document.getElementById('projectFileName').textContent = file.name;
+            document.getElementById('projectFileSize').textContent = formatFileSize(file.size);
+
+            const parseBtn = document.getElementById('parseProjectBtn');
+            parseBtn.disabled = false;
+            parseBtn.style.opacity = '1';
+        }
+
+        function clearProjectFile() {
+            selectedProjectFile = null;
+            document.getElementById('projectFileInput').value = '';
+            document.getElementById('selectedProjectFile').style.display = 'none';
+            document.getElementById('projectParseProgress').style.display = 'none';
+
+            const parseBtn = document.getElementById('parseProjectBtn');
+            parseBtn.disabled = true;
+            parseBtn.style.opacity = '0.5';
+        }
+
+        function parseProjectFile() {
+            const projectId = document.getElementById('projectSelect').value;
+            const moduleVersionId = document.getElementById('moduleVersionSelect').value;
+            const bomVersion = document.getElementById('bomVersionInput').value;
+            const versionDesc = document.getElementById('bomVersionDescription').value;
+
+            if (!projectId) {
+                alert('请选择关联项目！');
+                return;
+            }
+
+            if (!moduleVersionId) {
+                alert('请选择模块版本！');
+                return;
+            }
+
+            // 验证版本号格式
+            if (!validateVersion(bomVersion)) {
+                alert('BOM版本号格式错误！\n\n请使用格式：v1.0 或 v1.0.0');
+                return;
+            }
+
+            if (!selectedProjectFile) {
+                alert('请先选择工程文件');
+                return;
+            }
+
+            // 禁用按钮
+            const parseBtn = document.getElementById('parseProjectBtn');
+            parseBtn.disabled = true;
+            parseBtn.style.opacity = '0.5';
+
+            // 显示进度
+            document.getElementById('projectParseProgress').style.display = 'block';
+
+            // 模拟解析过程
+            const progressBar = document.getElementById('projectParseProgressBar');
+            const statusText = document.getElementById('projectParseStatus');
+
+            const steps = [
+                { progress: 20, text: '正在解压工程文件...' },
+                { progress: 40, text: '正在提取原理图信息...' },
+                { progress: 60, text: '正在生成BOM清单...' },
+                { progress: 80, text: '正在匹配物料库...' },
+                { progress: 100, text: '解析完成！' }
+            ];
+
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    progressBar.style.width = steps[currentStep].progress + '%';
+                    statusText.textContent = steps[currentStep].text;
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+
+                    // 跳转到BOM详情页面，携带版本信息
+                    setTimeout(() => {
+                        const projectName = projectNames[projectId];
+                        const moduleSelect = document.getElementById('moduleVersionSelect');
+                        const selectedOption = moduleSelect.options[moduleSelect.selectedIndex];
+                        const moduleName = selectedOption.getAttribute('data-module-name');
+                        const moduleVersion = selectedOption.getAttribute('data-version');
+
+                        alert(`✅ 工程文件解析成功！\n\n识别物料：68项\n匹配成功：65项\n待确认：3项\n\n关联信息：\n• 项目：${projectName}\n• 模块：${moduleName} ${moduleVersion}\n• BOM版本：${bomVersion}\n\n即将跳转到BOM编辑页面...`);
+
+                        // 跳转时携带完整的版本信息
+                        window.location.href = `bom-detail.html?new=true&source=project&projectId=${projectId}&moduleVersionId=${moduleVersionId}&bomVersion=${encodeURIComponent(bomVersion)}&versionDesc=${encodeURIComponent(versionDesc)}`;
+                    }, 500);
+                }
+            }, 600);
+        }
+
+        // ========== 上传BOM文件 ==========
+
+        let selectedBOMFile = null;
+
+        function closeUploadBOMModal() {
+            document.getElementById('uploadBOMModal').style.display = 'none';
+            clearBOMFile();
+        }
+
+        function downloadBOMTemplate() {
+            alert('📥 下载BOM模板\n\n实际系统中，这里会下载包含以下列的Excel模板：\n• 位号 (Designator)\n• 物料型号 (Part Number)\n• 物料名称 (Description)\n• 封装 (Package)\n• 数量 (Quantity)\n• 备注 (Notes)\n\n您可以填写完成后上传导入。');
+        }
+
+        function handleBOMFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                processBOMFile(file);
+            }
+        }
+
+        function handleBOMFileDrop(event) {
+            event.preventDefault();
+            const uploadArea = document.getElementById('bomFileUploadArea');
+            uploadArea.style.borderColor = '#d9d9d9';
+            uploadArea.style.background = '#fafafa';
+
+            const file = event.dataTransfer.files[0];
+            if (file) {
+                processBOMFile(file);
+            }
+        }
+
+        function processBOMFile(file) {
+            // 验证文件类型
+            const validTypes = ['.xlsx', '.xls', '.csv'];
+            const fileExt = '.' + file.name.split('.').pop().toLowerCase();
+
+            if (!validTypes.includes(fileExt)) {
+                alert('❌ 不支持的文件格式\n\n请上传 .xlsx、.xls 或 .csv 格式的文件。');
+                return;
+            }
+
+            selectedBOMFile = file;
+
+            document.getElementById('selectedBOMFile').style.display = 'block';
+            document.getElementById('bomFileName').textContent = file.name;
+            document.getElementById('bomFileSize').textContent = formatFileSize(file.size);
+
+            const parseBtn = document.getElementById('parseBOMBtn');
+            parseBtn.disabled = false;
+            parseBtn.style.opacity = '1';
+        }
+
+        function clearBOMFile() {
+            selectedBOMFile = null;
+            document.getElementById('bomFileInput').value = '';
+            document.getElementById('selectedBOMFile').style.display = 'none';
+            document.getElementById('bomParseProgress').style.display = 'none';
+            document.getElementById('matchResultPreview').style.display = 'none';
+
+            const parseBtn = document.getElementById('parseBOMBtn');
+            parseBtn.disabled = true;
+            parseBtn.style.opacity = '0.5';
+        }
+
+        function parseBOMFile() {
+            const projectId = document.getElementById('uploadProjectSelect').value;
+            const moduleVersionId = document.getElementById('uploadModuleVersionSelect').value;
+            const bomVersion = document.getElementById('uploadBomVersionInput').value;
+            const versionDesc = document.getElementById('uploadBomVersionDescription').value;
+
+            if (!projectId) {
+                alert('请选择关联项目！');
+                return;
+            }
+
+            if (!moduleVersionId) {
+                alert('请选择模块版本！');
+                return;
+            }
+
+            // 验证版本号格式
+            if (!validateVersion(bomVersion)) {
+                alert('BOM版本号格式错误！\n\n请使用格式：v1.0 或 v1.0.0');
+                return;
+            }
+
+            if (!selectedBOMFile) {
+                alert('请先选择BOM文件');
+                return;
+            }
+
+            // 禁用按钮
+            const parseBtn = document.getElementById('parseBOMBtn');
+            parseBtn.disabled = true;
+            parseBtn.style.opacity = '0.5';
+
+            // 显示进度
+            document.getElementById('bomParseProgress').style.display = 'block';
+            document.getElementById('matchResultPreview').style.display = 'none';
+
+            // 模拟AI匹配过程
+            const progressBar = document.getElementById('bomParseProgressBar');
+            const statusText = document.getElementById('bomParseStatus');
+
+            const steps = [
+                { progress: 15, text: '正在读取BOM文件...' },
+                { progress: 30, text: '正在识别字段结构...' },
+                { progress: 50, text: 'AI正在匹配物料型号...' },
+                { progress: 70, text: '正在验证匹配结果...' },
+                { progress: 90, text: '正在生成匹配报告...' },
+                { progress: 100, text: 'AI匹配完成！' }
+            ];
+
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                if (currentStep < steps.length) {
+                    progressBar.style.width = steps[currentStep].progress + '%';
+                    statusText.textContent = steps[currentStep].text;
+                    currentStep++;
+                } else {
+                    clearInterval(interval);
+
+                    // 显示匹配结果
+                    setTimeout(() => {
+                        document.getElementById('bomParseProgress').style.display = 'none';
+                        document.getElementById('matchResultPreview').style.display = 'block';
+
+                        // 模拟数据
+                        const total = Math.floor(Math.random() * 30) + 50;
+                        const matched = Math.floor(total * (0.85 + Math.random() * 0.10));
+                        const unmatched = total - matched;
+
+                        document.getElementById('totalItems').textContent = total;
+                        document.getElementById('matchedItems').textContent = matched;
+                        document.getElementById('unmatchedItems').textContent = unmatched;
+
+                        // 2秒后跳转
+                        setTimeout(() => {
+                            alert(`✅ AI匹配完成！\n\n总物料数：${total}\n匹配成功：${matched}\n待手动匹配：${unmatched}\n\nBOM版本：${bomVersion}\n\n即将跳转到BOM编辑页面，您可以查看和调整匹配结果...`);
+                            // 跳转时携带完整的版本信息
+                            window.location.href = `bom-detail.html?new=true&source=upload&projectId=${projectId}&moduleVersionId=${moduleVersionId}&bomVersion=${encodeURIComponent(bomVersion)}&versionDesc=${encodeURIComponent(versionDesc)}`;
+                        }, 2000);
+                    }, 500);
+                }
+            }, 500);
+        }
+
+        // ========== 手动创建BOM ==========
+
+        function closeManualCreateBOMModal() {
+            document.getElementById('manualCreateBOMModal').style.display = 'none';
+        }
+
+        function createEmptyBOM() {
+            const projectId = document.getElementById('manualProjectSelect').value;
+            const moduleVersionId = document.getElementById('manualModuleVersionSelect').value;
+            const bomVersion = document.getElementById('manualBomVersionInput').value;
+            const versionDesc = document.getElementById('manualBomVersionDescription').value;
+            const projectDesc = document.getElementById('manualProjectDesc').value;
+
+            if (!projectId) {
+                alert('请选择关联项目！');
+                return;
+            }
+
+            if (!moduleVersionId) {
+                alert('请选择模块版本！');
+                return;
+            }
+
+            // 验证版本号格式
+            if (!validateVersion(bomVersion)) {
+                alert('BOM版本号格式错误！\n\n请使用格式：v1.0 或 v1.0.0');
+                return;
+            }
+
+            const projectName = projectNames[projectId];
+            const moduleSelect = document.getElementById('manualModuleVersionSelect');
+            const selectedOption = moduleSelect.options[moduleSelect.selectedIndex];
+            const moduleName = selectedOption.getAttribute('data-module-name');
+            const moduleVersion = selectedOption.getAttribute('data-version');
+
+            alert(`✅ 创建空白BOM成功！\n\n项目：${projectName}\n模块：${moduleName} ${moduleVersion}\nBOM版本：${bomVersion}\n\n即将跳转到BOM编辑页面，您可以从物料库中添加物料...`);
+            // 跳转时携带完整的版本信息
+            window.location.href = `bom-detail.html?new=true&source=manual&projectId=${projectId}&moduleVersionId=${moduleVersionId}&bomVersion=${encodeURIComponent(bomVersion)}&versionDesc=${encodeURIComponent(versionDesc)}&desc=${encodeURIComponent(projectDesc)}`;
+        }
+
+        // 工具函数
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(2) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        // 导出BOM数据
+        function exportBOMs() {
+            alert('正在导出BOM数据...');
+        }
+
+        // 应用筛选
+        function applyFilters() {
+            const projectFilter = document.getElementById('filterProject').value.toLowerCase();
+            const bomFilter = document.getElementById('filterBOM').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+            const dateFilter = document.getElementById('filterDate').value;
+
+            const filtered = bomData.filter(bom => {
+                const matchProject = !projectFilter || bom.project.toLowerCase().includes(projectFilter);
+                const matchBOM = !bomFilter || bom.id.toLowerCase().includes(bomFilter) || bom.module.toLowerCase().includes(bomFilter);
+                const matchStatus = !statusFilter || bom.status === statusFilter;
+                const matchDate = !dateFilter || bom.createTime === dateFilter;
+
+                return matchProject && matchBOM && matchStatus && matchDate;
+            });
+
+            renderTable(filtered);
+        }
+
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('filterProject').value = '';
+            document.getElementById('filterBOM').value = '';
+            document.getElementById('filterStatus').value = '';
+            document.getElementById('filterDate').value = '';
+            renderTable();
+        }
+
+        // 分页
+        function prevPage() {
+            alert('上一页');
+        }
+
+        function nextPage() {
+            alert('下一页');
+        }
+
+        // ========== 批量选择和批量下生产单功能 ==========
+
+        // 全选/取消全选
+        function toggleSelectAllBOM(checked) {
+            const checkboxes = document.querySelectorAll('.bom-checkbox');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = checked;
+                const bomId = checkbox.value;
+                if (checked) {
+                    selectedBOMs.add(bomId);
+                } else {
+                    selectedBOMs.delete(bomId);
+                }
+            });
+            updateBatchButton();
+        }
+
+        // 单个BOM选择
+        function toggleBOMSelection(bomId, checked) {
+            if (checked) {
+                selectedBOMs.add(bomId);
+            } else {
+                selectedBOMs.delete(bomId);
+            }
+
+            // 更新全选按钮状态
+            const allCheckboxes = document.querySelectorAll('.bom-checkbox');
+            const allChecked = Array.from(allCheckboxes).every(cb => cb.checked);
+            document.getElementById('selectAllBOM').checked = allChecked;
+
+            updateBatchButton();
+        }
+
+        // 更新批量下单按钮显示状态
+        function updateBatchButton() {
+            const batchBtn = document.getElementById('batchProductionBtn');
+            const countSpan = document.getElementById('selectedCount');
+            const count = selectedBOMs.size;
+
+            if (count > 0) {
+                batchBtn.style.display = 'flex';
+                countSpan.textContent = count;
+            } else {
+                batchBtn.style.display = 'none';
+            }
+        }
+
+        // 批量创建生产单
+        function batchCreateProductionOrder() {
+            if (selectedBOMs.size === 0) {
+                alert('请先选择要下生产单的BOM');
+                return;
+            }
+
+            // 获取选中的BOM数据
+            const selectedBOMData = Array.from(selectedBOMs).map(bomId => {
+                return bomData.find(bom => bom.id === bomId);
+            }).filter(bom => bom); // 过滤掉未找到的
+
+            // 检查是否有不符合条件的BOM（如草稿或已驳回）
+            const invalidBOMs = selectedBOMData.filter(bom =>
+                bom.status === 'draft' || bom.status === 'rejected'
+            );
+
+            if (invalidBOMs.length > 0) {
+                alert(`以下BOM状态不符合要求，无法下生产单：\n${invalidBOMs.map(b => b.id + ' (' + statusMap[b.status].label + ')').join('\n')}\n\n请确保BOM已审批通过。`);
+                return;
+            }
+
+            // 显示确认对话框
+            const confirmMsg = `确定要为以下 ${selectedBOMs.size} 个BOM批量创建生产单吗？\n\n` +
+                selectedBOMData.map(bom => `${bom.id} - ${bom.project} - ${bom.module}`).join('\n');
+
+            if (confirm(confirmMsg)) {
+                // 模拟批量创建生产单
+                alert(`成功创建 ${selectedBOMs.size} 个生产单！\n\n即将跳转到生产管理页面...`);
+
+                // 清除选择
+                selectedBOMs.clear();
+                document.getElementById('selectAllBOM').checked = false;
+                document.querySelectorAll('.bom-checkbox').forEach(cb => cb.checked = false);
+                updateBatchButton();
+
+                // 跳转到生产管理页面
+                setTimeout(() => {
+                    window.location.href = 'production.html';
+                }, 1500);
+            }
+        }
+
+        // 初始化
+        renderTable();
+    </script>
+</body>
+</html>

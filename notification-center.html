@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>消息中心 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00890b 0%, #00c853 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .top-nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-nav-links a {
+            text-decoration: none;
+            color: #3d4647;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            margin-top: 60px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            height: calc(100vh - 60px);
+            position: fixed;
+            overflow-y: auto;
+            padding: 24px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            color: #999;
+            padding: 0 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #3d4647;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #f5f7fa;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0,137,11,0.1) 0%, rgba(0,137,11,0) 100%);
+            color: #00890b;
+            font-weight: 600;
+            border-left: 3px solid #00890b;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            padding: 32px;
+            width: calc(100% - 240px);
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 32px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .header-actions {
+            margin-top: 16px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+            border-color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
+            transition: all 0.3s;
+            border-left: 4px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.unread {
+            border-color: #ff6b6b;
+        }
+
+        .stat-card.approval {
+            border-color: #4dabf7;
+        }
+
+        .stat-card.mention {
+            border-color: #ffd43b;
+        }
+
+        .stat-card.alert {
+            border-color: #ff8c00;
+        }
+
+        .stat-card.system {
+            border-color: #9775fa;
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 800;
+            color: #3d4647;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        /* Filters */
+        .filters-section {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: transparent;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-tab.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .filter-tab .badge {
+            background: rgba(255,107,107,0.2);
+            color: #ff6b6b;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .filter-tab.active .badge {
+            background: rgba(255,255,255,0.3);
+            color: white;
+        }
+
+        .filter-options {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 6px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            background: white;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        /* Notification List */
+        .notification-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .notification-item {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-item:hover {
+            background: #f8f9fa;
+        }
+
+        .notification-item.unread {
+            background: #fffbf5;
+            border-left: 4px solid #667eea;
+        }
+
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 24px;
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border-radius: 50%;
+        }
+
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .notification-left {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .icon-approval {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .icon-mention {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .icon-alert {
+            background: #ffe0b2;
+            color: #e65100;
+        }
+
+        .icon-match {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .icon-system {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .icon-progress {
+            background: #e0f2f1;
+            color: #00796b;
+        }
+
+        .notification-content-wrapper {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+
+        .notification-text {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .notification-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        .notification-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .action-btn {
+            padding: 6px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .action-btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .action-btn-secondary {
+            background: #f5f5f5;
+            color: #3d4647;
+        }
+
+        .action-btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 16px;
+        }
+
+        /* Type Badge */
+        .type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .type-approval {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .type-mention {
+            background: #fff9c4;
+            color: #f57f17;
+        }
+
+        .type-alert {
+            background: #ffe0b2;
+            color: #e65100;
+        }
+
+        .type-match {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .type-system {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        .type-progress {
+            background: #e0f2f1;
+            color: #00796b;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="layout">
+        <!-- Sidebar -->
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-title">🔔 消息中心</div>
+                <div class="page-subtitle">实时接收系统通知、审批提醒、业务消息和@提醒，快速响应重要事项</div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="markAllAsRead()">✓ 全部标为已读</button>
+                    <button class="header-btn" onclick="clearRead()">🗑️ 清空已读消息</button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card unread">
+                    <div class="stat-icon">📬</div>
+                    <div class="stat-number">15</div>
+                    <div class="stat-label">未读消息</div>
+                </div>
+                <div class="stat-card approval">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">待审批</div>
+                </div>
+                <div class="stat-card mention">
+                    <div class="stat-icon">@</div>
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">@我的</div>
+                </div>
+                <div class="stat-card alert">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">预警提醒</div>
+                </div>
+                <div class="stat-card system">
+                    <div class="stat-icon">🔔</div>
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">系统通知</div>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters-section">
+                <div class="filter-tabs">
+                    <button class="filter-tab active" onclick="filterMessages('all')">
+                        <span>全部消息</span>
+                        <span class="badge">15</span>
+                    </button>
+                    <button class="filter-tab" onclick="filterMessages('approval')">
+                        <span>审批通知</span>
+                        <span class="badge">8</span>
+                    </button>
+                    <button class="filter-tab" onclick="filterMessages('mention')">
+                        <span>@我的</span>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="filter-tab" onclick="filterMessages('alert')">
+                        <span>业务提醒</span>
+                        <span class="badge">5</span>
+                    </button>
+                    <button class="filter-tab" onclick="filterMessages('system')">
+                        <span>系统通知</span>
+                        <span class="badge">2</span>
+                    </button>
+                </div>
+                <div class="filter-options">
+                    <button class="filter-btn" onclick="filterByStatus('unread')">仅显示未读</button>
+                    <button class="filter-btn" onclick="filterByStatus('today')">今天</button>
+                    <button class="filter-btn" onclick="filterByStatus('week')">本周</button>
+                </div>
+            </div>
+
+            <!-- Notification List -->
+            <div class="notification-list" id="notificationList">
+                <!-- Notification 1 - Approval -->
+                <div class="notification-item unread" data-type="approval">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-approval">✓</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-approval">审批通知</span>
+                                    待审批：大额采购申请 - MCU芯片采购订单
+                                </div>
+                                <div class="notification-text">
+                                    李明申请采购 STM32F407VGT6 芯片 2,000片，总金额¥65,000。已通过项目经理审批，等待您的审批。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>申请人: 李明</span>
+                                    <span>项目: 智能手环 V2.0</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="handleApproval(1)">前往审批</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">标为已读</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">10分钟前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 2 - Mention -->
+                <div class="notification-item unread" data-type="mention">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-mention">@</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-mention">@提醒</span>
+                                    王芳在"智能手环V2.0"项目中@了你
+                                </div>
+                                <div class="notification-text">
+                                    "@张三 BOM设计方案已完成，麻烦帮忙审核一下主控芯片的选型是否合理，特别是STM32F407和nRF52832的搭配方案。"
+                                </div>
+                                <div class="notification-meta">
+                                    <span>项目: 智能手环 V2.0</span>
+                                    <span>频道: #技术讨论</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="goToChannel(1)">查看讨论</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">标为已读</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">25分钟前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 3 - Alert -->
+                <div class="notification-item unread" data-type="alert">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-alert">⚠️</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-alert">库存预警</span>
+                                    3种物料库存不足，需要及时补货
+                                </div>
+                                <div class="notification-text">
+                                    STM32F407VGT6 (当前: 50片，安全库存: 200片)、ESP32-WROOM-32 (当前: 30片，安全库存: 100片)、MPU6050 (当前: 15片，安全库存: 50片)
+                                </div>
+                                <div class="notification-meta">
+                                    <span>影响项目: 智能手环 V2.0</span>
+                                    <span>紧急程度: 高</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="goToProcurement()">立即采购</button>
+                                    <button class="action-btn action-btn-secondary" onclick="viewInventory()">查看库存</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">1小时前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 4 - Match -->
+                <div class="notification-item unread" data-type="alert">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-match">🎯</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-match">匹配推送</span>
+                                    深圳华强电子提供STM32F407VGT6，价格优惠
+                                </div>
+                                <div class="notification-text">
+                                    供应商"深圳华强电子"发布的 STM32F407VGT6 与您的项目"智能手环V2.0"BOM匹配成功。单价¥32.50/片，库存充足，可立即发货。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>供应商评分: ⭐4.8</span>
+                                    <span>最小起订量: 100片</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="viewSupplierDetail(1)">查看详情</button>
+                                    <button class="action-btn action-btn-secondary" onclick="addToSupplier(1)">加入候选</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">2小时前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 5 - Progress -->
+                <div class="notification-item unread" data-type="approval">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-progress">📦</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-progress">进度更新</span>
+                                    采购订单已到货，等待入库
+                                </div>
+                                <div class="notification-text">
+                                    您的采购订单 PO-2024-0234 (立创商城，¥28,600) 已到货，请安排库存管理员验收入库。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>订单号: PO-2024-0234</span>
+                                    <span>物料种类: 15种</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="goToInbound()">安排入库</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">标为已读</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">3小时前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 6 - Approval -->
+                <div class="notification-item unread" data-type="approval">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-approval">✓</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-approval">审批通知</span>
+                                    待审批：BOM设计方案 - 智能手环V2.0主板BOM
+                                </div>
+                                <div class="notification-text">
+                                    王芳提交的BOM设计方案等待您的技术审批，包含156种物料，预估成本¥45.80/套。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>BOM编号: BOM-2024-0156</span>
+                                    <span>版本: V2.0</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="handleApproval(2)">前往审批</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">标为已读</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">4小时前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 7 - System -->
+                <div class="notification-item unread" data-type="system">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-system">🔔</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-system">系统通知</span>
+                                    系统升级通知：新增库存管理员和质量工程师角色
+                                </div>
+                                <div class="notification-text">
+                                    EZPLM平台已完成角色权限体系升级，新增"库存管理员"和"质量工程师"两个角色，实现更精细化的权限控制和职责分离。请组织管理员及时为相关人员分配新角色。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>版本: v2.1</span>
+                                    <span>更新时间: 2025-10-26</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="viewRoleDoc()">查看详情</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">知道了</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">今天 09:00</div>
+                    </div>
+                </div>
+
+                <!-- Notification 8 - Alert -->
+                <div class="notification-item" data-type="alert">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-alert">📅</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-alert">交期提醒</span>
+                                    3个采购订单即将到交期
+                                </div>
+                                <div class="notification-text">
+                                    PO-2024-0230、PO-2024-0231、PO-2024-0233 三个订单预计在3天内到货，请提前协调库存管理员安排入库。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>供应商: 多个</span>
+                                    <span>预计到货: 2025-10-29</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="viewOrders()">查看订单</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">标为已读</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">昨天 16:30</div>
+                    </div>
+                </div>
+
+                <!-- Notification 9 - Mention -->
+                <div class="notification-item" data-type="mention">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-mention">@</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-mention">@提醒</span>
+                                    赵强在"生产计划"中@了你
+                                </div>
+                                <div class="notification-text">
+                                    "@张三 智能手环试产的物料已经准备好了，可以开始安排生产了吗？需要您审批一下领料单。"
+                                </div>
+                                <div class="notification-meta">
+                                    <span>工单: WO-2024-0156</span>
+                                    <span>数量: 50套</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="goToProduction()">查看工单</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">标为已读</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">昨天 14:20</div>
+                    </div>
+                </div>
+
+                <!-- Notification 10 - Progress -->
+                <div class="notification-item" data-type="approval">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-progress">✨</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-progress">进度更新</span>
+                                    您的采购申请已通过审批
+                                </div>
+                                <div class="notification-text">
+                                    采购申请 REQ-2024-0089 (PCB板材，¥18,000) 已通过组织管理员审批，采购员李明将尽快下单。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>申请编号: REQ-2024-0089</span>
+                                    <span>下一步: 采购执行</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">知道了</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">昨天 11:00</div>
+                    </div>
+                </div>
+
+                <!-- Notification 11 - System -->
+                <div class="notification-item" data-type="system">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-system">🔧</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-system">系统通知</span>
+                                    系统维护通知：今晚22:00-23:00
+                                </div>
+                                <div class="notification-text">
+                                    为了提升系统性能，EZPLM平台将于今晚22:00-23:00进行系统维护升级，期间系统暂停服务。请提前保存工作内容。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>维护时间: 1小时</span>
+                                    <span>影响范围: 全部功能</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">知道了</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">2天前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 12 - Alert -->
+                <div class="notification-item" data-type="alert">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-alert">🏭</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-alert">生产提醒</span>
+                                    工单WO-2024-0155已完工，等待质检
+                                </div>
+                                <div class="notification-text">
+                                    生产工单 WO-2024-0155 (智能手环测试版) 已完成生产，产量50套，等待质量工程师进行质量检验。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>工单号: WO-2024-0155</span>
+                                    <span>产量: 50套</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="goToQC()">安排质检</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">标为已读</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">2天前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 13 - Match -->
+                <div class="notification-item" data-type="alert">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-match">🎯</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-match">匹配推送</span>
+                                    立创商城提供ESP32-WROOM-32模块
+                                </div>
+                                <div class="notification-text">
+                                    供应商"立创商城"发布的 ESP32-WROOM-32 与您的项目BOM匹配。单价¥16.80/片，质量可靠，交期快。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>供应商评分: ⭐4.9</span>
+                                    <span>最小起订量: 10片</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="viewSupplierDetail(2)">查看详情</button>
+                                    <button class="action-btn action-btn-secondary" onclick="addToSupplier(2)">加入候选</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">3天前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 14 - Approval -->
+                <div class="notification-item" data-type="approval">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-approval">❌</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-approval">审批结果</span>
+                                    您的付款申请已被驳回
+                                </div>
+                                <div class="notification-text">
+                                    付款申请 PAY-2024-0067 被组织管理员驳回。驳回原因：发票信息有误，请核对后重新提交。
+                                </div>
+                                <div class="notification-meta">
+                                    <span>申请编号: PAY-2024-0067</span>
+                                    <span>金额: ¥15,000</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="resubmit()">重新提交</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">知道了</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">3天前</div>
+                    </div>
+                </div>
+
+                <!-- Notification 15 - Mention -->
+                <div class="notification-item" data-type="mention">
+                    <div class="notification-header">
+                        <div class="notification-left">
+                            <div class="notification-icon icon-mention">@</div>
+                            <div class="notification-content-wrapper">
+                                <div class="notification-title">
+                                    <span class="type-badge type-mention">@提醒</span>
+                                    李明在"采购讨论"中@了你
+                                </div>
+                                <div class="notification-text">
+                                    "@张三 这批MCU芯片我找到了三家供应商报价，您看看选哪家比较合适？已上传报价对比表到项目文档。"
+                                </div>
+                                <div class="notification-meta">
+                                    <span>项目: 智能手环 V2.0</span>
+                                    <span>频道: #采购讨论</span>
+                                </div>
+                                <div class="notification-actions">
+                                    <button class="action-btn action-btn-primary" onclick="goToChannel(2)">查看讨论</button>
+                                    <button class="action-btn action-btn-secondary" onclick="markAsRead(this)">标为已读</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="notification-time">4天前</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        // Filter Messages
+        function filterMessages(type) {
+            // Update tab styles
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Filter notifications
+            const notifications = document.querySelectorAll('.notification-item');
+            notifications.forEach(notification => {
+                if (type === 'all') {
+                    notification.style.display = 'block';
+                } else {
+                    if (notification.dataset.type === type) {
+                        notification.style.display = 'block';
+                    } else {
+                        notification.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Filter by Status
+        function filterByStatus(status) {
+            const notifications = document.querySelectorAll('.notification-item');
+            notifications.forEach(notification => {
+                if (status === 'unread') {
+                    if (notification.classList.contains('unread')) {
+                        notification.style.display = 'block';
+                    } else {
+                        notification.style.display = 'none';
+                    }
+                } else {
+                    // TODO: Implement time-based filtering
+                    notification.style.display = 'block';
+                }
+            });
+        }
+
+        // Mark as Read
+        function markAsRead(button) {
+            const notificationItem = button.closest('.notification-item');
+            notificationItem.classList.remove('unread');
+            updateUnreadCount();
+        }
+
+        // Mark All as Read
+        function markAllAsRead() {
+            if (confirm('确认将所有消息标记为已读吗？')) {
+                document.querySelectorAll('.notification-item.unread').forEach(item => {
+                    item.classList.remove('unread');
+                });
+                updateUnreadCount();
+                alert('✅ 所有消息已标记为已读');
+            }
+        }
+
+        // Clear Read Messages
+        function clearRead() {
+            if (confirm('确认清空所有已读消息吗？此操作不可恢复。')) {
+                document.querySelectorAll('.notification-item:not(.unread)').forEach(item => {
+                    item.remove();
+                });
+                alert('✅ 已读消息已清空');
+            }
+        }
+
+        // Update Unread Count
+        function updateUnreadCount() {
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            document.querySelector('.stat-card.unread .stat-number').textContent = unreadCount;
+        }
+
+        // Action Handlers
+        function handleApproval(id) {
+            // 跳转到审批详情页面
+            window.location.href = 'approval-detail.html?id=' + id;
+        }
+
+        function goToChannel(id) {
+            // 跳转到团队讨论页面
+            window.location.href = 'team-discussion.html?channel=' + id;
+        }
+
+        function goToProcurement() {
+            window.location.href = 'procurement-inquiry.html';
+        }
+
+        function viewInventory() {
+            window.location.href = 'inventory.html';
+        }
+
+        function viewSupplierDetail(id) {
+            // 跳转到供应商详情页面
+            window.location.href = 'supplier-detail.html?id=' + id;
+        }
+
+        function addToSupplier(id) {
+            alert('✅ 供应商已加入候选列表！');
+        }
+
+        function goToInbound() {
+            // 跳转到入库管理页面
+            window.location.href = 'inventory-inbound.html';
+        }
+
+        function viewRoleDoc() {
+            window.location.href = 'role-permissions-documentation.html';
+        }
+
+        function viewOrders() {
+            // 跳转到采购订单页面
+            window.location.href = 'procurement-orders.html';
+        }
+
+        function goToProduction() {
+            window.location.href = 'production.html';
+        }
+
+        function goToQC() {
+            // 跳转到质检管理页面
+            window.location.href = 'quality-inspection.html';
+        }
+
+        function resubmit() {
+            window.location.href = 'procurement-payment.html';
+        }
+    </script>
+</body>
+</html>

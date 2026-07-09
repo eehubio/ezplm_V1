@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提交项目报价 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-bottom: 24px;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateX(-4px);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 24px;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 40px;
+            height: fit-content;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .company-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00d084 0%, #00a868 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+        }
+
+        .company-info h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .company-info p {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .project-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        .project-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #666;
+        }
+
+        .meta-highlight {
+            font-weight: 700;
+            color: #00d2ff;
+        }
+
+        .match-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #fff 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .match-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #00d2ff;
+            margin-bottom: 12px;
+        }
+
+        .match-score {
+            font-size: 48px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .match-desc {
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .match-details {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .match-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+
+        .match-bar {
+            flex: 1;
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            margin: 0 12px;
+            overflow: hidden;
+        }
+
+        .match-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00d2ff 0%, #3a47d5 100%);
+            border-radius: 3px;
+            transition: width 1s ease;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .form-header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .progress-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #999;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+        }
+
+        .progress-step.active .step-circle {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            color: white;
+        }
+
+        .progress-step.completed .step-circle {
+            border-color: #4caf50;
+            background: #4caf50;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+
+        .progress-step.active .step-label {
+            color: #00d2ff;
+            font-weight: 600;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-label .required {
+            color: #f44336;
+            margin-left: 4px;
+        }
+
+        .form-label .hint {
+            font-weight: 400;
+            color: #999;
+            font-size: 12px;
+            margin-left: 8px;
+        }
+
+        .form-input,
+        .form-textarea,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #00d2ff;
+            box-shadow: 0 0 0 3px rgba(0,210,255,0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 120px;
+            line-height: 1.6;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .skill-tag {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .skill-tag:hover {
+            border-color: #00d2ff;
+        }
+
+        .skill-tag.selected {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, rgba(0,210,255,0.1) 0%, rgba(58,71,213,0.1) 100%);
+            color: #00d2ff;
+            font-weight: 600;
+        }
+
+        .upload-area {
+            border: 2px dashed #e0e0e0;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: #00d2ff;
+            background: #f0f9ff;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .file-list {
+            margin-top: 16px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .file-remove {
+            color: #f44336;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .file-remove:hover {
+            transform: scale(1.2);
+        }
+
+        .budget-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .budget-option {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            text-align: center;
+        }
+
+        .budget-option:hover {
+            border-color: #00d2ff;
+        }
+
+        .budget-option.selected {
+            border-color: #00d2ff;
+            background: linear-gradient(135deg, rgba(0,210,255,0.1) 0%, rgba(58,71,213,0.1) 100%);
+        }
+
+        .budget-option input {
+            display: none;
+        }
+
+        .budget-label {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00d2ff;
+            margin-bottom: 4px;
+        }
+
+        .budget-text {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .milestone-item {
+            background: #f0f9ff;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border-left: 4px solid #00d2ff;
+        }
+
+        .milestone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .add-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border: 2px dashed #00d2ff;
+            background: white;
+            color: #00d2ff;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .add-btn:hover {
+            background: #f0f9ff;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 16px;
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,210,255,0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0,210,255,0.5);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #00d2ff;
+            border: 2px solid #00d2ff;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f9ff;
+        }
+
+        .help-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 968px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="outsourcing-hub.html" class="back-btn">
+            ← 返回项目列表
+        </a>
+
+        <div class="layout">
+            <!-- 侧边栏 - 项目信息 -->
+            <div class="sidebar">
+                <div class="project-card">
+                    <div class="company-header">
+                        <div class="company-logo">🌱</div>
+                        <div class="company-info">
+                            <h3>Seeed Studio</h3>
+                            <p>矽递科技</p>
+                        </div>
+                    </div>
+
+                    <div class="project-title">多合一环境监测传感器模块设计</div>
+
+                    <div class="project-meta">
+                        <div class="meta-item">
+                            <span>💰</span>
+                            <span>预算：<span class="meta-highlight">2-3万</span></span>
+                        </div>
+                        <div class="meta-item">
+                            <span>⏱️</span>
+                            <span>周期：2个月</span>
+                        </div>
+                        <div class="meta-item">
+                            <span>📍</span>
+                            <span>深圳 · 可远程</span>
+                        </div>
+                        <div class="meta-item">
+                            <span>👥</span>
+                            <span>8人已投标</span>
+                        </div>
+                    </div>
+
+                    <div class="match-card">
+                        <div class="match-title">💡 匹配度分析</div>
+                        <div class="match-score" id="matchScore">0%</div>
+                        <div class="match-desc">基于您的技能和项目要求</div>
+
+                        <div class="match-details">
+                            <div class="match-item">
+                                <span style="font-size: 11px; color: #666;">硬件设计</span>
+                                <div class="match-bar">
+                                    <div class="match-fill" data-width="92%" style="width: 0"></div>
+                                </div>
+                                <span style="font-size: 11px; font-weight: 700; color: #00d2ff;">92%</span>
+                            </div>
+                            <div class="match-item">
+                                <span style="font-size: 11px; color: #666;">传感器应用</span>
+                                <div class="match-bar">
+                                    <div class="match-fill" data-width="88%" style="width: 0"></div>
+                                </div>
+                                <span style="font-size: 11px; font-weight: 700; color: #00d2ff;">88%</span>
+                            </div>
+                            <div class="match-item">
+                                <span style="font-size: 11px; color: #666;">I2C通信</span>
+                                <div class="match-bar">
+                                    <div class="match-fill" data-width="85%" style="width: 0"></div>
+                                </div>
+                                <span style="font-size: 11px; font-weight: 700; color: #00d2ff;">85%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主内容 - 报价表单 -->
+            <div class="main-content">
+                <div class="form-header">
+                    <h1>💼 提交项目报价</h1>
+                    <p>请详细填写您的报价方案，我们将在2个工作日内回复</p>
+                </div>
+
+                <!-- 进度条 -->
+                <div class="progress-bar">
+                    <div class="progress-step active" data-step="1">
+                        <div class="step-circle">1</div>
+                        <div class="step-label">基本信息</div>
+                    </div>
+                    <div class="progress-step" data-step="2">
+                        <div class="step-circle">2</div>
+                        <div class="step-label">技术方案</div>
+                    </div>
+                    <div class="progress-step" data-step="3">
+                        <div class="step-circle">3</div>
+                        <div class="step-label">预算与计划</div>
+                    </div>
+                    <div class="progress-step" data-step="4">
+                        <div class="step-circle">4</div>
+                        <div class="step-label">资质证明</div>
+                    </div>
+                </div>
+
+                <form id="bidForm">
+                    <!-- 步骤1：基本信息 -->
+                    <div class="form-section active" data-section="1">
+                        <div class="section-title">👤 基本信息</div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    姓名/团队名称<span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" placeholder="请输入您的姓名或团队名称" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    工作类型<span class="required">*</span>
+                                </label>
+                                <select class="form-select" required>
+                                    <option value="">请选择</option>
+                                    <option value="individual">个人</option>
+                                    <option value="team">团队</option>
+                                    <option value="company">公司</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    所在城市<span class="required">*</span>
+                                </label>
+                                <input type="text" class="form-input" placeholder="如：深圳" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    从业年限<span class="required">*</span>
+                                </label>
+                                <select class="form-select" required>
+                                    <option value="">请选择</option>
+                                    <option value="1-3">1-3年</option>
+                                    <option value="3-5">3-5年</option>
+                                    <option value="5-10">5-10年</option>
+                                    <option value="10+">10年以上</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    联系电话<span class="required">*</span>
+                                </label>
+                                <input type="tel" class="form-input" placeholder="请输入手机号" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    邮箱<span class="required">*</span>
+                                </label>
+                                <input type="email" class="form-input" placeholder="your@email.com" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                专长领域<span class="required">*</span>
+                                <span class="hint">选择您擅长的领域</span>
+                            </label>
+                            <div class="skill-tags">
+                                <div class="skill-tag" onclick="toggleSkill(this)">硬件设计</div>
+                                <div class="skill-tag" onclick="toggleSkill(this)">固件开发</div>
+                                <div class="skill-tag" onclick="toggleSkill(this)">PCB Layout</div>
+                                <div class="skill-tag" onclick="toggleSkill(this)">嵌入式系统</div>
+                                <div class="skill-tag" onclick="toggleSkill(this)">传感器应用</div>
+                                <div class="skill-tag" onclick="toggleSkill(this)">信号处理</div>
+                                <div class="skill-tag" onclick="toggleSkill(this)">FPGA</div>
+                                <div class="skill-tag" onclick="toggleSkill(this)">量产对接</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                个人/团队简介<span class="hint">200字以内</span>
+                            </label>
+                            <textarea class="form-textarea" placeholder="请简要介绍您的专业背景、工作经验和核心优势"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 步骤2：技术方案 -->
+                    <div class="form-section" data-section="2">
+                        <div class="section-title">💡 技术方案</div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                技术方案概述<span class="required">*</span>
+                                <span class="hint">300-500字</span>
+                            </label>
+                            <textarea class="form-textarea" placeholder="请描述您对该项目的技术实现方案，包括：&#10;1. 总体设计思路&#10;2. 关键技术选型&#10;3. 主要模块功能&#10;4. 性能指标预期" style="min-height: 150px;" required></textarea>
+                            <div class="help-text">💡 提示：详细的技术方案能大大提高中标概率</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                关键技术挑战及解决方案<span class="required">*</span>
+                            </label>
+                            <textarea class="form-textarea" placeholder="请分析该项目可能遇到的技术挑战，并给出您的解决思路" style="min-height: 120px;" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                主要器件选型
+                                <span class="hint">列出核心器件型号</span>
+                            </label>
+                            <textarea class="form-textarea" placeholder="请列出主要器件选型方案，如：&#10;• 主控MCU: STM32F407VET6&#10;• 温湿度传感器: SHT31-DIS-B&#10;• 气压传感器: BMP280" style="min-height: 100px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                类似项目经验<span class="required">*</span>
+                            </label>
+                            <textarea class="form-textarea" placeholder="请简要描述您做过的类似项目，包括项目名称、主要工作内容和成果" style="min-height: 100px;" required></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 步骤3：预算与计划 -->
+                    <div class="form-section" data-section="3">
+                        <div class="section-title">📅 预算与计划</div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                报价金额<span class="required">*</span>
+                            </label>
+                            <div class="budget-selector">
+                                <label class="budget-option">
+                                    <input type="radio" name="budget" value="low" required>
+                                    <div class="budget-label">1.5-2万</div>
+                                    <div class="budget-text">预算范围下限</div>
+                                </label>
+                                <label class="budget-option">
+                                    <input type="radio" name="budget" value="medium" required>
+                                    <div class="budget-label">2-2.5万</div>
+                                    <div class="budget-text">预算范围中值</div>
+                                </label>
+                                <label class="budget-option">
+                                    <input type="radio" name="budget" value="high" required>
+                                    <div class="budget-label">2.5-3万</div>
+                                    <div class="budget-text">预算范围上限</div>
+                                </label>
+                                <label class="budget-option">
+                                    <input type="radio" name="budget" value="custom" required>
+                                    <div class="budget-label">自定义</div>
+                                    <div class="budget-text">其他金额</div>
+                                </label>
+                            </div>
+                            <input type="text" class="form-input" placeholder="如选择自定义，请输入具体金额" style="margin-top: 12px;">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                预计交付周期<span class="required">*</span>
+                            </label>
+                            <select class="form-select" required>
+                                <option value="">请选择</option>
+                                <option value="30">30天</option>
+                                <option value="45">45天</option>
+                                <option value="60">60天（项目要求）</option>
+                                <option value="75">75天</option>
+                                <option value="90">90天</option>
+                            </select>
+                            <div class="help-text">项目要求周期：2个月（60天）</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                里程碑计划<span class="required">*</span>
+                                <span class="hint">建议2-4个里程碑</span>
+                            </label>
+                            <div id="milestoneList">
+                                <div class="milestone-item">
+                                    <div class="milestone-header">
+                                        <input type="text" class="form-input" placeholder="里程碑1：方案设计" style="flex: 1; margin-right: 12px;">
+                                        <input type="text" class="form-input" placeholder="第15天" style="width: 120px; margin-right: 12px;">
+                                        <input type="text" class="form-input" placeholder="30%" style="width: 100px;">
+                                    </div>
+                                    <textarea class="form-textarea" placeholder="里程碑描述和交付物" style="min-height: 60px; margin-top: 8px;"></textarea>
+                                </div>
+                            </div>
+                            <button type="button" class="add-btn" onclick="addMilestone()">
+                                ➕ 添加里程碑
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                工作方式<span class="required">*</span>
+                            </label>
+                            <select class="form-select" required>
+                                <option value="">请选择</option>
+                                <option value="remote">完全远程</option>
+                                <option value="hybrid">远程为主，可到场</option>
+                                <option value="onsite">现场工作</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                成本明细说明
+                                <span class="hint">选填，增加透明度</span>
+                            </label>
+                            <textarea class="form-textarea" placeholder="如：人工成本、器件采购、打样费用、测试费用等" style="min-height: 80px;"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- 步骤4：资质证明 -->
+                    <div class="form-section" data-section="4">
+                        <div class="section-title">📎 资质证明</div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                作品集/案例展示<span class="required">*</span>
+                            </label>
+                            <div class="upload-area" onclick="document.getElementById('portfolioUpload').click()">
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">点击上传作品集</div>
+                                <div class="upload-hint">支持图片、PDF等格式，展示您的代表作品</div>
+                                <input type="file" id="portfolioUpload" accept=".pdf,.jpg,.png,.zip" multiple style="display: none;" onchange="handleFileUpload(this, 'portfolioList')">
+                            </div>
+                            <div id="portfolioList" class="file-list"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                在线作品链接
+                                <span class="hint">GitHub、个人网站等</span>
+                            </label>
+                            <input type="url" class="form-input" placeholder="https://github.com/yourusername 或作品网站">
+                            <div class="help-text">💡 提供在线作品链接能让企业更好地了解您的能力</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                资质证书
+                                <span class="hint">选填，如职业证书、认证等</span>
+                            </label>
+                            <div class="upload-area" onclick="document.getElementById('certificateUpload').click()">
+                                <div class="upload-icon">🏆</div>
+                                <div class="upload-text">点击上传证书</div>
+                                <div class="upload-hint">如工程师认证、职业资格证等</div>
+                                <input type="file" id="certificateUpload" multiple style="display: none;" onchange="handleFileUpload(this, 'certificateList')">
+                            </div>
+                            <div id="certificateList" class="file-list"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                客户评价/推荐信
+                                <span class="hint">选填，增加信任度</span>
+                            </label>
+                            <textarea class="form-textarea" placeholder="如有以往客户的评价或推荐，请在此粘贴" style="min-height: 80px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                补充说明
+                                <span class="hint">选填</span>
+                            </label>
+                            <textarea class="form-textarea" placeholder="其他您想补充说明的内容" style="min-height: 80px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="checkbox-item" style="display: flex; align-items: flex-start; gap: 12px;">
+                                <input type="checkbox" required style="margin-top: 4px;">
+                                <span style="font-size: 13px; color: #666; line-height: 1.6;">
+                                    我确认以上信息真实有效，并同意企业查看我的报价方案。我理解该项目为商业项目，需按合同要求保质保量完成。
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 表单导航按钮 -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)" style="display: none;">
+                            ← 上一步
+                        </button>
+                        <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+                            下一步 →
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none;">
+                            🚀 提交报价
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        // 初始化匹配度动画
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                animateMatchScore();
+            }, 500);
+        });
+
+        function animateMatchScore() {
+            const scoreElement = document.getElementById('matchScore');
+            const bars = document.querySelectorAll('.match-fill');
+
+            let score = 0;
+            const targetScore = 88;
+            const duration = 2000;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+
+                score = Math.floor(progress * targetScore);
+                scoreElement.textContent = score + '%';
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+
+            requestAnimationFrame(update);
+
+            // 动画匹配条
+            bars.forEach((bar, index) => {
+                setTimeout(() => {
+                    bar.style.width = bar.dataset.width;
+                }, 300 + index * 200);
+            });
+        }
+
+        // 步骤切换
+        function changeStep(direction) {
+            const newStep = currentStep + direction;
+
+            if (newStep < 1 || newStep > totalSteps) return;
+
+            // 隐藏当前步骤
+            document.querySelector(`.form-section[data-section="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.remove('active');
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.add('completed');
+
+            // 显示新步骤
+            currentStep = newStep;
+            document.querySelector(`.form-section[data-section="${currentStep}"]`).classList.add('active');
+            document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.add('active');
+
+            // 如果返回，移除completed状态
+            if (direction < 0) {
+                document.querySelector(`.progress-step[data-step="${currentStep}"]`).classList.remove('completed');
+            }
+
+            // 更新按钮显示
+            updateButtons();
+
+            // 滚动到顶部
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            prevBtn.style.display = currentStep === 1 ? 'none' : 'block';
+            nextBtn.style.display = currentStep === totalSteps ? 'none' : 'block';
+            submitBtn.style.display = currentStep === totalSteps ? 'block' : 'none';
+        }
+
+        // 技能标签切换
+        function toggleSkill(element) {
+            element.classList.toggle('selected');
+        }
+
+        // 预算选择
+        document.querySelectorAll('.budget-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.budget-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                this.classList.add('selected');
+                this.querySelector('input').checked = true;
+            });
+        });
+
+        // 添加里程碑
+        function addMilestone() {
+            const milestoneList = document.getElementById('milestoneList');
+            const newMilestone = document.createElement('div');
+            newMilestone.className = 'milestone-item';
+            newMilestone.innerHTML = `
+                <div class="milestone-header">
+                    <input type="text" class="form-input" placeholder="里程碑名称" style="flex: 1; margin-right: 12px;">
+                    <input type="text" class="form-input" placeholder="第X天" style="width: 120px; margin-right: 12px;">
+                    <input type="text" class="form-input" placeholder="X%" style="width: 100px;">
+                </div>
+                <textarea class="form-textarea" placeholder="里程碑描述和交付物" style="min-height: 60px; margin-top: 8px;"></textarea>
+            `;
+            milestoneList.appendChild(newMilestone);
+        }
+
+        // 文件上传处理
+        function handleFileUpload(input, listId) {
+            const fileList = document.getElementById(listId);
+            const files = input.files;
+
+            Array.from(files).forEach(file => {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `
+                    <div class="file-info">
+                        <span>📄</span>
+                        <span>${file.name}</span>
+                        <span style="color: #999; font-size: 12px;">(${(file.size / 1024).toFixed(1)} KB)</span>
+                    </div>
+                    <span class="file-remove" onclick="this.parentElement.remove()">×</span>
+                `;
+                fileList.appendChild(fileItem);
+            });
+        }
+
+        // 表单提交
+        document.getElementById('bidForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // 创建成功提示overlay
+            const overlay = document.createElement('div');
+            overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+            overlay.innerHTML = `
+                <div style="background: white; border-radius: 16px; padding: 40px; text-align: center; max-width: 460px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+                    <div style="font-size: 64px; margin-bottom: 16px;">✅</div>
+                    <div style="font-size: 24px; font-weight: 700; color: #333; margin-bottom: 16px;">报价提交成功！</div>
+                    <div style="font-size: 14px; color: #666; line-height: 1.8; text-align: left; padding: 16px; background: #f0f9ff; border-radius: 8px; margin-bottom: 20px;">
+                        📧 您的报价方案已发送给企业<br>
+                        ⏱️ 企业将在2个工作日内审核<br>
+                        📱 请保持通讯畅通<br>
+                        💬 关注EZPLM平台消息通知
+                    </div>
+                    <div style="font-size: 13px; color: #999;">正在返回主页...</div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            // 跳转到外包中心
+            setTimeout(() => {
+                window.location.href = 'outsourcing-hub.html';
+            }, 2500);
+        });
+    </script>
+</body>
+</html>

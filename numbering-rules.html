@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 编号规则管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+            flex-shrink: 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        .nav-item:hover {
+            background: #f5f7fa;
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0,137,11,0.1) 0%, rgba(0,137,11,0) 100%);
+            color: #00890b;
+            border-right: 3px solid #00890b;
+            font-weight: 600;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            padding: 32px 40px;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 32px;
+        }
+        .page-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        .page-subtitle {
+            font-size: 15px;
+            color: #7f8c8d;
+        }
+
+        /* 规则卡片 */
+        .rules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 24px;
+        }
+
+        .rule-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .rule-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .rule-card-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .rule-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .rule-icon.material {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .rule-icon.bom {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .rule-icon.project {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .rule-icon.purchase {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+
+        .rule-title-text h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .rule-title-text p {
+            font-size: 13px;
+            color: #95a5a6;
+        }
+
+        .btn-add-rule {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-add-rule:hover {
+            background: #007309;
+            transform: translateY(-2px);
+        }
+
+        /* 规则列表 */
+        .rules-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rule-item {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.3s;
+        }
+
+        .rule-item:hover {
+            background: #f0f0f0;
+        }
+
+        .rule-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+
+        .rule-name {
+            font-weight: 600;
+            font-size: 15px;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .rule-template {
+            font-size: 14px;
+            color: #00890b;
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border-left: 3px solid #00890b;
+        }
+
+        .rule-description {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .rule-example {
+            font-size: 12px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        .rule-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .btn-edit {
+            color: #3498db;
+        }
+
+        .btn-edit:hover {
+            background: #ebf5fb;
+        }
+
+        .btn-delete {
+            color: #e74c3c;
+        }
+
+        .btn-delete:hover {
+            background: #fadbd8;
+        }
+
+        .btn-default {
+            color: #f39c12;
+        }
+
+        .btn-default:hover {
+            background: #fef5e7;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-default {
+            background: #fef5e7;
+            color: #f39c12;
+        }
+
+        .status-active {
+            background: #e8f5e9;
+            color: #00890b;
+        }
+
+        /* 模态框 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: #3d4647;
+        }
+
+        .modal-body {
+            padding: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-top: 6px;
+        }
+
+        .modal-footer {
+            padding: 20px 32px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            border-color: #999;
+        }
+
+        .btn-primary {
+            background: #00890b;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #007309;
+        }
+
+        .variable-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .variable-tag {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .variable-tag:hover {
+            background: #1976d2;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- 左侧导航栏 -->
+                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item active">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容区域 -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">🔢 编号规则管理</h1>
+                <p class="page-subtitle">配置和管理系统中各类对象的自动编号规则</p>
+            </div>
+
+            <div class="rules-grid">
+                <!-- 物料编号规则 -->
+                <div class="rule-card">
+                    <div class="rule-card-header">
+                        <div class="rule-card-title">
+                            <div class="rule-icon material">📦</div>
+                            <div class="rule-title-text">
+                                <h3>物料编号规则</h3>
+                                <p>管理物料内部编号的生成规则</p>
+                            </div>
+                        </div>
+                        <button class="btn-add-rule" onclick="openAddRuleModal('material')">
+                            ➕ 新增规则
+                        </button>
+                    </div>
+                    <div class="rules-list" id="materialRulesList">
+                        <!-- 规则列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- BOM编号规则 -->
+                <div class="rule-card">
+                    <div class="rule-card-header">
+                        <div class="rule-card-title">
+                            <div class="rule-icon bom">📋</div>
+                            <div class="rule-title-text">
+                                <h3>BOM编号规则</h3>
+                                <p>管理BOM文件的编号规则</p>
+                            </div>
+                        </div>
+                        <button class="btn-add-rule" onclick="openAddRuleModal('bom')">
+                            ➕ 新增规则
+                        </button>
+                    </div>
+                    <div class="rules-list" id="bomRulesList">
+                        <!-- 规则列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 项目编号规则 -->
+                <div class="rule-card">
+                    <div class="rule-card-header">
+                        <div class="rule-card-title">
+                            <div class="rule-icon project">🎯</div>
+                            <div class="rule-title-text">
+                                <h3>项目编号规则</h3>
+                                <p>管理项目编号的生成规则</p>
+                            </div>
+                        </div>
+                        <button class="btn-add-rule" onclick="openAddRuleModal('project')">
+                            ➕ 新增规则
+                        </button>
+                    </div>
+                    <div class="rules-list" id="projectRulesList">
+                        <!-- 规则列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 采购单编号规则 -->
+                <div class="rule-card">
+                    <div class="rule-card-header">
+                        <div class="rule-card-title">
+                            <div class="rule-icon purchase">🛒</div>
+                            <div class="rule-title-text">
+                                <h3>采购单编号规则</h3>
+                                <p>管理采购申请和采购单的编号规则</p>
+                            </div>
+                        </div>
+                        <button class="btn-add-rule" onclick="openAddRuleModal('purchase')">
+                            ➕ 新增规则
+                        </button>
+                    </div>
+                    <div class="rules-list" id="purchaseRulesList">
+                        <!-- 规则列表将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑规则模态框 -->
+    <div class="modal-overlay" id="ruleModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">新增编号规则</h3>
+                <button class="modal-close" onclick="closeRuleModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">规则名称</label>
+                    <input type="text" class="form-input" id="ruleName" placeholder="例如：IC芯片编号规则">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">编号模板</label>
+                    <input type="text" class="form-input" id="ruleTemplate" placeholder="例如：MT-IC-{年份}-{序号}">
+                    <p class="form-help">使用 {变量名} 来定义动态部分</p>
+                    <div class="variable-tags">
+                        <span class="variable-tag" onclick="insertVariable('{年份}')">{年份}</span>
+                        <span class="variable-tag" onclick="insertVariable('{月份}')">{月份}</span>
+                        <span class="variable-tag" onclick="insertVariable('{日期}')">{日期}</span>
+                        <span class="variable-tag" onclick="insertVariable('{序号}')">{序号}</span>
+                        <span class="variable-tag" onclick="insertVariable('{分类}')">{分类}</span>
+                        <span class="variable-tag" onclick="insertVariable('{部门}')">{部门}</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">规则描述</label>
+                    <textarea class="form-textarea" id="ruleDescription" placeholder="简要说明此规则的用途..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">序号起始值</label>
+                    <input type="number" class="form-input" id="ruleCounter" value="1" min="1">
+                    <p class="form-help">新编号的序号从此值开始</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">序号位数</label>
+                    <select class="form-select" id="ruleDigits">
+                        <option value="3">3位 (001)</option>
+                        <option value="4" selected>4位 (0001)</option>
+                        <option value="5">5位 (00001)</option>
+                        <option value="6">6位 (000001)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeRuleModal()">取消</button>
+                <button class="btn-primary" onclick="saveRule()">保存规则</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 编号规则数据
+        const numberingRules = {
+            material: [
+                {
+                    id: 1,
+                    name: 'IC芯片编号规则',
+                    template: 'MT-IC-{年份}-{序号}',
+                    description: '用于集成电路类物料的编号',
+                    counter: 1,
+                    digits: 4,
+                    isDefault: true,
+                    example: 'MT-IC-2025-0001'
+                },
+                {
+                    id: 2,
+                    name: '电阻编号规则',
+                    template: 'MT-R-{封装}-{序号}',
+                    description: '用于电阻类物料，包含封装信息',
+                    counter: 1,
+                    digits: 4,
+                    isDefault: false,
+                    example: 'MT-R-0805-0001'
+                },
+                {
+                    id: 3,
+                    name: '电容编号规则',
+                    template: 'MT-C-{年份}-{序号}',
+                    description: '用于电容类物料的编号',
+                    counter: 89,
+                    digits: 4,
+                    isDefault: false,
+                    example: 'MT-C-2025-0089'
+                }
+            ],
+            bom: [
+                {
+                    id: 1,
+                    name: '标准BOM编号',
+                    template: 'BOM-{年份}-{序号}',
+                    description: '用于所有BOM文件的标准编号',
+                    counter: 1,
+                    digits: 4,
+                    isDefault: true,
+                    example: 'BOM-2025-0001'
+                },
+                {
+                    id: 2,
+                    name: '子BOM编号',
+                    template: 'SUB-BOM-{序号}',
+                    description: '用于子BOM模块的编号',
+                    counter: 1,
+                    digits: 3,
+                    isDefault: false,
+                    example: 'SUB-BOM-001'
+                }
+            ],
+            project: [
+                {
+                    id: 1,
+                    name: '标准项目编号',
+                    template: 'PRJ-{年份}{月份}-{序号}',
+                    description: '用于所有项目的标准编号',
+                    counter: 1,
+                    digits: 3,
+                    isDefault: true,
+                    example: 'PRJ-202501-001'
+                },
+                {
+                    id: 2,
+                    name: '研发项目编号',
+                    template: 'RD-{年份}-{序号}',
+                    description: '用于研发类项目的编号',
+                    counter: 1,
+                    digits: 4,
+                    isDefault: false,
+                    example: 'RD-2025-0001'
+                }
+            ],
+            purchase: [
+                {
+                    id: 1,
+                    name: '采购申请编号',
+                    template: 'PR-{年份}-{序号}',
+                    description: '用于采购申请单的编号',
+                    counter: 1,
+                    digits: 6,
+                    isDefault: true,
+                    example: 'PR-2025-000001'
+                },
+                {
+                    id: 2,
+                    name: '采购订单编号',
+                    template: 'PO-{年份}{月份}-{序号}',
+                    description: '用于正式采购订单的编号',
+                    counter: 1,
+                    digits: 4,
+                    isDefault: false,
+                    example: 'PO-202501-0001'
+                }
+            ]
+        };
+
+        let currentRuleType = '';
+        let editingRuleId = null;
+
+        // 页面加载时渲染所有规则
+        document.addEventListener('DOMContentLoaded', function() {
+            renderRules('material');
+            renderRules('bom');
+            renderRules('project');
+            renderRules('purchase');
+        });
+
+        // 渲染规则列表
+        function renderRules(type) {
+            const container = document.getElementById(`${type}RulesList`);
+            const rules = numberingRules[type] || [];
+
+            if (rules.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px 20px; color: #999;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">📝</div>
+                        <div style="font-size: 14px;">暂无编号规则，点击"新增规则"开始创建</div>
+                    </div>
+                `;
+                return;
+            }
+
+            const html = rules.map(rule => `
+                <div class="rule-item">
+                    <div class="rule-item-header">
+                        <div style="flex: 1;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <span class="rule-name">${rule.name}</span>
+                                ${rule.isDefault ? '<span class="status-badge status-default">默认规则</span>' : '<span class="status-badge status-active">自定义</span>'}
+                            </div>
+                            <div class="rule-template">${rule.template}</div>
+                            <div class="rule-description">${rule.description}</div>
+                            <div class="rule-example">示例：${rule.example}</div>
+                        </div>
+                        <div class="rule-actions">
+                            ${!rule.isDefault ? `<button class="btn-icon btn-default" onclick="setDefaultRule('${type}', ${rule.id})" title="设为默认">⭐</button>` : ''}
+                            <button class="btn-icon btn-edit" onclick="editRule('${type}', ${rule.id})" title="编辑">✏️</button>
+                            ${!rule.isDefault ? `<button class="btn-icon btn-delete" onclick="deleteRule('${type}', ${rule.id})" title="删除">🗑️</button>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        // 打开新增规则模态框
+        function openAddRuleModal(type) {
+            currentRuleType = type;
+            editingRuleId = null;
+            document.getElementById('modalTitle').textContent = '新增编号规则';
+            document.getElementById('ruleName').value = '';
+            document.getElementById('ruleTemplate').value = '';
+            document.getElementById('ruleDescription').value = '';
+            document.getElementById('ruleCounter').value = '1';
+            document.getElementById('ruleDigits').value = '4';
+            document.getElementById('ruleModal').classList.add('active');
+        }
+
+        // 打开编辑规则模态框
+        function editRule(type, ruleId) {
+            currentRuleType = type;
+            editingRuleId = ruleId;
+            const rule = numberingRules[type].find(r => r.id === ruleId);
+            if (!rule) return;
+
+            document.getElementById('modalTitle').textContent = '编辑编号规则';
+            document.getElementById('ruleName').value = rule.name;
+            document.getElementById('ruleTemplate').value = rule.template;
+            document.getElementById('ruleDescription').value = rule.description;
+            document.getElementById('ruleCounter').value = rule.counter;
+            document.getElementById('ruleDigits').value = rule.digits;
+            document.getElementById('ruleModal').classList.add('active');
+        }
+
+        // 关闭模态框
+        function closeRuleModal() {
+            document.getElementById('ruleModal').classList.remove('active');
+            currentRuleType = '';
+            editingRuleId = null;
+        }
+
+        // 插入变量到模板
+        function insertVariable(variable) {
+            const templateInput = document.getElementById('ruleTemplate');
+            const cursorPos = templateInput.selectionStart;
+            const text = templateInput.value;
+            const newText = text.substring(0, cursorPos) + variable + text.substring(cursorPos);
+            templateInput.value = newText;
+            templateInput.focus();
+        }
+
+        // 保存规则
+        function saveRule() {
+            const name = document.getElementById('ruleName').value.trim();
+            const template = document.getElementById('ruleTemplate').value.trim();
+            const description = document.getElementById('ruleDescription').value.trim();
+            const counter = parseInt(document.getElementById('ruleCounter').value);
+            const digits = parseInt(document.getElementById('ruleDigits').value);
+
+            if (!name || !template) {
+                alert('请填写规则名称和编号模板');
+                return;
+            }
+
+            // 生成示例
+            const example = generateExample(template, counter, digits);
+
+            if (editingRuleId) {
+                // 编辑现有规则
+                const rule = numberingRules[currentRuleType].find(r => r.id === editingRuleId);
+                if (rule) {
+                    rule.name = name;
+                    rule.template = template;
+                    rule.description = description;
+                    rule.counter = counter;
+                    rule.digits = digits;
+                    rule.example = example;
+                }
+            } else {
+                // 新增规则
+                const newRule = {
+                    id: Date.now(),
+                    name,
+                    template,
+                    description,
+                    counter,
+                    digits,
+                    isDefault: false,
+                    example
+                };
+                numberingRules[currentRuleType].push(newRule);
+            }
+
+            renderRules(currentRuleType);
+            closeRuleModal();
+            alert(editingRuleId ? '规则已更新！' : '规则已添加！');
+        }
+
+        // 生成示例编号
+        function generateExample(template, counter, digits) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const date = String(now.getDate()).padStart(2, '0');
+            const seq = String(counter).padStart(digits, '0');
+
+            let example = template;
+            example = example.replace('{年份}', year);
+            example = example.replace('{月份}', month);
+            example = example.replace('{日期}', date);
+            example = example.replace('{序号}', seq);
+            example = example.replace('{分类}', 'XX');
+            example = example.replace('{部门}', 'XX');
+            example = example.replace('{封装}', '0805');
+
+            return example;
+        }
+
+        // 设为默认规则
+        function setDefaultRule(type, ruleId) {
+            numberingRules[type].forEach(rule => {
+                rule.isDefault = (rule.id === ruleId);
+            });
+            renderRules(type);
+            alert('默认规则已设置！');
+        }
+
+        // 删除规则
+        function deleteRule(type, ruleId) {
+            if (!confirm('确定要删除此规则吗？')) return;
+
+            const index = numberingRules[type].findIndex(r => r.id === ruleId);
+            if (index !== -1) {
+                numberingRules[type].splice(index, 1);
+                renderRules(type);
+                alert('规则已删除！');
+            }
+        }
+
+        // 点击模态框外部关闭
+        document.getElementById('ruleModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRuleModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审批中心 - EZPLM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 24px;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00890b 0%, #00c853 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .top-nav-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .top-nav-links a {
+            text-decoration: none;
+            color: #3d4647;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .top-nav-links a:hover {
+            color: #00890b;
+        }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            margin-top: 60px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 240px;
+            background: white;
+            border-right: 1px solid #e0e0e0;
+            height: calc(100vh - 60px);
+            position: fixed;
+            overflow-y: auto;
+            padding: 24px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            color: #999;
+            padding: 0 24px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 24px;
+            color: #3d4647;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: #f5f7fa;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(90deg, rgba(0,137,11,0.1) 0%, rgba(0,137,11,0) 100%);
+            color: #00890b;
+            font-weight: 600;
+            border-left: 3px solid #00890b;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 240px;
+            padding: 32px;
+            width: calc(100% - 240px);
+        }
+
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .stat-card.pending {
+            border-left: 4px solid #ff6b6b;
+        }
+
+        .stat-card.approved {
+            border-left: 4px solid #51cf66;
+        }
+
+        .stat-card.rejected {
+            border-left: 4px solid #ffd43b;
+        }
+
+        .stat-card.my-requests {
+            border-left: 4px solid #4dabf7;
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #3d4647;
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            color: #51cf66;
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: transparent;
+            border: 2px solid #e0e0e0;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        .tab.active {
+            background: #00890b;
+            border-color: #00890b;
+            color: white;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        select {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #3d4647;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        select:hover {
+            border-color: #00890b;
+        }
+
+        /* Approval List */
+        .approval-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+
+        .approval-item {
+            padding: 20px 24px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .approval-item:hover {
+            background: #f8f9fa;
+        }
+
+        .approval-item:last-child {
+            border-bottom: none;
+        }
+
+        .approval-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .approval-title-section {
+            flex: 1;
+        }
+
+        .approval-type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .type-project {
+            background: #e7f5ff;
+            color: #1971c2;
+        }
+
+        .type-bom {
+            background: #fff3bf;
+            color: #f08c00;
+        }
+
+        .type-procurement {
+            background: #d0ebff;
+            color: #1864ab;
+        }
+
+        .type-payment {
+            background: #d3f9d8;
+            color: #2b8a3e;
+        }
+
+        .type-material {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .type-production {
+            background: #ffe3e3;
+            color: #c92a2a;
+        }
+
+        .type-quality {
+            background: #f3d9fa;
+            color: #862e9c;
+        }
+
+        .approval-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 4px;
+        }
+
+        .approval-meta {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .approval-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-badge {
+            padding: 6px 16px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff5f5;
+            color: #ff6b6b;
+        }
+
+        .status-approved {
+            background: #ebfbee;
+            color: #51cf66;
+        }
+
+        .status-rejected {
+            background: #fff9db;
+            color: #fab005;
+        }
+
+        .status-in-progress {
+            background: #e7f5ff;
+            color: #228be6;
+        }
+
+        .approval-content {
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .approval-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+
+        .approval-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-approve {
+            background: #51cf66;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #40c057;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(81, 207, 102, 0.3);
+        }
+
+        .btn-reject {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #ff5252;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-detail {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-detail:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* Approval Detail Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 12px;
+        }
+
+        .modal-footer {
+            padding: 24px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .rejection-reason {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .empty-text {
+            font-size: 16px;
+        }
+
+        /* Priority Badge */
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        .priority-high {
+            background: #ffe3e3;
+            color: #c92a2a;
+        }
+
+        .priority-medium {
+            background: #fff3bf;
+            color: #e67700;
+        }
+
+        .priority-low {
+            background: #e7f5ff;
+            color: #1971c2;
+        }
+
+        /* Approval Flow */
+        .approval-flow {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .flow-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: '→';
+            position: absolute;
+            right: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ccc;
+            font-size: 20px;
+        }
+
+        .flow-step:last-child::after {
+            display: none;
+        }
+
+        .flow-step.completed {
+            color: #51cf66;
+        }
+
+        .flow-step.current {
+            color: #228be6;
+            font-weight: 700;
+        }
+
+        .flow-step-label {
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .flow-step-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Top Bar -->
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Layout -->
+    <div class="layout">
+        <!-- Sidebar -->
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item active">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">📋 审批中心</div>
+                    <div class="page-subtitle">统一管理所有审批事项，提高审批效率，确保业务流程顺畅执行</div>
+                </div>
+                <div style="display: flex; gap: 12px;">
+                    <button onclick="openFlowSettingsModal()" style="padding: 10px 20px; background: white; border: 2px solid #00890b; color: #00890b; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                        <span>⚙️</span>
+                        <span>审批流程设置</span>
+                    </button>
+                    <button onclick="openWechatSettingsModal()" style="padding: 10px 20px; background: white; border: 2px solid #09bb07; color: #09bb07; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
+                        <span>🔔</span>
+                        <span>通知设置</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card pending">
+                    <div class="stat-label">待我审批</div>
+                    <div class="stat-number">8</div>
+                    <div class="stat-trend">🔴 需要处理</div>
+                </div>
+                <div class="stat-card my-requests">
+                    <div class="stat-label">我的申请</div>
+                    <div class="stat-number">12</div>
+                    <div class="stat-trend">⏳ 3个待审批</div>
+                </div>
+                <div class="stat-card approved">
+                    <div class="stat-label">今日已审批</div>
+                    <div class="stat-number">5</div>
+                    <div class="stat-trend">✅ 效率良好</div>
+                </div>
+                <div class="stat-card rejected">
+                    <div class="stat-label">平均审批时长</div>
+                    <div class="stat-number">2.3h</div>
+                    <div class="stat-trend">📈 较昨日快15%</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('pending')">待我审批 (8)</button>
+                <button class="tab" onclick="switchTab('my-requests')">我的申请 (12)</button>
+                <button class="tab" onclick="switchTab('history')">审批历史</button>
+                <button class="tab" onclick="switchTab('statistics')">审批统计</button>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="filter-group">
+                    <span class="filter-label">类型:</span>
+                    <select onchange="filterByType(this.value)">
+                        <option value="all">全部类型</option>
+                        <option value="document">📄 上传文档审批</option>
+                        <option value="bom">📋 BOM确定审批</option>
+                        <option value="material-substitute">🔄 物料替代审批</option>
+                        <option value="procurement">🛒 采购元器件审批</option>
+                        <option value="permission">🔐 查看权限申请</option>
+                        <option value="material-usage">📦 物料使用申请</option>
+                        <option value="production">🏭 生产审批</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">优先级:</span>
+                    <select onchange="filterByPriority(this.value)">
+                        <option value="all">全部优先级</option>
+                        <option value="high">高</option>
+                        <option value="medium">中</option>
+                        <option value="low">低</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <span class="filter-label">时间:</span>
+                    <select onchange="filterByTime(this.value)">
+                        <option value="all">全部时间</option>
+                        <option value="today">今天</option>
+                        <option value="week">本周</option>
+                        <option value="month">本月</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Approval List -->
+            <div class="approval-list" id="approvalList">
+                <!-- Approval Item 1 -->
+                <div class="approval-item" data-type="procurement" data-priority="high">
+                    <div class="approval-header">
+                        <div class="approval-title-section">
+                            <span class="approval-type-badge type-procurement">采购审批</span>
+                            <span class="priority-badge priority-high">紧急</span>
+                            <div class="approval-title">大额采购申请：MCU芯片采购订单</div>
+                            <div class="approval-meta">申请人: 李明 (采购员) | 申请时间: 2025-10-26 09:30 | 项目: 智能手环 V2.0</div>
+                        </div>
+                        <div class="approval-status">
+                            <span class="status-badge status-pending">待审批</span>
+                        </div>
+                    </div>
+                    <div class="approval-content">
+                        申请采购 STM32F407VGT6 芯片 2,000片，用于智能手环V2.0项目。供应商：深圳华强电子，单价¥32.50/片，总金额¥65,000。
+                    </div>
+                    <div class="approval-details">
+                        <div class="detail-item">
+                            <div class="detail-label">采购金额</div>
+                            <div class="detail-value" style="color: #e67700;">¥65,000</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">物料型号</div>
+                            <div class="detail-value">STM32F407VGT6</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">数量</div>
+                            <div class="detail-value">2,000片</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">预计交期</div>
+                            <div class="detail-value">7-10天</div>
+                        </div>
+                    </div>
+                    <div class="approval-flow">
+                        <div class="flow-step completed">
+                            <div class="flow-step-label">已完成</div>
+                            <div class="flow-step-name">项目经理审批</div>
+                        </div>
+                        <div class="flow-step current">
+                            <div class="flow-step-label">审批中</div>
+                            <div class="flow-step-name">组织管理员审批</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-label">待执行</div>
+                            <div class="flow-step-name">采购执行</div>
+                        </div>
+                    </div>
+                    <div class="approval-actions">
+                        <button class="btn btn-detail" onclick="viewApprovalDetail(1)">查看详情</button>
+                        <button class="btn btn-reject" onclick="showRejectModal(1)">驳回</button>
+                        <button class="btn btn-approve" onclick="approveRequest(1, '采购申请')">通过审批</button>
+                    </div>
+                </div>
+
+                <!-- Approval Item 2 -->
+                <div class="approval-item" data-type="bom" data-priority="high">
+                    <div class="approval-header">
+                        <div class="approval-title-section">
+                            <span class="approval-type-badge type-bom">BOM审批</span>
+                            <span class="priority-badge priority-high">紧急</span>
+                            <div class="approval-title">BOM设计方案审批：智能手环V2.0主板BOM</div>
+                            <div class="approval-meta">申请人: 王芳 (设计工程师) | 申请时间: 2025-10-26 08:15 | 项目: 智能手环 V2.0</div>
+                        </div>
+                        <div class="approval-status">
+                            <span class="status-badge status-pending">待审批</span>
+                        </div>
+                    </div>
+                    <div class="approval-content">
+                        智能手环V2.0主板BOM设计方案已完成，包含156种物料，预估总成本¥45.80/套。主要芯片：STM32F407、nRF52832、MPU6050等。
+                    </div>
+                    <div class="approval-details">
+                        <div class="detail-item">
+                            <div class="detail-label">BOM编号</div>
+                            <div class="detail-value">BOM-2024-0156</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">物料种类</div>
+                            <div class="detail-value">156种</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">预估成本</div>
+                            <div class="detail-value" style="color: #e67700;">¥45.80/套</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">版本</div>
+                            <div class="detail-value">V2.0</div>
+                        </div>
+                    </div>
+                    <div class="approval-flow">
+                        <div class="flow-step current">
+                            <div class="flow-step-label">审批中</div>
+                            <div class="flow-step-name">项目经理技术审批</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-label">待审批</div>
+                            <div class="flow-step-name">采购员成本审批</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-label">待生成</div>
+                            <div class="flow-step-name">生成采购需求</div>
+                        </div>
+                    </div>
+                    <div class="approval-actions">
+                        <button class="btn btn-detail" onclick="viewApprovalDetail(2)">查看BOM清单</button>
+                        <button class="btn btn-reject" onclick="showRejectModal(2)">驳回</button>
+                        <button class="btn btn-approve" onclick="approveRequest(2, 'BOM方案')">通过审批</button>
+                    </div>
+                </div>
+
+                <!-- Approval Item 3 -->
+                <div class="approval-item" data-type="payment" data-priority="medium">
+                    <div class="approval-header">
+                        <div class="approval-title-section">
+                            <span class="approval-type-badge type-payment">付款审批</span>
+                            <span class="priority-badge priority-medium">中等</span>
+                            <div class="approval-title">付款申请：立创商城采购款</div>
+                            <div class="approval-meta">申请人: 李明 (采购员) | 申请时间: 2025-10-25 16:20 | 合同: CON-2024-0089</div>
+                        </div>
+                        <div class="approval-status">
+                            <span class="status-badge status-in-progress">审批中</span>
+                        </div>
+                    </div>
+                    <div class="approval-content">
+                        采购订单 PO-2024-0234 货物已验收入库，申请支付立创商城采购款¥28,600。已上传：合同、发票、验收单。
+                    </div>
+                    <div class="approval-details">
+                        <div class="detail-item">
+                            <div class="detail-label">付款金额</div>
+                            <div class="detail-value" style="color: #e67700;">¥28,600</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">供应商</div>
+                            <div class="detail-value">立创商城</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">付款方式</div>
+                            <div class="detail-value">对公转账</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">到账时间</div>
+                            <div class="detail-value">1-2个工作日</div>
+                        </div>
+                    </div>
+                    <div class="approval-flow">
+                        <div class="flow-step completed">
+                            <div class="flow-step-label">已完成</div>
+                            <div class="flow-step-name">项目经理确认收货</div>
+                        </div>
+                        <div class="flow-step current">
+                            <div class="flow-step-label">审批中</div>
+                            <div class="flow-step-name">组织管理员审批</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-label">待执行</div>
+                            <div class="flow-step-name">财务付款</div>
+                        </div>
+                    </div>
+                    <div class="approval-actions">
+                        <button class="btn btn-detail" onclick="viewApprovalDetail(3)">查看附件</button>
+                        <button class="btn btn-reject" onclick="showRejectModal(3)">驳回</button>
+                        <button class="btn btn-approve" onclick="approveRequest(3, '付款申请')">通过审批</button>
+                    </div>
+                </div>
+
+                <!-- Approval Item 4 -->
+                <div class="approval-item" data-type="material" data-priority="low">
+                    <div class="approval-header">
+                        <div class="approval-title-section">
+                            <span class="approval-type-badge type-material">物料审批</span>
+                            <span class="priority-badge priority-low">普通</span>
+                            <div class="approval-title">新增物料申请：OLED显示屏模块</div>
+                            <div class="approval-meta">申请人: 王芳 (设计工程师) | 申请时间: 2025-10-25 14:30 | 项目: 智能手环 V2.0</div>
+                        </div>
+                        <div class="approval-status">
+                            <span class="status-badge status-pending">待审批</span>
+                        </div>
+                    </div>
+                    <div class="approval-content">
+                        申请新增 0.96寸OLED显示屏模块（SSD1306驱动）到物料库，用于智能手环V2.0项目。型号：UG-2864HSWEG01，供应商：优显科技。
+                    </div>
+                    <div class="approval-details">
+                        <div class="detail-item">
+                            <div class="detail-label">物料型号</div>
+                            <div class="detail-value">UG-2864HSWEG01</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">制造商</div>
+                            <div class="detail-value">优显科技</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">参考价格</div>
+                            <div class="detail-value">¥12.50/片</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">规格</div>
+                            <div class="detail-value">0.96寸 128x64</div>
+                        </div>
+                    </div>
+                    <div class="approval-actions">
+                        <button class="btn btn-detail" onclick="viewApprovalDetail(4)">查看规格书</button>
+                        <button class="btn btn-reject" onclick="showRejectModal(4)">驳回</button>
+                        <button class="btn btn-approve" onclick="approveRequest(4, '物料申请')">通过审批</button>
+                    </div>
+                </div>
+
+                <!-- Approval Item 5 -->
+                <div class="approval-item" data-type="production" data-priority="medium">
+                    <div class="approval-header">
+                        <div class="approval-title-section">
+                            <span class="approval-type-badge type-production">生产审批</span>
+                            <span class="priority-badge priority-medium">中等</span>
+                            <div class="approval-title">生产领料申请：智能手环试产物料</div>
+                            <div class="approval-meta">申请人: 赵强 (生产主管) | 申请时间: 2025-10-25 11:00 | 工单: WO-2024-0156</div>
+                        </div>
+                        <div class="approval-status">
+                            <span class="status-badge status-pending">待审批</span>
+                        </div>
+                    </div>
+                    <div class="approval-content">
+                        工单 WO-2024-0156 (智能手环试产50套) 申请领料，包含23种物料，总价值¥2,890。领料后将开始试产。
+                    </div>
+                    <div class="approval-details">
+                        <div class="detail-item">
+                            <div class="detail-label">工单号</div>
+                            <div class="detail-value">WO-2024-0156</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">生产数量</div>
+                            <div class="detail-value">50套</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">物料价值</div>
+                            <div class="detail-value" style="color: #e67700;">¥2,890</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">预计完工</div>
+                            <div class="detail-value">2025-10-30</div>
+                        </div>
+                    </div>
+                    <div class="approval-actions">
+                        <button class="btn btn-detail" onclick="viewApprovalDetail(5)">查看领料清单</button>
+                        <button class="btn btn-reject" onclick="showRejectModal(5)">驳回</button>
+                        <button class="btn btn-approve" onclick="approveRequest(5, '领料申请')">通过审批</button>
+                    </div>
+                </div>
+
+                <!-- Approval Item 6 -->
+                <div class="approval-item" data-type="quality" data-priority="high">
+                    <div class="approval-header">
+                        <div class="approval-title-section">
+                            <span class="approval-type-badge type-quality">质量审批</span>
+                            <span class="priority-badge priority-high">紧急</span>
+                            <div class="approval-title">不合格品处理申请：电阻批次不良</div>
+                            <div class="approval-meta">申请人: 刘洋 (质量工程师) | 申请时间: 2025-10-26 10:45 | 批次: LOT-20241020-R001</div>
+                        </div>
+                        <div class="approval-status">
+                            <span class="status-badge status-pending">待审批</span>
+                        </div>
+                    </div>
+                    <div class="approval-content">
+                        来料检验发现批次 LOT-20241020-R001 的 10KΩ 电阻阻值偏差超标（±5%超出±1%标准），共1,000片，建议退货处理。
+                    </div>
+                    <div class="approval-details">
+                        <div class="detail-item">
+                            <div class="detail-label">物料型号</div>
+                            <div class="detail-value">0603 10KΩ</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">不良数量</div>
+                            <div class="detail-value">1,000片</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">处理建议</div>
+                            <div class="detail-value">退货</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">损失金额</div>
+                            <div class="detail-value" style="color: #c92a2a;">¥180</div>
+                        </div>
+                    </div>
+                    <div class="approval-actions">
+                        <button class="btn btn-detail" onclick="viewApprovalDetail(6)">查看检验报告</button>
+                        <button class="btn btn-reject" onclick="showRejectModal(6)">驳回</button>
+                        <button class="btn btn-approve" onclick="approveRequest(6, '不合格品处理')">通过审批</button>
+                    </div>
+                </div>
+
+                <!-- Approval Item 7 -->
+                <div class="approval-item" data-type="project" data-priority="low">
+                    <div class="approval-header">
+                        <div class="approval-title-section">
+                            <span class="approval-type-badge type-project">项目审批</span>
+                            <span class="priority-badge priority-low">普通</span>
+                            <div class="approval-title">新项目立项申请：智能门锁项目</div>
+                            <div class="approval-meta">申请人: 张三 (项目经理) | 申请时间: 2025-10-24 15:30 | 部门: 研发部</div>
+                        </div>
+                        <div class="approval-status">
+                            <span class="status-badge status-pending">待审批</span>
+                        </div>
+                    </div>
+                    <div class="approval-content">
+                        申请立项"智能门锁"项目，预算¥50,000，周期3个月。主要功能：指纹识别、密码开锁、远程控制、电量监测。
+                    </div>
+                    <div class="approval-details">
+                        <div class="detail-item">
+                            <div class="detail-label">项目预算</div>
+                            <div class="detail-value" style="color: #e67700;">¥50,000</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">项目周期</div>
+                            <div class="detail-value">3个月</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">团队规模</div>
+                            <div class="detail-value">5人</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">预计收益</div>
+                            <div class="detail-value">¥200,000</div>
+                        </div>
+                    </div>
+                    <div class="approval-actions">
+                        <button class="btn btn-detail" onclick="viewApprovalDetail(7)">查看项目方案</button>
+                        <button class="btn btn-reject" onclick="showRejectModal(7)">驳回</button>
+                        <button class="btn btn-approve" onclick="approveRequest(7, '项目立项')">通过审批</button>
+                    </div>
+                </div>
+
+                <!-- Approval Item 8 -->
+                <div class="approval-item" data-type="procurement" data-priority="medium">
+                    <div class="approval-header">
+                        <div class="approval-title-section">
+                            <span class="approval-type-badge type-procurement">采购审批</span>
+                            <span class="priority-badge priority-medium">中等</span>
+                            <div class="approval-title">中额采购申请：PCB板材采购</div>
+                            <div class="approval-meta">申请人: 李明 (采购员) | 申请时间: 2025-10-24 10:15 | 项目: 多项目通用</div>
+                        </div>
+                        <div class="approval-status">
+                            <span class="status-badge status-pending">待审批</span>
+                        </div>
+                    </div>
+                    <div class="approval-content">
+                        申请采购 FR-4 PCB板材 100平米，用于多个项目。供应商：嘉立创PCB，单价¥180/平米，总金额¥18,000。
+                    </div>
+                    <div class="approval-details">
+                        <div class="detail-item">
+                            <div class="detail-label">采购金额</div>
+                            <div class="detail-value" style="color: #e67700;">¥18,000</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">物料类型</div>
+                            <div class="detail-value">FR-4 PCB板材</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">数量</div>
+                            <div class="detail-value">100平米</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">预计交期</div>
+                            <div class="detail-value">5-7天</div>
+                        </div>
+                    </div>
+                    <div class="approval-flow">
+                        <div class="flow-step completed">
+                            <div class="flow-step-label">已完成</div>
+                            <div class="flow-step-name">项目经理审批</div>
+                        </div>
+                        <div class="flow-step current">
+                            <div class="flow-step-label">审批中</div>
+                            <div class="flow-step-name">组织管理员审批</div>
+                        </div>
+                        <div class="flow-step">
+                            <div class="flow-step-label">待执行</div>
+                            <div class="flow-step-name">采购执行</div>
+                        </div>
+                    </div>
+                    <div class="approval-actions">
+                        <button class="btn btn-detail" onclick="viewApprovalDetail(8)">查看详情</button>
+                        <button class="btn btn-reject" onclick="showRejectModal(8)">驳回</button>
+                        <button class="btn btn-approve" onclick="approveRequest(8, '采购申请')">通过审批</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Requests Content -->
+            <div class="tab-content" id="myRequestsContent" style="display: none;">
+                <div class="approval-list">
+                    <!-- Request Item 1 -->
+                    <div class="approval-item" data-type="project" data-status="approved">
+                        <div class="approval-header">
+                            <div class="approval-title-section">
+                                <span class="approval-type-badge type-project">项目审批</span>
+                                <div class="approval-title">我的申请：智能家居控制器v2.0 项目立项申请</div>
+                                <div class="approval-meta">申请时间: 2025-01-25 10:20 | 审批人: 王芳</div>
+                            </div>
+                            <div class="approval-status">
+                                <span class="status-badge status-approved">✓ 已通过</span>
+                            </div>
+                        </div>
+                        <div class="approval-content">
+                            申请启动智能家居控制器v2.0项目，预算¥500,000，周期6个月。
+                        </div>
+                        <div class="approval-timeline">
+                            <div class="timeline-step completed">
+                                <span>2025-01-25 10:20</span> - 提交申请
+                            </div>
+                            <div class="timeline-step completed">
+                                <span>2025-01-25 14:35</span> - 项目经理审批通过
+                            </div>
+                            <div class="timeline-step completed">
+                                <span>2025-01-25 16:50</span> - 组织管理员审批通过
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-detail" onclick="viewApprovalDetail('REQ-001')">查看详情</button>
+                        </div>
+                    </div>
+
+                    <!-- Request Item 2 -->
+                    <div class="approval-item" data-type="procurement" data-status="pending">
+                        <div class="approval-header">
+                            <div class="approval-title-section">
+                                <span class="approval-type-badge type-procurement">采购审批</span>
+                                <div class="approval-title">我的申请：传感器模块采购</div>
+                                <div class="approval-meta">申请时间: 2025-01-27 09:15 | 当前审批人: 张伟</div>
+                            </div>
+                            <div class="approval-status">
+                                <span class="status-badge status-pending">⏳ 审批中</span>
+                            </div>
+                        </div>
+                        <div class="approval-content">
+                            申请采购温湿度传感器500个，单价¥25/个，总金额¥12,500。
+                        </div>
+                        <div class="approval-timeline">
+                            <div class="timeline-step completed">
+                                <span>2025-01-27 09:15</span> - 提交申请
+                            </div>
+                            <div class="timeline-step current">
+                                <span>待处理</span> - 等待项目经理审批
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-detail" onclick="viewApprovalDetail('REQ-002')">查看进度</button>
+                            <button class="btn btn-secondary" onclick="cancelRequest('REQ-002')">撤回申请</button>
+                        </div>
+                    </div>
+
+                    <!-- Request Item 3 -->
+                    <div class="approval-item" data-type="payment" data-status="rejected">
+                        <div class="approval-header">
+                            <div class="approval-title-section">
+                                <span class="approval-type-badge type-payment">付款审批</span>
+                                <div class="approval-title">我的申请：供应商货款支付</div>
+                                <div class="approval-meta">申请时间: 2025-01-22 14:30 | 审批人: 王芳</div>
+                            </div>
+                            <div class="approval-status">
+                                <span class="status-badge status-rejected">✗ 已驳回</span>
+                            </div>
+                        </div>
+                        <div class="approval-content">
+                            申请支付深圳XX电子货款¥35,000。
+                        </div>
+                        <div class="approval-timeline">
+                            <div class="timeline-step completed">
+                                <span>2025-01-22 14:30</span> - 提交申请
+                            </div>
+                            <div class="timeline-step rejected">
+                                <span>2025-01-22 16:20</span> - 组织管理员驳回
+                                <div style="margin-top: 4px; color: #ff4757;">驳回理由：付款凭证不完整，请补充发票和验收单</div>
+                            </div>
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-detail" onclick="viewApprovalDetail('REQ-003')">查看详情</button>
+                            <button class="btn btn-primary" onclick="resubmitRequest('REQ-003')">重新提交</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Approval History Content -->
+            <div class="tab-content" id="historyContent" style="display: none;">
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card">
+                        <div class="stat-label">累计审批</div>
+                        <div class="stat-number">236</div>
+                        <div class="stat-trend">本月 +18</div>
+                    </div>
+                    <div class="stat-card approved">
+                        <div class="stat-label">通过数量</div>
+                        <div class="stat-number">218</div>
+                        <div class="stat-trend">通过率 92.4%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">驳回数量</div>
+                        <div class="stat-number">18</div>
+                        <div class="stat-trend">驳回率 7.6%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">平均处理时长</div>
+                        <div class="stat-number">2.3h</div>
+                        <div class="stat-trend">较上月快 15%</div>
+                    </div>
+                </div>
+
+                <div class="approval-list">
+                    <!-- History Item 1 -->
+                    <div class="approval-item">
+                        <div class="approval-header">
+                            <div class="approval-title-section">
+                                <span class="approval-type-badge type-procurement">采购审批</span>
+                                <div class="approval-title">电源芯片采购申请</div>
+                                <div class="approval-meta">申请人: 李明 | 审批时间: 2025-01-26 15:30</div>
+                            </div>
+                            <div class="approval-status">
+                                <span class="status-badge status-approved">✓ 已通过</span>
+                            </div>
+                        </div>
+                        <div class="approval-content">
+                            采购LDO芯片1,000片，金额¥8,500。处理时长：1.5小时
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-detail" onclick="viewApprovalDetail('HIS-001')">查看详情</button>
+                        </div>
+                    </div>
+
+                    <!-- History Item 2 -->
+                    <div class="approval-item">
+                        <div class="approval-header">
+                            <div class="approval-title-section">
+                                <span class="approval-type-badge type-bom">BOM审批</span>
+                                <div class="approval-title">智能手环BOM方案审批</div>
+                                <div class="approval-meta">申请人: 赵工 | 审批时间: 2025-01-25 11:20</div>
+                            </div>
+                            <div class="approval-status">
+                                <span class="status-badge status-approved">✓ 已通过</span>
+                            </div>
+                        </div>
+                        <div class="approval-content">
+                            BOM物料清单包含120种元器件。处理时长：3.2小时
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-detail" onclick="viewApprovalDetail('HIS-002')">查看详情</button>
+                        </div>
+                    </div>
+
+                    <!-- History Item 3 -->
+                    <div class="approval-item">
+                        <div class="approval-header">
+                            <div class="approval-title-section">
+                                <span class="approval-type-badge type-material">物料审批</span>
+                                <div class="approval-title">新增元器件入库申请</div>
+                                <div class="approval-meta">申请人: 孙工 | 审批时间: 2025-01-24 09:45</div>
+                            </div>
+                            <div class="approval-status">
+                                <span class="status-badge status-rejected">✗ 已驳回</span>
+                            </div>
+                        </div>
+                        <div class="approval-content">
+                            新增蓝牙模块型号。驳回理由：供应商资质审核未通过。处理时长：0.8小时
+                        </div>
+                        <div class="approval-actions">
+                            <button class="btn btn-detail" onclick="viewApprovalDetail('HIS-003')">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistics Content -->
+            <div class="tab-content" id="statisticsContent" style="display: none;">
+                <div class="stats-dashboard">
+                    <!-- Overview Stats -->
+                    <div class="stats-section">
+                        <h3 style="margin-bottom: 16px; font-size: 18px;">📊 审批概览</h3>
+                        <div class="stats-grid">
+                            <div class="stat-card total">
+                                <div class="stat-icon">📋</div>
+                                <div class="stat-number">236</div>
+                                <div class="stat-label">总审批数</div>
+                                <div class="stat-trend">本月 +18</div>
+                            </div>
+                            <div class="stat-card approved">
+                                <div class="stat-icon">✓</div>
+                                <div class="stat-number">218</div>
+                                <div class="stat-label">已通过</div>
+                                <div class="stat-trend">92.4%</div>
+                            </div>
+                            <div class="stat-card rejected">
+                                <div class="stat-icon">✗</div>
+                                <div class="stat-number">18</div>
+                                <div class="stat-label">已驳回</div>
+                                <div class="stat-trend">7.6%</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon">⏱️</div>
+                                <div class="stat-number">2.3h</div>
+                                <div class="stat-label">平均时长</div>
+                                <div class="stat-trend down">↓ 15%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Type Distribution -->
+                    <div class="stats-section" style="margin-top: 32px;">
+                        <h3 style="margin-bottom: 16px; font-size: 18px;">📈 审批类型分布</h3>
+                        <div style="background: white; padding: 24px; border-radius: 12px;">
+                            <table style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>审批类型</th>
+                                        <th>数量</th>
+                                        <th>占比</th>
+                                        <th>通过率</th>
+                                        <th>平均时长</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><span class="approval-type-badge type-procurement">采购审批</span></td>
+                                        <td>98</td>
+                                        <td>41.5%</td>
+                                        <td><span style="color: #00890b;">95.9%</span></td>
+                                        <td>2.1h</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="approval-type-badge type-bom">BOM审批</span></td>
+                                        <td>52</td>
+                                        <td>22.0%</td>
+                                        <td><span style="color: #00890b;">90.4%</span></td>
+                                        <td>3.5h</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="approval-type-badge type-payment">付款审批</span></td>
+                                        <td>38</td>
+                                        <td>16.1%</td>
+                                        <td><span style="color: #00890b;">89.5%</span></td>
+                                        <td>1.8h</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="approval-type-badge type-material">物料审批</span></td>
+                                        <td>28</td>
+                                        <td>11.9%</td>
+                                        <td><span style="color: #f39c12;">85.7%</span></td>
+                                        <td>1.5h</td>
+                                    </tr>
+                                    <tr>
+                                        <td><span class="approval-type-badge type-project">项目审批</span></td>
+                                        <td>20</td>
+                                        <td>8.5%</td>
+                                        <td><span style="color: #00890b;">95.0%</span></td>
+                                        <td>4.2h</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Performance Trend -->
+                    <div class="stats-section" style="margin-top: 32px;">
+                        <h3 style="margin-bottom: 16px; font-size: 18px;">📉 审批效率趋势</h3>
+                        <div style="background: white; padding: 24px; border-radius: 12px;">
+                            <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px;">
+                                <div style="text-align: center; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                                    <div style="font-size: 12px; color: #999; margin-bottom: 8px;">周一</div>
+                                    <div style="font-size: 20px; font-weight: 700;">12</div>
+                                    <div style="font-size: 11px; color: #666;">2.1h</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                                    <div style="font-size: 12px; color: #999; margin-bottom: 8px;">周二</div>
+                                    <div style="font-size: 20px; font-weight: 700;">15</div>
+                                    <div style="font-size: 11px; color: #666;">2.3h</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                                    <div style="font-size: 12px; color: #999; margin-bottom: 8px;">周三</div>
+                                    <div style="font-size: 20px; font-weight: 700;">18</div>
+                                    <div style="font-size: 11px; color: #666;">2.5h</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: #f8f9fa; border-radius: 8px;">
+                                    <div style="font-size: 12px; color: #999; margin-bottom: 8px;">周四</div>
+                                    <div style="font-size: 20px; font-weight: 700;">14</div>
+                                    <div style="font-size: 11px; color: #666;">2.0h</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: rgba(0, 137, 11, 0.1); border-radius: 8px; border: 2px solid #00890b;">
+                                    <div style="font-size: 12px; color: #999; margin-bottom: 8px;">周五</div>
+                                    <div style="font-size: 20px; font-weight: 700; color: #00890b;">8</div>
+                                    <div style="font-size: 11px; color: #00890b;">1.8h ⚡</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: #f8f9fa; border-radius: 8px; opacity: 0.5;">
+                                    <div style="font-size: 12px; color: #999; margin-bottom: 8px;">周六</div>
+                                    <div style="font-size: 20px; font-weight: 700;">-</div>
+                                </div>
+                                <div style="text-align: center; padding: 16px; background: #f8f9fa; border-radius: 8px; opacity: 0.5;">
+                                    <div style="font-size: 12px; color: #999; margin-bottom: 8px;">周日</div>
+                                    <div style="font-size: 20px; font-weight: 700;">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Insights -->
+                    <div class="stats-section" style="margin-top: 32px;">
+                        <h3 style="margin-bottom: 16px; font-size: 18px;">💡 关键洞察</h3>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                            <div style="background: linear-gradient(135deg, rgba(0, 137, 11, 0.05) 0%, rgba(0, 179, 14, 0.05) 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #00890b;">
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">✓ 效率提升</div>
+                                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                                    本周平均审批时长较上周缩短15%，审批效率持续优化
+                                </div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.05) 0%, rgba(243, 156, 18, 0.05) 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #f39c12;">
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">⚠️ 注意事项</div>
+                                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                                    物料审批驳回率偏高(14.3%)，建议加强申请前的资料审核
+                                </div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #667eea;">
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">📊 高峰时段</div>
+                                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                                    周三审批量最高，建议合理分配审批任务以平衡工作负载
+                                </div>
+                            </div>
+                            <div style="background: linear-gradient(135deg, rgba(52, 152, 219, 0.05) 0%, rgba(41, 128, 185, 0.05) 100%); padding: 20px; border-radius: 12px; border-left: 4px solid #3498db;">
+                                <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">🎯 表现优异</div>
+                                <div style="font-size: 13px; color: #666; line-height: 1.6;">
+                                    采购审批通过率高达95.9%，说明采购申请质量较高
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approval Detail Modal -->
+    <div class="modal-overlay" id="approvalDetailModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">审批详情</div>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be dynamically loaded -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-detail" onclick="closeModal()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div class="modal-overlay" id="rejectionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">驳回申请</div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <div class="modal-section-title">驳回原因</div>
+                    <textarea class="rejection-reason" id="rejectionReason" placeholder="请输入驳回原因..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-detail" onclick="closeRejectionModal()">取消</button>
+                <button class="btn btn-reject" onclick="confirmReject()">确认驳回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 审批流程设置Modal -->
+    <div id="flowSettingsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; width: 90%; max-width: 1440px; max-height: 90vh; overflow-y: auto;">
+            <div style="padding: 24px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="font-size: 24px; font-weight: 700; color: #3d4647;">⚙️ 审批流程设置</h2>
+                <button onclick="closeFlowSettingsModal()" style="background: none; border: none; font-size: 28px; color: #999; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+                <!-- 审批类型列表 -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #3d4647;">审批类型配置</h3>
+                    <div style="display: grid; gap: 20px;">
+
+                        <!-- 1. 上传文档审批 -->
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; border: 2px solid #e0e0e0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">📄 上传文档审批</h4>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">重要技术文档、设计图纸等上传需经过审批确认</div>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                    <span style="font-size: 14px;">启用</span>
+                                </label>
+                            </div>
+                            <div style="background: white; border-radius: 6px; padding: 16px;">
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px;">审批流程</div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="flex: 1; padding: 12px; background: #e8f5e9; border-radius: 6px; text-align: center; border: 2px solid #4caf50;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #2e7d32;">第一步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">项目负责人</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #fff3e0; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #e65100;">第二步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">技术总监</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #e3f2fd; border-radius: 6px; text-align: center; border: 2px solid #2196f3;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #1565c0;">完成</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">归档</div>
+                                    </div>
+                                </div>
+                                <button style="margin-top: 12px; padding: 8px 16px; background: white; border: 2px solid #00890b; color: #00890b; border-radius: 6px; font-size: 14px; cursor: pointer;">编辑流程</button>
+                            </div>
+                        </div>
+
+                        <!-- 2. BOM确定审批 -->
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; border: 2px solid #e0e0e0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">📋 BOM确定审批</h4>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">物料清单BOM确认后进入采购和生产环节</div>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                    <span style="font-size: 14px;">启用</span>
+                                </label>
+                            </div>
+                            <div style="background: white; border-radius: 6px; padding: 16px;">
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px;">审批流程</div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="flex: 1; padding: 12px; background: #e8f5e9; border-radius: 6px; text-align: center; border: 2px solid #4caf50;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #2e7d32;">第一步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">硬件工程师</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #fff3e0; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #e65100;">第二步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">项目经理</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #f3e5f5; border-radius: 6px; text-align: center; border: 2px solid #9c27b0;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #6a1b9a;">第三步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">采购经理</div>
+                                    </div>
+                                </div>
+                                <button style="margin-top: 12px; padding: 8px 16px; background: white; border: 2px solid #00890b; color: #00890b; border-radius: 6px; font-size: 14px; cursor: pointer;">编辑流程</button>
+                            </div>
+                        </div>
+
+                        <!-- 3. 物料替代审批 -->
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; border: 2px solid #e0e0e0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">🔄 物料替代审批</h4>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">元器件替代方案需经技术和质量部门评估</div>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                    <span style="font-size: 14px;">启用</span>
+                                </label>
+                            </div>
+                            <div style="background: white; border-radius: 6px; padding: 16px;">
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px;">审批流程</div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="flex: 1; padding: 12px; background: #e8f5e9; border-radius: 6px; text-align: center; border: 2px solid #4caf50;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #2e7d32;">第一步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">硬件工程师</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #fff3e0; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #e65100;">第二步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">质量工程师</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #f3e5f5; border-radius: 6px; text-align: center; border: 2px solid #9c27b0;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #6a1b9a;">第三步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">技术总监</div>
+                                    </div>
+                                </div>
+                                <button style="margin-top: 12px; padding: 8px 16px; background: white; border: 2px solid #00890b; color: #00890b; border-radius: 6px; font-size: 14px; cursor: pointer;">编辑流程</button>
+                            </div>
+                        </div>
+
+                        <!-- 4. 采购元器件审批 -->
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; border: 2px solid #e0e0e0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">🛒 采购元器件审批</h4>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">元器件采购订单根据金额走不同审批流程</div>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                    <span style="font-size: 14px;">启用</span>
+                                </label>
+                            </div>
+                            <div style="background: white; border-radius: 6px; padding: 16px;">
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px;">审批流程（金额 < ¥50,000）</div>
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                                    <div style="flex: 1; padding: 12px; background: #e8f5e9; border-radius: 6px; text-align: center; border: 2px solid #4caf50;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #2e7d32;">第一步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">项目经理</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #fff3e0; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #e65100;">第二步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">采购经理</div>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px; margin-top: 20px;">审批流程（金额 ≥ ¥50,000）</div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="flex: 1; padding: 12px; background: #e8f5e9; border-radius: 6px; text-align: center; border: 2px solid #4caf50;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #2e7d32;">第一步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">项目经理</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #fff3e0; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #e65100;">第二步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">采购经理</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #f3e5f5; border-radius: 6px; text-align: center; border: 2px solid #9c27b0;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #6a1b9a;">第三步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">财务经理</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #ffebee; border-radius: 6px; text-align: center; border: 2px solid #f44336;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #c62828;">第四步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">总经理</div>
+                                    </div>
+                                </div>
+                                <button style="margin-top: 12px; padding: 8px 16px; background: white; border: 2px solid #00890b; color: #00890b; border-radius: 6px; font-size: 14px; cursor: pointer;">编辑流程</button>
+                            </div>
+                        </div>
+
+                        <!-- 5. 查看权限申请 -->
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; border: 2px solid #e0e0e0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">🔐 查看权限申请</h4>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">敏感数据和文档的查看权限需要申请批准</div>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                    <span style="font-size: 14px;">启用</span>
+                                </label>
+                            </div>
+                            <div style="background: white; border-radius: 6px; padding: 16px;">
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px;">审批流程</div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="flex: 1; padding: 12px; background: #e8f5e9; border-radius: 6px; text-align: center; border: 2px solid #4caf50;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #2e7d32;">第一步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">数据所有者</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #fff3e0; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #e65100;">第二步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">安全管理员</div>
+                                    </div>
+                                </div>
+                                <button style="margin-top: 12px; padding: 8px 16px; background: white; border: 2px solid #00890b; color: #00890b; border-radius: 6px; font-size: 14px; cursor: pointer;">编辑流程</button>
+                            </div>
+                        </div>
+
+                        <!-- 6. 物料使用申请 -->
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; border: 2px solid #e0e0e0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">📦 物料使用申请</h4>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">从库存领用物料需要审批确认用途和数量</div>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                    <span style="font-size: 14px;">启用</span>
+                                </label>
+                            </div>
+                            <div style="background: white; border-radius: 6px; padding: 16px;">
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px;">审批流程</div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="flex: 1; padding: 12px; background: #e8f5e9; border-radius: 6px; text-align: center; border: 2px solid #4caf50;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #2e7d32;">第一步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">项目经理</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #fff3e0; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #e65100;">第二步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">仓库管理员</div>
+                                    </div>
+                                </div>
+                                <button style="margin-top: 12px; padding: 8px 16px; background: white; border: 2px solid #00890b; color: #00890b; border-radius: 6px; font-size: 14px; cursor: pointer;">编辑流程</button>
+                            </div>
+                        </div>
+
+                        <!-- 7. 生产审批 -->
+                        <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; border: 2px solid #e0e0e0;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                                <div>
+                                    <h4 style="font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 8px;">🏭 生产审批</h4>
+                                    <div style="font-size: 13px; color: #666; margin-bottom: 12px;">启动生产需要确认物料、工艺、质量标准等要素</div>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                    <span style="font-size: 14px;">启用</span>
+                                </label>
+                            </div>
+                            <div style="background: white; border-radius: 6px; padding: 16px;">
+                                <div style="font-size: 14px; font-weight: 600; color: #666; margin-bottom: 12px;">审批流程</div>
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="flex: 1; padding: 12px; background: #e8f5e9; border-radius: 6px; text-align: center; border: 2px solid #4caf50;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #2e7d32;">第一步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">工艺工程师</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #fff3e0; border-radius: 6px; text-align: center; border: 2px solid #ff9800;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #e65100;">第二步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">质量工程师</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #f3e5f5; border-radius: 6px; text-align: center; border: 2px solid #9c27b0;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #6a1b9a;">第三步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">生产经理</div>
+                                    </div>
+                                    <div style="font-size: 20px; color: #ccc;">→</div>
+                                    <div style="flex: 1; padding: 12px; background: #ffebee; border-radius: 6px; text-align: center; border: 2px solid #f44336;">
+                                        <div style="font-size: 13px; font-weight: 600; color: #c62828;">第四步</div>
+                                        <div style="font-size: 14px; color: #3d4647; margin-top: 4px;">总经理</div>
+                                    </div>
+                                </div>
+                                <button style="margin-top: 12px; padding: 8px 16px; background: white; border: 2px solid #00890b; color: #00890b; border-radius: 6px; font-size: 14px; cursor: pointer;">编辑流程</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 说明信息 -->
+                <div style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 16px; border-radius: 6px; margin-top: 24px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #1565c0;">💡 审批流程说明</div>
+                    <ul style="margin-left: 20px; color: #666; font-size: 14px; line-height: 1.8;">
+                        <li>每种审批类型都可以自定义审批人和审批顺序</li>
+                        <li>点击"编辑流程"可以添加、删除或调整审批步骤</li>
+                        <li>支持根据金额、数量等条件设置不同的审批流程</li>
+                        <li>可以设置会签（所有人同意）或或签（任一人同意）模式</li>
+                        <li>流程变更后将应用到所有新提交的审批申请</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 微信通知设置Modal -->
+    <div id="wechatSettingsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto;">
+            <div style="padding: 24px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="font-size: 24px; font-weight: 700; color: #3d4647;">🔔 微信/企业微信通知设置</h2>
+                <button onclick="closeWechatSettingsModal()" style="background: none; border: none; font-size: 28px; color: #999; cursor: pointer;">&times;</button>
+            </div>
+            <div style="padding: 24px;">
+
+                <!-- 通知渠道选择 -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #3d4647;">通知渠道</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                        <div style="border: 2px solid #09bb07; border-radius: 8px; padding: 20px; cursor: pointer; background: linear-gradient(135deg, #f0fff0 0%, #e8f5e9 100%);">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                <span style="font-size: 24px;">💬</span>
+                                <span style="font-size: 16px; font-weight: 600;">微信通知</span>
+                            </div>
+                            <div style="font-size: 13px; color: #666;">通过微信服务号推送审批消息</div>
+                            <button style="margin-top: 12px; padding: 8px 16px; background: #09bb07; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">配置接口</button>
+                        </div>
+                        <div style="border: 2px solid #1565c0; border-radius: 8px; padding: 20px; cursor: pointer; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                                <span style="font-size: 24px;">💼</span>
+                                <span style="font-size: 16px; font-weight: 600;">企业微信通知</span>
+                            </div>
+                            <div style="font-size: 13px; color: #666;">通过企业微信应用推送消息</div>
+                            <button style="margin-top: 12px; padding: 8px 16px; background: #1565c0; color: white; border: none; border-radius: 6px; font-size: 14px; cursor: pointer;">配置接口</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通知场景设置 -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #3d4647;">通知场景</h3>
+                    <div style="background: #f9f9f9; border-radius: 8px; padding: 20px;">
+                        <div style="display: flex; flex-direction: column; gap: 16px;">
+                            <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border-radius: 6px; cursor: pointer;">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">新审批到达</div>
+                                    <div style="font-size: 13px; color: #666;">有新的审批任务分配给我时通知</div>
+                                </div>
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                            </label>
+                            <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border-radius: 6px; cursor: pointer;">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">审批通过</div>
+                                    <div style="font-size: 13px; color: #666;">我提交的审批被通过时通知</div>
+                                </div>
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                            </label>
+                            <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border-radius: 6px; cursor: pointer;">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">审批驳回</div>
+                                    <div style="font-size: 13px; color: #666;">我提交的审批被驳回时通知</div>
+                                </div>
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                            </label>
+                            <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border-radius: 6px; cursor: pointer;">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">审批超时提醒</div>
+                                    <div style="font-size: 13px; color: #666;">审批超过24小时未处理时提醒</div>
+                                </div>
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                            </label>
+                            <label style="display: flex; align-items: center; justify-content: space-between; padding: 12px; background: white; border-radius: 6px; cursor: pointer;">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 4px;">审批催办</div>
+                                    <div style="font-size: 13px; color: #666;">申请人催办审批时通知审批人</div>
+                                </div>
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 通知时间设置 -->
+                <div style="margin-bottom: 32px;">
+                    <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 16px; color: #3d4647;">免打扰时间</h3>
+                    <div style="background: #f9f9f9; border-radius: 8px; padding: 20px;">
+                        <label style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                            <input type="checkbox" checked style="width: 20px; height: 20px;">
+                            <span style="font-weight: 600;">启用免打扰模式</span>
+                        </label>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">开始时间</label>
+                                <input type="time" value="22:00" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 14px; color: #666; margin-bottom: 8px;">结束时间</label>
+                                <input type="time" value="08:00" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px;">
+                            </div>
+                        </div>
+                        <div style="font-size: 13px; color: #666; margin-top: 12px;">
+                            💡 在免打扰时间段内，非紧急审批通知将被暂停推送
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 保存按钮 -->
+                <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                    <button onclick="closeWechatSettingsModal()" style="padding: 10px 24px; background: white; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">取消</button>
+                    <button onclick="saveWechatSettings()" style="padding: 10px 24px; background: #00890b; color: white; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;">保存设置</button>
+                </div>
+            </div>
+        </div>
+
+    <script>
+        let currentRejectId = null;
+
+        // Switch Tab
+        function switchTab(tabName) {
+            // Update tab styles
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Hide all tab content sections
+            document.getElementById('approvalList').style.display = 'none';
+            const myRequestsContent = document.getElementById('myRequestsContent');
+            const historyContent = document.getElementById('historyContent');
+            const statisticsContent = document.getElementById('statisticsContent');
+
+            if (myRequestsContent) myRequestsContent.style.display = 'none';
+            if (historyContent) historyContent.style.display = 'none';
+            if (statisticsContent) statisticsContent.style.display = 'none';
+
+            // Show corresponding content
+            if (tabName === 'pending') {
+                document.getElementById('approvalList').style.display = 'block';
+            } else if (tabName === 'my-requests') {
+                if (myRequestsContent) myRequestsContent.style.display = 'block';
+            } else if (tabName === 'history') {
+                if (historyContent) historyContent.style.display = 'block';
+            } else if (tabName === 'statistics') {
+                if (statisticsContent) statisticsContent.style.display = 'block';
+            }
+        }
+
+        // Filter Functions
+        function filterByType(type) {
+            const items = document.querySelectorAll('.approval-item');
+            items.forEach(item => {
+                if (type === 'all' || item.dataset.type === type) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function filterByPriority(priority) {
+            const items = document.querySelectorAll('.approval-item');
+            items.forEach(item => {
+                if (priority === 'all' || item.dataset.priority === priority) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function filterByTime(time) {
+            // TODO: Implement time filter logic
+            console.log('Filter by time:', time);
+        }
+
+        // Approve Request
+        function approveRequest(id, type) {
+            if (confirm(`确认通过此${type}吗？`)) {
+                alert(`✅ ${type}已通过！\n\n审批编号：APV-2024-${id.toString().padStart(4, '0')}\n审批时间：${new Date().toLocaleString()}\n\n系统将自动通知申请人并进入下一流程。`);
+                // Remove from list
+                event.target.closest('.approval-item').style.display = 'none';
+                // Update stats
+                updateStats();
+            }
+        }
+
+        // Show Reject Modal
+        function showRejectModal(id) {
+            currentRejectId = id;
+            document.getElementById('rejectionModal').classList.add('active');
+        }
+
+        // Close Rejection Modal
+        function closeRejectionModal() {
+            document.getElementById('rejectionModal').classList.remove('active');
+            document.getElementById('rejectionReason').value = '';
+            currentRejectId = null;
+        }
+
+        // Confirm Reject
+        function confirmReject() {
+            const reason = document.getElementById('rejectionReason').value.trim();
+            if (!reason) {
+                alert('请输入驳回原因！');
+                return;
+            }
+
+            alert(`❌ 申请已驳回！\n\n驳回原因：${reason}\n驳回时间：${new Date().toLocaleString()}\n\n系统将自动通知申请人修改后重新提交。`);
+
+            // Remove from list
+            const items = document.querySelectorAll('.approval-item');
+            items.forEach(item => {
+                // Find the item with matching ID (simplified)
+                if (item.querySelector('.btn-approve')) {
+                    item.style.display = 'none';
+                    return false; // break
+                }
+            });
+
+            closeRejectionModal();
+            updateStats();
+        }
+
+        // View Approval Detail
+        function viewApprovalDetail(id) {
+            // 跳转到审批详情页面
+            location.href = 'approval-detail.html?id=' + id;
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('approvalDetailModal').classList.remove('active');
+        }
+
+        // Update Stats
+        function updateStats() {
+            const visibleItems = document.querySelectorAll('.approval-item:not([style*="display: none"])').length;
+            document.querySelector('.stat-card.pending .stat-number').textContent = visibleItems;
+        }
+
+        // Cancel Request (for My Requests tab)
+        function cancelRequest(id) {
+            if (confirm('确认要撤销此申请吗？\n\n撤销后将无法恢复,如需再次申请请重新提交。')) {
+                alert(`✓ 申请已撤销！\n\n申请编号：REQ-2025-${id.toString().padStart(4, '0')}\n撤销时间：${new Date().toLocaleString()}\n\n您可以重新提交新的申请。`);
+                // Hide the request item
+                event.target.closest('.request-item').style.opacity = '0.5';
+                event.target.disabled = true;
+                event.target.textContent = '已撤销';
+            }
+        }
+
+        // Resubmit Request (for My Requests tab)
+        function resubmitRequest(id) {
+            if (confirm('确认要重新提交此申请吗？\n\n请确保已根据驳回意见进行了修改。')) {
+                alert(`✓ 申请已重新提交！\n\n申请编号：REQ-2025-${id.toString().padStart(4, '0')}-R\n提交时间：${new Date().toLocaleString()}\n\n系统将重新进入审批流程,请耐心等待。`);
+                // Update status
+                const statusBadge = event.target.closest('.request-item').querySelector('.status-badge');
+                if (statusBadge) {
+                    statusBadge.className = 'status-badge status-pending';
+                    statusBadge.textContent = '⏳ 审批中';
+                }
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Close modals on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+
+        // Open/Close Flow Settings Modal
+        function openFlowSettingsModal() {
+            document.getElementById('flowSettingsModal').style.display = 'flex';
+        }
+
+        function closeFlowSettingsModal() {
+            document.getElementById('flowSettingsModal').style.display = 'none';
+        }
+
+        // Open/Close WeChat Settings Modal
+        function openWechatSettingsModal() {
+            document.getElementById('wechatSettingsModal').style.display = 'flex';
+        }
+
+        function closeWechatSettingsModal() {
+            document.getElementById('wechatSettingsModal').style.display = 'none';
+        }
+
+        // Save WeChat Settings
+        function saveWechatSettings() {
+            // Get selected notification channel
+            const channel = document.querySelector('input[name="notifyChannel"]:checked')?.value || '微信';
+
+            // Get enabled scenarios
+            const scenarios = [];
+            if (document.getElementById('notifyNewApproval')?.checked) scenarios.push('新审批到达');
+            if (document.getElementById('notifyApproved')?.checked) scenarios.push('审批通过');
+            if (document.getElementById('notifyRejected')?.checked) scenarios.push('审批驳回');
+            if (document.getElementById('notifyTimeout')?.checked) scenarios.push('审批超时提醒');
+            if (document.getElementById('notifyReminder')?.checked) scenarios.push('审批催办');
+
+            alert(`✅ 通知设置已保存\n\n通知渠道：${channel}\n启用场景：${scenarios.join('、')}\n免打扰时间：22:00 - 08:00\n\n${channel}通知配置已更新。`);
+            closeWechatSettingsModal();
+        }
+
+        // Click background to close settings modals
+        document.getElementById('flowSettingsModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeFlowSettingsModal();
+        });
+
+        document.getElementById('wechatSettingsModal')?.addEventListener('click', function(e) {
+            if (e.target === this) closeWechatSettingsModal();
+        });
+    </script>
+</body>
+</html>

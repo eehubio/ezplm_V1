@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 工作台（专业版）</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .top-nav-links a:hover {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .plan-badge {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* AI助手按钮 */
+        .ai-assistant-btn {
+            background: white;
+            border: 2px solid #00890b;
+            color: #00890b;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .ai-assistant-btn:hover {
+            background: #00890b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,137,11,0.2);
+        }
+
+                /* AI助手模态框 */
+        .ai-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 9999;
+        }
+        .ai-modal-overlay.active {
+            display: block;
+        }
+        .ai-modal-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        .ai-modal-close {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #00890b;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,137,11,0.3);
+            z-index: 10000;
+            font-weight: 300;
+            line-height: 1;
+        }
+        .ai-modal-close:hover {
+            background: #006b09;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0,137,11,0.4);
+        }
+        .ai-modal-body {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* 布局 */
+        .layout {
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 260px;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+            padding: 24px 0;
+        }
+        .nav-section {
+            margin-bottom: 24px;
+        }
+        .nav-section-title {
+            padding: 8px 24px;
+            font-size: 12px;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .nav-item {
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #3d4647;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .nav-item:hover {
+            background: rgba(0, 137, 11, 0.05);
+            color: #00890b;
+        }
+        .nav-item.active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+            font-weight: 600;
+            border-right: 3px solid #00890b;
+        }
+        .nav-icon {
+            font-size: 18px;
+        }
+
+        /* 主内容区 */
+        .main-content {
+            flex: 1;
+            padding: 32px;
+        }
+
+        /* 欢迎横幅 */
+        .welcome-banner {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            border-radius: 12px;
+            padding: 32px;
+            color: white;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .welcome-banner h2 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .welcome-banner p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .welcome-stats {
+            display: flex;
+            gap: 32px;
+        }
+        .welcome-stat {
+            text-align: center;
+        }
+        .welcome-stat-value {
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .welcome-stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        /* 统计卡片网格 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-4px);
+        }
+        .stat-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .stat-card-title {
+            font-size: 13px;
+            color: #666;
+            font-weight: 600;
+        }
+        .stat-card-icon {
+            font-size: 24px;
+        }
+        .stat-card-value {
+            font-size: 26px;
+            font-weight: 800;
+            color: #00890b;
+            margin-bottom: 6px;
+        }
+        .stat-card-change {
+            font-size: 12px;
+            color: #00890b;
+            font-weight: 600;
+        }
+        .stat-card-change.negative {
+            color: #e74c3c;
+        }
+
+        /* 内容卡片 */
+        .content-section {
+            margin-bottom: 32px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .btn-text {
+            color: #197bc0;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .btn-text:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        /* 快速操作 */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+        .action-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .action-btn:hover {
+            border-color: #00890b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,137,11,0.15);
+        }
+        .action-icon {
+            font-size: 36px;
+            margin-bottom: 12px;
+        }
+        .action-title {
+            font-weight: 600;
+            color: #3d4647;
+            font-size: 14px;
+        }
+
+        /* 项目列表 */
+        .project-list {
+            display: grid;
+            gap: 16px;
+        }
+        .project-item {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .project-item:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .project-info h4 {
+            font-size: 16px;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .project-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #666;
+        }
+        .project-status {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-active {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+        .status-pending {
+            background: rgba(255, 193, 7, 0.1);
+            color: #f39c12;
+        }
+
+        /* 最近活动 */
+        .activity-list {
+            display: grid;
+            gap: 12px;
+        }
+        .activity-item {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+        .activity-icon {
+            font-size: 24px;
+        }
+        .activity-content {
+            flex: 1;
+        }
+        .activity-title {
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .activity-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* 图表卡片 */
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #3d4647;
+        }
+        .chart-placeholder {
+            height: 300px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 48px;
+        }
+
+        /* Modal样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            transition: color 0.3s;
+        }
+        .modal-close:hover {
+            color: #3d4647;
+        }
+        .modal-body {
+            padding: 32px;
+        }
+        .form-group {
+            margin-bottom: 24px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .form-label.required::after {
+            content: ' *';
+            color: #e74c3c;
+        }
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #00890b;
+        }
+        .modal-footer {
+            padding: 20px 32px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        .btn-cancel {
+            background: white;
+            color: #3d4647;
+            border: 2px solid #e0e0e0;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-cancel:hover {
+            border-color: #999;
+        }
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .checkbox-item input {
+            width: 18px;
+            height: 18px;
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!--
+    ========================================
+    页面信息 - Arena风格设计
+    ========================================
+    页面名称: 工作台（专业版用户）
+    路由路径: /dashboard
+    访问权限: 专业版/标准版用户
+    设计风格: Arena Solutions（绿色主色调）
+
+    功能说明:
+    - ✅ 所有功能完全解锁
+    - ✅ 无升级提示
+    - ✅ 完整的数据统计展示
+    - ✅ 项目、物料、任务全访问
+    - ✅ 高级功能可用（库存、采购、生产等）
+    ========================================
+    -->
+
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <!-- 主布局 -->
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item active">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容区 -->
+        <div class="main-content">
+            <!-- 欢迎横幅 -->
+            <div class="welcome-banner">
+                <div>
+                    <h2>欢迎回来，张三 👋</h2>
+                    <p>今天是 2025年10月19日，您有 12 个待处理任务</p>
+                </div>
+                <div class="welcome-stats">
+                    <div class="welcome-stat">
+                        <div class="welcome-stat-value">28</div>
+                        <div class="welcome-stat-label">进行中项目</div>
+                    </div>
+                    <div class="welcome-stat">
+                        <div class="welcome-stat-value">156</div>
+                        <div class="welcome-stat-label">活跃物料</div>
+                    </div>
+                    <div class="welcome-stat">
+                        <div class="welcome-stat-value">89%</div>
+                        <div class="welcome-stat-label">任务完成率</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据工具栏 -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: white; padding: 20px 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button class="btn-secondary" onclick="openFilterModal()">🔍 高级筛选</button>
+                    <button class="btn-primary" onclick="openExportModal()">📤 导出数据</button>
+                </div>
+                <select id="timeRangeSelector" style="padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; cursor: pointer; transition: border-color 0.3s;" onfocus="this.style.borderColor='#00890b'" onblur="this.style.borderColor='#e0e0e0'">
+                    <option>最近7天</option>
+                    <option selected>最近30天</option>
+                    <option>最近90天</option>
+                    <option>本年度</option>
+                </select>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">总物料数</div>
+                        <div class="stat-card-icon">📦</div>
+                    </div>
+                    <div class="stat-card-value">1,248</div>
+                    <div class="stat-card-change">↗ +12% 本月</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">活跃BOM</div>
+                        <div class="stat-card-icon">🔧</div>
+                    </div>
+                    <div class="stat-card-value">342</div>
+                    <div class="stat-card-change">↗ +8% 本月</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">库存预警</div>
+                        <div class="stat-card-icon">⚠️</div>
+                    </div>
+                    <div class="stat-card-value">8</div>
+                    <div class="stat-card-change">需要关注</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">库存价值</div>
+                        <div class="stat-card-icon">💰</div>
+                    </div>
+                    <div class="stat-card-value">¥32万</div>
+                    <div class="stat-card-change">↗ +6% 本月</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-card-title">生产良率</div>
+                        <div class="stat-card-icon">✨</div>
+                    </div>
+                    <div class="stat-card-value">98.5%</div>
+                    <div class="stat-card-change">↗ +0.3% 本周</div>
+                </div>
+            </div>
+
+            <!-- 快速操作 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">快速操作</h3>
+                </div>
+                <div class="quick-actions">
+                    <div class="action-btn" onclick="location.href='materials.html'">
+                        <div class="action-icon">📦</div>
+                        <div class="action-title">新建物料</div>
+                    </div>
+                    <div class="action-btn" onclick="location.href='bom.html'">
+                        <div class="action-icon">🔧</div>
+                        <div class="action-title">创建BOM</div>
+                    </div>
+                    <div class="action-btn" onclick="location.href='projects.html'">
+                        <div class="action-icon">📋</div>
+                        <div class="action-title">新建项目</div>
+                    </div>
+                    <div class="action-btn" onclick="location.href='procurement.html'">
+                        <div class="action-icon">🛒</div>
+                        <div class="action-title">创建采购单</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据分析图表 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">数据分析</h3>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px;">
+                    <div class="chart-card">
+                        <div class="chart-title">项目进度趋势</div>
+                        <div class="chart-placeholder">📊</div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">任务完成率</div>
+                        <div class="chart-placeholder">📈</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                    <div class="chart-card">
+                        <div class="chart-title">物料分类分布</div>
+                        <div class="chart-placeholder">🥧</div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">月度采购支出</div>
+                        <div class="chart-placeholder">💰</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近项目 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">最近项目</h3>
+                    <a href="projects.html" class="btn-text">查看全部 →</a>
+                </div>
+                <div class="project-list">
+                    <div class="project-item">
+                        <div class="project-info">
+                            <h4>智能手环 V2.0 开发</h4>
+                            <div class="project-meta">
+                                <span>👤 项目经理: 李明</span>
+                                <span>📅 截止日期: 2025-11-15</span>
+                                <span>✅ 进度: 68%</span>
+                            </div>
+                        </div>
+                        <div class="project-status status-active">进行中</div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-info">
+                            <h4>无线充电器设计优化</h4>
+                            <div class="project-meta">
+                                <span>👤 项目经理: 王芳</span>
+                                <span>📅 截止日期: 2025-10-30</span>
+                                <span>✅ 进度: 45%</span>
+                            </div>
+                        </div>
+                        <div class="project-status status-active">进行中</div>
+                    </div>
+
+                    <div class="project-item">
+                        <div class="project-info">
+                            <h4>智能音箱 Mini版</h4>
+                            <div class="project-meta">
+                                <span>👤 项目经理: 赵强</span>
+                                <span>📅 截止日期: 2025-12-01</span>
+                                <span>✅ 进度: 22%</span>
+                            </div>
+                        </div>
+                        <div class="project-status status-pending">筹备中</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 最近活动 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <h3 class="section-title">最近活动</h3>
+                </div>
+                <div class="card">
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">✅</div>
+                            <div class="activity-content">
+                                <div class="activity-title">李明 完成了 BOM审批 - 智能手环主板 V2.1</div>
+                                <div class="activity-time">2小时前</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">📦</div>
+                            <div class="activity-content">
+                                <div class="activity-title">王芳 创建了新物料 - TI芯片 TPS54560</div>
+                                <div class="activity-time">4小时前</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">🛒</div>
+                            <div class="activity-content">
+                                <div class="activity-title">采购部 提交了采购申请 - 1000个电阻套装</div>
+                                <div class="activity-time">6小时前</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">⚠️</div>
+                            <div class="activity-content">
+                                <div class="activity-title">系统提醒: 8个物料库存低于安全线</div>
+                                <div class="activity-time">8小时前</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">📋</div>
+                            <div class="activity-content">
+                                <div class="activity-title">赵强 更新了项目进度 - 智能音箱Mini版</div>
+                                <div class="activity-time">昨天</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 导航点击事件
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // 模拟实时数据更新
+        function updateStats() {
+            console.log('更新统计数据...');
+        }
+
+        // 每30秒刷新一次数据
+        setInterval(updateStats, 30000);
+
+        // AI助手功能
+        function openCodeAssistant() {
+            document.getElementById('codeAssistantModal').classList.add('active');
+        }
+
+        function closeCodeAssistant() {
+            document.getElementById('codeAssistantModal').classList.remove('active');
+        }
+
+        function openPCBLayout() {
+            document.getElementById('pcbLayoutModal').classList.add('active');
+        }
+
+        function closePCBLayout() {
+            document.getElementById('pcbLayoutModal').classList.remove('active');
+        }
+
+        // Export Modal Functions
+        function openExportModal() {
+            document.getElementById('exportModal').classList.add('active');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.remove('active');
+            document.getElementById('exportForm').reset();
+        }
+
+        function submitExport() {
+            const format = document.getElementById('exportFormat').value;
+            const timeRange = document.getElementById('exportTimeRange').value;
+
+            if (!format) {
+                alert('请选择导出格式！');
+                return;
+            }
+
+            const selectedData = [];
+            if (document.getElementById('exportProjects').checked) selectedData.push('项目数据');
+            if (document.getElementById('exportMaterials').checked) selectedData.push('物料数据');
+            if (document.getElementById('exportProcurement').checked) selectedData.push('采购数据');
+            if (document.getElementById('exportProduction').checked) selectedData.push('生产数据');
+
+            if (selectedData.length === 0) {
+                alert('请至少选择一项导出内容！');
+                return;
+            }
+
+            alert(`导出成功！\n\n格式: ${format.toUpperCase()}\n内容: ${selectedData.join(', ')}\n时间范围: ${timeRange}\n\n文件正在下载...`);
+            closeExportModal();
+        }
+
+        // Filter Modal Functions
+        function openFilterModal() {
+            document.getElementById('filterModal').classList.add('active');
+        }
+
+        function closeFilterModal() {
+            document.getElementById('filterModal').classList.remove('active');
+        }
+
+        function resetFilter() {
+            document.getElementById('filterForm').reset();
+            alert('筛选条件已重置！');
+        }
+
+        function applyFilter() {
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+            const projectStatus = document.getElementById('filterProjectStatus').value;
+            const materialCategory = document.getElementById('filterMaterialCategory').value;
+
+            alert(`筛选已应用！\n\n开始日期: ${startDate || '不限'}\n结束日期: ${endDate || '不限'}\n项目状态: ${projectStatus || '全部'}\n物料分类: ${materialCategory || '全部'}`);
+            closeFilterModal();
+        }
+
+        // Click outside to close modals
+        document.getElementById('exportModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeExportModal();
+            }
+        });
+
+        document.getElementById('filterModal')?.addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeFilterModal();
+            }
+        });
+    </script>
+
+    <!-- 导出数据Modal -->
+    <div class="modal-overlay" id="exportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📤 导出数据</h3>
+                <button class="modal-close" onclick="closeExportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="exportForm">
+                    <div class="form-group">
+                        <label class="form-label required">导出格式</label>
+                        <select class="form-select" id="exportFormat" required>
+                            <option value="">-- 请选择格式 --</option>
+                            <option value="excel">Excel (.xlsx)</option>
+                            <option value="pdf">PDF (.pdf)</option>
+                            <option value="csv">CSV (.csv)</option>
+                            <option value="json">JSON (.json)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label required">导出内容</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="exportProjects" checked>
+                                <span>项目数据（进度、任务、成员）</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="exportMaterials" checked>
+                                <span>物料数据（BOM、库存、成本）</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="exportProcurement">
+                                <span>采购数据（订单、供应商、支出）</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="exportProduction">
+                                <span>生产数据（工单、产量、良率）</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">时间范围</label>
+                        <select class="form-select" id="exportTimeRange">
+                            <option value="7days">最近7天</option>
+                            <option value="30days" selected>最近30天</option>
+                            <option value="90days">最近90天</option>
+                            <option value="year">本年度</option>
+                            <option value="all">全部数据</option>
+                        </select>
+                    </div>
+
+                    <div style="background: #f0f8ff; border-left: 4px solid #00890b; padding: 16px; border-radius: 6px; margin-top: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #00890b;">💡 提示</div>
+                        <ul style="margin-left: 20px; color: #666; font-size: 13px; line-height: 1.6;">
+                            <li>Excel格式支持多个工作表，便于数据分析</li>
+                            <li>PDF格式适合打印和归档</li>
+                            <li>导出的文件将保存到浏览器默认下载目录</li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeExportModal()">取消</button>
+                <button class="btn-primary" onclick="submitExport()">开始导出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 高级筛选Modal -->
+    <div class="modal-overlay" id="filterModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">🔍 高级筛选</h3>
+                <button class="modal-close" onclick="closeFilterModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="filterForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">开始日期</label>
+                            <input type="date" class="form-input" id="filterStartDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">结束日期</label>
+                            <input type="date" class="form-input" id="filterEndDate">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">项目状态</label>
+                        <select class="form-select" id="filterProjectStatus">
+                            <option value="">全部</option>
+                            <option value="active">进行中</option>
+                            <option value="pending">筹备中</option>
+                            <option value="completed">已完成</option>
+                            <option value="paused">已暂停</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">物料分类</label>
+                        <select class="form-select" id="filterMaterialCategory">
+                            <option value="">全部分类</option>
+                            <option value="ic">IC芯片</option>
+                            <option value="mcu">MCU</option>
+                            <option value="resistor">电阻</option>
+                            <option value="capacitor">电容</option>
+                            <option value="connector">连接器</option>
+                            <option value="sensor">传感器</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">数据指标</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="metricProgress" checked>
+                                <span>项目进度</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="metricCost" checked>
+                                <span>成本分析</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="metricInventory">
+                                <span>库存状态</span>
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" id="metricQuality">
+                                <span>生产良率</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff3cd; border-left: 4px solid #f39c12; padding: 16px; border-radius: 6px; margin-top: 24px;">
+                        <div style="font-weight: 600; margin-bottom: 8px; color: #f39c12;">⚡ 筛选提示</div>
+                        <ul style="margin-left: 20px; color: #666; font-size: 13px; line-height: 1.6;">
+                            <li>选择更精确的时间范围可以加快数据加载</li>
+                            <li>可以组合多个条件进行筛选</li>
+                            <li>筛选结果会实时更新图表数据</li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="resetFilter()">重置</button>
+                <button class="btn-primary" onclick="applyFilter()">应用筛选</button>
+            </div>
+        </div>
+    </div>
+
+        <!-- 编程助手模态框 -->
+    <div class="ai-modal-overlay" id="codeAssistantModal">
+        <button class="ai-modal-close" onclick="closeCodeAssistant()">&times;</button>
+        <iframe src="ai_coding_embedded.html" style="width: 100%; height: 100%; border: none;"></iframe>
+
+    <!-- PCB预布局模态框 -->
+    <div class="ai-modal-overlay" id="pcbLayoutModal">
+        <button class="ai-modal-close" onclick="closePCBLayout()">&times;</button>
+        <iframe src="pcb-editor-styled.html" style="width: 100%; height: 100%; border: none;"></iframe>
+</body>
+</html>

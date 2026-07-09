@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 活动专区</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f4f4f4; color: #3d4647; }
+
+        /* 顶部导航 */
+        .top-bar { background: white; height: 80px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; align-items: center; justify-content: space-between; padding: 0 40px; position: sticky; top: 0; z-index: 1000; }
+        .logo { font-size: 28px; font-weight: 800; color: #00890b; cursor: pointer; }
+        .top-bar-right { display: flex; align-items: center; gap: 24px; margin-left: auto; }
+        .top-nav-links { display: flex; align-items: center; gap: 24px; }
+        .top-nav-links a { color: #3d4647; text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+        .top-nav-links a:hover { color: #00890b; }
+
+        /* 布局 */
+        .layout { display: flex; min-height: calc(100vh - 80px); }
+        .sidebar { width: 260px; background: white; box-shadow: 2px 0 8px rgba(0,0,0,0.05); padding: 24px 0; }
+        .nav-section-title { padding: 8px 24px; font-size: 12px; font-weight: 700; color: #999; text-transform: uppercase; }
+        .nav-item { padding: 12px 24px; display: flex; align-items: center; gap: 12px; color: #3d4647; text-decoration: none; transition: all 0.2s; }
+        .nav-item:hover { background: rgba(0, 137, 11, 0.05); color: #00890b; }
+        .nav-item.active { background: rgba(0, 137, 11, 0.1); color: #00890b; font-weight: 600; border-right: 3px solid #00890b; }
+
+        /* 主内容 */
+        .main-content { flex: 1; padding: 32px; }
+
+        /* Hero区域 */
+        .hero-section { background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); border-radius: 12px; padding: 40px; color: white; margin-bottom: 32px; }
+        .hero-title { font-size: 32px; font-weight: 800; margin-bottom: 12px; }
+        .hero-subtitle { font-size: 16px; opacity: 0.9; margin-bottom: 24px; }
+        .hero-stats { display: flex; gap: 40px; }
+        .stat-item { display: flex; flex-direction: column; }
+        .stat-value { font-size: 36px; font-weight: 800; }
+        .stat-label { font-size: 14px; opacity: 0.9; }
+
+        /* 标签页 */
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; background: white; padding: 8px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .tab { padding: 12px 24px; background: transparent; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; color: #666; }
+        .tab.active { background: #00890b; color: white; }
+
+        /* 筛选栏 */
+        .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: white; padding: 16px 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .filter-left { display: flex; gap: 12px; align-items: center; }
+        .search-input { padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; width: 300px; }
+        .search-input:focus { outline: none; border-color: #00890b; }
+        .filter-select { padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; cursor: pointer; }
+
+        /* 活动网格 */
+        .activity-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; margin-bottom: 32px; }
+
+        /* 活动卡片 */
+        .activity-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: all 0.3s; cursor: pointer; }
+        .activity-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,137,11,0.15); }
+        .activity-header { position: relative; height: 180px; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; }
+        .activity-badge { position: absolute; top: 12px; right: 12px; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-ongoing { background: rgba(255,255,255,0.9); color: #00890b; }
+        .badge-upcoming { background: rgba(52,152,219,0.9); color: white; }
+        .badge-ended { background: rgba(149,165,166,0.9); color: white; }
+        .activity-body { padding: 20px; }
+        .activity-title { font-size: 18px; font-weight: 700; color: #3d4647; margin-bottom: 8px; }
+        .activity-organizer { font-size: 13px; color: #666; margin-bottom: 12px; }
+        .activity-meta { display: flex; gap: 16px; margin-bottom: 16px; font-size: 13px; color: #666; }
+        .activity-meta-item { display: flex; align-items: center; gap: 6px; }
+        .activity-desc { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .activity-footer { display: flex; gap: 12px; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+        .btn-primary { background: #00890b; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; flex: 1; transition: background 0.3s; }
+        .btn-primary:hover { background: #007309; }
+        .btn-secondary { background: white; color: #00890b; border: 2px solid #00890b; padding: 8px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-secondary:hover { background: #00890b; color: white; }
+
+        /* 我的活动项目 */
+        .my-projects-section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 32px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .section-title { font-size: 20px; font-weight: 700; color: #3d4647; }
+        .project-list { display: grid; gap: 16px; }
+        .project-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #f9f9f9; border-radius: 8px; transition: all 0.3s; }
+        .project-item:hover { background: #f0f0f0; }
+        .project-info { flex: 1; }
+        .project-name { font-size: 16px; font-weight: 600; color: #3d4647; margin-bottom: 4px; }
+        .project-activity { font-size: 13px; color: #666; }
+        .project-progress { display: flex; align-items: center; gap: 12px; }
+        .progress-bar { width: 120px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; background: #00890b; border-radius: 4px; transition: width 0.3s; }
+        .progress-text { font-size: 14px; font-weight: 600; color: #00890b; }
+
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 40px rgba(0,0,0,0.2); animation: modalSlideIn 0.3s ease-out; }
+        @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { padding: 24px 32px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 20px; font-weight: 700; color: #3d4647; }
+        .modal-close { background: none; border: none; font-size: 28px; color: #999; cursor: pointer; line-height: 1; transition: color 0.3s; }
+        .modal-close:hover { color: #3d4647; }
+        .modal-body { padding: 32px; }
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; font-size: 14px; font-weight: 600; color: #3d4647; margin-bottom: 8px; }
+        .form-input, .form-select { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: #00890b; }
+        .modal-footer { padding: 20px 32px; border-top: 1px solid #e0e0e0; display: flex; justify-content: flex-end; gap: 12px; }
+        .btn-cancel { background: white; color: #3d4647; border: 2px solid #e0e0e0; padding: 12px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .btn-cancel:hover { border-color: #999; }
+
+        /* 活动详情 */
+        .activity-detail { display: grid; gap: 16px; }
+        .detail-row { display: flex; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+        .detail-label { width: 100px; font-weight: 600; color: #666; }
+        .detail-value { flex: 1; color: #3d4647; }
+        .rewards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+        .reward-card { background: #f9f9f9; padding: 16px; border-radius: 8px; text-align: center; }
+        .reward-prize { font-size: 18px; font-weight: 700; color: #00890b; margin-bottom: 4px; }
+        .reward-name { font-size: 13px; color: #666; }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 顶部导航 -->
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+
+    <!-- 主布局 -->
+    <div class="layout">
+                                <!-- 侧边栏 -->
+        <div class="sidebar">
+            <div class="nav-section">
+                <div class="nav-section-title">工作台</div>
+                <a href="dashboard-pro.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>看板</span>
+                </a>
+                <a href="approval-center.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>审批</span>
+                    <span style="background: #4dabf7; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; margin-left: auto;">8</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">项目</div>
+                <a href="projects.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span>项目管理</span>
+                </a>
+                <a href="tasks.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span>任务中心</span>
+                </a>
+                <a href="collaboration.html" class="nav-item">
+                    <span class="nav-icon">👥</span>
+                    <span>团队协作</span>
+                </a>
+                <a href="bom.html" class="nav-item">
+                    <span class="nav-icon">📝</span>
+                    <span>BOM管理</span>
+                </a>
+                <a href="engineering-change.html" class="nav-item">
+                    <span class="nav-icon">🔄</span>
+                    <span>工程变更</span>
+                </a>
+                <a href="library-resources.html" class="nav-item">
+                    <span class="nav-icon">📚</span>
+                    <span>文档管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">物料</div>
+                <a href="materials.html" class="nav-item">
+                    <span class="nav-icon">📦</span>
+                    <span>物料管理</span>
+                </a>
+                <a href="inventory.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span>库存管理</span>
+                </a>
+                <a href="procurement.html" class="nav-item">
+                    <span class="nav-icon">🛒</span>
+                    <span>采购管理</span>
+                </a>
+                <a href="production.html" class="nav-item">
+                    <span class="nav-icon">🏭</span>
+                    <span>生产管理</span>
+                </a>
+                <a href="sales.html" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span>销售管理</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">业务</div>
+                <a href="activities.html" class="nav-item active">
+                    <span class="nav-icon">🎯</span>
+                    <span>竞赛/活动</span>
+                </a>
+                <a href="education.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>教学/实验</span>
+                </a>
+                <a href="outsourcing-hub.html" class="nav-item">
+                    <span class="nav-icon">💼</span>
+                    <span>外包/毕设</span>
+                </a>
+                <a href="campus-recruitment.html" class="nav-item">
+                    <span class="nav-icon">🎓</span>
+                    <span>校园招聘</span>
+                </a>
+                <a href="component-supply.html" class="nav-item">
+                    <span class="nav-icon">🏪</span>
+                    <span>器件供货</span>
+                </a>
+                <a href="board-marketplace.html" class="nav-item">
+                    <span class="nav-icon">🛍️</span>
+                    <span>板卡商城</span>
+                </a>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">系统</div>
+                <a href="supplier-management.html" class="nav-item">
+                    <span class="nav-icon">🏢</span>
+                    <span>厂商管理</span>
+                </a>
+                <a href="category-management.html" class="nav-item">
+                    <span class="nav-icon">🏷️</span>
+                    <span>分类管理</span>
+                </a>
+                <a href="numbering-rules.html" class="nav-item">
+                    <span class="nav-icon">🔢</span>
+                    <span>编号规则</span>
+                </a>
+                <a href="organization-settings.html" class="nav-item">
+                    <span class="nav-icon">🏛️</span>
+                    <span>组织管理</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span>系统设置</span>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- 主内容 -->
+        <div class="main-content">
+            <!-- Hero区域 -->
+            <div class="hero-section">
+                <div class="hero-title">🎯 活动专区</div>
+                <div class="hero-subtitle">来自电子森林的精彩竞赛活动，用EZPLM管理你的参赛项目</div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">42</div>
+                        <div class="stat-label">进行中的活动</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">1,248</div>
+                        <div class="stat-label">参与队伍</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">¥580万</div>
+                        <div class="stat-label">奖金池总额</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 我的活动项目 -->
+            <div class="my-projects-section">
+                <div class="section-header">
+                    <div class="section-title">📁 我的活动项目</div>
+                    <button class="btn-secondary" onclick="location.href='activities-all-projects.html'">查看全部</button>
+                </div>
+                <div class="project-list">
+                    <div class="project-item">
+                        <div class="project-info">
+                            <div class="project-name">ESP32智能小车竞赛 - 寻迹组</div>
+                            <div class="project-activity">2024全国大学生电子设计竞赛 · 队长：张三</div>
+                        </div>
+                        <div class="project-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 65%;"></div>
+                            </div>
+                            <div class="progress-text">65%</div>
+                        </div>
+                        <button class="btn-secondary" style="margin-left: 16px;" onclick="location.href='activity-project-detail.html?id=PRJ001&name=ESP32智能小车竞赛'">进入项目</button>
+                    </div>
+                    <div class="project-item">
+                        <div class="project-info">
+                            <div class="project-name">便携式示波器设计</div>
+                            <div class="project-activity">电子森林毕业设计大赛 · 个人项目</div>
+                        </div>
+                        <div class="project-progress">
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 40%;"></div>
+                            </div>
+                            <div class="progress-text">40%</div>
+                        </div>
+                        <button class="btn-secondary" style="margin-left: 16px;" onclick="location.href='activity-project-detail.html?id=PRJ002&name=便携式示波器设计'">进入项目</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 标签页 -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('ongoing')">进行中 (12)</button>
+                <button class="tab" onclick="switchTab('upcoming')">即将开始 (8)</button>
+                <button class="tab" onclick="switchTab('ended')">已结束 (22)</button>
+            </div>
+
+            <!-- 筛选栏 -->
+            <div class="filter-bar">
+                <div class="filter-left">
+                    <input type="text" class="search-input" placeholder="🔍 搜索活动名称或关键词">
+                    <select class="filter-select">
+                        <option>全部类型</option>
+                        <option>电子设计竞赛</option>
+                        <option>毕业设计大赛</option>
+                        <option>创客马拉松</option>
+                        <option>校园挑战赛</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>全部级别</option>
+                        <option>国家级</option>
+                        <option>省级</option>
+                        <option>校级</option>
+                    </select>
+                </div>
+                <button class="btn-secondary">高级筛选</button>
+            </div>
+
+            <!-- 活动网格 -->
+            <div class="activity-grid">
+                <!-- 活动卡片1 -->
+                <div class="activity-card" onclick="openActivityDetail('TI Cup')">
+                    <div class="activity-header">
+                        🏆
+                        <div class="activity-badge badge-ongoing">进行中</div>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-title">2024年TI杯全国大学生电子设计竞赛</div>
+                        <div class="activity-organizer">主办方：教育部 · 电子森林</div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>📅</span>
+                                <span>2024.08.01 - 2024.10.30</span>
+                            </div>
+                        </div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>👥</span>
+                                <span>356支队伍</span>
+                            </div>
+                            <div class="activity-meta-item">
+                                <span>💰</span>
+                                <span>奖金池 ¥80万</span>
+                            </div>
+                        </div>
+                        <div class="activity-desc">
+                            面向全国大学生的顶级电子设计赛事，涵盖模拟电路、数字系统、嵌入式设计等多个方向。
+                        </div>
+                        <div class="activity-footer">
+                            <button class="btn-primary">创建参赛项目</button>
+                            <button class="btn-secondary">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动卡片2 -->
+                <div class="activity-card" onclick="openActivityDetail('IoT Challenge')">
+                    <div class="activity-header">
+                        🌐
+                        <div class="activity-badge badge-ongoing">进行中</div>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-title">全国物联网创新应用大赛</div>
+                        <div class="activity-organizer">主办方：工信部 · 电子森林</div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>📅</span>
+                                <span>2024.07.15 - 2024.11.15</span>
+                            </div>
+                        </div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>👥</span>
+                                <span>228支队伍</span>
+                            </div>
+                            <div class="activity-meta-item">
+                                <span>💰</span>
+                                <span>奖金池 ¥50万</span>
+                            </div>
+                        </div>
+                        <div class="activity-desc">
+                            聚焦物联网技术在智慧城市、智能家居、工业互联网等领域的创新应用。
+                        </div>
+                        <div class="activity-footer">
+                            <button class="btn-primary">创建参赛项目</button>
+                            <button class="btn-secondary">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动卡片3 -->
+                <div class="activity-card" onclick="openActivityDetail('Maker')">
+                    <div class="activity-header">
+                        🚀
+                        <div class="activity-badge badge-ongoing">进行中</div>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-title">电子森林创客马拉松 2024</div>
+                        <div class="activity-organizer">主办方：电子森林</div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>📅</span>
+                                <span>2024.09.10 - 2024.09.12</span>
+                            </div>
+                        </div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>👥</span>
+                                <span>124支队伍</span>
+                            </div>
+                            <div class="activity-meta-item">
+                                <span>💰</span>
+                                <span>奖金池 ¥30万</span>
+                            </div>
+                        </div>
+                        <div class="activity-desc">
+                            72小时极限挑战，从创意到原型，快速实现你的电子产品梦想。
+                        </div>
+                        <div class="activity-footer">
+                            <button class="btn-primary">创建参赛项目</button>
+                            <button class="btn-secondary">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动卡片4 -->
+                <div class="activity-card" onclick="openActivityDetail('Graduation')">
+                    <div class="activity-header">
+                        🎓
+                        <div class="activity-badge badge-ongoing">进行中</div>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-title">2024届优秀毕业设计评选</div>
+                        <div class="activity-organizer">主办方：电子森林 · 各大高校</div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>📅</span>
+                                <span>2024.03.01 - 2024.06.30</span>
+                            </div>
+                        </div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>👥</span>
+                                <span>892个作品</span>
+                            </div>
+                            <div class="activity-meta-item">
+                                <span>💰</span>
+                                <span>奖金池 ¥20万</span>
+                            </div>
+                        </div>
+                        <div class="activity-desc">
+                            展示你的毕业设计成果，与全国优秀学子同台竞技，获得企业关注。
+                        </div>
+                        <div class="activity-footer">
+                            <button class="btn-primary">创建参赛项目</button>
+                            <button class="btn-secondary">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动卡片5 -->
+                <div class="activity-card">
+                    <div class="activity-header">
+                        🤖
+                        <div class="activity-badge badge-upcoming">即将开始</div>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-title">智能机器人设计大赛</div>
+                        <div class="activity-organizer">主办方：中国自动化学会 · 电子森林</div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>📅</span>
+                                <span>2024.11.01 - 2025.01.31</span>
+                            </div>
+                        </div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>👥</span>
+                                <span>报名中</span>
+                            </div>
+                            <div class="activity-meta-item">
+                                <span>💰</span>
+                                <span>奖金池 ¥100万</span>
+                            </div>
+                        </div>
+                        <div class="activity-desc">
+                            围绕智能机器人控制、视觉识别、路径规划等技术，设计功能完整的机器人系统。
+                        </div>
+                        <div class="activity-footer">
+                            <button class="btn-primary">报名参赛</button>
+                            <button class="btn-secondary">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 活动卡片6 -->
+                <div class="activity-card">
+                    <div class="activity-header">
+                        ⚡
+                        <div class="activity-badge badge-upcoming">即将开始</div>
+                    </div>
+                    <div class="activity-body">
+                        <div class="activity-title">新能源汽车电子设计挑战赛</div>
+                        <div class="activity-organizer">主办方：比亚迪 · 电子森林</div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>📅</span>
+                                <span>2024.10.20 - 2024.12.20</span>
+                            </div>
+                        </div>
+                        <div class="activity-meta">
+                            <div class="activity-meta-item">
+                                <span>👥</span>
+                                <span>报名中</span>
+                            </div>
+                            <div class="activity-meta-item">
+                                <span>💰</span>
+                                <span>奖金池 ¥60万</span>
+                            </div>
+                        </div>
+                        <div class="activity-desc">
+                            企业命题赛，聚焦电池管理系统、充电控制、智能座舱等前沿技术。
+                        </div>
+                        <div class="activity-footer">
+                            <button class="btn-primary">报名参赛</button>
+                            <button class="btn-secondary">查看详情</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 活动详情Modal -->
+    <div class="modal-overlay" id="activityDetailModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h3 class="modal-title">🏆 2024年TI杯全国大学生电子设计竞赛</h3>
+                <button class="modal-close" onclick="closeActivityDetail()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="activity-detail">
+                    <div class="detail-row">
+                        <div class="detail-label">主办方</div>
+                        <div class="detail-value">教育部高等教育司、工业和信息化部人事教育司</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">协办方</div>
+                        <div class="detail-value">德州仪器（TI）、电子森林</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">活动时间</div>
+                        <div class="detail-value">2024年8月1日 - 2024年10月30日</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">参赛对象</div>
+                        <div class="detail-value">全国普通高等学校在校本科生和研究生</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">参赛队伍</div>
+                        <div class="detail-value">356支队伍，1068名参赛者</div>
+                    </div>
+                    <div class="detail-row">
+                        <div class="detail-label">活动状态</div>
+                        <div class="detail-value"><span style="color: #00890b; font-weight: 600;">进行中（作品提交阶段）</span></div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <div class="form-label">赛事简介</div>
+                    <div style="font-size: 14px; color: #666; line-height: 1.8;">
+                        全国大学生电子设计竞赛是教育部倡导的大学生学科竞赛之一，是面向大学生的群众性科技活动，目的在于推动高等学校促进信息与电子类学科课程体系和课程内容的改革。竞赛的特点是与高等学校相关专业的课程体系和课程内容改革密切结合，以推动其课程教学、教学改革和实验室建设工作。
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <div class="form-label">竞赛方向</div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 12px;">
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 6px;">✓ 模拟电路设计</div>
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 6px;">✓ 数字逻辑设计</div>
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 6px;">✓ 单片机系统设计</div>
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 6px;">✓ FPGA应用设计</div>
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 6px;">✓ 嵌入式系统设计</div>
+                        <div style="padding: 12px; background: #f9f9f9; border-radius: 6px;">✓ 综合测控系统</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <div class="form-label">奖项设置</div>
+                    <div class="rewards-grid">
+                        <div class="reward-card">
+                            <div class="reward-prize">¥50,000</div>
+                            <div class="reward-name">全国一等奖（10名）</div>
+                        </div>
+                        <div class="reward-card">
+                            <div class="reward-prize">¥20,000</div>
+                            <div class="reward-name">全国二等奖（30名）</div>
+                        </div>
+                        <div class="reward-card">
+                            <div class="reward-prize">¥5,000</div>
+                            <div class="reward-name">全国三等奖（80名）</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px; padding: 16px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 6px;">
+                    <div style="font-weight: 600; margin-bottom: 8px; color: #2196f3;">💡 使用EZPLM参赛的优势</div>
+                    <ul style="margin-left: 20px; color: #666; font-size: 13px; line-height: 1.6;">
+                        <li>一键创建竞赛项目模板，包含标准BOM管理</li>
+                        <li>云端元器件库快速选型，自动生成采购清单</li>
+                        <li>团队协作功能，实时同步项目进度</li>
+                        <li>自动生成项目文档和技术报告</li>
+                        <li>免费使用EZPLM Pro版至比赛结束</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeActivityDetail()">稍后再说</button>
+                <button class="btn-primary" onclick="createActivityProject()">立即创建参赛项目</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 创建项目Modal -->
+    <div class="modal-overlay" id="createProjectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">创建活动项目</h3>
+                <button class="modal-close" onclick="closeCreateProject()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-label">项目名称 *</label>
+                        <input type="text" class="form-input" placeholder="例如：ESP32智能小车-寻迹组" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">参赛活动 *</label>
+                        <select class="form-select" required>
+                            <option value="">请选择参赛活动</option>
+                            <option>2024年TI杯全国大学生电子设计竞赛</option>
+                            <option>全国物联网创新应用大赛</option>
+                            <option>电子森林创客马拉松 2024</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">项目模板</label>
+                        <select class="form-select">
+                            <option value="">空白项目</option>
+                            <option>单片机控制系统模板</option>
+                            <option>传感器测量系统模板</option>
+                            <option>通信系统模板</option>
+                            <option>电源管理系统模板</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">团队成员</label>
+                        <input type="text" class="form-input" placeholder="输入成员邮箱，用逗号分隔">
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">创建后可以继续邀请成员加入</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeCreateProject()">取消</button>
+                <button class="btn-primary" onclick="submitCreateProject()">创建项目</button>
+            </div>
+        </div>
+
+    <script>
+        function switchTab(tab) {
+            // 标签页切换逻辑
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function openActivityDetail(activityName) {
+            document.getElementById('activityDetailModal').classList.add('active');
+        }
+
+        function closeActivityDetail() {
+            document.getElementById('activityDetailModal').classList.remove('active');
+        }
+
+        function createActivityProject() {
+            closeActivityDetail();
+            document.getElementById('createProjectModal').classList.add('active');
+        }
+
+        function closeCreateProject() {
+            document.getElementById('createProjectModal').classList.remove('active');
+        }
+
+        function submitCreateProject() {
+            alert('项目创建成功！正在跳转到项目页面...');
+            closeCreateProject();
+            // 实际应用中这里会跳转到项目管理页面
+        }
+
+        // 点击背景关闭Modal
+        document.querySelectorAll('.modal-overlay').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

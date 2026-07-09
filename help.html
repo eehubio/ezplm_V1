@@ -1,0 +1,1119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM 帮助中心 - 电子产品全生命周期管理系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #3d4647;
+            line-height: 1.6;
+        }
+
+        /* 导航栏 */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            z-index: 1000;
+        }
+        .nav-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 0 40px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            text-decoration: none;
+        }
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+        }
+        .nav-menu a {
+            color: #3d4647;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        .nav-menu a:hover { color: #00890b; }
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-outline {
+            background: white;
+            color: #00890b;
+            border: 2px solid #00890b;
+        }
+        .btn-outline:hover {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary {
+            background: #00890b;
+            color: white;
+        }
+        .btn-primary:hover { background: #007309; }
+
+        /* Hero区域 */
+        .hero {
+            background: linear-gradient(135deg, #00890b 0%, #00b30e 100%);
+            color: white;
+            padding: 80px 40px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+        .hero p {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 32px;
+        }
+        .search-box {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+        .search-input {
+            width: 100%;
+            padding: 18px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .search-input:focus { outline: none; }
+
+        /* 主内容区 */
+        .main-content {
+            max-width: 1440px;
+            margin: -40px auto 0;
+            padding: 0 40px 60px;
+        }
+
+        /* 快速链接卡片 */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+        .quick-link-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .quick-link-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(0,137,11,0.15);
+        }
+        .quick-link-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .quick-link-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .quick-link-desc {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* 分类区域 */
+        .category-section {
+            margin-bottom: 48px;
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        .category-icon { font-size: 32px; }
+        .category-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+
+        /* 功能网格 */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+        .feature-card:hover {
+            box-shadow: 0 4px 16px rgba(0,137,11,0.12);
+        }
+        .feature-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        .feature-icon {
+            font-size: 24px;
+        }
+        .feature-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .feature-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .feature-list {
+            list-style: none;
+            padding-left: 0;
+        }
+        .feature-list li {
+            font-size: 13px;
+            color: #666;
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .feature-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #00890b;
+            font-weight: bold;
+        }
+
+        /* FAQ列表 */
+        .faq-list {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .faq-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 20px 0;
+        }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #3d4647;
+            transition: color 0.3s;
+        }
+        .faq-question:hover { color: #00890b; }
+        .faq-toggle {
+            font-size: 20px;
+            color: #999;
+            transition: transform 0.3s;
+        }
+        .faq-answer {
+            margin-top: 12px;
+            padding-left: 16px;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            display: none;
+        }
+        .faq-item.open .faq-answer { display: block; }
+        .faq-item.open .faq-toggle { transform: rotate(180deg); }
+
+        /* 联系卡片 */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        .contact-card {
+            background: white;
+            border-radius: 8px;
+            padding: 32px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .contact-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        .contact-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .contact-desc {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        /* 版本信息 */
+        .version-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 32px;
+            margin-top: 48px;
+            text-align: center;
+        }
+        .version-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        .version-details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin-top: 24px;
+        }
+        .version-stat {
+            text-align: center;
+        }
+        .version-number {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+        .version-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">EZ-PLM</a>
+
+            <ul class="nav-menu">
+                <li><a href="index.html#features">产品功能</a></li>
+                <li><a href="index.html#benefits">产品优势</a></li>
+                <li><a href="index.html#use-cases">应用场景</a></li>
+                <li><a href="index.html#pricing">价格方案</a></li>
+                <li><a href="help.html">帮助中心</a></li>
+            </ul>
+
+            <div class="nav-actions">
+                <a href="auth.html" class="btn btn-outline">登录</a>
+                <a href="auth.html" class="btn btn-primary">免费试用</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero区域 -->
+    <section class="hero">
+        <h1>EZPLM 帮助中心</h1>
+        <p>电子产品全生命周期管理系统 - 从设计到生产的一站式解决方案</p>
+        <div class="search-box">
+            <input type="text" class="search-input" placeholder="搜索功能、教程或常见问题..." id="searchInput">
+        </div>
+    </section>
+
+    <!-- 主内容 -->
+    <main class="main-content">
+        <!-- 快速链接 -->
+        <div class="quick-links">
+            <div class="quick-link-card" onclick="scrollToSection('getting-started')">
+                <div class="quick-link-icon">🚀</div>
+                <div class="quick-link-title">快速开始</div>
+                <div class="quick-link-desc">5分钟了解EZPLM核心功能</div>
+            </div>
+            <div class="quick-link-card" onclick="scrollToSection('core-modules')">
+                <div class="quick-link-icon">📦</div>
+                <div class="quick-link-title">核心模块</div>
+                <div class="quick-link-desc">详细的功能模块说明</div>
+            </div>
+            <div class="quick-link-card" onclick="scrollToSection('workflows')">
+                <div class="quick-link-icon">🔄</div>
+                <div class="quick-link-title">业务流程</div>
+                <div class="quick-link-desc">端到端的工作流指南</div>
+            </div>
+            <div class="quick-link-card" onclick="scrollToSection('faq')">
+                <div class="quick-link-icon">💡</div>
+                <div class="quick-link-title">常见问题</div>
+                <div class="quick-link-desc">快速找到常见问题答案</div>
+            </div>
+        </div>
+
+        <!-- 快速开始 -->
+        <div class="category-section" id="getting-started">
+            <div class="category-header">
+                <div class="category-icon">🚀</div>
+                <h2 class="category-title">快速开始</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>什么是EZPLM？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        EZPLM是一个专为电子产品研发和制造企业设计的全生命周期管理系统。它整合了项目管理、BOM管理、物料管理、采购管理、库存管理、生产管理等核心功能，帮助企业实现从产品设计到批量生产的全流程数字化管理。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>EZPLM适合哪些用户？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>7种用户角色，覆盖企业全流程：</strong><br><br>
+                        • <strong>系统管理员</strong>：管理组织架构、用户权限、系统配置<br>
+                        • <strong>项目经理</strong>：项目全生命周期管理、团队协作、进度跟踪<br>
+                        • <strong>工程师</strong>：BOM设计、技术文档、工程变更管理<br>
+                        • <strong>采购专员</strong>：采购计划、供应商管理、询价比价<br>
+                        • <strong>仓库管理员</strong>：库存管理、出入库、质量检验<br>
+                        • <strong>生产人员</strong>：生产计划、工单执行、SOP标准作业<br>
+                        • <strong>观察者</strong>：只读权限，查看报表和数据分析
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何开始使用EZPLM？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>三步快速上手：</strong><br><br>
+                        <strong>步骤1：注册登录</strong><br>
+                        访问 auth.html 创建账户，系统管理员会为您分配角色和权限<br><br>
+                        <strong>步骤2：完善组织信息</strong><br>
+                        在 organization-settings.html 配置您的组织架构、部门和成员<br><br>
+                        <strong>步骤3：创建第一个项目</strong><br>
+                        在 projects.html 创建项目，开始您的产品管理之旅
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心模块 -->
+        <div class="category-section" id="core-modules">
+            <div class="category-header">
+                <div class="category-icon">📦</div>
+                <h2 class="category-title">核心功能模块</h2>
+            </div>
+
+            <!-- 项目管理模块 -->
+            <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 16px; color: #3d4647;">1️⃣ 项目管理模块</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">项目管理</div>
+                    </div>
+                    <div class="feature-desc">全方位的项目生命周期管理</div>
+                    <ul class="feature-list">
+                        <li>创建和管理研发/生产项目</li>
+                        <li>设置里程碑和交付物</li>
+                        <li>团队成员管理和权限分配</li>
+                        <li>甘特图时间线视图</li>
+                        <li>项目进度可视化看板</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">✅</div>
+                        <div class="feature-title">任务管理</div>
+                    </div>
+                    <div class="feature-desc">细粒度的任务分配与跟踪</div>
+                    <ul class="feature-list">
+                        <li>创建任务和子任务</li>
+                        <li>设置优先级和截止日期</li>
+                        <li>任务状态流转管理</li>
+                        <li>工时记录和统计</li>
+                        <li>任务评论和附件</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">💬</div>
+                        <div class="feature-title">团队协作</div>
+                    </div>
+                    <div class="feature-desc">高效的团队沟通协作工具</div>
+                    <ul class="feature-list">
+                        <li>实时消息通知</li>
+                        <li>团队讨论区</li>
+                        <li>@提醒功能</li>
+                        <li>文件共享和版本管理</li>
+                        <li>审批流程管理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- BOM与物料管理模块 -->
+            <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: #3d4647;">2️⃣ BOM与物料管理模块</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📋</div>
+                        <div class="feature-title">BOM管理</div>
+                    </div>
+                    <div class="feature-desc">完整的物料清单管理系统</div>
+                    <ul class="feature-list">
+                        <li>创建和编辑多级BOM</li>
+                        <li>BOM版本控制（v1.0, v2.0）</li>
+                        <li>BOM成本自动计算</li>
+                        <li>BOM对比和差异分析</li>
+                        <li>替代料管理</li>
+                        <li>从BOM生成采购需求</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔧</div>
+                        <div class="feature-title">物料管理</div>
+                    </div>
+                    <div class="feature-desc">物料主数据统一管理</div>
+                    <ul class="feature-list">
+                        <li>物料分类体系（IC/电阻/电容/PCB等）</li>
+                        <li>规格型号和Datasheet管理</li>
+                        <li>物料编号规则自定义</li>
+                        <li>安全库存设置</li>
+                        <li>物料价格历史记录</li>
+                        <li>客供物料管理</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔄</div>
+                        <div class="feature-title">工程变更</div>
+                    </div>
+                    <div class="feature-desc">规范的ECO/ECN管理流程</div>
+                    <ul class="feature-list">
+                        <li>变更申请和审批</li>
+                        <li>变更影响分析</li>
+                        <li>BOM版本自动升级</li>
+                        <li>变更记录追溯</li>
+                        <li>相关项目通知</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 采购管理模块 -->
+            <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: #3d4647;">3️⃣ 采购管理模块</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🛒</div>
+                        <div class="feature-title">采购计划</div>
+                    </div>
+                    <div class="feature-desc">智能采购需求管理</div>
+                    <ul class="feature-list">
+                        <li>根据BOM自动生成采购需求</li>
+                        <li>库存预警和补货建议</li>
+                        <li>采购申请单创建</li>
+                        <li>采购预算管理</li>
+                        <li>批量采购支持（附件上传）</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">💰</div>
+                        <div class="feature-title">询价比价</div>
+                    </div>
+                    <div class="feature-desc">多供应商询价和比价系统</div>
+                    <ul class="feature-list">
+                        <li>批量询价单发送</li>
+                        <li>供应商在线报价</li>
+                        <li>多维度比价分析（价格/交期/MOQ）</li>
+                        <li>历史报价查询</li>
+                        <li>最优供应商推荐</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📦</div>
+                        <div class="feature-title">采购执行</div>
+                    </div>
+                    <div class="feature-desc">采购订单全流程跟踪</div>
+                    <ul class="feature-list">
+                        <li>采购单创建和审批</li>
+                        <li>发送供应商确认</li>
+                        <li>交期跟踪提醒</li>
+                        <li>收货单管理</li>
+                        <li>采购合同和付款管理</li>
+                        <li>供应商绩效评价</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 库存与质检模块 -->
+            <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: #3d4647;">4️⃣ 库存与质检管理模块</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">库存管理</div>
+                    </div>
+                    <div class="feature-desc">实时库存监控和管理</div>
+                    <ul class="feature-list">
+                        <li>多仓库多库位管理</li>
+                        <li>实时库存查询</li>
+                        <li>库存预留机制</li>
+                        <li>安全库存预警</li>
+                        <li>批次号和有效期管理</li>
+                        <li>库存盘点功能</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📥</div>
+                        <div class="feature-title">出入库管理</div>
+                    </div>
+                    <div class="feature-desc">规范的出入库流程</div>
+                    <ul class="feature-list">
+                        <li>入库单管理（采购/退货/调拨）</li>
+                        <li>出库单管理（生产/项目/调拨）</li>
+                        <li>领料申请单关联</li>
+                        <li>出入库单据打印</li>
+                        <li>库存流水追溯</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔍</div>
+                        <div class="feature-title">质量检验</div>
+                    </div>
+                    <div class="feature-desc">完善的来料质检体系</div>
+                    <ul class="feature-list">
+                        <li>IQC来料质检</li>
+                        <li>质检标准和规范</li>
+                        <li>质检结果录入（合格/不合格）</li>
+                        <li>不合格品处理（退货/换货/让步/返工）</li>
+                        <li>项目团队影响通知</li>
+                        <li>质检报告生成</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 生产管理模块 -->
+            <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: #3d4647;">5️⃣ 生产管理模块</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📅</div>
+                        <div class="feature-title">生产计划</div>
+                    </div>
+                    <div class="feature-desc">科学的生产排程系统</div>
+                    <ul class="feature-list">
+                        <li>生产计划创建</li>
+                        <li>关联项目和BOM</li>
+                        <li>物料需求自动计算</li>
+                        <li>生产周期估算</li>
+                        <li>多订单排程</li>
+                        <li>计划审批流程</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🏭</div>
+                        <div class="feature-title">工单管理</div>
+                    </div>
+                    <div class="feature-desc">生产工单全流程跟踪</div>
+                    <ul class="feature-list">
+                        <li>生产工单生成</li>
+                        <li>工单开工和报工</li>
+                        <li>实时产量统计</li>
+                        <li>合格率监控</li>
+                        <li>异常暂停和恢复</li>
+                        <li>完工入库</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">📋</div>
+                        <div class="feature-title">SOP管理</div>
+                    </div>
+                    <div class="feature-desc">标准作业程序管理</div>
+                    <ul class="feature-list">
+                        <li>创建SOP文档</li>
+                        <li>导入现有文档（Word/PDF/Excel）</li>
+                        <li>SOP步骤详细定义</li>
+                        <li>质量检查点设置</li>
+                        <li>SOP版本管理</li>
+                        <li>生产人员查看和使用</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 扩展模块 -->
+            <h3 style="font-size: 20px; font-weight: 700; margin: 32px 0 16px; color: #3d4647;">6️⃣ 扩展功能模块</h3>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔍</div>
+                        <div class="feature-title">元器件供货</div>
+                    </div>
+                    <div class="feature-desc">元器件询价和采购平台</div>
+                    <ul class="feature-list">
+                        <li>批量询价（单个/Excel批量）</li>
+                        <li>供应商在线报价</li>
+                        <li>多家比价分析</li>
+                        <li>供应商产品目录</li>
+                        <li>询价历史管理</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🎓</div>
+                        <div class="feature-title">教育培训</div>
+                    </div>
+                    <div class="feature-desc">专业的硬件教育平台</div>
+                    <ul class="feature-list">
+                        <li>在线课程学习</li>
+                        <li>实验模板和提交</li>
+                        <li>毕业设计选题</li>
+                        <li>导师指导和评审</li>
+                        <li>学习进度跟踪</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">💼</div>
+                        <div class="feature-title">校园招聘</div>
+                    </div>
+                    <div class="feature-desc">企业校园招聘管理</div>
+                    <ul class="feature-list">
+                        <li>职位发布和管理</li>
+                        <li>简历投递和筛选</li>
+                        <li>面试安排和评价</li>
+                        <li>Offer发放</li>
+                        <li>招聘数据分析</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🏢</div>
+                        <div class="feature-title">外包管理</div>
+                    </div>
+                    <div class="feature-desc">外包项目对接平台</div>
+                    <ul class="feature-list">
+                        <li>外包需求发布</li>
+                        <li>服务商申请</li>
+                        <li>项目跟踪管理</li>
+                        <li>交付验收</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">🔢</div>
+                        <div class="feature-title">编号规则</div>
+                    </div>
+                    <div class="feature-desc">统一的编号体系管理</div>
+                    <ul class="feature-list">
+                        <li>项目编号规则</li>
+                        <li>物料编号规则</li>
+                        <li>采购单编号规则</li>
+                        <li>生产单编号规则</li>
+                        <li>自定义流水号</li>
+                    </ul>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-header">
+                        <div class="feature-icon">⚙️</div>
+                        <div class="feature-title">系统设置</div>
+                    </div>
+                    <div class="feature-desc">灵活的系统配置</div>
+                    <ul class="feature-list">
+                        <li>组织架构管理</li>
+                        <li>用户权限配置</li>
+                        <li>审批流程定义</li>
+                        <li>通知提醒设置</li>
+                        <li>数据导入导出</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 业务流程 -->
+        <div class="category-section" id="workflows">
+            <div class="category-header">
+                <div class="category-icon">🔄</div>
+                <h2 class="category-title">典型业务流程</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>流程1：从项目立项到产品交付</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>完整的项目交付流程（8个阶段）：</strong><br><br>
+                        <strong>1. 项目立项</strong> (projects.html)<br>
+                        → 创建项目 → 分配团队成员 → 设置里程碑<br><br>
+
+                        <strong>2. 需求与设计</strong> (bom.html)<br>
+                        → 创建BOM → 添加物料清单 → 设计审查 → BOM审批<br><br>
+
+                        <strong>3. 采购准备</strong> (procurement.html)<br>
+                        → 根据BOM生成采购需求 → 发起询价 → 比价选择供应商 → 创建采购单<br><br>
+
+                        <strong>4. 采购执行</strong> (procurement-tracking.html)<br>
+                        → 发送采购单 → 跟踪交期 → 收货<br><br>
+
+                        <strong>5. 质检与入库</strong> (quality-inspection.html, inventory.html)<br>
+                        → 创建质检单 → 质检检验 → 合格品入库 → 不合格品处理<br><br>
+
+                        <strong>6. 生产准备</strong> (production.html)<br>
+                        → 创建生产计划 → 关联BOM和SOP → 物料预留 → 生成工单<br><br>
+
+                        <strong>7. 生产执行</strong> (work-order-detail.html)<br>
+                        → 领料出库 → 按SOP生产 → 过程质检 → 成品入库<br><br>
+
+                        <strong>8. 项目交付</strong> (projects.html)<br>
+                        → 交付验收 → 成本核算 → 项目归档
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>流程2：BOM管理和版本控制</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>BOM版本管理流程：</strong><br><br>
+                        1. 创建初始BOM（v1.0）<br>
+                        2. 添加物料明细（规格、数量、位号）<br>
+                        3. 设置替代料（可选）<br>
+                        4. 提交审批<br>
+                        5. 审批通过后BOM生效<br>
+                        6. 如需修改，发起工程变更（ECO）<br>
+                        7. 变更审批后自动生成新版本（v1.1, v2.0）<br>
+                        8. 支持版本对比，查看差异<br>
+                        9. 历史版本可追溯，不可删除
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>流程3：采购询价和比价</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>多供应商询价比价流程：</strong><br><br>
+                        1. 在采购管理创建询价单<br>
+                        2. 添加需要询价的物料清单<br>
+                        3. 选择目标供应商（可多选）<br>
+                        4. 发送询价单给供应商<br>
+                        5. 供应商在线填写报价（价格、MOQ、交期、库存）<br>
+                        6. 系统自动汇总各供应商报价<br>
+                        7. 比价分析（价格、交期、总成本）<br>
+                        8. 选择最优供应商<br>
+                        9. 一键生成采购单
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>流程4：质检不合格品处理</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>IQC质检流程：</strong><br><br>
+                        1. 收货后创建质检单<br>
+                        2. 质检员进行检验<br>
+                        3. 录入质检结果<br><br>
+
+                        <strong>如果合格：</strong><br>
+                        → 直接入库<br><br>
+
+                        <strong>如果不合格：</strong><br>
+                        → 选择处理方式：<br>
+                        &nbsp;&nbsp;• 退货处理（7-14天）<br>
+                        &nbsp;&nbsp;• 换货处理（3-7天）<br>
+                        &nbsp;&nbsp;• 让步接收（影响较小，立即使用）<br>
+                        &nbsp;&nbsp;• 返工处理（5-10天）<br>
+                        → 系统自动评估对项目交期的影响<br>
+                        → 通知相关项目团队<br>
+                        → 记录供应商质量问题<br>
+                        → 影响供应商绩效评分
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>流程5：生产工单执行</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>生产执行全流程：</strong><br><br>
+                        1. 项目经理创建生产计划<br>
+                        2. 选择项目和BOM<br>
+                        3. 设置生产数量和交期<br>
+                        4. 关联SOP标准作业程序<br>
+                        5. 提交审批<br>
+                        6. 审批通过后生成生产工单<br>
+                        7. 系统自动预留物料库存<br>
+                        8. 生产人员领料出库<br>
+                        9. 按照SOP进行生产<br>
+                        10. 实时报工（更新完成数量）<br>
+                        11. 过程质检<br>
+                        12. 完工入库<br>
+                        13. 释放预留库存
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 常见问题 -->
+        <div class="category-section" id="faq">
+            <div class="category-header">
+                <div class="category-icon">💡</div>
+                <h2 class="category-title">常见问题解答</h2>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何设置物料的安全库存？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        在 materials.html 页面，点击物料详情，在编辑页面设置"安全库存"字段。当库存低于安全库存时，系统会自动预警，并生成采购建议。建议根据物料的采购周期和使用频率设置合理的安全库存值。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何批量导入BOM？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        在 bom.html 页面，点击"导入BOM"按钮，下载Excel模板。按照模板格式填写物料信息（物料编号、名称、规格、数量、位号等），然后上传Excel文件。系统会自动校验数据并导入。如有错误，会给出详细的错误提示。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>采购单支持上传哪些附件？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        在新建采购单时，可以上传以下格式的附件：<br>
+                        • Excel表格（.xlsx, .xls）- 适合批量采购物料明细<br>
+                        • PDF文档（.pdf）- 适合费用说明、规格书<br>
+                        • Word文档（.docx）- 适合采购说明<br>
+                        • 图片文件（.jpg, .png）- 适合产品图片<br>
+                        单个文件不超过10MB，支持同时上传多个附件。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>库存预留是什么意思？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        库存预留是指为特定订单或项目预先锁定物料数量，防止被其他订单使用。<br><br>
+                        <strong>工作原理：</strong><br>
+                        • 可用数量 = 库存数量 - 预留数量<br>
+                        • 创建生产计划时，系统自动预留物料<br>
+                        • 出库时释放预留，扣减库存<br>
+                        • 取消订单时，释放预留<br><br>
+                        这样可以确保物料充足，避免超卖。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何查看项目成本？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        在 project-detail.html 页面，切换到"成本分析"标签页，可以查看：<br>
+                        • BOM物料成本明细<br>
+                        • 采购实际成本<br>
+                        • 生产人工成本<br>
+                        • 外协加工成本<br>
+                        • 总成本汇总<br>
+                        • 成本趋势分析<br>
+                        系统会自动汇总所有相关费用，生成成本报表。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>SOP可以导入现有文档吗？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        可以！在 sop-import.html 页面，支持导入以下格式的SOP文档：<br>
+                        • Word文档（.docx）<br>
+                        • PDF文件（.pdf）<br>
+                        • Excel表格（.xlsx）<br>
+                        • Markdown文件（.md）<br><br>
+                        系统会使用AI自动解析文档内容，提取操作步骤、质量检查点等信息，生成结构化的SOP。您也可以手动调整和完善。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>如何设置审批流程？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        系统管理员在 organization-settings.html 中配置审批流程：<br>
+                        1. 选择业务类型（采购单、BOM、生产计划等）<br>
+                        2. 设置审批节点（一级审批、二级审批等）<br>
+                        3. 指定审批人或审批角色<br>
+                        4. 设置审批条件（如金额大于10万需二级审批）<br>
+                        5. 配置通知方式（邮件、站内信）<br><br>
+                        审批人会在 approval-center.html 收到待审批任务。
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFAQ(this)">
+                        <span>不同角色有哪些权限差异？</span>
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        <strong>7种角色权限说明：</strong><br><br>
+                        <strong>系统管理员</strong>：所有功能的完整权限，可以配置系统参数<br>
+                        <strong>项目经理</strong>：项目、任务、BOM、审批管理权限<br>
+                        <strong>工程师</strong>：BOM设计、工程变更、技术文档权限<br>
+                        <strong>采购专员</strong>：采购、供应商、询价比价权限<br>
+                        <strong>仓库管理员</strong>：库存、出入库、质检权限<br>
+                        <strong>生产人员</strong>：生产计划、工单、SOP查看权限<br>
+                        <strong>观察者</strong>：所有模块的只读权限<br><br>
+                        详细权限矩阵请查看 role-permissions-documentation.html
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 联系我们 -->
+        <div class="category-section">
+            <div class="category-header">
+                <div class="category-icon">📞</div>
+                <h2 class="category-title">联系我们</h2>
+            </div>
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <div class="contact-icon">💬</div>
+                    <div class="contact-title">在线客服</div>
+                    <div class="contact-desc">工作日 9:00-18:00 实时响应</div>
+                    <a href="messages.html" class="btn btn-primary">发起对话</a>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">📧</div>
+                    <div class="contact-title">邮件支持</div>
+                    <div class="contact-desc">support@ezplm.cn<br>24小时内回复</div>
+                    <a href="mailto:support@ezplm.cn" class="btn btn-primary">发送邮件</a>
+                </div>
+                <div class="contact-card">
+                    <div class="contact-icon">📚</div>
+                    <div class="contact-title">技术文档</div>
+                    <div class="contact-desc">详细的开发文档和API说明</div>
+                    <a href="EZPLM_技术实施方案.md" class="btn btn-primary" download>下载文档</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 版本信息 -->
+        <div class="version-info">
+            <div class="version-title">EZPLM V2.0 - 全新升级</div>
+            <p style="font-size: 16px; opacity: 0.95; margin-bottom: 8px;">电子产品全生命周期管理系统</p>
+            <div class="version-details">
+                <div class="version-stat">
+                    <div class="version-number">123</div>
+                    <div class="version-label">功能页面</div>
+                </div>
+                <div class="version-stat">
+                    <div class="version-number">12+</div>
+                    <div class="version-label">核心模块</div>
+                </div>
+                <div class="version-stat">
+                    <div class="version-number">7</div>
+                    <div class="version-label">用户角色</div>
+                </div>
+                <div class="version-stat">
+                    <div class="version-number">100%</div>
+                    <div class="version-label">功能覆盖</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // FAQ展开/收起
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            faqItem.classList.toggle('open');
+        }
+
+        // 滚动到指定区域
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+
+            if (searchTerm.length < 2) {
+                // 清除搜索，显示所有内容
+                document.querySelectorAll('.feature-card, .faq-item').forEach(item => {
+                    item.style.display = '';
+                });
+                return;
+            }
+
+            // 搜索功能卡片
+            document.querySelectorAll('.feature-card').forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+
+            // 搜索FAQ
+            document.querySelectorAll('.faq-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // 页面加载完成后的初始化
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('EZPLM Help Center Loaded - V2.0');
+        });
+    </script>
+</body>
+</html>

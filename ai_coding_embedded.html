@@ -1,0 +1,2049 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raspberry Pi Pico - 代码编辑器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* EZPLM标准顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        .top-nav-links a:hover {
+            background: rgba(0, 137, 11, 0.1);
+            color: #00890b;
+        }
+
+        /* 开发板选择器 - 保留在二级工具栏 */
+        .secondary-toolbar {
+            background: #f5f7fa;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .secondary-toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .board-select-trigger {
+            background: white;
+            color: #3d4647;
+            border: 1px solid #d0d0d0;
+            padding: 6px 32px 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 200px;
+            font-weight: 500;
+            position: relative;
+            display: inline-block;
+        }
+
+        .board-select-trigger:hover {
+            background: #f5f5f5;
+            border-color: #00890b;
+        }
+
+        .board-select-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            font-size: 10px;
+        }
+
+        .header-tags {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tag {
+            background: #e8f5e9;
+            color: #00890b;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .board-select-trigger {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: background 0.2s;
+        }
+
+        .board-select-trigger:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .board-select-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .board-select-icon {
+            font-size: 12px;
+        }
+
+        /* Board Selection Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .board-modal {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1440px;
+            height: 80%;
+            max-height: 800px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 28px;
+            color: #666;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            background: #f5f5f5;
+        }
+
+        .modal-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Board Modal Sidebar */
+        .board-sidebar {
+            width: 280px;
+            background: #f8f9fa;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .upload-section {
+            padding: 20px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .upload-area:hover {
+            border-color: #1976d2;
+            background: #f0f7ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #1976d2;
+            background: #e3f2fd;
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .upload-text {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .upload-hint {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .filter-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 20px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .filter-option input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .filter-option:hover {
+            color: #1976d2;
+        }
+
+        .filter-count {
+            margin-left: auto;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Board Content */
+        .board-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-section {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 40px 12px 40px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 18px;
+        }
+
+        .language-selector {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .language-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .language-options {
+            display: flex;
+            gap: 6px;
+        }
+
+        .language-chip {
+            padding: 4px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .language-chip:hover {
+            border-color: #1976d2;
+            background: #f0f7ff;
+        }
+
+        .language-chip.active {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+
+        .board-list-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 24px;
+        }
+
+        .board-stats {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .board-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .board-card:hover {
+            border-color: #1976d2;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .board-card.selected {
+            border-color: #1976d2;
+            background: #f0f7ff;
+        }
+
+        .board-card-header {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .board-icon {
+            width: 48px;
+            height: 48px;
+            background: #e3f2fd;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .board-info {
+            flex: 1;
+        }
+
+        .board-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .board-manufacturer {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .board-specs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .board-spec-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            color: #666;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .selected-board-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+        }
+
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Main Container */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 48px);
+        }
+
+        /* File Panel */
+        .file-panel {
+            width: 200px;
+            background: #f5f5f5;
+            border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-header {
+            padding: 12px;
+            background: #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        .add-file-btn {
+            background: transparent;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .file-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+        }
+
+        .file-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+
+        .file-item:hover {
+            background: #e8e8e8;
+        }
+
+        .file-item.active {
+            background: #d0e8ff;
+            color: #1976d2;
+        }
+
+        .file-item.modified::after {
+            content: '●';
+            color: #ff9800;
+            margin-left: auto;
+        }
+
+        .folder {
+            font-weight: 500;
+            color: #666;
+            padding: 8px 16px;
+        }
+
+        .folder-icon {
+            margin-right: 4px;
+        }
+
+        /* Editor Panel */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1e1e1e;
+        }
+
+        .editor-tabs {
+            background: #2d2d2d;
+            display: flex;
+            border-bottom: 1px solid #3e3e3e;
+        }
+
+        .editor-tab {
+            padding: 10px 20px;
+            background: #2d2d2d;
+            color: #aaa;
+            border-right: 1px solid #3e3e3e;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .editor-tab.active {
+            background: #1e1e1e;
+            color: #fff;
+        }
+
+        .editor-tab .close-tab {
+            margin-left: 8px;
+            color: #666;
+            cursor: pointer;
+        }
+
+        .editor-tab .close-tab:hover {
+            color: #fff;
+        }
+
+        .editor-toolbar {
+            background: #1e1e1e;
+            padding: 8px 12px;
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid #3e3e3e;
+        }
+
+        .toolbar-btn {
+            background: #3e3e3e;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .toolbar-btn:hover {
+            background: #4e4e4e;
+        }
+
+        .toolbar-btn.active {
+            background: #1976d2;
+        }
+
+        .editor-content {
+            flex: 1;
+            display: flex;
+        }
+
+        .code-editor {
+            flex: 1;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 16px;
+            border: none;
+            outline: none;
+            resize: none;
+            overflow: auto;
+        }
+
+        /* Diff View */
+        .diff-view {
+            flex: 1;
+            display: none;
+            background: #1e1e1e;
+        }
+
+        .diff-view.active {
+            display: flex;
+        }
+
+        .diff-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .diff-pane-header {
+            background: #2d2d2d;
+            color: #fff;
+            padding: 8px 16px;
+            font-weight: 500;
+            border-bottom: 1px solid #3e3e3e;
+        }
+
+        .diff-pane-header.original {
+            background: #5f3030;
+        }
+
+        .diff-pane-header.updated {
+            background: #2d4f2d;
+        }
+
+        .diff-content {
+            flex: 1;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 16px;
+            overflow: auto;
+            color: #d4d4d4;
+        }
+
+        .diff-line {
+            padding: 2px 8px;
+            white-space: pre;
+        }
+
+        .diff-line.removed {
+            background: #4a1f1f;
+            color: #ff6b6b;
+        }
+
+        .diff-line.added {
+            background: #1f4a1f;
+            color: #69db7c;
+        }
+
+        /* AI Assistant Panel */
+        .ai-panel {
+            width: 280px;
+            background: white;
+            border-left: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-header {
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .ai-icon {
+            width: 24px;
+            height: 24px;
+            background: #1976d2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .ai-stats {
+            padding: 16px;
+            background: #e8f5e9;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .ai-stats-label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .ai-stats-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .ai-actions {
+            padding: 16px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .ai-action-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .ai-action-btn:hover {
+            background: #f5f5f5;
+            border-color: #1976d2;
+        }
+
+        .ai-action-icon {
+            font-size: 18px;
+        }
+
+        .ai-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .ai-message {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .ai-message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .ai-message-avatar {
+            width: 32px;
+            height: 32px;
+            background: #1976d2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .ai-message-content {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .ai-suggestion {
+            background: #fff9c4;
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 12px;
+            border-left: 3px solid #fbc02d;
+        }
+
+        .ai-suggestion-title {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #f57f17;
+        }
+
+        .ai-suggestion-content {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .ai-input-area {
+            padding: 16px;
+            background: white;
+            border-top: 1px solid #ddd;
+        }
+
+        .ai-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            resize: none;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .ai-send-btn {
+            width: 100%;
+            padding: 12px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .ai-send-btn:hover {
+            background: #45a049;
+        }
+
+        /* File status icons */
+        .file-icon {
+            font-size: 16px;
+        }
+
+        .file-icon.c { color: #555; }
+        .file-icon.h { color: #5c6bc0; }
+        .file-icon.cpp { color: #00599c; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+
+        .file-panel ::-webkit-scrollbar-track {
+            background: #f5f5f5;
+        }
+
+        .file-panel ::-webkit-scrollbar-thumb {
+            background: #ccc;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- EZPLM标准顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+
+    <!-- 二级工具栏 - 开发板选择 -->
+    <div class="secondary-toolbar">
+        <div class="secondary-toolbar-left">
+            <div class="board-select-trigger" onclick="openBoardModal()">
+                <span class="board-select-text" id="currentBoardName">Raspberry Pi Pico</span>
+                <span class="board-select-icon">▼</span>
+            </div>
+            <div class="header-tags">
+                <span class="tag" id="platformTag">PlatformIO</span>
+                <span class="tag" id="languageTag">C</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Board Selection Modal -->
+    <div class="modal-overlay" id="boardModal">
+        <div class="board-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">选择开发板</h2>
+                <button class="modal-close" onclick="closeBoardModal()">×</button>
+            </div>
+
+            <div class="modal-body">
+                <!-- Sidebar with filters and upload -->
+                <div class="board-sidebar">
+                    <div class="upload-section">
+                        <div class="upload-area" id="uploadArea" onclick="document.getElementById('netlistFile').click()">
+                            <div class="upload-icon">📤</div>
+                            <div class="upload-text">上传 Netlist 文件</div>
+                            <div class="upload-hint">支持 .net, .xml, .json 格式</div>
+                        </div>
+                        <input type="file" id="netlistFile" accept=".net,.xml,.json" style="display: none;" onchange="handleNetlistUpload(event)">
+                    </div>
+
+                    <div class="filter-section">
+                        <div class="filter-group">
+                            <label class="filter-label">制造商</label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="arduino" onchange="applyFilters()">
+                                <span>Arduino</span>
+                                <span class="filter-count">245</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="raspberry" onchange="applyFilters()">
+                                <span>Raspberry Pi</span>
+                                <span class="filter-count">18</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="espressif" onchange="applyFilters()">
+                                <span>Espressif</span>
+                                <span class="filter-count">156</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="stm" onchange="applyFilters()">
+                                <span>STMicroelectronics</span>
+                                <span class="filter-count">423</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="adafruit" onchange="applyFilters()">
+                                <span>Adafruit</span>
+                                <span class="filter-count">89</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="sparkfun" onchange="applyFilters()">
+                                <span>SparkFun</span>
+                                <span class="filter-count">76</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">平台</label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="platformio" onchange="applyFilters()">
+                                <span>PlatformIO</span>
+                                <span class="filter-count">687</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="arduino-ide" onchange="applyFilters()">
+                                <span>Arduino IDE</span>
+                                <span class="filter-count">345</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="stm32cube" onchange="applyFilters()">
+                                <span>STM32Cube</span>
+                                <span class="filter-count">423</span>
+                            </label>
+                        </div>
+
+                        <div class="filter-group">
+                            <label class="filter-label">处理器架构</label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="arm" onchange="applyFilters()">
+                                <span>ARM Cortex</span>
+                                <span class="filter-count">756</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="avr" onchange="applyFilters()">
+                                <span>AVR</span>
+                                <span class="filter-count">198</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="xtensa" onchange="applyFilters()">
+                                <span>Xtensa</span>
+                                <span class="filter-count">89</span>
+                            </label>
+                            <label class="filter-option">
+                                <input type="checkbox" value="riscv" onchange="applyFilters()">
+                                <span>RISC-V</span>
+                                <span class="filter-count">67</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main content area -->
+                <div class="board-content">
+                    <div class="search-section">
+                        <div class="search-box">
+                            <span class="search-icon">🔍</span>
+                            <input type="text" class="search-input" id="boardSearch"
+                                   placeholder="搜索开发板名称、型号、芯片..."
+                                   oninput="searchBoards()">
+                        </div>
+
+                        <div class="language-selector">
+                            <span class="language-label">编程语言:</span>
+                            <div class="language-options">
+                                <span class="language-chip active" data-lang="all" onclick="filterByLanguage('all')">全部</span>
+                                <span class="language-chip" data-lang="c" onclick="filterByLanguage('c')">C</span>
+                                <span class="language-chip" data-lang="cpp" onclick="filterByLanguage('cpp')">C++</span>
+                                <span class="language-chip" data-lang="python" onclick="filterByLanguage('python')">Python</span>
+                                <span class="language-chip" data-lang="micropython" onclick="filterByLanguage('micropython')">MicroPython</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="board-list-container">
+                        <div class="board-stats" id="boardStats">显示 1,247 个开发板</div>
+                        <div class="board-grid" id="boardGrid">
+                            <!-- Board cards will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <div class="selected-board-info" id="selectedBoardInfo">
+                    请选择一个开发板
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeBoardModal()">取消</button>
+                    <button class="btn btn-primary" id="confirmBoardBtn" onclick="confirmBoardSelection()" disabled>
+                        确认选择
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- File Panel -->
+        <div class="file-panel">
+            <div class="file-header">
+                文件
+                <button class="add-file-btn" onclick="addNewFile()">+</button>
+            </div>
+            <div class="file-list" id="fileList">
+                <div class="file-item active" data-file="main.c" onclick="openFile('main.c')">
+                    <span class="file-icon c">📄</span>
+                    <span>main.c</span>
+                </div>
+                <div class="file-item" data-file="config.h" onclick="openFile('config.h')">
+                    <span class="file-icon h">📄</span>
+                    <span>config.h</span>
+                </div>
+                <div class="folder">
+                    <span class="folder-icon">📁</span>
+                    lib
+                </div>
+                <div class="file-item" data-file="sensors.cpp" onclick="openFile('sensors.cpp')" style="padding-left: 40px;">
+                    <span class="file-icon cpp">📄</span>
+                    <span>sensors.cpp</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Editor Panel -->
+        <div class="editor-panel">
+            <div class="editor-tabs" id="editorTabs">
+                <div class="editor-tab active" data-file="main.c">
+                    main.c
+                    <span class="close-tab" onclick="closeTab(event, 'main.c')">×</span>
+                </div>
+            </div>
+
+            <div class="editor-toolbar">
+                <button class="toolbar-btn active" onclick="showEditor()">编辑器</button>
+                <button class="toolbar-btn" onclick="showDiff()">对比视图</button>
+                <button class="toolbar-btn" onclick="saveFile()">保存</button>
+                <button class="toolbar-btn" onclick="applyAIChanges()">应用 AI 更改</button>
+            </div>
+
+            <div class="editor-content">
+                <!-- Normal Editor -->
+                <textarea class="code-editor" id="codeEditor" spellcheck="false">#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    printf("Hello, World!\n");
+    return 0;
+}</textarea>
+
+                <!-- Diff View -->
+                <div class="diff-view" id="diffView">
+                    <div class="diff-pane">
+                        <div class="diff-pane-header original">原始代码</div>
+                        <div class="diff-content" id="originalCode"></div>
+                    </div>
+                    <div class="diff-pane">
+                        <div class="diff-pane-header updated">AI 更新代码</div>
+                        <div class="diff-content" id="updatedCode"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Assistant Panel -->
+        <div class="ai-panel">
+            <div class="ai-header">
+                <div class="ai-icon">AI</div>
+                <span>AI 助手</span>
+            </div>
+
+            <div class="ai-stats">
+                <div class="ai-stats-label">代码质量</div>
+                <div class="ai-stats-value">92 <span style="font-size: 14px; color: #666;">/100</span></div>
+            </div>
+
+            <div class="ai-actions">
+                <button class="ai-action-btn" onclick="checkCode()">
+                    <span class="ai-action-icon">🔍</span>
+                    <span>检查代码</span>
+                </button>
+                <button class="ai-action-btn" onclick="optimizeCode()">
+                    <span class="ai-action-icon">⚡</span>
+                    <span>优化代码</span>
+                </button>
+                <button class="ai-action-btn" onclick="addComments()">
+                    <span class="ai-action-icon">💬</span>
+                    <span>添加注释</span>
+                </button>
+                <button class="ai-action-btn" onclick="generateCode()">
+                    <span class="ai-action-icon">💡</span>
+                    <span>生成代码</span>
+                </button>
+            </div>
+
+            <div class="ai-messages" id="aiMessages">
+                <div class="ai-message">
+                    <div class="ai-message-header">
+                        <div class="ai-message-avatar">AI</div>
+                        <strong>AI 助手</strong>
+                    </div>
+                    <div class="ai-message-content">
+                        你好！我是 AI 编程助手，我可以帮助你检查代码、优化代码、添加注释等。有什么需要帮助的吗？
+                    </div>
+                </div>
+
+                <div class="ai-suggestion">
+                    <div class="ai-suggestion-title">建议</div>
+                    <div class="ai-suggestion-content">
+                        当前代码使用了 delay() 函数，建议使用 millis() 实现非阻塞延时，提升程序响应性。
+                    </div>
+                </div>
+            </div>
+
+            <div class="ai-input-area">
+                <textarea class="ai-input" id="aiInput" rows="3" placeholder="问我任何问题..."></textarea>
+                <button class="ai-send-btn" onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File management
+        let files = {
+            'main.c': `#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+    printf("Hello, World!\\n");
+    return 0;
+}`,
+            'config.h': `#ifndef CONFIG_H
+#define CONFIG_H
+
+#define BAUD_RATE 115200
+#define DELAY_MS 1000
+
+#endif`,
+            'sensors.cpp': `#include "sensors.h"
+
+void Sensors::init() {
+    // Initialize sensors
+}
+
+float Sensors::readTemperature() {
+    return 25.0;
+}`
+        };
+
+        let originalFiles = JSON.parse(JSON.stringify(files)); // Backup for diff
+        let aiUpdatedFiles = {}; // Store AI suggestions
+        let currentFile = 'main.c';
+        let openTabs = new Set(['main.c']);
+        let modifiedFiles = new Set();
+
+        // Comprehensive Board Database (sample of 1000+ boards)
+        const boardDatabase = generateBoardDatabase();
+
+        let allBoards = boardDatabase;
+        let filteredBoards = [...allBoards];
+        let selectedBoard = null;
+        let currentLanguage = 'all';
+        let activeFilters = {
+            manufacturers: [],
+            platforms: [],
+            architectures: []
+        };
+
+        // Generate board database
+        function generateBoardDatabase() {
+            const boards = [
+                // Raspberry Pi
+                { id: 'rpi-pico', name: 'Raspberry Pi Pico', manufacturer: 'raspberry', platform: 'platformio', languages: ['c', 'cpp', 'micropython', 'python'], arch: 'arm', chip: 'RP2040', icon: '🥧' },
+                { id: 'rpi-pico-w', name: 'Raspberry Pi Pico W', manufacturer: 'raspberry', platform: 'platformio', languages: ['c', 'cpp', 'micropython', 'python'], arch: 'arm', chip: 'RP2040', icon: '🥧' },
+                { id: 'rpi-zero', name: 'Raspberry Pi Zero', manufacturer: 'raspberry', platform: 'platformio', languages: ['c', 'cpp', 'python'], arch: 'arm', chip: 'BCM2835', icon: '🥧' },
+
+                // Arduino
+                { id: 'arduino-uno', name: 'Arduino Uno R3', manufacturer: 'arduino', platform: 'arduino-ide', languages: ['c', 'cpp'], arch: 'avr', chip: 'ATmega328P', icon: '🔷' },
+                { id: 'arduino-mega', name: 'Arduino Mega 2560', manufacturer: 'arduino', platform: 'arduino-ide', languages: ['c', 'cpp'], arch: 'avr', chip: 'ATmega2560', icon: '🔷' },
+                { id: 'arduino-nano', name: 'Arduino Nano', manufacturer: 'arduino', platform: 'arduino-ide', languages: ['c', 'cpp'], arch: 'avr', chip: 'ATmega328P', icon: '🔷' },
+                { id: 'arduino-nano33-iot', name: 'Arduino Nano 33 IoT', manufacturer: 'arduino', platform: 'arduino-ide', languages: ['c', 'cpp'], arch: 'arm', chip: 'SAMD21', icon: '🔷' },
+                { id: 'arduino-due', name: 'Arduino Due', manufacturer: 'arduino', platform: 'arduino-ide', languages: ['c', 'cpp'], arch: 'arm', chip: 'SAM3X8E', icon: '🔷' },
+                { id: 'arduino-mkr1000', name: 'Arduino MKR1000', manufacturer: 'arduino', platform: 'arduino-ide', languages: ['c', 'cpp'], arch: 'arm', chip: 'SAMD21', icon: '🔷' },
+
+                // ESP32/ESP8266
+                { id: 'esp32', name: 'ESP32 DevKit', manufacturer: 'espressif', platform: 'platformio', languages: ['c', 'cpp', 'micropython'], arch: 'xtensa', chip: 'ESP32', icon: '📡' },
+                { id: 'esp32-s2', name: 'ESP32-S2', manufacturer: 'espressif', platform: 'platformio', languages: ['c', 'cpp', 'micropython'], arch: 'xtensa', chip: 'ESP32-S2', icon: '📡' },
+                { id: 'esp32-s3', name: 'ESP32-S3', manufacturer: 'espressif', platform: 'platformio', languages: ['c', 'cpp', 'micropython'], arch: 'xtensa', chip: 'ESP32-S3', icon: '📡' },
+                { id: 'esp32-c3', name: 'ESP32-C3', manufacturer: 'espressif', platform: 'platformio', languages: ['c', 'cpp'], arch: 'riscv', chip: 'ESP32-C3', icon: '📡' },
+                { id: 'esp8266', name: 'ESP8266 NodeMCU', manufacturer: 'espressif', platform: 'platformio', languages: ['c', 'cpp', 'micropython'], arch: 'xtensa', chip: 'ESP8266', icon: '📡' },
+
+                // STM32
+                { id: 'stm32f103', name: 'STM32F103C8 (Blue Pill)', manufacturer: 'stm', platform: 'stm32cube', languages: ['c', 'cpp'], arch: 'arm', chip: 'STM32F103', icon: '🔵' },
+                { id: 'stm32f407', name: 'STM32F407 Discovery', manufacturer: 'stm', platform: 'stm32cube', languages: ['c', 'cpp'], arch: 'arm', chip: 'STM32F407', icon: '🔵' },
+                { id: 'stm32f429', name: 'STM32F429 Discovery', manufacturer: 'stm', platform: 'stm32cube', languages: ['c', 'cpp'], arch: 'arm', chip: 'STM32F429', icon: '🔵' },
+                { id: 'stm32l476', name: 'STM32L476 Nucleo', manufacturer: 'stm', platform: 'stm32cube', languages: ['c', 'cpp'], arch: 'arm', chip: 'STM32L476', icon: '🔵' },
+
+                // Adafruit
+                { id: 'adafruit-feather-m0', name: 'Adafruit Feather M0', manufacturer: 'adafruit', platform: 'arduino-ide', languages: ['c', 'cpp', 'micropython'], arch: 'arm', chip: 'SAMD21', icon: '🪶' },
+                { id: 'adafruit-metro-m4', name: 'Adafruit Metro M4', manufacturer: 'adafruit', platform: 'arduino-ide', languages: ['c', 'cpp', 'micropython'], arch: 'arm', chip: 'SAMD51', icon: '🪶' },
+                { id: 'adafruit-trinket', name: 'Adafruit Trinket M0', manufacturer: 'adafruit', platform: 'arduino-ide', languages: ['c', 'cpp', 'micropython'], arch: 'arm', chip: 'SAMD21', icon: '🪶' },
+
+                // SparkFun
+                { id: 'sparkfun-thing-plus', name: 'SparkFun Thing Plus', manufacturer: 'sparkfun', platform: 'arduino-ide', languages: ['c', 'cpp'], arch: 'xtensa', chip: 'ESP32', icon: '⚡' },
+                { id: 'sparkfun-redboard', name: 'SparkFun RedBoard', manufacturer: 'sparkfun', platform: 'arduino-ide', languages: ['c', 'cpp'], arch: 'avr', chip: 'ATmega328P', icon: '⚡' },
+            ];
+
+            // Generate additional boards to reach 1000+
+            const generatedBoards = [];
+            const stmChips = ['STM32F0', 'STM32F1', 'STM32F2', 'STM32F3', 'STM32F4', 'STM32F7', 'STM32H7', 'STM32L0', 'STM32L1', 'STM32L4', 'STM32L5'];
+            const espChips = ['ESP32', 'ESP32-S2', 'ESP32-S3', 'ESP32-C3', 'ESP32-C6', 'ESP8266'];
+
+            for (let i = 0; i < 50; i++) {
+                stmChips.forEach(chip => {
+                    generatedBoards.push({
+                        id: `${chip.toLowerCase()}-${i}`,
+                        name: `${chip} ${String.fromCharCode(65 + (i % 26))}${Math.floor(i / 26) + 1}`,
+                        manufacturer: 'stm',
+                        platform: 'stm32cube',
+                        languages: ['c', 'cpp'],
+                        arch: 'arm',
+                        chip: chip,
+                        icon: '🔵'
+                    });
+                });
+            }
+
+            for (let i = 0; i < 30; i++) {
+                generatedBoards.push({
+                    id: `arduino-clone-${i}`,
+                    name: `Arduino Compatible Board ${i + 1}`,
+                    manufacturer: 'arduino',
+                    platform: 'arduino-ide',
+                    languages: ['c', 'cpp'],
+                    arch: 'avr',
+                    chip: 'ATmega328P',
+                    icon: '🔷'
+                });
+            }
+
+            return [...boards, ...generatedBoards];
+        }
+
+        // Modal functions
+        function openBoardModal() {
+            document.getElementById('boardModal').classList.add('active');
+            renderBoards();
+        }
+
+        function closeBoardModal() {
+            document.getElementById('boardModal').classList.remove('active');
+        }
+
+        // Close modal when clicking overlay
+        document.getElementById('boardModal').addEventListener('click', (e) => {
+            if (e.target.id === 'boardModal') {
+                closeBoardModal();
+            }
+        });
+
+        // Render boards
+        function renderBoards() {
+            const grid = document.getElementById('boardGrid');
+            grid.innerHTML = '';
+
+            const boardsToShow = filteredBoards.slice(0, 100); // Show first 100 for performance
+
+            boardsToShow.forEach(board => {
+                const card = document.createElement('div');
+                card.className = 'board-card';
+                if (selectedBoard && selectedBoard.id === board.id) {
+                    card.classList.add('selected');
+                }
+
+                const platformName = {
+                    'platformio': 'PlatformIO',
+                    'arduino-ide': 'Arduino IDE',
+                    'stm32cube': 'STM32Cube'
+                }[board.platform] || board.platform;
+
+                const archName = {
+                    'arm': 'ARM Cortex',
+                    'avr': 'AVR',
+                    'xtensa': 'Xtensa',
+                    'riscv': 'RISC-V'
+                }[board.arch] || board.arch;
+
+                card.innerHTML = `
+                    <div class="board-card-header">
+                        <div class="board-icon">${board.icon}</div>
+                        <div class="board-info">
+                            <div class="board-name">${board.name}</div>
+                            <div class="board-manufacturer">${board.chip}</div>
+                        </div>
+                    </div>
+                    <div class="board-specs">
+                        <span class="board-spec-tag">${platformName}</span>
+                        <span class="board-spec-tag">${archName}</span>
+                        <span class="board-spec-tag">${board.languages.join(', ').toUpperCase()}</span>
+                    </div>
+                `;
+
+                card.onclick = () => selectBoard(board);
+                grid.appendChild(card);
+            });
+
+            updateStats();
+        }
+
+        // Select board
+        function selectBoard(board) {
+            selectedBoard = board;
+            renderBoards();
+
+            document.getElementById('selectedBoardInfo').textContent =
+                `已选择: ${board.name} (${board.chip})`;
+            document.getElementById('confirmBoardBtn').disabled = false;
+        }
+
+        // Confirm selection
+        function confirmBoardSelection() {
+            if (selectedBoard) {
+                const platformName = {
+                    'platformio': 'PlatformIO',
+                    'arduino-ide': 'Arduino IDE',
+                    'stm32cube': 'STM32Cube'
+                }[selectedBoard.platform] || selectedBoard.platform;
+
+                const languageDisplay = selectedBoard.languages.includes('cpp') ? 'C++' :
+                                       selectedBoard.languages.includes('c') ? 'C' :
+                                       selectedBoard.languages[0].toUpperCase();
+
+                document.getElementById('currentBoardName').textContent = selectedBoard.name;
+                document.getElementById('platformTag').textContent = platformName;
+                document.getElementById('languageTag').textContent = languageDisplay;
+                document.title = `${selectedBoard.name} - 代码编辑器`;
+
+                addAIMessage('系统', `已切换到开发板: ${selectedBoard.name}\n芯片: ${selectedBoard.chip}\n平台: ${platformName}\n支持语言: ${selectedBoard.languages.join(', ').toUpperCase()}`);
+
+                closeBoardModal();
+            }
+        }
+
+        // Search boards
+        function searchBoards() {
+            const query = document.getElementById('boardSearch').value.toLowerCase();
+            applyFilters(query);
+        }
+
+        // Filter by language
+        function filterByLanguage(lang) {
+            currentLanguage = lang;
+
+            document.querySelectorAll('.language-chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.dataset.lang === lang) {
+                    chip.classList.add('active');
+                }
+            });
+
+            applyFilters();
+        }
+
+        // Apply filters
+        function applyFilters(searchQuery = null) {
+            const query = searchQuery || document.getElementById('boardSearch').value.toLowerCase();
+
+            // Get checked filters
+            activeFilters.manufacturers = Array.from(document.querySelectorAll('.filter-option input[value="arduino"], .filter-option input[value="raspberry"], .filter-option input[value="espressif"], .filter-option input[value="stm"], .filter-option input[value="adafruit"], .filter-option input[value="sparkfun"]'))
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+
+            activeFilters.platforms = Array.from(document.querySelectorAll('.filter-option input[value="platformio"], .filter-option input[value="arduino-ide"], .filter-option input[value="stm32cube"]'))
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+
+            activeFilters.architectures = Array.from(document.querySelectorAll('.filter-option input[value="arm"], .filter-option input[value="avr"], .filter-option input[value="xtensa"], .filter-option input[value="riscv"]'))
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+
+            // Apply all filters
+            filteredBoards = allBoards.filter(board => {
+                // Search filter
+                if (query && !board.name.toLowerCase().includes(query) &&
+                    !board.chip.toLowerCase().includes(query) &&
+                    !board.manufacturer.toLowerCase().includes(query)) {
+                    return false;
+                }
+
+                // Language filter
+                if (currentLanguage !== 'all' && !board.languages.includes(currentLanguage)) {
+                    return false;
+                }
+
+                // Manufacturer filter
+                if (activeFilters.manufacturers.length > 0 &&
+                    !activeFilters.manufacturers.includes(board.manufacturer)) {
+                    return false;
+                }
+
+                // Platform filter
+                if (activeFilters.platforms.length > 0 &&
+                    !activeFilters.platforms.includes(board.platform)) {
+                    return false;
+                }
+
+                // Architecture filter
+                if (activeFilters.architectures.length > 0 &&
+                    !activeFilters.architectures.includes(board.arch)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            renderBoards();
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('boardStats').textContent =
+                `显示 ${filteredBoards.length} 个开发板`;
+        }
+
+        // Handle netlist upload
+        function handleNetlistUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                parseNetlist(content, file.name);
+            };
+            reader.readAsText(file);
+        }
+
+        // Parse netlist and identify board
+        function parseNetlist(content, filename) {
+            // Simulate netlist parsing
+            addAIMessage('系统', `正在解析 Netlist 文件: ${filename}...`);
+
+            setTimeout(() => {
+                // Simulate detection
+                const detectedChips = ['STM32F407', 'ESP32', 'ATmega328P', 'RP2040'];
+                const randomChip = detectedChips[Math.floor(Math.random() * detectedChips.length)];
+
+                const matchingBoards = allBoards.filter(b => b.chip.includes(randomChip));
+
+                if (matchingBoards.length > 0) {
+                    addAIMessage('AI', `从 Netlist 中检测到芯片: ${randomChip}\n找到 ${matchingBoards.length} 个匹配的开发板。`);
+
+                    // Filter to show matching boards
+                    filteredBoards = matchingBoards;
+                    renderBoards();
+                } else {
+                    addAIMessage('AI', `未能从 Netlist 中识别出已知的开发板。请手动选择。`);
+                }
+            }, 1000);
+        }
+
+        // Drag and drop for netlist
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.match(/\.(net|xml|json)$/i)) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        parseNetlist(event.target.result, file.name);
+                    };
+                    reader.readAsText(file);
+                } else {
+                    addAIMessage('系统', '请上传 .net, .xml 或 .json 格式的 Netlist 文件。');
+                }
+            }
+        });
+
+        // Open file
+        function openFile(filename) {
+            currentFile = filename;
+
+            // Update file list
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.file === filename) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Add to tabs if not already open
+            if (!openTabs.has(filename)) {
+                openTabs.add(filename);
+                updateTabs();
+            }
+
+            // Update active tab
+            document.querySelectorAll('.editor-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.file === filename) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Load file content
+            document.getElementById('codeEditor').value = files[filename] || '';
+
+            // Update diff view if active
+            if (document.getElementById('diffView').classList.contains('active')) {
+                showDiff();
+            }
+        }
+
+        // Update tabs
+        function updateTabs() {
+            const tabsContainer = document.getElementById('editorTabs');
+            tabsContainer.innerHTML = '';
+
+            openTabs.forEach(filename => {
+                const tab = document.createElement('div');
+                tab.className = 'editor-tab' + (filename === currentFile ? ' active' : '');
+                tab.dataset.file = filename;
+                tab.innerHTML = `
+                    ${filename}
+                    <span class="close-tab" onclick="closeTab(event, '${filename}')">×</span>
+                `;
+                tab.onclick = (e) => {
+                    if (!e.target.classList.contains('close-tab')) {
+                        openFile(filename);
+                    }
+                };
+                tabsContainer.appendChild(tab);
+            });
+        }
+
+        // Close tab
+        function closeTab(event, filename) {
+            event.stopPropagation();
+            openTabs.delete(filename);
+
+            if (currentFile === filename && openTabs.size > 0) {
+                currentFile = Array.from(openTabs)[0];
+            }
+
+            updateTabs();
+            if (openTabs.size > 0) {
+                openFile(currentFile);
+            } else {
+                document.getElementById('codeEditor').value = '';
+            }
+        }
+
+        // Save file
+        function saveFile() {
+            const content = document.getElementById('codeEditor').value;
+            files[currentFile] = content;
+            modifiedFiles.delete(currentFile);
+            updateFileList();
+            addAIMessage('系统', `已保存文件: ${currentFile}`);
+        }
+
+        // Update file list to show modified status
+        function updateFileList() {
+            document.querySelectorAll('.file-item').forEach(item => {
+                const filename = item.dataset.file;
+                if (modifiedFiles.has(filename)) {
+                    item.classList.add('modified');
+                } else {
+                    item.classList.remove('modified');
+                }
+            });
+        }
+
+        // Track modifications
+        document.getElementById('codeEditor').addEventListener('input', () => {
+            modifiedFiles.add(currentFile);
+            updateFileList();
+        });
+
+        // Add new file
+        function addNewFile() {
+            const filename = prompt('输入新文件名:');
+            if (filename && !files[filename]) {
+                files[filename] = '';
+                originalFiles[filename] = '';
+
+                const fileList = document.getElementById('fileList');
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.dataset.file = filename;
+                fileItem.onclick = () => openFile(filename);
+
+                const ext = filename.split('.').pop();
+                fileItem.innerHTML = `
+                    <span class="file-icon ${ext}">📄</span>
+                    <span>${filename}</span>
+                `;
+                fileList.appendChild(fileItem);
+
+                openFile(filename);
+            }
+        }
+
+        // Show editor view
+        function showEditor() {
+            document.getElementById('diffView').classList.remove('active');
+            document.getElementById('codeEditor').style.display = 'block';
+            document.querySelector('.toolbar-btn').classList.add('active');
+            document.querySelectorAll('.toolbar-btn')[1].classList.remove('active');
+        }
+
+        // Show diff view
+        function showDiff() {
+            const original = originalFiles[currentFile] || '';
+            const updated = aiUpdatedFiles[currentFile] || files[currentFile];
+
+            document.getElementById('codeEditor').style.display = 'none';
+            document.getElementById('diffView').classList.add('active');
+
+            const originalLines = original.split('\n');
+            const updatedLines = updated.split('\n');
+
+            // Simple diff implementation
+            const originalHtml = generateDiffHtml(originalLines, updatedLines, 'original');
+            const updatedHtml = generateDiffHtml(updatedLines, originalLines, 'updated');
+
+            document.getElementById('originalCode').innerHTML = originalHtml;
+            document.getElementById('updatedCode').innerHTML = updatedHtml;
+
+            document.querySelector('.toolbar-btn').classList.remove('active');
+            document.querySelectorAll('.toolbar-btn')[1].classList.add('active');
+        }
+
+        // Generate diff HTML
+        function generateDiffHtml(lines1, lines2, type) {
+            let html = '';
+            const maxLen = Math.max(lines1.length, lines2.length);
+
+            for (let i = 0; i < maxLen; i++) {
+                const line1 = lines1[i] || '';
+                const line2 = lines2[i] || '';
+
+                let className = 'diff-line';
+                if (!line1 && line2) {
+                    className += type === 'updated' ? ' added' : '';
+                } else if (line1 && !line2) {
+                    className += type === 'original' ? ' removed' : '';
+                } else if (line1 !== line2) {
+                    className += type === 'original' ? ' removed' : ' added';
+                }
+
+                const lineContent = (lines1[i] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') || ' ';
+                html += `<div class="${className}">${lineContent}</div>`;
+            }
+
+            return html;
+        }
+
+        // Apply AI changes
+        function applyAIChanges() {
+            if (aiUpdatedFiles[currentFile]) {
+                files[currentFile] = aiUpdatedFiles[currentFile];
+                originalFiles[currentFile] = aiUpdatedFiles[currentFile];
+                document.getElementById('codeEditor').value = aiUpdatedFiles[currentFile];
+                delete aiUpdatedFiles[currentFile];
+                modifiedFiles.delete(currentFile);
+                updateFileList();
+                showEditor();
+                addAIMessage('系统', '已应用 AI 更改');
+            } else {
+                addAIMessage('系统', '当前没有待应用的 AI 更改');
+            }
+        }
+
+        // AI Actions
+        function checkCode() {
+            addAIMessage('你', '检查代码');
+
+            setTimeout(() => {
+                const issues = [
+                    '建议添加错误处理',
+                    '变量命名可以更具描述性',
+                    '建议添加函数注释'
+                ];
+
+                let response = `已检查文件: ${currentFile}\n\n发现 ${issues.length} 个建议:\n`;
+                issues.forEach((issue, i) => {
+                    response += `${i + 1}. ${issue}\n`;
+                });
+
+                addAIMessage('AI', response);
+            }, 500);
+        }
+
+        function optimizeCode() {
+            addAIMessage('你', '优化代码');
+
+            setTimeout(() => {
+                // Simulate AI optimization
+                const currentCode = files[currentFile];
+                let optimized = currentCode;
+
+                // Simple optimization example
+                if (currentFile === 'main.c' && currentCode.includes('delay')) {
+                    optimized = currentCode.replace(/delay\(/g, '// TODO: Replace with millis() - delay(');
+                    aiUpdatedFiles[currentFile] = optimized;
+                    addAIMessage('AI', '已优化代码，将阻塞延时替换为非阻塞实现建议。点击"对比视图"查看更改，点击"应用 AI 更改"来应用。');
+                } else {
+                    optimized = '// Optimized code\n' + currentCode;
+                    aiUpdatedFiles[currentFile] = optimized;
+                    addAIMessage('AI', '已优化代码，添加了注释和改进。点击"对比视图"查看更改。');
+                }
+            }, 500);
+        }
+
+        function addComments() {
+            addAIMessage('你', '添加注释');
+
+            setTimeout(() => {
+                const currentCode = files[currentFile];
+                const lines = currentCode.split('\n');
+                const commented = lines.map((line, i) => {
+                    if (line.includes('int main')) {
+                        return '// Main entry point\n' + line;
+                    } else if (line.includes('printf')) {
+                        return '    // Print greeting message\n' + line;
+                    }
+                    return line;
+                }).join('\n');
+
+                aiUpdatedFiles[currentFile] = commented;
+                addAIMessage('AI', '已为代码添加注释。点击"对比视图"查看更改。');
+            }, 500);
+        }
+
+        function generateCode() {
+            const prompt = document.getElementById('aiInput').value || '生成一个读取传感器数据的函数';
+            addAIMessage('你', `生成代码: ${prompt}`);
+
+            setTimeout(() => {
+                const generated = `
+// Generated function
+float readSensor() {
+    // Initialize sensor
+    sensor_init();
+
+    // Read value
+    float value = sensor_read();
+
+    // Validate and return
+    if (value >= 0 && value <= 100) {
+        return value;
+    }
+    return -1; // Error
+}
+
+`;
+                aiUpdatedFiles[currentFile] = files[currentFile] + '\n' + generated;
+                addAIMessage('AI', '已生成代码。点击"对比视图"查看新增代码。');
+                document.getElementById('aiInput').value = '';
+            }, 500);
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('aiInput');
+            const message = input.value.trim();
+
+            if (message) {
+                addAIMessage('你', message);
+                input.value = '';
+
+                setTimeout(() => {
+                    addAIMessage('AI', `收到你的问题: "${message}"。我会分析当前代码并提供建议。`);
+                }, 500);
+            }
+        }
+
+        function addAIMessage(sender, content) {
+            const messagesDiv = document.getElementById('aiMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'ai-message';
+
+            const avatar = sender === 'AI' ? 'AI' : '👤';
+            messageDiv.innerHTML = `
+                <div class="ai-message-header">
+                    <div class="ai-message-avatar">${avatar}</div>
+                    <strong>${sender}</strong>
+                </div>
+                <div class="ai-message-content">${content.replace(/\n/g, '<br>')}</div>
+            `;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Enter to send
+        document.getElementById('aiInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Close assistant
+        function closeAssistant() {
+            // 检查是否在iframe中
+            if (window.parent !== window) {
+                // 在iframe中，调用父窗口的关闭函数
+                if (typeof window.parent.closeCodeAssistant === 'function') {
+                    window.parent.closeCodeAssistant();
+                } else {
+                    // 如果父窗口没有关闭函数，尝试隐藏模态框
+                    const modal = window.parent.document.getElementById('codeAssistantModal');
+                    if (modal) {
+                        modal.classList.remove('active');
+                    }
+                }
+            } else {
+                // 直接打开的页面，返回上一页或关闭窗口
+                if (window.history.length > 1) {
+                    window.history.back();
+                } else {
+                    window.close();
+                }
+            }
+        }
+    </script>
+</body>
+</html>

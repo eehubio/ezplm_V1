@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EZPLM - 联系供应商</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', sans-serif;
+            background: #f4f4f4;
+            color: #3d4647;
+        }
+
+        /* 顶部导航栏 */
+        .top-bar {
+            background: white;
+            height: 80px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            color: #00890b;
+            cursor: pointer;
+        }
+        .top-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+        .top-nav-links a {
+            color: #3d4647;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .top-nav-links a:hover { color: #00890b; }
+        .top-bar-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 主布局 */
+        .main-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+
+        /* 返回按钮 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            color: #666;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 页面头部 */
+        .page-header {
+            background: linear-gradient(135deg, #00890b 0%, #00b96b 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 24px rgba(0, 137, 11, 0.2);
+        }
+        .header-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        .header-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* 布局 */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        /* 供应商信息卡片 */
+        .supplier-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            height: fit-content;
+        }
+        .supplier-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+            margin-bottom: 16px;
+        }
+        .supplier-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+            margin-bottom: 8px;
+        }
+        .supplier-type {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 20px;
+        }
+        .info-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .info-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #666;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .info-item:last-child {
+            margin-bottom: 0;
+        }
+        .info-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .info-text {
+            flex: 1;
+            color: #3d4647;
+            word-break: break-word;
+        }
+        .info-link {
+            color: #00890b;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .info-link:hover {
+            text-decoration: underline;
+        }
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .action-btn {
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            border: none;
+        }
+        .action-btn-primary {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+        }
+        .action-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+        .action-btn-secondary {
+            background: white;
+            color: #666;
+            border: 2px solid #e0e0e0;
+        }
+        .action-btn-secondary:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+
+        /* 沟通记录 */
+        .communication-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #3d4647;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab:hover {
+            background: #e8f5e9;
+            color: #00890b;
+        }
+        .tab.active {
+            background: #00890b;
+            color: white;
+            border-color: #00890b;
+        }
+
+        /* 消息列表 */
+        .message-list {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        .message-item {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+        }
+        .message-item.outgoing {
+            flex-direction: row-reverse;
+        }
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .message-item.outgoing .message-avatar {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+        }
+        .message-content {
+            flex: 1;
+            max-width: 70%;
+        }
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .message-item.outgoing .message-header {
+            flex-direction: row-reverse;
+        }
+        .message-sender {
+            font-size: 13px;
+            font-weight: 600;
+            color: #3d4647;
+        }
+        .message-time {
+            font-size: 12px;
+            color: #999;
+        }
+        .message-bubble {
+            background: #f5f5f5;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .message-item.outgoing .message-bubble {
+            background: #00890b;
+            color: white;
+        }
+
+        /* 发送消息 */
+        .message-input-area {
+            background: #f9f9f9;
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid #e0e0e0;
+        }
+        .message-input {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: none;
+            background: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+        .message-input:focus {
+            outline: 2px solid #00890b;
+        }
+        .message-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .message-tools {
+            display: flex;
+            gap: 12px;
+        }
+        .tool-btn {
+            background: white;
+            border: 2px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tool-btn:hover {
+            border-color: #00890b;
+            color: #00890b;
+        }
+        .send-btn {
+            background: linear-gradient(135deg, #00890b, #00b96b);
+            color: white;
+            border: none;
+            padding: 10px 32px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .send-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 137, 11, 0.3);
+        }
+
+        /* 历史记录 */
+        .history-list {
+            list-style: none;
+        }
+        .history-item {
+            padding: 16px;
+            border-left: 3px solid #e0e0e0;
+            margin-bottom: 16px;
+            background: #f9f9f9;
+            border-radius: 0 8px 8px 0;
+        }
+        .history-item.email {
+            border-left-color: #3498db;
+        }
+        .history-item.phone {
+            border-left-color: #00890b;
+        }
+        .history-item.meeting {
+            border-left-color: #f39c12;
+        }
+        .history-date {
+            font-size: 13px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+        .history-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #3d4647;
+            margin-bottom: 6px;
+        }
+        .history-desc {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+    
+        /* Responsive Grid Support */
+        @media (max-width: 768px) {
+            .features-grid,
+            .pricing-grid,
+            .use-cases-grid,
+            .benefits-container,
+            .footer-container {
+                grid-template-columns: 1fr !important;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+    
+        /* Responsive Typography */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 36px !important;
+            }
+
+            .section-header h2,
+            .benefits-content h2,
+            .cta h2 {
+                font-size: 32px !important;
+            }
+
+            .hero p {
+                font-size: 16px !important;
+            }
+
+            .section-header p,
+            .cta p {
+                font-size: 16px !important;
+            }
+
+            .nav-container {
+                padding: 0 20px !important;
+            }
+
+            .hero,
+            .features,
+            .benefits,
+            .pricing,
+            .use-cases,
+            .cta {
+                padding: 60px 20px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 28px !important;
+            }
+
+            .btn {
+                padding: 10px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .hero-actions {
+                flex-direction: column !important;
+                width: 100%;
+            }
+
+            .hero-actions .btn {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+            <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="logo" onclick="location.href='index.html'">EZPLM</div>
+        <div class="top-bar-right">
+            <div class="top-nav-links">
+                <a href="cloud-search.html">🌐 云端元器件库</a>
+                <a href="reference-designs.html">📚 参考设计库</a>
+                <a href="ai_coding_embedded.html">🤖 编程助手</a>
+                <a href="pcb-editor-styled.html">📐 PCB预布局</a>
+            </div>
+            <button style="background: none; border: none; cursor: pointer; font-size: 20px; position: relative;" onclick="location.href='notification-center.html'" title="消息">
+                🔔
+                <span style="position: absolute; top: -4px; right: -4px; background: #ff6b6b; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px;">15</span>
+            </button>
+            <div style="width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #00890b 0%, #00b30e 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; cursor: pointer;" onclick="location.href='profile.html'" title="账号">用</div>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    <div class="main-content">
+        <!-- 返回按钮 -->
+        <a href="procurement-detail.html?id=PO-2024-0048" class="back-btn">
+            ← 返回采购单详情
+        </a>
+
+        <!-- 页面头部 -->
+        <div class="page-header">
+            <div class="header-title">🏢 联系供应商</div>
+            <div class="header-subtitle">与供应商沟通采购事宜，查看历史沟通记录</div>
+        </div>
+
+        <div class="content-grid">
+            <!-- 左侧：供应商信息 -->
+            <div class="supplier-card">
+                <div class="supplier-logo">🏢</div>
+                <div class="supplier-name">深圳立创商城</div>
+                <div class="supplier-type">电子元器件供应商 · 已合作 3 年</div>
+
+                <div class="info-section">
+                    <div class="section-title">📞 联系方式</div>
+                    <div class="info-item">
+                        <div class="info-icon">📱</div>
+                        <div class="info-text">0755-83000000</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">✉️</div>
+                        <div class="info-text">
+                            <a href="mailto:service@lcsc.com" class="info-link">service@lcsc.com</a>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">💬</div>
+                        <div class="info-text">微信：lcsc_service</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">🌐</div>
+                        <div class="info-text">
+                            <a href="https://www.lcsc.com" target="_blank" class="info-link">www.lcsc.com</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="section-title">📍 公司地址</div>
+                    <div class="info-item">
+                        <div class="info-icon">🏢</div>
+                        <div class="info-text">广东省深圳市宝安区西乡街道立创工业园</div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="section-title">👤 主要联系人</div>
+                    <div class="info-item">
+                        <div class="info-icon">👨‍💼</div>
+                        <div class="info-text">
+                            <div style="font-weight: 600; margin-bottom: 4px;">王经理</div>
+                            <div style="font-size: 13px; color: #666;">销售经理 · 138****5678</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">👩‍💼</div>
+                        <div class="info-text">
+                            <div style="font-weight: 600; margin-bottom: 4px;">李小姐</div>
+                            <div style="font-size: 13px; color: #666;">客服专员 · 139****6789</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-section">
+                    <div class="section-title">⚡ 快捷操作</div>
+                    <div class="quick-actions">
+                        <button class="action-btn action-btn-primary" onclick="makeCall()">📞 拨打电话</button>
+                        <button class="action-btn action-btn-secondary" onclick="sendEmail()">✉️ 发送邮件</button>
+                        <button class="action-btn action-btn-secondary" onclick="viewOrders()">📋 查看订单历史</button>
+                        <button class="action-btn action-btn-secondary" onclick="viewContract()">📄 查看合同</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧：沟通记录 -->
+            <div class="communication-card">
+                <div class="card-header">
+                    <div class="card-title">💬 沟通记录</div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="switchTab(this, 'messages')">在线消息</div>
+                    <div class="tab" onclick="switchTab(this, 'history')">历史记录</div>
+                </div>
+
+                <!-- 在线消息 -->
+                <div id="messages-content">
+                    <div class="message-list">
+                        <div class="message-item">
+                            <div class="message-avatar">🏢</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">王经理 (立创商城)</span>
+                                    <span class="message-time">今天 14:30</span>
+                                </div>
+                                <div class="message-bubble">
+                                    您好！关于 PO-2024-0048 订单，所有物料已于昨天下午发出，预计后天送达。快递单号：SF1234567890，请注意查收。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="message-item outgoing">
+                            <div class="message-avatar">用</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">我</span>
+                                    <span class="message-time">今天 14:28</span>
+                                </div>
+                                <div class="message-bubble">
+                                    你好，请问 PO-2024-0048 订单什么时候能发货？我们这边比较急用。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="message-item">
+                            <div class="message-avatar">🏢</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">李小姐 (立创商城)</span>
+                                    <span class="message-time">昨天 16:45</span>
+                                </div>
+                                <div class="message-bubble">
+                                    您的订单已经全部备货完成，明天会安排发货，请耐心等待。如有任何问题，欢迎随时联系我们！
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="message-item outgoing">
+                            <div class="message-avatar">用</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">我</span>
+                                    <span class="message-time">昨天 15:20</span>
+                                </div>
+                                <div class="message-bubble">
+                                    订单中的 STM32F103C8T6 芯片能否加急备货？我们项目进度比较紧。
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="message-item">
+                            <div class="message-avatar">🏢</div>
+                            <div class="message-content">
+                                <div class="message-header">
+                                    <span class="message-sender">王经理 (立创商城)</span>
+                                    <span class="message-time">10月20日 10:00</span>
+                                </div>
+                                <div class="message-bubble">
+                                    感谢您的订单！我们已收到您的采购单 PO-2024-0048，正在安排备货，预计 2-3 个工作日内发货。
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="message-input-area">
+                        <textarea class="message-input" id="messageInput" placeholder="输入消息..."></textarea>
+                        <div class="message-actions">
+                            <div class="message-tools">
+                                <button class="tool-btn" onclick="attachFile()">📎 附件</button>
+                                <button class="tool-btn" onclick="insertEmoji()">😊 表情</button>
+                            </div>
+                            <button class="send-btn" onclick="sendMessage()">发送</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 历史记录 -->
+                <div id="history-content" style="display: none;">
+                    <ul class="history-list">
+                        <li class="history-item email">
+                            <div class="history-date">2024-10-18 15:30</div>
+                            <div class="history-title">📧 邮件沟通：关于批量采购价格咨询</div>
+                            <div class="history-desc">
+                                与王经理讨论了大批量采购的价格优惠方案，确认了 500+ 数量可享受 8 折优惠。
+                            </div>
+                        </li>
+                        <li class="history-item phone">
+                            <div class="history-date">2024-10-15 10:20</div>
+                            <div class="history-title">📞 电话沟通：订单交期确认</div>
+                            <div class="history-desc">
+                                致电确认上个月订单的交期，对方承诺会按时发货，并提供了物流跟踪信息。
+                            </div>
+                        </li>
+                        <li class="history-item meeting">
+                            <div class="history-date">2024-10-10 14:00</div>
+                            <div class="history-title">🤝 商务会议：年度采购合同签订</div>
+                            <div class="history-desc">
+                                与供应商在深圳总部签订了年度采购合同，确认了全年采购计划和价格体系。
+                            </div>
+                        </li>
+                        <li class="history-item email">
+                            <div class="history-date">2024-09-28 16:45</div>
+                            <div class="history-title">📧 邮件沟通：产品规格书索取</div>
+                            <div class="history-desc">
+                                索取了几款新到货芯片的详细规格书和应用手册，供应商及时提供了相关技术文档。
+                            </div>
+                        </li>
+                        <li class="history-item phone">
+                            <div class="history-date">2024-09-20 11:00</div>
+                            <div class="history-title">📞 电话沟通：物料质量问题反馈</div>
+                            <div class="history-desc">
+                                反馈了上批次货物中发现的少量不良品，供应商表示会尽快安排换货并加强质检。
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 切换标签页
+        function switchTab(element, type) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            element.classList.add('active');
+
+            if (type === 'messages') {
+                document.getElementById('messages-content').style.display = 'block';
+                document.getElementById('history-content').style.display = 'none';
+            } else {
+                document.getElementById('messages-content').style.display = 'none';
+                document.getElementById('history-content').style.display = 'block';
+            }
+        }
+
+        // 拨打电话
+        function makeCall() {
+            alert('📞 拨打电话\n\n联系电话：0755-83000000\n主要联系人：王经理 (138****5678)\n\n提示：您可以使用公司电话或手机拨打');
+        }
+
+        // 发送邮件
+        function sendEmail() {
+            window.open('mailto:service@lcsc.com?subject=关于采购单 PO-2024-0048&body=您好，');
+        }
+
+        // 查看订单历史
+        function viewOrders() {
+            alert('📋 订单历史\n\n该供应商历史订单数：28 单\n合作时间：2021年至今\n总采购金额：¥458,920\n平均交期：3-5 天');
+        }
+
+        // 查看合同
+        function viewContract() {
+            alert('📄 查看合同\n\n合同编号：CT-2024-001\n合同期限：2024-01-01 至 2024-12-31\n合同金额：年度采购协议\n合同状态：执行中');
+        }
+
+        // 发送消息
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+
+            if (!message) {
+                alert('❌ 请输入消息内容');
+                return;
+            }
+
+            // 创建新消息元素
+            const messageList = document.querySelector('.message-list');
+            const newMessage = document.createElement('div');
+            newMessage.className = 'message-item outgoing';
+            newMessage.innerHTML = `
+                <div class="message-avatar">用</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="message-sender">我</span>
+                        <span class="message-time">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})}</span>
+                    </div>
+                    <div class="message-bubble">${message}</div>
+                </div>
+            `;
+
+            messageList.appendChild(newMessage);
+            input.value = '';
+
+            // 滚动到底部
+            messageList.scrollTop = messageList.scrollHeight;
+
+            // 模拟回复
+            setTimeout(() => {
+                const reply = document.createElement('div');
+                reply.className = 'message-item';
+                reply.innerHTML = `
+                    <div class="message-avatar">🏢</div>
+                    <div class="message-content">
+                        <div class="message-header">
+                            <span class="message-sender">王经理 (立创商城)</span>
+                            <span class="message-time">${new Date().toLocaleTimeString('zh-CN', {hour: '2-digit', minute: '2-digit'})}</span>
+                        </div>
+                        <div class="message-bubble">
+                            收到您的消息，我们会尽快处理并回复您。感谢您的耐心等待！
+                `;
+                messageList.appendChild(reply);
+                messageList.scrollTop = messageList.scrollHeight;
+            }, 2000);
+        }
+
+        // 附加文件
+        function attachFile() {
+            alert('📎 附件功能\n\n支持上传文档、图片等文件\n最大支持 10MB');
+        }
+
+        // 插入表情
+        function insertEmoji() {
+            const emojis = ['😊', '👍', '🙏', '✅', '❓', '💯', '🎉', '📦'];
+            const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+            const input = document.getElementById('messageInput');
+            input.value += emoji;
+            input.focus();
+        }
+
+        // Enter 发送消息
+        document.getElementById('messageInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>
